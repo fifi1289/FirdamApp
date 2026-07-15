@@ -12,8 +12,8 @@ import {
 
 const faqs = [
   {
-    q: 'Is Firdam only about prayer times?',
-    a: 'No. Prayer Times is just one optional module. Firdam is a general life management platform — family, finance, travel, shopping, health, community, and learning each have their own module. Enable whichever ones fit your life.',
+    q: 'What is Firdam?',
+    a: 'Firdam is a modern life management platform. It brings together the areas that matter most — family, finance, travel, shopping, health, community, and more — into one calm, modular workspace. Each area is an independent module you can turn on or off.',
   },
   {
     q: 'Can I use Firdam without signing up?',

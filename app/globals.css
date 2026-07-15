@@ -2,97 +2,130 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────
+   FIRDAM BRAND COLOR SYSTEM
+   Extracted from the official Firdam logo.
+
+   Logo palette:
+     • Brand Dark  — #7A3B1E  (sienna, dominant F top)
+     • Brand Mid   — #A05830  (warm brown, mid F stroke)
+     • Brand Light — #C8916A  (sandy tan, accent block)
+     • Ink         — #1C1C1C  (wordmark near-black)
+   ───────────────────────────────────────────────────────────── */
+
 @layer base {
   :root {
-    --background: 150 20% 99%;
-    --foreground: 180 25% 9%;
+    /* Surface */
+    --background: 30 20% 98%;
+    --foreground: 20 15% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 180 25% 9%;
+    --card-foreground: 20 15% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 180 25% 9%;
+    --popover-foreground: 20 15% 10%;
 
-    --primary: 173 62% 40%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary — Brand Mid (#A05830) */
+    --primary: 22 58% 40%;
+    --primary-foreground: 30 60% 97%;
 
-    --secondary: 170 24% 95%;
-    --secondary-foreground: 180 30% 15%;
+    /* Secondary — warm sand tint */
+    --secondary: 28 35% 93%;
+    --secondary-foreground: 22 40% 20%;
 
-    --muted: 172 18% 96%;
-    --muted-foreground: 178 10% 42%;
+    /* Muted */
+    --muted: 28 20% 95%;
+    --muted-foreground: 22 12% 45%;
 
-    --accent: 168 40% 92%;
-    --accent-foreground: 178 40% 16%;
+    /* Accent — Brand Light (#C8916A) tint */
+    --accent: 22 50% 90%;
+    --accent-foreground: 22 50% 18%;
 
+    /* Semantic */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 56% 40%;
+    --success: 152 56% 38%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    --warning: 38 90% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --info: 205 80% 50%;
+    --info: 205 78% 48%;
     --info-foreground: 0 0% 100%;
 
-    --border: 176 16% 90%;
-    --input: 176 16% 88%;
-    --ring: 173 62% 40%;
+    /* Chrome */
+    --border: 28 20% 88%;
+    --input: 28 20% 86%;
+    --ring: 22 58% 40%;
 
-    --chart-1: 173 62% 40%;
-    --chart-2: 152 56% 45%;
-    --chart-3: 205 80% 55%;
-    --chart-4: 38 92% 55%;
-    --chart-5: 0 72% 55%;
+    /* Charts */
+    --chart-1: 22 58% 40%;
+    --chart-2: 15 52% 30%;
+    --chart-3: 30 65% 60%;
+    --chart-4: 38 90% 52%;
+    --chart-5: 0 60% 55%;
 
     --radius: 0.625rem;
+
+    /* Raw brand tokens (use in inline styles / arbitrary values) */
+    --brand-dark: #7a3b1e;
+    --brand-mid: #a05830;
+    --brand-light: #c8916a;
+    --brand-ink: #1c1c1c;
   }
 
   .dark {
-    --background: 184 30% 6%;
-    --foreground: 170 20% 96%;
+    /* Surface */
+    --background: 20 18% 7%;
+    --foreground: 28 25% 93%;
 
-    --card: 186 28% 9%;
-    --card-foreground: 170 20% 96%;
+    --card: 20 16% 10%;
+    --card-foreground: 28 25% 93%;
 
-    --popover: 186 28% 9%;
-    --popover-foreground: 170 20% 96%;
+    --popover: 20 16% 10%;
+    --popover-foreground: 28 25% 93%;
 
-    --primary: 173 58% 45%;
-    --primary-foreground: 184 40% 8%;
+    /* Primary — slightly lighter for contrast on dark */
+    --primary: 22 58% 52%;
+    --primary-foreground: 20 20% 8%;
 
-    --secondary: 184 20% 14%;
-    --secondary-foreground: 170 20% 90%;
+    /* Secondary */
+    --secondary: 22 18% 16%;
+    --secondary-foreground: 28 30% 88%;
 
-    --muted: 184 18% 15%;
-    --muted-foreground: 172 12% 62%;
+    /* Muted */
+    --muted: 22 14% 15%;
+    --muted-foreground: 26 12% 60%;
 
-    --accent: 178 26% 18%;
-    --accent-foreground: 170 24% 92%;
+    /* Accent */
+    --accent: 22 28% 20%;
+    --accent-foreground: 28 40% 90%;
 
-    --destructive: 0 62% 45%;
+    /* Semantic */
+    --destructive: 0 62% 44%;
     --destructive-foreground: 0 0% 98%;
 
     --success: 152 50% 42%;
     --success-foreground: 152 60% 8%;
 
-    --warning: 38 90% 55%;
+    --warning: 38 88% 56%;
     --warning-foreground: 38 80% 10%;
 
-    --info: 205 72% 56%;
-    --info-foreground: 205 70% 10%;
+    --info: 205 70% 56%;
+    --info-foreground: 205 68% 10%;
 
-    --border: 184 18% 18%;
-    --input: 184 18% 20%;
-    --ring: 173 58% 45%;
+    /* Chrome */
+    --border: 22 16% 20%;
+    --input: 22 16% 22%;
+    --ring: 22 58% 52%;
 
-    --chart-1: 173 58% 50%;
-    --chart-2: 152 50% 48%;
-    --chart-3: 205 72% 58%;
-    --chart-4: 38 90% 58%;
-    --chart-5: 0 62% 55%;
+    /* Charts */
+    --chart-1: 22 58% 56%;
+    --chart-2: 15 52% 44%;
+    --chart-3: 30 65% 62%;
+    --chart-4: 38 88% 58%;
+    --chart-5: 0 60% 58%;
   }
 }
 
@@ -127,23 +160,13 @@
 }
 
 @keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+  100% { transform: translateX(100%); }
 }
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
 }
 @keyframes aurora {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
 }

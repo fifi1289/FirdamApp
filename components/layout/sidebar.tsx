@@ -115,9 +115,9 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-border p-4">
-        <div className="rounded-xl bg-gradient-to-br from-primary/10 to-emerald-500/10 p-3">
+        <div className="rounded-xl bg-gradient-to-br from-primary/10 to-brand-light/10 p-3">
           <p className="text-sm font-medium text-foreground">
-            Firdam is growing
+            Everything that matters
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             New modules land every month.

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" fill="none">
+  <!--
+    Firdam official "F" mark — three tones:
+    Dark   #7B4325  outer F
+    Mid    #A0622E  inner F
+    Sandy  #C99A72  accent block
+  -->
+
+  <!-- ── OUTER F (dark sienna) ── -->
+  <!-- Vertical left stem -->
+  <rect x="26" y="22" width="34" height="172" rx="8" fill="#7B4325"/>
+  <!-- Top horizontal bar with rounded right terminal -->
+  <path
+    d="M26 22 L26 62 L60 62 L60 34
+       L116 34
+       Q154 34 154 62
+       Q154 92 116 94
+       L60 94 L60 62"
+    fill="#7B4325"
+    stroke="none"
+  />
+  <!-- Fill the cap region cleanly -->
+  <path
+    d="M26 22 L122 22
+       Q166 22 166 62
+       Q166 102 122 104
+       L60 104
+       L60 62
+       L120 62
+       Q132 62 132 52
+       Q132 42 120 42
+       L60 42
+       L60 34
+       L26 34
+       Z"
+    fill="#7B4325"
+  />
+
+  <!-- ── INNER F (medium warm brown) ── -->
+  <!-- Starts at mid-height, same left alignment, inset -->
+  <path
+    d="M60 104
+       L60 134
+       L90 134
+       Q124 134 124 160
+       Q124 186 90 188
+       L60 188
+       L60 168
+       L88 168
+       Q98 168 98 160
+       Q98 152 88 152
+       L60 152
+       L60 134
+       L60 104
+       Z"
+    fill="#A0622E"
+  />
+
+  <!-- ── SANDY ACCENT BLOCK ── -->
+  <rect x="60" y="192" width="36" height="44" rx="8" fill="#C99A72"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Firdam F mark simplified for favicon -->
+  <!-- Outer F — dark sienna -->
+  <rect x="4" y="3" width="5" height="26" rx="1.5" fill="#7B4325"/>
+  <path d="M4 3 H20 Q27 3 27 9 Q27 15 20 15.5 L9 15.5 V11 H19 Q22 11 22 9 Q22 7 19 7 H9 V3 Z" fill="#7B4325"/>
+  <!-- Inner mid-F — warm brown -->
+  <path d="M9 15.5 H17 Q23 15.5 23 21 Q23 26 17 26.5 L9 26.5 V23 H16 Q18.5 23 18.5 21 Q18.5 19 16 19 H9 Z" fill="#A0622E"/>
+  <!-- Sandy block -->
+  <rect x="9" y="27" width="6" height="2.5" rx="1" fill="#C99A72"/>
+</svg>

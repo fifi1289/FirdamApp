@@ -12,36 +12,61 @@ const display = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://firdam.app'),
   title: {
-    default: 'Firdam — Modular Life Management',
+    default: 'Firdam — Everything that matters. One place.',
     template: '%s · Firdam',
   },
   description:
-    'Firdam is a modern modular life management platform. Organize prayer times, family, finance, travel, shopping, health, and community in one calm, beautiful place.',
+    'Firdam is a modern life management platform. Organize family, finance, travel, shopping, health, community, and more — everything that matters, in one place.',
+  applicationName: 'Firdam',
   keywords: [
+    'Firdam',
     'life management',
     'productivity',
-    'prayer times',
-    'finance',
     'family',
-    'modular app',
+    'finance',
+    'travel',
+    'shopping',
+    'health',
+    'community',
   ],
   authors: [{ name: 'Firdam' }],
+  creator: 'Firdam',
+  publisher: 'Firdam',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0b1518' },
+    { media: '(prefers-color-scheme: light)', color: '#FBF7F4' },
+    { media: '(prefers-color-scheme: dark)', color: '#14100D' },
   ],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/apple-icon.svg', type: 'image/svg+xml' },
+    ],
+  },
   openGraph: {
-    title: 'Firdam — Modular Life Management',
-    description:
-      'Organize every part of your life in one calm, beautiful place.',
     type: 'website',
+    siteName: 'Firdam',
+    title: 'Firdam — Everything that matters. One place.',
+    description:
+      'Firdam is a modern life management platform. Organize every part of your life in one calm, beautiful place.',
+    images: [
+      {
+        url: '/opengraph-image.svg',
+        width: 1200,
+        height: 630,
+        alt: 'Firdam — Everything that matters. One place.',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Firdam — Modular Life Management',
+    title: 'Firdam — Everything that matters. One place.',
     description:
-      'Organize every part of your life in one calm, beautiful place.',
+      'A modern life management platform. Organize everything that matters in one calm, beautiful place.',
+    images: ['/opengraph-image.svg'],
   },
 };
 

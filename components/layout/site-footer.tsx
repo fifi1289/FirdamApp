@@ -40,8 +40,8 @@ export function SiteFooter() {
           <div className="col-span-2">
             <Logo />
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
-              The modular life management platform. Organize every part of your
-              life in one calm, beautiful place.
+              A modern life management platform. Everything that matters, in one
+              calm, beautiful place.
             </p>
             <div className="mt-5 flex items-center gap-3">
               {[Github, Twitter, Linkedin].map((Icon, i) => (
@@ -83,7 +83,7 @@ export function SiteFooter() {
             © {new Date().getFullYear()} Firdam. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
-            Crafted for a more organized life.
+            Everything that matters. One place.
           </p>
         </div>
       </div>

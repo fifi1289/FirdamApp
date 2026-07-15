@@ -86,6 +86,13 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        /* Firdam raw brand tokens — use when you need the exact logo colours */
+        brand: {
+          dark: '#7a3b1e',
+          mid: '#a05830',
+          light: '#c8916a',
+          ink: '#1c1c1c',
+        },
       },
       keyframes: {
         'accordion-down': {

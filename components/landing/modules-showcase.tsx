@@ -17,7 +17,7 @@ export function ModulesShowcase() {
             Turn on the parts of life you care about
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
-            Every module is independent and optional. Add what you need today,
+            Every module is independent and optional. Add what you need today —
             expand when life grows.
           </p>
         </div>

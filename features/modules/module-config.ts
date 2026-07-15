@@ -29,7 +29,7 @@ export const lifeModules: LifeModule[] = [
     description:
       'Track daily prayer schedules, set reminders, and stay consistent with your spiritual routine.',
     status: 'active',
-    accent: 'from-teal-500 to-emerald-500',
+    accent: 'from-brand-dark to-brand-mid',
     icon: 'moon',
     href: '/dashboard/prayer-times',
   },
@@ -39,7 +39,7 @@ export const lifeModules: LifeModule[] = [
     description:
       'Manage family events, milestones, and shared calendars to keep everyone in sync.',
     status: 'active',
-    accent: 'from-rose-400 to-orange-400',
+    accent: 'from-brand-dark to-brand-light',
     icon: 'users',
     href: '/dashboard/family',
   },
@@ -49,7 +49,7 @@ export const lifeModules: LifeModule[] = [
     description:
       'Budget, track expenses, and visualize your financial goals with clean insights.',
     status: 'active',
-    accent: 'from-emerald-500 to-green-600',
+    accent: 'from-brand-mid to-brand-light',
     icon: 'wallet',
     href: '/dashboard/finance',
   },
@@ -59,7 +59,7 @@ export const lifeModules: LifeModule[] = [
     description:
       'Plan trips, save itineraries, and keep your adventures organized in one place.',
     status: 'active',
-    accent: 'from-sky-500 to-cyan-500',
+    accent: 'from-brand-mid to-brand-light',
     icon: 'plane',
     href: '/dashboard/travel',
   },
@@ -69,7 +69,7 @@ export const lifeModules: LifeModule[] = [
     description:
       'Build smart lists, compare prices, and never forget the essentials again.',
     status: 'active',
-    accent: 'from-amber-400 to-yellow-500',
+    accent: 'from-brand-light to-brand-mid',
     icon: 'shopping-cart',
     href: '/dashboard/shopping',
   },
@@ -79,7 +79,7 @@ export const lifeModules: LifeModule[] = [
     description:
       'Log workouts, monitor habits, and keep your wellbeing front of mind.',
     status: 'active',
-    accent: 'from-red-400 to-rose-500',
+    accent: 'from-brand-dark to-brand-mid',
     icon: 'heart-pulse',
     href: '/dashboard/health',
   },
@@ -89,7 +89,7 @@ export const lifeModules: LifeModule[] = [
     description:
       'Connect with your community, share events, and stay engaged with what matters.',
     status: 'beta',
-    accent: 'from-violet-400 to-fuchsia-400',
+    accent: 'from-brand-mid to-brand-light',
     icon: 'handshake',
     href: '/dashboard/community',
   },
@@ -99,7 +99,7 @@ export const lifeModules: LifeModule[] = [
     description:
       'Set learning goals, track progress, and build knowledge one step at a time.',
     status: 'beta',
-    accent: 'from-indigo-400 to-blue-500',
+    accent: 'from-brand-dark to-brand-mid',
     icon: 'book-open',
     href: '/dashboard/learning',
   },

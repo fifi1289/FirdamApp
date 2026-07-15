@@ -12,7 +12,7 @@ const highlights = [
 
 export function AuthAside() {
   return (
-    <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-primary to-emerald-600 p-12 text-white lg:flex">
+    <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-dark via-brand-mid to-brand-light p-12 text-white lg:flex">
       <div
         className="pointer-events-none absolute inset-0 opacity-20"
         style={{
@@ -22,13 +22,17 @@ export function AuthAside() {
       />
 
       <div className="relative">
-        <Logo href="/" className="text-white" />
+        <Logo href="/" variant="light" />
       </div>
 
       <div className="relative max-w-md">
         <h2 className="font-display text-3xl font-bold leading-tight">
-          One calm place for every part of your life.
+          Everything that matters. One place.
         </h2>
+        <p className="mt-4 text-white/80">
+          Firdam is a modern life management platform — bring every part of
+          your life into one calm, modular workspace.
+        </p>
         <ul className="mt-8 space-y-4">
           {highlights.map((h) => (
             <li key={h} className="flex items-center gap-3 text-white/90">
@@ -42,7 +46,7 @@ export function AuthAside() {
       </div>
 
       <div className="relative text-sm text-white/70">
-        © {new Date().getFullYear()} Firdam. Crafted for a more organized life.
+        © {new Date().getFullYear()} Firdam. Everything that matters. One place.
       </div>
     </aside>
   );

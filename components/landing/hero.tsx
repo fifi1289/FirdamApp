@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ArrowRight, Sparkles, Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 export function Hero() {
   return (
@@ -24,21 +23,21 @@ export function Hero() {
             className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-1.5 text-sm font-medium text-muted-foreground backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            Introducing Firdam — your life, modular
+            Introducing Firdam — a modern life management platform
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
 
           <h1 className="mt-6 text-balance font-display text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-            One calm place for{' '}
-            <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-              every part of life
+            Everything that matters.{' '}
+            <span className="bg-gradient-to-r from-primary to-brand-light bg-clip-text text-transparent">
+              One place.
             </span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-balance text-base text-muted-foreground md:text-lg">
-            Firdam brings your prayer times, family, finance, travel, shopping,
-            health, and community together — modular by design, so you only turn
-            on what you need.
+            Firdam is a modern life management platform. Bring your family,
+            finance, travel, shopping, health, and community together — modular
+            by design, so you only turn on what you need.
           </p>
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -71,14 +70,14 @@ export function Hero() {
             <div className="rounded-xl border border-border/60 bg-background p-6 md:p-10">
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {[
-                  { label: 'Prayer Times', tone: 'from-teal-500 to-emerald-500' },
-                  { label: 'Finance', tone: 'from-emerald-500 to-green-600' },
-                  { label: 'Family', tone: 'from-rose-400 to-orange-400' },
-                  { label: 'Travel', tone: 'from-sky-500 to-cyan-500' },
-                  { label: 'Shopping', tone: 'from-amber-400 to-yellow-500' },
-                  { label: 'Health', tone: 'from-red-400 to-rose-500' },
-                  { label: 'Community', tone: 'from-violet-400 to-fuchsia-400' },
-                  { label: 'Learning', tone: 'from-indigo-400 to-blue-500' },
+                  { label: 'Prayer Times', tone: 'from-brand-dark to-brand-mid' },
+                  { label: 'Finance', tone: 'from-brand-mid to-brand-light' },
+                  { label: 'Family', tone: 'from-brand-dark to-brand-light' },
+                  { label: 'Travel', tone: 'from-brand-mid to-brand-light' },
+                  { label: 'Shopping', tone: 'from-brand-light to-brand-mid' },
+                  { label: 'Health', tone: 'from-brand-dark to-brand-mid' },
+                  { label: 'Community', tone: 'from-brand-mid to-brand-light' },
+                  { label: 'Learning', tone: 'from-brand-dark to-brand-mid' },
                 ].map((m) => (
                   <div
                     key={m.label}

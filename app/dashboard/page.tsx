@@ -18,8 +18,8 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Welcome back"
-        description="Here's a calm overview of everything happening across your life modules."
+        title="Welcome to Firdam"
+        description="A calm overview of everything that matters across your life modules."
       >
         <Button variant="outline" size="sm">
           <Users className="mr-2 h-4 w-4" />

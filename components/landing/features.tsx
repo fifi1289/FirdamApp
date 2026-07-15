@@ -18,7 +18,7 @@ const features = [
     icon: Bell,
     title: 'Smart reminders',
     description:
-      'Set gentle, context-aware reminders across modules so you never miss a prayer, a bill, or a birthday.',
+      'Set gentle, context-aware reminders across modules so you never miss a bill, a birthday, or anything that matters.',
   },
   {
     icon: ShieldCheck,

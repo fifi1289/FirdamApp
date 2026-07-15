@@ -18,8 +18,8 @@ interface LogoProps {
  * Uses /images/logo.png — the uploaded brand asset — without modification.
  */
 export function Logo({ className, href = '/', height = 64, noLink = false }: LogoProps) {
-  /* The source image is 1254×1254 (square). For a given height we derive
-     the rendered width to keep the exact aspect ratio (1:1). */
+  /* The source image is 1024×1024 (square, transparent RGBA). For a given
+     height we derive the rendered width to keep the exact aspect ratio (1:1). */
   const renderedWidth = height;
 
   const img = (

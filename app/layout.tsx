@@ -54,9 +54,9 @@ export const metadata: Metadata = {
       'Firdam is a modern life management platform. Organize every part of your life in one calm, beautiful place.',
     images: [
       {
-        url: '/opengraph-image.svg',
-        width: 1200,
-        height: 630,
+        url: '/images/logo.png',
+        width: 1024,
+        height: 1024,
         alt: 'Firdam — Everything that matters. One place.',
       },
     ],
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     title: 'Firdam — Everything that matters. One place.',
     description:
       'A modern life management platform. Organize everything that matters in one calm, beautiful place.',
-    images: ['/opengraph-image.svg'],
+    images: ['/images/logo.png'],
   },
 };
 

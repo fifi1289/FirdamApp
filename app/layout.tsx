@@ -40,10 +40,10 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/firdam-logo.png', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-icon.svg', type: 'image/svg+xml' },
+      { url: '/firdam-logo.png', type: 'image/png' },
     ],
   },
   openGraph: {

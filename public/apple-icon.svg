@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
-  <rect width="180" height="180" rx="40" fill="#FBF7F4"/>
-  <g transform="translate(40,22) scale(0.85)">
-    <path d="M 28 20 L 28 220 Q 28 228 36 228 L 56 228 Q 64 228 64 220 L 64 108 L 120 108 Q 168 108 168 62 Q 168 18 120 18 L 36 18 Q 28 18 28 20 Z M 64 44 L 116 44 Q 138 44 138 62 Q 138 80 116 82 L 64 82 Z" fill="#7B4325" fillRule="evenodd"/>
-    <path d="M 64 108 L 64 196 Q 64 204 72 204 L 90 204 Q 98 204 98 196 L 98 172 L 106 172 Q 140 172 140 148 Q 140 124 106 124 L 98 124 L 98 108 Z M 98 136 L 108 136 Q 122 136 122 148 Q 122 160 108 160 L 98 160 Z" fill="#A0622E" fillRule="evenodd"/>
-    <rect x="64" y="210" width="34" height="18" rx="6" fill="#C99A72"/>
-  </g>
-</svg>

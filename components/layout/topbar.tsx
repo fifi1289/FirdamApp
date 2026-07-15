@@ -44,7 +44,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       </Button>
 
       <div className="md:hidden">
-        <Logo href="/dashboard" showWordmark={false} />
+        <Logo href="/dashboard" height={34} />
       </div>
 
       <form

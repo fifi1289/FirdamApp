@@ -22,7 +22,9 @@ export function AuthAside() {
       />
 
       <div className="relative">
-        <Logo href="/" variant="light" />
+        <span className="inline-flex items-center rounded-lg bg-white/95 px-3 py-1.5 shadow-sm">
+          <Logo href="/" noLink height={40} />
+        </span>
       </div>
 
       <div className="relative max-w-md">
@@ -70,7 +72,7 @@ export function AuthShell({ children, title, description }: AuthShellProps) {
             className="lg:hidden"
             aria-label="Back to home"
           >
-            <Logo showWordmark={false} />
+            <Logo noLink height={34} />
           </Link>
           <div className="ml-auto">
             <ThemeToggle />

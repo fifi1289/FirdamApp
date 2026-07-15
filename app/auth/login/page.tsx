@@ -1,23 +1,63 @@
+'use client';
+
+import * as React from 'react';
 import Link from 'next/link';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { AuthShell } from '@/components/auth/auth-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-
-export const metadata = {
-  title: 'Sign in',
-};
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { signIn, getAuthErrorMessage } from '@/lib/auth/auth-service';
+import { emailSchema } from '@/lib/auth/validation';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [errors, setErrors] = React.useState<{ email?: string; password?: string }>({});
+  const [loading, setLoading] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      setErrors({ email: emailResult.error.issues[0].message });
+      return;
+    }
+    if (!password) {
+      setErrors({ password: 'Password is required.' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      await signIn(supabase, email, password);
+      const redirect = searchParams.get('redirect') ?? '/dashboard';
+      router.push(redirect);
+      router.refresh();
+    } catch (error) {
+      toast.error(getAuthErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthShell
       title="Welcome back"
       description="Sign in to your Firdam account to continue."
     >
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <div className="relative">
@@ -29,15 +69,21 @@ export default function LoginPage() {
               className="pl-9"
               autoComplete="email"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={!!errors.email}
             />
           </div>
+          {errors.email && (
+            <p className="text-xs text-destructive">{errors.email}</p>
+          )}
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
             <Link
-              href="#"
+              href="/auth/forgot-password"
               className="text-xs font-medium text-primary hover:underline"
             >
               Forgot password?
@@ -52,13 +98,28 @@ export default function LoginPage() {
               className="pl-9"
               autoComplete="current-password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={!!errors.password}
             />
           </div>
+          {errors.password && (
+            <p className="text-xs text-destructive">{errors.password}</p>
+          )}
         </div>
 
-        <Button type="submit" className="w-full" size="lg">
-          Sign in
-          <ArrowRight className="ml-2 h-4 w-4" />
+        <Button type="submit" className="w-full" size="lg" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing in…
+            </>
+          ) : (
+            <>
+              Sign in
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </>
+          )}
         </Button>
       </form>
 
@@ -82,11 +143,6 @@ export default function LoginPage() {
         >
           Create one
         </Link>
-      </p>
-
-      <p className="mt-4 rounded-lg bg-muted/40 p-3 text-center text-xs text-muted-foreground">
-        Auth business logic is intentionally not wired yet. This is a UI
-        placeholder for the next phase.
       </p>
     </AuthShell>
   );

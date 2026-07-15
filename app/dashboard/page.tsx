@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { ModuleCard } from '@/features/modules/module-card';
 import { lifeModules } from '@/features/modules/module-config';
+import { requireAuth } from '@/lib/auth/require-auth';
 
 const stats = [
   { label: 'Active modules', value: '6', icon: Plus, delta: '+2 this month' },
@@ -14,7 +15,9 @@ const stats = [
   { label: 'Wellbeing streak', value: '12 days', icon: HeartPulse, delta: '+3 days', trend: 'up' as const },
 ];
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  await requireAuth();
+
   return (
     <AppShell>
       <PageHeader

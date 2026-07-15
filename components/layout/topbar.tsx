@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Logo } from '@/components/brand/logo';
+import { useAuth } from '@/components/auth/auth-provider';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -30,6 +31,30 @@ interface TopbarProps {
 
 export function Topbar({ onMenuClick }: TopbarProps) {
   const router = useRouter();
+  const { user, logout } = useAuth();
+  const [signingOut, setSigningOut] = React.useState(false);
+
+  const displayName =
+    (user?.user_metadata?.first_name as string | undefined) ||
+    user?.email?.split('@')[0] ||
+    'Account';
+  const initials = String(displayName)
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  const handleLogout = async () => {
+    setSigningOut(true);
+    try {
+      await logout();
+      router.push('/auth/login');
+      router.refresh();
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md md:px-6">
@@ -73,7 +98,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
               <Avatar className="h-8 w-8 border border-border">
                 <AvatarImage alt="" />
                 <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                  F
+                  {initials}
                 </AvatarFallback>
               </Avatar>
             </button>
@@ -81,9 +106,9 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">Guest user</span>
+                <span className="text-sm font-medium">{displayName}</span>
                 <span className="text-xs font-normal text-muted-foreground">
-                  Not signed in
+                  {user?.email ?? ''}
                 </span>
               </div>
             </DropdownMenuLabel>
@@ -95,8 +120,8 @@ export function Topbar({ onMenuClick }: TopbarProps) {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push('/auth/login')}>
-              Sign in
+            <DropdownMenuItem onClick={handleLogout} disabled={signingOut}>
+              {signingOut ? 'Signing out…' : 'Sign out'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

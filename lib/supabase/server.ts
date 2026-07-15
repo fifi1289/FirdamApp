@@ -1,8 +1,14 @@
 import { cookies } from 'next/headers';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 
 import type { Database } from '@/types/database';
 
+/**
+ * Server Supabase client for use inside Server Components, Route Handlers,
+ * and Server Actions. Syncs the auth session with the request cookies so
+ * the user's session is available server-side and refresh tokens are
+ * persisted back to the response cookies.
+ */
 export function createSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -15,14 +21,16 @@ export function createSupabaseServerClient() {
 
   const cookieStore = cookies();
 
-  return createClient<Database>(url, anonKey, {
-    auth: { persistSession: false },
-    global: {
-      headers: {
-        Cookie: cookieStore
-          .getAll()
-          .map((c) => `${c.name}=${c.value}`)
-          .join('; '),
+  return createServerClient<Database>(url, anonKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value;
+      },
+      set(name: string, value: string, options: Record<string, unknown>) {
+        cookieStore.set(name, value, options);
+      },
+      remove(name: string, options: Record<string, unknown>) {
+        cookieStore.set(name, '', { ...options, maxAge: 0 });
       },
     },
   });

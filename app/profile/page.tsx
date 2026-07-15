@@ -7,18 +7,31 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { requireAuth } from '@/lib/auth/require-auth';
 
 export const metadata = {
   title: 'Profile',
 };
 
-const details = [
-  { icon: Mail, label: 'Email', value: 'Not connected yet' },
-  { icon: Calendar, label: 'Member since', value: 'July 2026' },
-  { icon: MapPin, label: 'Location', value: 'Not set' },
-];
+export default async function ProfilePage() {
+  const { profile } = await requireAuth();
 
-export default function ProfilePage() {
+  const displayName =
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') ||
+    'Firdam User';
+  const initials = displayName
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  const details = [
+    { icon: Mail, label: 'Email', value: profile?.email ?? 'Not connected yet' },
+    { icon: Calendar, label: 'Member since', value: profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Not available' },
+    { icon: MapPin, label: 'Location', value: 'Not set' },
+  ];
+
   return (
     <AppShell>
       <PageHeader
@@ -34,13 +47,13 @@ export default function ProfilePage() {
           <CardContent className="flex flex-col items-center p-6 text-center">
             <Avatar className="h-24 w-24 border border-border">
               <AvatarFallback className="bg-primary/10 text-2xl font-semibold text-primary">
-                F
+                {initials}
               </AvatarFallback>
             </Avatar>
             <h2 className="mt-4 text-lg font-semibold text-foreground">
-              Firdam User
+              {displayName}
             </h2>
-            <p className="text-sm text-muted-foreground">Guest account</p>
+            <p className="text-sm text-muted-foreground">{profile?.email}</p>
             <Button variant="outline" size="sm" className="mt-4 w-full">
               <User className="mr-2 h-4 w-4" />
               Change avatar

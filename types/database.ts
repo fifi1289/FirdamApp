@@ -1,7 +1,6 @@
 /**
  * Supabase database type definitions.
  *
- * Generated from the database schema with `supabase gen types typescript`.
  * Extend this as tables are added. Keeping it in one place lets every
  * Supabase client (browser / server / admin) share strong typing.
  */
@@ -11,23 +10,29 @@ export type Database = {
       profiles: {
         Row: {
           id: string;
-          full_name: string | null;
+          first_name: string | null;
+          last_name: string | null;
+          email: string;
           avatar_url: string | null;
           created_at: string;
-          updated_at: string | null;
+          updated_at: string;
         };
         Insert: {
           id: string;
-          full_name?: string | null;
+          first_name?: string | null;
+          last_name?: string | null;
+          email: string;
           avatar_url?: string | null;
           created_at?: string;
-          updated_at?: string | null;
+          updated_at?: string;
         };
         Update: {
           id?: string;
-          full_name?: string | null;
+          first_name?: string | null;
+          last_name?: string | null;
+          email?: string;
           avatar_url?: string | null;
-          updated_at?: string | null;
+          updated_at?: string;
         };
       };
     };
@@ -36,3 +41,5 @@ export type Database = {
     Enums: Record<never, never>;
   };
 };
+
+export type Profile = Database['public']['Tables']['profiles']['Row'];

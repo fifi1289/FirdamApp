@@ -6,8 +6,9 @@ import type { Profile } from '@/types/database';
 /**
  * Server-side route guard for protected pages.
  *
- * Returns the authenticated user's profile if they have a valid session.
- * Redirects to /auth/login (preserving the destination) otherwise.
+ * Validates the session server-side via `getUser()` (which revalidates the
+ * access token against the Supabase Auth server) and returns the user's
+ * profile. Redirects to /auth/login if there is no valid session.
  *
  * Use at the top of a Server Component page:
  *   const { profile } = await requireAuth();
@@ -16,10 +17,10 @@ export async function requireAuth(): Promise<{ profile: Profile | null }> {
   const supabase = createSupabaseServerClient();
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+  if (!user) {
     redirect('/auth/login');
   }
 
@@ -27,7 +28,7 @@ export async function requireAuth(): Promise<{ profile: Profile | null }> {
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .maybeSingle();
 
   return { profile };

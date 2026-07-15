@@ -4,10 +4,11 @@ import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/database';
 
 /**
- * Server Supabase client for use inside Server Components, Route Handlers,
- * and Server Actions. Syncs the auth session with the request cookies so
- * the user's session is available server-side and refresh tokens are
- * persisted back to the response cookies.
+ * Server Supabase client for Server Components, Route Handlers, and Server
+ * Actions. Uses the official `getAll` / `setAll` cookie strategy so token
+ * refreshes are written back to the response cookies correctly.
+ *
+ * Always create a new client per request — never share across requests.
  */
 export function createSupabaseServerClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,14 +24,13 @@ export function createSupabaseServerClient() {
 
   return createServerClient<Database>(url, anonKey, {
     cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value;
+      getAll() {
+        return cookieStore.getAll();
       },
-      set(name: string, value: string, options: Record<string, unknown>) {
-        cookieStore.set(name, value, options);
-      },
-      remove(name: string, options: Record<string, unknown>) {
-        cookieStore.set(name, '', { ...options, maxAge: 0 });
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          cookieStore.set(name, value, options);
+        });
       },
     },
   });

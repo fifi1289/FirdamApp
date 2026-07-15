@@ -26,39 +26,46 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
+        getAll() {
+          return request.cookies.getAll();
         },
-        set(name: string, value: string, options: Record<string, unknown>) {
-          request.cookies.set(name, value);
-          response.cookies.set(name, value, options);
-        },
-        remove(name: string, options: Record<string, unknown>) {
-          request.cookies.set(name, '');
-          response.cookies.set(name, '', { ...options, maxAge: 0 });
+        setAll(cookiesToSet, headers) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
+          // Anti-caching headers required by @supabase/ssr so refreshed
+          // session cookies are never served to a different user by a CDN
+          // or reverse proxy.
+          Object.entries(headers).forEach(([key, value]) => {
+            response.headers.set(key, value);
+          });
         },
       },
     }
   );
 
-  // Refresh the session on every matched request. This also reads the
-  // current session so we can guard routes without an extra round-trip.
+  // Validate the user server-side. getUser() revalidates the access token
+  // against the Supabase Auth server on every call — do not rely on
+  // getSession() for authorization decisions in middleware.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const isProtected = PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const isProtected = PROTECTED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`)
+  );
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
 
   // Unauthenticated → redirect to login, preserving the intended destination.
-  if (isProtected && !session) {
+  if (isProtected && !user) {
     const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // Already signed in → don't show login/register/forgot-password again.
-  if (isAuthRoute && session) {
+  if (isAuthRoute && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -66,7 +73,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run on every route except static assets and API internals.
+  // Run on every route except static assets and image files.
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|images/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],

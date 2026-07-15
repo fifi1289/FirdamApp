@@ -6,8 +6,10 @@ import { cn } from '@/lib/utils';
 interface LogoProps {
   className?: string;
   href?: string;
-  /** Height of the logo image in px. Width scales automatically. */
+  /** Fixed height in px (used when `responsive` is false). */
   height?: number;
+  /** When true, scales 44px on mobile and 64px on desktop. */
+  responsive?: boolean;
   /** When true, wraps in a <span> instead of a <Link>. */
   noLink?: boolean;
 }
@@ -20,24 +22,27 @@ export function Logo({
   className,
   href = '/',
   height = 48,
+  responsive = false,
   noLink = false,
 }: LogoProps) {
   const img = (
     <Image
       src="/firdam-logo.png"
       alt="Firdam"
-      height={height}
-      width={height}          /* next/image requires both; aspect ratio enforced below */
-      style={{ height, width: 'auto', objectFit: 'contain' }}
+      width={200}
+      height={64}
+      className={cn(
+        'w-auto object-contain',
+        responsive ? 'h-[44px] md:h-16' : 'h-auto'
+      )}
+      style={responsive ? undefined : { height, width: 'auto' }}
       priority
-      unoptimized            /* keeps the PNG bit-perfect with no server-side transforms */
+      unoptimized
     />
   );
 
   if (noLink) {
-    return (
-      <span className={cn('inline-flex items-center', className)}>{img}</span>
-    );
+    return <span className="inline-flex items-center">{img}</span>;
   }
 
   return (

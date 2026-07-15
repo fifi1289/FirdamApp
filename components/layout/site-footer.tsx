@@ -38,7 +38,7 @@ export function SiteFooter() {
       <div className="container py-14">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2">
-            <Logo />
+            <Logo height={52} />
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               A modern life management platform. Everything that matters, in one
               calm, beautiful place.

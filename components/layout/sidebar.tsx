@@ -104,8 +104,8 @@ function NavSection({
 export function Sidebar() {
   return (
     <aside className="flex h-full w-64 flex-col border-r border-border bg-card/40 backdrop-blur-sm">
-      <div className="flex h-16 items-center border-b border-border px-5">
-        <Logo href="/dashboard" height={36} />
+      <div className="flex h-20 items-center border-b border-border px-5">
+        <Logo href="/dashboard" height={56} />
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">

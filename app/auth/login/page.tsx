@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { signIn, getAuthErrorMessage } from '@/lib/auth/auth-service';
+import { signIn } from '@/lib/auth/auth-service';
 import { emailSchema } from '@/lib/auth/validation';
 
 export default function LoginPage() {
@@ -53,7 +53,9 @@ export default function LoginPage() {
       router.push(redirect);
       router.refresh();
     } catch (error) {
-      toast.error(getAuthErrorMessage(error));
+      const message =
+        error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      toast.error(message);
     } finally {
       setLoading(false);
     }

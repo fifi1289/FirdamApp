@@ -42,6 +42,13 @@ export default function LoginPage() {
     try {
       const supabase = createSupabaseBrowserClient();
       await signIn(supabase, email, password);
+
+      // Force a session read so @supabase/ssr syncs the auth cookies into
+      // the browser before we navigate. Without this, the middleware on
+      // /dashboard can run before the cookies are committed and bounce the
+      // user back to /auth/login.
+      await supabase.auth.getSession();
+
       const redirect = searchParams.get('redirect') ?? '/dashboard';
       router.push(redirect);
       router.refresh();

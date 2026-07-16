@@ -41,7 +41,14 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      await signIn(supabase, email, password);
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      console.log('[debug signInWithPassword]', {
+        hasError: !!error,
+        errorMessage: error?.message,
+        hasSession: !!data.session,
+        hasUser: !!data.user,
+      });
+      if (error) throw error;
 
       // Force a session read so @supabase/ssr syncs the auth cookies into
       // the browser before we navigate. Without this, the middleware on

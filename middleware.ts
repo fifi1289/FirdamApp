@@ -45,12 +45,13 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Validate the user server-side. getUser() revalidates the access token
-  // against the Supabase Auth server on every call — do not rely on
-  // getSession() for authorization decisions in middleware.
+  // Read the session from cookies. getSession() decodes the auth cookie
+  // without a network round-trip, so an authenticated user is detected
+  // even when getUser()'s server-side token validation is unavailable.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   const isProtected = PROTECTED_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`)

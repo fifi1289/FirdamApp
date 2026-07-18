@@ -45,31 +45,9 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Read the session from cookies. getSession() decodes the auth cookie
-  // without a network round-trip, so an authenticated user is detected
-  // even when getUser()'s server-side token validation is unavailable.
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
-
-  const isProtected = PROTECTED_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`)
-  );
-  const isAuthRoute = AUTH_ROUTES.includes(pathname);
-
-  // Unauthenticated → redirect to login, preserving the intended destination.
-  if (isProtected && !user) {
-    const loginUrl = new URL('/auth/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Already signed in → don't show login/register/forgot-password again.
-  if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
+  // Authentication temporarily disabled — all users may access protected
+  // routes (including /dashboard) without a session. Auth routes remain
+  // accessible regardless of sign-in state.
   return response;
 }
 

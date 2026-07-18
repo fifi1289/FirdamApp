@@ -45,9 +45,13 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Authentication temporarily disabled — all users may access protected
-  // routes (including /dashboard) without a session. Auth routes remain
-  // accessible regardless of sign-in state.
+  // Refresh the session token so `setAll` writes any updated auth cookies
+  // back to the response. Required by the @supabase/ssr middleware contract —
+  // without this call, refreshed tokens are never persisted and sessions
+  // silently expire. This is session maintenance only; it does not gate access
+  // (auth redirects are currently disabled).
+  await supabase.auth.getUser();
+
   return response;
 }
 

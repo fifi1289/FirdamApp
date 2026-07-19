@@ -2,10 +2,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Circle,
-  Clock,
-  ListTodo,
-  NotebookPen,
-  Target,
   Sunrise,
   Sun,
   Sunset,
@@ -16,21 +12,14 @@ import {
 
 import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
-import { StatCard } from '@/components/dashboard/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 export const metadata = { title: 'Planner' };
-
-const stats = [
-  { label: 'Tasks today', value: '8', icon: ListTodo, delta: '5 completed' },
-  { label: 'Open goals', value: '4', icon: Target, delta: '2 on track' },
-  { label: 'Notes', value: '12', icon: NotebookPen, delta: '+3 this week' },
-  { label: 'Focus time', value: '3.5h', icon: Clock, delta: '+1.2h vs avg', trend: 'up' as const },
-];
 
 const agenda = [
   { time: '06:30', label: 'Morning routine & reflection', icon: Sunrise, tone: 'text-amber-500' },
@@ -96,18 +85,14 @@ export default function PlannerPage() {
         </Button>
       </PageHeader>
 
-      {/* Overview */}
-      <section aria-labelledby="overview-heading">
-        <h2 id="overview-heading" className="sr-only">
-          Overview
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((s) => (
-            <StatCard key={s.label} {...s} />
-          ))}
-        </div>
-      </section>
+      <Tabs defaultValue="today" className="mt-2">
+        <TabsList>
+          <TabsTrigger value="today">Today</TabsTrigger>
+          <TabsTrigger value="week">Week</TabsTrigger>
+          <TabsTrigger value="month">Month</TabsTrigger>
+        </TabsList>
 
+        <TabsContent value="today">
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Daily Agenda */}
         <section aria-labelledby="agenda-heading" className="lg:col-span-2">
@@ -292,6 +277,11 @@ export default function PlannerPage() {
           </CardContent>
         </Card>
       </section>
+        </TabsContent>
+
+        <TabsContent value="week" />
+        <TabsContent value="month" />
+      </Tabs>
     </AppShell>
   );
 }

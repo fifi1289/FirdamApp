@@ -6,9 +6,6 @@ import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { ModuleCard } from '@/features/modules/module-card';
 import { lifeModules } from '@/features/modules/module-config';
-import { requireAuth } from '@/lib/auth/require-auth';
-
-export const dynamic = 'force-dynamic';
 
 const stats = [
   { label: 'Active modules', value: '6', icon: Plus, delta: '+2 this month' },
@@ -17,9 +14,7 @@ const stats = [
   { label: 'Wellbeing streak', value: '12 days', icon: HeartPulse, delta: '+3 days', trend: 'up' as const },
 ];
 
-export default async function DashboardPage() {
-  await requireAuth();
-
+export default function DashboardPage() {
   return (
     <AppShell>
       <PageHeader

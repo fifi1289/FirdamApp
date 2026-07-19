@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import { ThemeProvider } from '@/components/theme/theme-provider';
-import { AuthProvider } from '@/components/auth/auth-provider';
 import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -87,10 +86,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            {children}
-            <Toaster richColors closeButton />
-          </AuthProvider>
+          {children}
+          <Toaster richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

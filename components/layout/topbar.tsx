@@ -23,32 +23,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Logo } from '@/components/brand/logo';
-import { useAuth } from '@/components/auth/auth-provider';
-
 interface TopbarProps {
   onMenuClick?: () => void;
 }
 
 export function Topbar({ onMenuClick }: TopbarProps) {
   const router = useRouter();
-  const { user, logout } = useAuth();
   const [signingOut, setSigningOut] = React.useState(false);
 
-  const displayName =
-    (user?.user_metadata?.first_name as string | undefined) ||
-    user?.email?.split('@')[0] ||
-    'Account';
-  const initials = String(displayName)
-    .split(' ')
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
+  const displayName = 'Account';
+  const initials = 'AC';
 
   const handleLogout = async () => {
     setSigningOut(true);
     try {
-      await logout();
       router.push('/auth/login');
       router.refresh();
     } finally {
@@ -108,7 +96,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
               <div className="flex flex-col">
                 <span className="text-sm font-medium">{displayName}</span>
                 <span className="text-xs font-normal text-muted-foreground">
-                  {user?.email ?? ''}
+                  Not signed in
                 </span>
               </div>
             </DropdownMenuLabel>

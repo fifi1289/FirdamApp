@@ -14,8 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { signOut, getAuthErrorMessage } from '@/lib/auth/auth-service';
 import type { Profile } from '@/types/database';
 
 const themeOptions = [
@@ -32,12 +30,8 @@ export function SettingsClient({ profile }: { profile: Profile | null }) {
   const handleLogout = async () => {
     setSigningOut(true);
     try {
-      const supabase = createSupabaseBrowserClient();
-      await signOut(supabase);
       router.push('/auth/login');
       router.refresh();
-    } catch (err) {
-      toast.error(getAuthErrorMessage(err));
     } finally {
       setSigningOut(false);
     }

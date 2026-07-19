@@ -48,13 +48,7 @@ function LoginForm() {
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
-      console.log('[debug signInWithPassword]', {
-        hasError: !!error,
-        errorMessage: error?.message,
-        hasSession: !!data.session,
-        hasUser: !!data.user,
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
       // Force a session read so @supabase/ssr syncs the auth cookies into

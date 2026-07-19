@@ -15,7 +15,7 @@ import type { Profile } from '@/types/database';
  *   const { profile } = await requireAuth();
  */
 export async function requireAuth(): Promise<{ profile: Profile | null }> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   console.log('[requireAuth] request cookies:', cookies().getAll());
 

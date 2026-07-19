@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
+  CalendarRange,
   Moon,
   Users,
   Wallet,
@@ -30,6 +31,7 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Planner', href: '/dashboard/planner', icon: CalendarRange },
 ];
 
 const moduleNav: NavItem[] = [

@@ -16,6 +16,14 @@ import { signIn } from '@/lib/auth/auth-service';
 import { emailSchema } from '@/lib/auth/validation';
 
 export default function LoginPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <LoginForm />
+    </React.Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 

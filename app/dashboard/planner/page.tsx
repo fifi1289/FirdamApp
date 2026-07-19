@@ -31,13 +31,15 @@ const agenda = [
 ];
 
 const tasks = [
-  { id: 1, title: 'Draft Q3 budget proposal', done: true, priority: 'High' },
-  { id: 2, title: 'Reply to community event invite', done: true, priority: 'Medium' },
-  { id: 3, title: 'Plan weekend family trip', done: false, priority: 'Medium' },
-  { id: 4, title: 'Review learning module progress', done: false, priority: 'Low' },
-  { id: 5, title: 'Book annual health check-up', done: false, priority: 'High' },
-  { id: 6, title: 'Organize grocery list', done: false, priority: 'Low' },
+  { id: 1, title: 'Draft Q3 budget proposal', done: true, priority: 'High', today: true },
+  { id: 2, title: 'Reply to community event invite', done: true, priority: 'Medium', today: true },
+  { id: 3, title: 'Plan weekend family trip', done: false, priority: 'Medium', today: false },
+  { id: 4, title: 'Review learning module progress', done: false, priority: 'Low', today: false },
+  { id: 5, title: 'Book annual health check-up', done: false, priority: 'High', today: true },
+  { id: 6, title: 'Organize grocery list', done: false, priority: 'Low', today: false },
 ];
+
+const todaysTasks = tasks.filter((t) => t.today);
 
 const goals = [
   { title: 'Read 12 books this year', progress: 58, detail: '7 of 12 books' },
@@ -180,11 +182,16 @@ export default function PlannerPage() {
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base font-semibold">Tasks</CardTitle>
               <span className="text-xs text-muted-foreground">
-                {tasks.filter((t) => t.done).length} of {tasks.length} done
+                {todaysTasks.filter((t) => t.done).length} of {todaysTasks.length} done
               </span>
             </CardHeader>
             <CardContent className="space-y-1">
-              {tasks.map((task) => (
+              {todaysTasks.length === 0 ? (
+                <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+                  No tasks planned for today.
+                </p>
+              ) : (
+                todaysTasks.map((task) => (
                 <div
                   key={task.id}
                   className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-muted/40"
@@ -211,7 +218,8 @@ export default function PlannerPage() {
                     {task.priority}
                   </Badge>
                 </div>
-              ))}
+              ))
+              )}
             </CardContent>
           </Card>
         </section>

@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { PLANNER_TASKS_CHANGED } from '@/features/planner/tasks-list';
 import type { PlannerTask } from '@/types/database';
 
@@ -102,7 +102,6 @@ export function TaskFormDialog({
   task,
 }: TaskFormDialogProps) {
   const supabase = createSupabaseBrowserClient();
-  const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
   const isEdit = mode === 'edit';
@@ -115,10 +114,8 @@ export function TaskFormDialog({
     if (!trimmed) return;
 
     if (values.startTime && values.endTime && values.endTime < values.startTime) {
-      toast({
-        title: 'End time is before start time',
+      toast.error('End time is before start time', {
         description: 'Please choose an end time that is after the start time.',
-        variant: 'destructive',
       });
       return;
     }
@@ -133,21 +130,31 @@ export function TaskFormDialog({
     };
 
     setSubmitting(true);
+
+    // Ensure the auth session is loaded from cookies before the request so
+    // the RLS policy sees a valid auth.uid(). Without this, a stale/in-memory
+    // null session can cause the insert to fail with a 42501 RLS error.
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setSubmitting(false);
+      toast.error('Your session has expired. Please sign in again.');
+      return;
+    }
+
     const result = isEdit
       ? await supabase.from('planner_tasks').update(payload).eq('id', task!.id)
       : await supabase.from('planner_tasks').insert(payload);
     setSubmitting(false);
 
     if (result.error) {
-      toast({
-        title: isEdit ? 'Could not update task' : 'Could not create task',
-        description: result.error.message,
-        variant: 'destructive',
-      });
+      toast.error(
+        isEdit ? 'Could not update task' : 'Could not create task',
+        { description: result.error.message }
+      );
       return;
     }
     onOpenChange(false);
-    toast({ title: isEdit ? 'Task updated' : 'Task created' });
+    toast.success(isEdit ? 'Task updated' : 'Task created');
     window.dispatchEvent(new Event(PLANNER_TASKS_CHANGED));
   };
 

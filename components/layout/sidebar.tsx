@@ -45,7 +45,7 @@ const moduleNav: NavItem[] = [
 
 const footerNav: NavItem[] = [
   { label: 'Settings', href: '/settings', icon: Settings },
-  { label: 'Support', href: '#', icon: LifeBuoy },
+  { label: 'Support', href: '/support', icon: LifeBuoy },
 ];
 
 function NavSection({

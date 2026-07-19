@@ -41,7 +41,9 @@ export type Database = {
           id: string;
           user_id: string;
           title: string;
+          description: string | null;
           time: string | null;
+          end_time: string | null;
           scheduled_date: string;
           completed: boolean;
           created_at: string;
@@ -50,7 +52,9 @@ export type Database = {
           id?: string;
           user_id?: string;
           title: string;
+          description?: string | null;
           time?: string | null;
+          end_time?: string | null;
           scheduled_date?: string;
           completed?: boolean;
           created_at?: string;
@@ -59,7 +63,9 @@ export type Database = {
           id?: string;
           user_id?: string;
           title?: string;
+          description?: string | null;
           time?: string | null;
+          end_time?: string | null;
           scheduled_date?: string;
           completed?: boolean;
           created_at?: string;

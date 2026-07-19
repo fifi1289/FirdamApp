@@ -18,7 +18,13 @@ export async function requireAuth(): Promise<{ profile: Profile | null }> {
 
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+
+  console.log('[requireAuth] getUser() returned user:', user ? 'yes' : 'no');
+  if (error) {
+    console.log('[requireAuth] getUser() error:', error);
+  }
 
   if (!user) {
     redirect('/auth/login');

@@ -34,6 +34,37 @@ export type Database = {
           avatar_url?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
+      };
+      planner_tasks: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          time: string | null;
+          scheduled_date: string;
+          completed: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          title: string;
+          time?: string | null;
+          scheduled_date?: string;
+          completed?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          time?: string | null;
+          scheduled_date?: string;
+          completed?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
       };
     };
     Views: Record<never, never>;
@@ -43,3 +74,4 @@ export type Database = {
 };
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type PlannerTask = Database['public']['Tables']['planner_tasks']['Row'];

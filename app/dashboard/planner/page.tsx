@@ -17,6 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { TasksList } from '@/features/planner/tasks-list';
+import { NewTaskDialog } from '@/features/planner/new-task-dialog';
 import { cn } from '@/lib/utils';
 
 export const metadata = { title: 'Planner' };
@@ -29,17 +31,6 @@ const agenda = [
   { time: '18:00', label: 'Family time', icon: Moon, tone: 'text-indigo-500' },
   { time: '21:00', label: 'Wind down & journal', icon: Moon, tone: 'text-violet-500' },
 ];
-
-const tasks = [
-  { id: 1, title: 'Draft Q3 budget proposal', done: true, priority: 'High', today: true },
-  { id: 2, title: 'Reply to community event invite', done: true, priority: 'Medium', today: true },
-  { id: 3, title: 'Plan weekend family trip', done: false, priority: 'Medium', today: false },
-  { id: 4, title: 'Review learning module progress', done: false, priority: 'Low', today: false },
-  { id: 5, title: 'Book annual health check-up', done: false, priority: 'High', today: true },
-  { id: 6, title: 'Organize grocery list', done: false, priority: 'Low', today: false },
-];
-
-const todaysTasks = tasks.filter((t) => t.today);
 
 const goals = [
   { title: 'Read 12 books this year', progress: 58, detail: '7 of 12 books' },
@@ -64,12 +55,6 @@ const calendarDays = [
   { day: 'Sun', date: 20, active: false },
 ];
 
-const priorityVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
-  High: 'default',
-  Medium: 'secondary',
-  Low: 'outline',
-};
-
 export default function PlannerPage() {
   return (
     <AppShell>
@@ -81,10 +66,7 @@ export default function PlannerPage() {
           <CalendarDays className="mr-2 h-4 w-4" />
           This week
         </Button>
-        <Button size="sm">
-          <Plus className="mr-2 h-4 w-4" />
-          New task
-        </Button>
+        <NewTaskDialog />
       </PageHeader>
 
       <Tabs defaultValue="today" className="mt-2">
@@ -178,50 +160,7 @@ export default function PlannerPage() {
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Tasks */}
         <section aria-labelledby="tasks-heading">
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base font-semibold">Tasks</CardTitle>
-              <span className="text-xs text-muted-foreground">
-                {todaysTasks.filter((t) => t.done).length} of {todaysTasks.length} done
-              </span>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              {todaysTasks.length === 0 ? (
-                <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                  No tasks planned for today.
-                </p>
-              ) : (
-                todaysTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-muted/40"
-                >
-                  {task.done ? (
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
-                  ) : (
-                    <Circle className="h-5 w-5 shrink-0 text-muted-foreground" />
-                  )}
-                  <span
-                    className={cn(
-                      'flex-1 text-sm',
-                      task.done
-                        ? 'text-muted-foreground line-through'
-                        : 'text-foreground'
-                    )}
-                  >
-                    {task.title}
-                  </span>
-                  <Badge
-                    variant={priorityVariant[task.priority]}
-                    className="text-[10px]"
-                  >
-                    {task.priority}
-                  </Badge>
-                </div>
-              ))
-              )}
-            </CardContent>
-          </Card>
+          <TasksList />
         </section>
 
         {/* Goals */}

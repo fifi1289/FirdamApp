@@ -20,8 +20,8 @@ export function createSupabaseServerClient() {
               cookieStore.set(name, value, options);
             });
           } catch {
-            // Called from a Server Component where cookies can't be set.
-            // The middleware handles session refresh — safe to ignore.
+            // Called from a Server Component where cookies are read-only.
+            // The middleware handles session refresh — safe to ignore here.
           }
         },
       },

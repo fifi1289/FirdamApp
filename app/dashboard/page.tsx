@@ -8,6 +8,8 @@ import { ModuleCard } from '@/features/modules/module-card';
 import { lifeModules } from '@/features/modules/module-config';
 import { requireAuth } from '@/lib/auth/require-auth';
 
+export const dynamic = 'force-dynamic';
+
 const stats = [
   { label: 'Active modules', value: '6', icon: Plus, delta: '+2 this month' },
   { label: 'Upcoming events', value: '4', icon: CalendarDays },

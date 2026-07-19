@@ -9,6 +9,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { requireAuth } from '@/lib/auth/require-auth';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Profile',
 };

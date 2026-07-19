@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { signIn } from '@/lib/auth/auth-service';
+import { signIn, getAuthErrorMessage } from '@/lib/auth/auth-service';
 import { emailSchema } from '@/lib/auth/validation';
 
 export default function LoginPage() {
@@ -48,21 +48,17 @@ function LoginForm() {
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      await signIn(supabase, email, password);
 
-      // Force a session read so @supabase/ssr syncs the auth cookies into
-      // the browser before we navigate. Without this, the middleware on
-      // /dashboard can run before the cookies are committed and bounce the
-      // user back to /auth/login.
+      // Force a session read so @supabase/ssr commits the auth cookies to the
+      // browser before we navigate. Without this, the middleware on /dashboard
+      // can run before the cookies are set and bounce the user back to login.
       await supabase.auth.getSession();
 
       const redirect = searchParams.get('redirect') ?? '/dashboard';
       window.location.assign(redirect);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Something went wrong. Please try again.';
-      toast.error(message);
+      toast.error(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }

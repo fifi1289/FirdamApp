@@ -4,9 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { Database } from '@/types/database';
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,8 +24,8 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: DO NOT run supabase.auth.getSession() here!
-  // It will cause a redirect loop.
+  // Do not run getSession here — it causes a redirect loop.
+  // getUser() refreshes the session and sets the refreshed cookies.
   await supabase.auth.getUser();
 
   return supabaseResponse;

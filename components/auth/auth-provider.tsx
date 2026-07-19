@@ -6,15 +6,6 @@ import type { User } from '@supabase/supabase-js';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { signOut as signOutService } from '@/lib/auth/auth-service';
 
-/**
- * Centralized authentication provider.
- *
- * Exposes the current Supabase user, a loading flag for the initial
- * session check, an `authenticated` boolean, and a `logout` action.
- * Components read from here instead of each calling Supabase directly,
- * keeping auth state in one place.
- */
-
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
@@ -37,17 +28,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     let mounted = true;
 
-    // Read the session once on mount so we don't block on auth state events.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Subscribe to future auth changes (login / logout / token refresh).
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
+      // onAuthStateChange runs synchronously; wrap async work to avoid deadlock.
+      (async () => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      })();
     });
 
     return () => {

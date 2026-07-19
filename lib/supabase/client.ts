@@ -2,14 +2,6 @@ import { createBrowserClient } from '@supabase/ssr';
 
 import type { Database } from '@/types/database';
 
-/**
- * Browser Supabase client.
- *
- * Uses `@supabase/ssr`'s cookie strategy so the auth session is persisted
- * in cookies (survives full page refreshes) and is visible to Server
- * Components and middleware. A single shared instance keeps
- * `onAuthStateChange` listeners wired once.
- */
 let browserClient: ReturnType<typeof createBrowserClient<Database>> | null = null;
 
 export function createSupabaseBrowserClient() {

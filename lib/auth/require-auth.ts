@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -16,15 +17,15 @@ import type { Profile } from '@/types/database';
 export async function requireAuth(): Promise<{ profile: Profile | null }> {
   const supabase = createSupabaseServerClient();
 
+  console.log('[requireAuth] request cookies:', cookies().getAll());
+
   const {
     data: { user },
     error,
   } = await supabase.auth.getUser();
 
-  console.log('[requireAuth] getUser() returned user:', user ? 'yes' : 'no');
-  if (error) {
-    console.log('[requireAuth] getUser() error:', error);
-  }
+  console.log('[requireAuth] getUser() user:', user);
+  console.log('[requireAuth] getUser() error:', error);
 
   if (!user) {
     redirect('/auth/login');

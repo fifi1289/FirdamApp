@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -24,6 +24,7 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [email, setEmail] = React.useState('');
@@ -56,7 +57,7 @@ function LoginForm() {
       await supabase.auth.getSession();
 
       const redirect = searchParams.get('redirect') ?? '/dashboard';
-      window.location.assign(redirect);
+      router.push(redirect);
     } catch (error) {
       toast.error(getAuthErrorMessage(error));
     } finally {

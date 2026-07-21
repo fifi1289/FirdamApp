@@ -1,3 +1,5 @@
+'use client';
+
 import { User, Mail, Calendar, MapPin } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
@@ -7,17 +9,34 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/components/auth/auth-provider';
 
-export const metadata = {
-  title: 'Profile',
-};
+function buildDisplayName(user: { user_metadata?: Record<string, unknown>; email?: string } | null): string {
+  const meta = user?.user_metadata ?? {};
+  const first = meta.first_name ? String(meta.first_name) : '';
+  const last = meta.last_name ? String(meta.last_name) : '';
+  const full = [first, last].filter(Boolean).join(' ').trim();
+  if (full) return full;
+  const direct = (meta.full_name ?? meta.name) as string | undefined;
+  if (direct) return String(direct);
+  if (user?.email) return user.email;
+  return 'User';
+}
+
+function buildInitials(name: string): string {
+  const parts = name.split(' ').filter(Boolean);
+  if (parts.length === 0) return 'U';
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+}
 
 export default function ProfilePage() {
-  const displayName = 'Firdam User';
-  const initials = 'FU';
+  const { user } = useAuth();
+  const displayName = buildDisplayName(user);
+  const initials = buildInitials(displayName);
 
   const details = [
-    { icon: Mail, label: 'Email', value: 'Not connected yet' },
+    { icon: Mail, label: 'Email', value: user?.email ?? 'Not connected yet' },
     { icon: Calendar, label: 'Member since', value: 'Not available' },
     { icon: MapPin, label: 'Location', value: 'Not set' },
   ];
@@ -43,7 +62,7 @@ export default function ProfilePage() {
             <h2 className="mt-4 text-lg font-semibold text-foreground">
               {displayName}
             </h2>
-            <p className="text-sm text-muted-foreground">Not connected yet</p>
+            <p className="text-sm text-muted-foreground">{user?.email ?? 'Not signed in'}</p>
             <Button variant="outline" size="sm" className="mt-4 w-full">
               <User className="mr-2 h-4 w-4" />
               Change avatar

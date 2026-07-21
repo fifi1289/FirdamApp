@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, Bell, Menu } from 'lucide-react';
 
@@ -12,7 +11,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,22 +21,60 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Logo } from '@/components/brand/logo';
+import { useAuth } from '@/components/auth/auth-provider';
+import { signOut as signOutService } from '@/lib/auth/auth-service';
+import { createSupabaseBrowserClient as getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { toast } from '@/hooks/use-toast';
+
+function buildDisplayName(user: { user_metadata?: Record<string, unknown>; email?: string } | null): string {
+  const meta = user?.user_metadata ?? {};
+  const first = meta.first_name ? String(meta.first_name) : '';
+  const last = meta.last_name ? String(meta.last_name) : '';
+  const full = [first, last].filter(Boolean).join(' ').trim();
+  if (full) return full;
+  const direct = (meta.full_name ?? meta.name) as string | undefined;
+  if (direct) return String(direct);
+  if (user?.email) return user.email;
+  return 'User';
+}
+
+function buildInitials(name: string): string {
+  const parts = name.split(' ').filter(Boolean);
+  if (parts.length === 0) return 'U';
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+}
+
 interface TopbarProps {
   onMenuClick?: () => void;
 }
 
 export function Topbar({ onMenuClick }: TopbarProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [signingOut, setSigningOut] = React.useState(false);
 
-  const displayName = 'Account';
-  const initials = 'AC';
+  const displayName = buildDisplayName(user);
+  const initials = buildInitials(displayName);
 
   const handleLogout = async () => {
     setSigningOut(true);
     try {
+      const supabase = getSupabaseBrowserClient();
+      // Await signOut so the SIGNED_OUT event clears session state before we
+      // navigate. Only redirect once the server confirms the session is gone.
+      await signOutService(supabase);
       router.push('/auth/login');
       router.refresh();
+    } catch (error) {
+      toast({
+        title: 'Sign out failed',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Could not sign out. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setSigningOut(false);
     }
@@ -94,9 +130,9 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">{displayName}</span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  Not signed in
+                <span className="truncate text-sm font-medium">{displayName}</span>
+                <span className="truncate text-xs font-normal text-muted-foreground">
+                  {user?.email ?? 'Not signed in'}
                 </span>
               </div>
             </DropdownMenuLabel>

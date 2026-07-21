@@ -34,9 +34,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
 
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
       // onAuthStateChange runs synchronously; wrap async work to avoid deadlock.
       (async () => {
+        // SIGNED_OUT must clear all auth state. signOut() also fires this event,
+        // so handling it here keeps the UI in sync even if the session expires
+        // server-side (token revocation, expiry, etc.).
+        if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
         setUser(session?.user ?? null);
         setLoading(false);
       })();
@@ -49,6 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   const logout = React.useCallback(async () => {
+    // Await signOut so onAuthStateChange (SIGNED_OUT) fires and clears state
+    // before the caller redirects. Errors propagate so the UI can react.
     await signOutService(supabase);
     setUser(null);
   }, [supabase]);

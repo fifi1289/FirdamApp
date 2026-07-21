@@ -1,36 +1,18 @@
 import {
-  CalendarDays,
-  CheckCircle2,
-  Circle,
-  Sunrise,
-  Sun,
-  Sunset,
-  Moon,
   Plus,
   ArrowRight,
 } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
-import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { TasksList } from '@/features/planner/tasks-list';
-import { NewTaskDialog } from '@/features/planner/new-task-dialog';
+import { TodaysFocus } from '@/features/planner/todays-focus';
 import { cn } from '@/lib/utils';
 
 export const metadata = { title: 'Planner' };
-
-const agenda = [
-  { time: '06:30', label: 'Morning routine & reflection', icon: Sunrise, tone: 'text-amber-500' },
-  { time: '09:00', label: 'Deep work — project brief', icon: Sun, tone: 'text-sky-500' },
-  { time: '12:30', label: 'Lunch & walk', icon: Sun, tone: 'text-emerald-500' },
-  { time: '15:00', label: 'Review goals & weekly plan', icon: Sunset, tone: 'text-orange-500' },
-  { time: '18:00', label: 'Family time', icon: Moon, tone: 'text-indigo-500' },
-  { time: '21:00', label: 'Wind down & journal', icon: Moon, tone: 'text-violet-500' },
-];
 
 const goals = [
   { title: 'Read 12 books this year', progress: 58, detail: '7 of 12 books' },
@@ -58,58 +40,11 @@ const calendarDays = [
 export default function PlannerPage() {
   return (
     <AppShell>
-      <PageHeader
-        title="Planner"
-        description="Your day, week, and goals — all in one calm view."
-      >
-        <Button variant="outline" size="sm">
-          <CalendarDays className="mr-2 h-4 w-4" />
-          This week
-        </Button>
-        <NewTaskDialog />
-      </PageHeader>
+      <TodaysFocus />
 
-      <Tabs defaultValue="today" className="mt-2">
-        <TabsList>
-          <TabsTrigger value="today">Today</TabsTrigger>
-          <TabsTrigger value="week">Week</TabsTrigger>
-          <TabsTrigger value="month">Month</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="today">
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Daily Agenda */}
-        <section aria-labelledby="agenda-heading" className="lg:col-span-2">
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base font-semibold">
-                Daily agenda
-              </CardTitle>
-              <Badge variant="secondary" className="text-[10px]">
-                Today
-              </Badge>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              {agenda.map((item) => (
-                <div
-                  key={item.time}
-                  className="flex items-center gap-4 rounded-lg px-3 py-3 transition-colors hover:bg-muted/40"
-                >
-                  <span className="w-12 shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
-                    {item.time}
-                  </span>
-                  <item.icon className={cn('h-4 w-4 shrink-0', item.tone)} />
-                  <span className="text-sm font-medium text-foreground">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </section>
-
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Calendar */}
-        <section aria-labelledby="calendar-heading">
+        <section aria-labelledby="calendar-heading" className="lg:col-span-1">
           <Card className="h-full">
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base font-semibold">Calendar</CardTitle>
@@ -159,7 +94,7 @@ export default function PlannerPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Tasks */}
-        <section aria-labelledby="tasks-heading">
+        <section id="tasks" aria-labelledby="tasks-heading">
           <TasksList />
         </section>
 
@@ -224,11 +159,6 @@ export default function PlannerPage() {
           </CardContent>
         </Card>
       </section>
-        </TabsContent>
-
-        <TabsContent value="week" />
-        <TabsContent value="month" />
-      </Tabs>
     </AppShell>
   );
 }

@@ -6,6 +6,7 @@ import { Search, Bell, Menu } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 import {
   Avatar,
   AvatarFallback,
@@ -51,7 +52,7 @@ interface TopbarProps {
 
 export function Topbar({ onMenuClick }: TopbarProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading, authenticated } = useAuth();
   const [signingOut, setSigningOut] = React.useState(false);
 
   const displayName = buildDisplayName(user);
@@ -111,44 +112,57 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       <div className="ml-auto flex items-center gap-1.5">
         <ThemeToggle />
 
-        <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
-        </Button>
+        {loading ? null : authenticated ? (
+          <>
+            <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
+            </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="ml-1 flex items-center gap-2 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-              <Avatar className="h-8 w-8 border border-border">
-                <AvatarImage alt="" />
-                <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              <div className="flex flex-col">
-                <span className="truncate text-sm font-medium">{displayName}</span>
-                <span className="truncate text-xs font-normal text-muted-foreground">
-                  {user?.email ?? 'Not signed in'}
-                </span>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push('/profile')}>
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push('/settings')}>
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} disabled={signingOut}>
-              {signingOut ? 'Signing out…' : 'Sign out'}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="ml-1 flex items-center gap-2 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                  <Avatar className="h-8 w-8 border border-border">
+                    <AvatarImage alt="" />
+                    <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="truncate text-sm font-medium">{displayName}</span>
+                    <span className="truncate text-xs font-normal text-muted-foreground">
+                      {user?.email ?? 'Not signed in'}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push('/profile')}>
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/settings')}>
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} disabled={signingOut}>
+                  {signingOut ? 'Signing out…' : 'Sign out'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/auth/login">Sign in</Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link href="/auth/register">Sign up</Link>
+            </Button>
+          </div>
+        )}
       </div>
     </header>
   );

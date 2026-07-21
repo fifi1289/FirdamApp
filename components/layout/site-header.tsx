@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/brand/logo';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { useAuth } from '@/components/auth/auth-provider';
 
 const navLinks = [
   { label: 'Modules', href: '#modules' },
@@ -19,6 +20,7 @@ const navLinks = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { loading, authenticated } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
@@ -39,12 +41,20 @@ export function SiteHeader() {
 
         <div className="hidden items-center gap-2 md:flex">
           <ThemeToggle />
-          <Button variant="ghost" asChild size="sm">
-            <Link href="/auth/login">Sign in</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link href="/auth/register">Get started</Link>
-          </Button>
+          {loading ? null : authenticated ? (
+            <Button asChild size="sm">
+              <Link href="/dashboard">Go to dashboard</Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" asChild size="sm">
+                <Link href="/auth/login">Sign in</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/auth/register">Get started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
@@ -79,16 +89,26 @@ export function SiteHeader() {
             </Link>
           ))}
           <div className="mt-2 flex flex-col gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/auth/login" onClick={() => setOpen(false)}>
-                Sign in
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/register" onClick={() => setOpen(false)}>
-                Get started
-              </Link>
-            </Button>
+            {loading ? null : authenticated ? (
+              <Button asChild>
+                <Link href="/dashboard" onClick={() => setOpen(false)}>
+                  Go to dashboard
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" asChild>
+                  <Link href="/auth/login" onClick={() => setOpen(false)}>
+                    Sign in
+                  </Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/auth/register" onClick={() => setOpen(false)}>
+                    Get started
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </nav>
       </div>

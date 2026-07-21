@@ -94,7 +94,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       </Button>
 
       <div className="md:hidden">
-        <Logo href="/dashboard" height={34} />
+        <Logo href="/" height={34} />
       </div>
 
       <form

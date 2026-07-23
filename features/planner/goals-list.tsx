@@ -3,12 +3,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   CheckCircle2,
-  Circle,
+  ChevronDown,
+  ChevronUp,
   MoreHorizontal,
   Pencil,
   Trash2,
   Target,
   CalendarDays,
+  Trophy,
 } from 'lucide-react';
 
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -45,8 +47,6 @@ import {
 } from '@/features/planner/goal-form-dialog';
 
 export const PLANNER_GOALS_CHANGED = 'planner-goals-changed';
-
-const MAX_HOME_GOALS = 3;
 
 function formatDate(iso: string | null): string | null {
   if (!iso) return null;
@@ -193,6 +193,8 @@ export function GoalsList({ limit }: { limit?: number }) {
   const [deletingGoal, setDeletingGoal] = useState<PlannerGoal | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showAllActive, setShowAllActive] = useState(false);
+  const [showAchieved, setShowAchieved] = useState(false);
 
   const loadGoals = useCallback(async () => {
     const { data, error } = await supabase
@@ -271,9 +273,11 @@ export function GoalsList({ limit }: { limit?: number }) {
   const activeGoals = goals.filter((g) => !g.completed);
   const completedGoals = goals.filter((g) => g.completed);
 
-  const showAll = !limit;
-  const visibleActive = showAll ? activeGoals : activeGoals.slice(0, limit);
-  const hasMoreActive = !showAll && activeGoals.length > limit;
+  const isHome = !!limit;
+  const visibleActive = isHome && !showAllActive
+    ? activeGoals.slice(0, limit)
+    : activeGoals;
+  const hasMoreActive = isHome && activeGoals.length > limit;
 
   return (
     <>
@@ -313,51 +317,32 @@ export function GoalsList({ limit }: { limit?: number }) {
                     setDeletingGoal(g);
                     setDeleteOpen(true);
                   }}
-                  variant={showAll ? 'full' : 'compact'}
+                  variant="compact"
                 />
               ))}
 
               {hasMoreActive && (
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <a href="/dashboard/planner/goals">View all goals</a>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setShowAllActive((v) => !v)}
+                >
+                  {showAllActive ? (
+                    <>
+                      <ChevronUp className="mr-2 h-4 w-4" />
+                      Show fewer goals
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="mr-2 h-4 w-4" />
+                      View all goals
+                    </>
+                  )}
                 </Button>
               )}
 
-              {showAll && completedGoals.length > 0 && (
-                <>
-                  <p className="pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Completed
-                  </p>
-                  {completedGoals.map((goal) => (
-                    <GoalCard
-                      key={goal.id}
-                      goal={goal}
-                      onProgress={updateProgress}
-                      onToggle={toggleGoal}
-                      onEdit={startEdit}
-                      onDelete={(g) => {
-                        setDeletingGoal(g);
-                        setDeleteOpen(true);
-                      }}
-                      variant="full"
-                    />
-                  ))}
-                </>
-              )}
-
-              {showAll && activeGoals.length === 0 && completedGoals.length > 0 && (
-                <div className="flex flex-col items-center gap-2 py-6 text-center">
-                  <CheckCircle2 className="h-7 w-7 text-success" />
-                  <p className="text-sm font-medium text-foreground">
-                    All goals completed
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Time to set a new goal.
-                  </p>
-                </div>
-              )}
-
-              {!showAll && activeGoals.length === 0 && completedGoals.length > 0 && (
+              {activeGoals.length === 0 && completedGoals.length > 0 && (
                 <div className="flex flex-col items-center gap-2 py-6 text-center">
                   <CheckCircle2 className="h-7 w-7 text-success" />
                   <p className="text-sm font-medium text-foreground">
@@ -366,6 +351,52 @@ export function GoalsList({ limit }: { limit?: number }) {
                   <p className="text-xs text-muted-foreground">
                     All your goals are complete.
                   </p>
+                </div>
+              )}
+
+              {completedGoals.length > 0 && (
+                <div className="pt-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-between"
+                    onClick={() => setShowAchieved((v) => !v)}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Trophy className="h-4 w-4 text-amber-500" />
+                      Achieved
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] font-medium"
+                      >
+                        {completedGoals.length}
+                      </Badge>
+                    </span>
+                    {showAchieved ? (
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+
+                  {showAchieved && (
+                    <div className="mt-2 space-y-3">
+                      {completedGoals.map((goal) => (
+                        <GoalCard
+                          key={goal.id}
+                          goal={goal}
+                          onProgress={updateProgress}
+                          onToggle={toggleGoal}
+                          onEdit={startEdit}
+                          onDelete={(g) => {
+                            setDeletingGoal(g);
+                            setDeleteOpen(true);
+                          }}
+                          variant="compact"
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </>

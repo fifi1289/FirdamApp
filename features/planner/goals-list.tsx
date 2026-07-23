@@ -166,16 +166,14 @@ function GoalCard({
                 {goal.progress}%
               </span>
             </div>
-            {!goal.completed && (
-              <Slider
-                value={[goal.progress]}
-                onValueChange={([v]) => onProgress(goal, v)}
-                min={0}
-                max={100}
-                step={1}
-                aria-label="Update progress"
-              />
-            )}
+            <Slider
+              value={[goal.progress]}
+              onValueChange={([v]) => onProgress(goal, v)}
+              min={0}
+              max={100}
+              step={1}
+              aria-label="Update progress"
+            />
           </div>
         </div>
       </div>

@@ -7,7 +7,8 @@ export type ModuleId =
   | 'health'
   | 'community'
   | 'learning'
-  | 'pantry';
+  | 'pantry'
+  | 'meals';
 
 export type ModuleStatus = 'active' | 'beta' | 'planned';
 
@@ -33,6 +34,7 @@ export type ModuleIconName =
   | 'heart-pulse'
   | 'handshake'
   | 'book-open'
-  | 'archive';
+  | 'archive'
+  | 'utensils';
 
 export type Theme = 'light' | 'dark' | 'system';

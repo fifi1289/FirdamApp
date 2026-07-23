@@ -9,6 +9,7 @@ import {
   Handshake,
   BookOpen,
   Archive,
+  Utensils,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -22,6 +23,7 @@ export const moduleIconMap: Record<ModuleIconName, LucideIcon> = {
   handshake: Handshake,
   'book-open': BookOpen,
   archive: Archive,
+  utensils: Utensils,
 };
 
 export const lifeModules: LifeModule[] = [
@@ -44,6 +46,16 @@ export const lifeModules: LifeModule[] = [
     accent: 'from-brand-dark to-brand-mid',
     icon: 'archive',
     href: '/dashboard/pantry',
+  },
+  {
+    id: 'meals',
+    name: 'Meal Planner',
+    description:
+      'Plan and organize your family\'s meals.',
+    status: 'active',
+    accent: 'from-brand-dark to-brand-light',
+    icon: 'utensils',
+    href: '/dashboard/meals',
   },
   {
     id: 'prayer-times',

@@ -99,6 +99,34 @@ function computeStatus(iso: string | null): {
   return { label, status };
 }
 
+function relativeExpiration(iso: string | null): string | null {
+  if (!iso) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  if (isNaN(date.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round(
+    (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  if (diffDays === 0) return 'Expires today';
+  if (diffDays === 1) return 'Expires tomorrow';
+  if (diffDays === -1) return 'Expired yesterday';
+  if (diffDays > 0) {
+    if (diffDays >= 14) {
+      const weeks = Math.round(diffDays / 7);
+      return `Expires in ${weeks} ${weeks === 1 ? 'week' : 'weeks'}`;
+    }
+    return `Expires in ${diffDays} days`;
+  }
+  const ago = Math.abs(diffDays);
+  if (ago >= 14) {
+    const weeks = Math.round(ago / 7);
+    return `Expired ${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+  }
+  return `Expired ${ago} ${ago === 1 ? 'day' : 'days'} ago`;
+}
+
 function PantryItemCard({
   item,
   onEdit,
@@ -110,6 +138,7 @@ function PantryItemCard({
 }) {
   const Icon = CATEGORY_ICONS[item.category] ?? Archive;
   const exp = computeStatus(item.expiration_date);
+  const relative = relativeExpiration(item.expiration_date);
 
   return (
     <div className="group rounded-xl border border-border/60 bg-card p-4 transition-colors hover:border-border">
@@ -162,22 +191,25 @@ function PantryItemCard({
               {item.quantity} {item.unit}
             </span>
           </div>
-          {exp && (
-            <p
-              className={cn(
-                'mt-2 flex items-center gap-1 text-xs',
-                exp.status === 'expired'
-                  ? 'text-destructive'
-                  : exp.status === 'soon'
-                  ? 'text-amber-600 dark:text-amber-400'
-                  : 'text-muted-foreground'
-              )}
-            >
-              <CalendarDays className="h-3.5 w-3.5" />
-              {exp.status === 'expired'
-                ? `Expired ${exp.label}`
-                : `Expires ${exp.label}`}
-            </p>
+          {exp && relative && (
+            <div className="mt-2">
+              <p
+                className={cn(
+                  'flex items-center gap-1 text-xs font-medium',
+                  exp.status === 'expired'
+                    ? 'text-destructive'
+                    : exp.status === 'soon'
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-muted-foreground'
+                )}
+              >
+                <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                {relative}
+              </p>
+              <p className="mt-0.5 pl-[18px] text-[11px] text-muted-foreground/80">
+                {exp.label}
+              </p>
+            </div>
           )}
           {item.notes && (
             <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">

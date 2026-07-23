@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   CalendarDays,
+  ChevronRight,
   Loader2,
+  MoreHorizontal,
   Sparkles,
+  Trash2,
   Utensils,
 } from 'lucide-react';
 
@@ -13,6 +16,23 @@ import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import {
   DEFAULT_PREFERENCES,
@@ -41,6 +61,10 @@ export function MealsDashboard() {
     null
   );
   const [savedPlans, setSavedPlans] = useState<MealPlanRecord[]>([]);
+  const [activePlanId, setActivePlanId] = useState<string | null>(null);
+  const [deletingPlan, setDeletingPlan] = useState<MealPlanRecord | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadPreferences = useCallback(async () => {
     const { data, error } = await supabase
@@ -106,6 +130,7 @@ export function MealsDashboard() {
 
     const plan = await mockMealPlanGenerator.generate({ preferences: prefs });
     setGeneratedPlan(plan);
+    setActivePlanId(null);
     setGenerating(false);
     setView('plan');
   };
@@ -119,7 +144,36 @@ export function MealsDashboard() {
 
   const handleBackHome = async () => {
     await loadSavedPlans();
+    setGeneratedPlan(null);
+    setActivePlanId(null);
     setView('home');
+  };
+
+  const openSavedPlan = (record: MealPlanRecord) => {
+    const plan = record.plan_data as unknown as GeneratedMealPlan;
+    if (!plan || !Array.isArray(plan.days)) {
+      toast.error('This meal plan could not be opened.');
+      return;
+    }
+    setGeneratedPlan(plan);
+    setActivePlanId(record.id);
+    setView('plan');
+  };
+
+  const confirmDeletePlan = async () => {
+    if (!deletingPlan) return;
+    const id = deletingPlan.id;
+    setDeleting(true);
+    const { error } = await supabase.from('meal_plans').delete().eq('id', id);
+    setDeleting(false);
+    if (error) {
+      toast.error('Could not delete meal plan', { description: error.message });
+      return;
+    }
+    setSavedPlans((prev) => prev.filter((p) => p.id !== id));
+    setDeleteOpen(false);
+    setDeletingPlan(null);
+    toast.success('Meal plan deleted');
   };
 
   if (view === 'preferences' || generating) {
@@ -162,6 +216,7 @@ export function MealsDashboard() {
         <MealPlanView
           plan={generatedPlan}
           preferences={preferences}
+          planId={activePlanId}
           onRegenerate={handleRegenerate}
           onBack={handleBackHome}
         />
@@ -239,18 +294,55 @@ export function MealsDashboard() {
                   new Set(days.flatMap((d) => d.meals.map((m) => m.type)))
                 );
                 return (
-                  <Card key={plan.id} className="border-border/60">
+                  <Card
+                    key={plan.id}
+                    className="group cursor-pointer border-border/60 transition-colors hover:border-primary/40"
+                    onClick={() => openSavedPlan(plan)}
+                  >
                     <CardContent className="p-4">
-                      <p className="text-sm font-semibold text-foreground">
-                        {plan.name}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {new Date(plan.created_at).toLocaleDateString(undefined, {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </p>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-foreground">
+                            {plan.name}
+                          </p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">
+                            {new Date(plan.created_at).toLocaleDateString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"
+                                aria-label="Plan actions"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onSelect={(e) => {
+                                  e.stopPropagation();
+                                  setDeletingPlan(plan);
+                                  setDeleteOpen(true);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         <Badge variant="outline" className="text-[10px] font-medium">
                           {days.length} days
@@ -276,6 +368,30 @@ export function MealsDashboard() {
           )}
         </section>
       </div>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete meal plan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deletingPlan
+                ? `"${deletingPlan.name}" will be permanently removed.`
+                : 'This meal plan will be permanently removed.'}{' '}
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeletePlan}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 }

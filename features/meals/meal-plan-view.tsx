@@ -26,6 +26,7 @@ import { MealDetailDialog } from '@/features/meals/meal-detail-dialog';
 interface MealPlanViewProps {
   plan: GeneratedMealPlan;
   preferences: MealPreferencesState;
+  planId: string | null;
   onRegenerate: () => void;
   onBack: () => void;
 }
@@ -33,6 +34,7 @@ interface MealPlanViewProps {
 export function MealPlanView({
   plan,
   preferences,
+  planId,
   onRegenerate,
   onBack,
 }: MealPlanViewProps) {
@@ -64,22 +66,30 @@ export function MealPlanView({
 
   const handleSave = async () => {
     setSaving(true);
-    const { error } = await supabase.from('meal_plans').insert({
+    const payload = {
       name: `Meal Plan — ${new Date().toLocaleDateString()}`,
       plan_data: currentPlan as unknown as Record<string, unknown>,
-      preferences:
-        preferences as unknown as Record<string, unknown>,
-    });
+      preferences: preferences as unknown as Record<string, unknown>,
+      updated_at: new Date().toISOString(),
+    };
+    const result = planId
+      ? await supabase.from('meal_plans').update(payload).eq('id', planId)
+      : await supabase.from('meal_plans').insert(payload);
     setSaving(false);
-    if (error) {
+    if (result.error) {
       toast.error('Could not save meal plan', {
-        description: error.message,
+        description: result.error.message,
       });
       return;
     }
-    toast.success('Meal plan saved', {
-      description: 'You can find it in your Recent Meal Plans.',
-    });
+    toast.success(
+      planId ? 'Meal plan updated' : 'Meal plan saved',
+      {
+        description: planId
+          ? 'Your changes have been saved.'
+          : 'You can find it in your Recent Meal Plans.',
+      }
+    );
     onBack();
   };
 
@@ -106,7 +116,7 @@ export function MealPlanView({
             ) : (
               <Save className="mr-2 h-4 w-4" />
             )}
-            Save Meal Plan
+            {planId ? 'Save Changes' : 'Save Meal Plan'}
           </Button>
         </div>
       </div>

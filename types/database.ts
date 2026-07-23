@@ -181,6 +181,41 @@ export type Database = {
         };
         Relationships: [];
       };
+      meal_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          planning_duration: number;
+          meal_types: string[];
+          use_pantry_first: boolean;
+          dietary_preferences: string[];
+          allergies: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          planning_duration?: number;
+          meal_types?: string[];
+          use_pantry_first?: boolean;
+          dietary_preferences?: string[];
+          allergies?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          planning_duration?: number;
+          meal_types?: string[];
+          use_pantry_first?: boolean;
+          dietary_preferences?: string[];
+          allergies?: string[];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;
@@ -193,6 +228,7 @@ export type PlannerTask = Database['public']['Tables']['planner_tasks']['Row'];
 export type PlannerGoal = Database['public']['Tables']['planner_goals']['Row'];
 export type PantryItem = Database['public']['Tables']['pantry_items']['Row'];
 export type FamilyMember = Database['public']['Tables']['family_members']['Row'];
+export type MealPreference = Database['public']['Tables']['meal_preferences']['Row'];
 
 export type TaskPriority = 'high' | 'medium' | 'low';
 

@@ -43,9 +43,29 @@ import {
 
 export { PANTRY_ITEMS_CHANGED } from '@/features/pantry/pantry-item-form-dialog';
 
-function formatExpiration(iso: string | null): {
+type PantryStatus = 'fresh' | 'soon' | 'expired';
+
+const STATUS_BADGE: Record<PantryStatus, { label: string; className: string }> = {
+  fresh: {
+    label: 'Fresh',
+    className:
+      'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  },
+  soon: {
+    label: 'Expiring Soon',
+    className:
+      'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  },
+  expired: {
+    label: 'Expired',
+    className:
+      'border-destructive/30 bg-destructive/10 text-destructive',
+  },
+};
+
+function computeStatus(iso: string | null): {
   label: string;
-  tone: 'expired' | 'soon' | 'normal';
+  status: PantryStatus;
 } | null {
   if (!iso) return null;
   const [y, m, d] = iso.split('-').map(Number);
@@ -61,9 +81,9 @@ function formatExpiration(iso: string | null): {
     day: 'numeric',
     year: 'numeric',
   });
-  if (diffDays < 0) return { label, tone: 'expired' };
-  if (diffDays <= 3) return { label, tone: 'soon' };
-  return { label, tone: 'normal' };
+  const status: PantryStatus =
+    diffDays < 0 ? 'expired' : diffDays <= 7 ? 'soon' : 'fresh';
+  return { label, status };
 }
 
 function PantryItemCard({
@@ -76,7 +96,7 @@ function PantryItemCard({
   onDelete: (item: PantryItem) => void;
 }) {
   const Icon = CATEGORY_ICONS[item.category] ?? Archive;
-  const exp = formatExpiration(item.expiration_date);
+  const exp = computeStatus(item.expiration_date);
 
   return (
     <div className="group rounded-xl border border-border/60 bg-card p-4 transition-colors hover:border-border">
@@ -117,6 +137,14 @@ function PantryItemCard({
             <Badge variant="outline" className="text-[10px] font-medium">
               {item.category}
             </Badge>
+            {exp && (
+              <Badge
+                variant="outline"
+                className={cn('text-[10px] font-medium', STATUS_BADGE[exp.status].className)}
+              >
+                {STATUS_BADGE[exp.status].label}
+              </Badge>
+            )}
             <span className="text-xs font-medium tabular-nums text-muted-foreground">
               {item.quantity} {item.unit}
             </span>
@@ -125,15 +153,15 @@ function PantryItemCard({
             <p
               className={cn(
                 'mt-2 flex items-center gap-1 text-xs',
-                exp.tone === 'expired'
+                exp.status === 'expired'
                   ? 'text-destructive'
-                  : exp.tone === 'soon'
+                  : exp.status === 'soon'
                   ? 'text-amber-600 dark:text-amber-400'
                   : 'text-muted-foreground'
               )}
             >
               <CalendarDays className="h-3.5 w-3.5" />
-              {exp.tone === 'expired'
+              {exp.status === 'expired'
                 ? `Expired ${exp.label}`
                 : `Expires ${exp.label}`}
             </p>

@@ -46,6 +46,7 @@ export type Database = {
           end_time: string | null;
           scheduled_date: string;
           completed: boolean;
+          priority: TaskPriority;
           created_at: string;
         };
         Insert: {
@@ -57,6 +58,7 @@ export type Database = {
           end_time?: string | null;
           scheduled_date?: string;
           completed?: boolean;
+          priority?: TaskPriority;
           created_at?: string;
         };
         Update: {
@@ -68,6 +70,7 @@ export type Database = {
           end_time?: string | null;
           scheduled_date?: string;
           completed?: boolean;
+          priority?: TaskPriority;
           created_at?: string;
         };
         Relationships: [];
@@ -81,3 +84,11 @@ export type Database = {
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type PlannerTask = Database['public']['Tables']['planner_tasks']['Row'];
+
+export type TaskPriority = 'high' | 'medium' | 'low';
+
+export const PRIORITY_ORDER: Record<TaskPriority, number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+};

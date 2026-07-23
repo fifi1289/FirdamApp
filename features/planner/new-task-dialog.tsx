@@ -18,9 +18,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { PLANNER_TASKS_CHANGED } from '@/features/planner/tasks-list';
-import type { PlannerTask } from '@/types/database';
+import type { PlannerTask, TaskPriority } from '@/types/database';
+
+const MAX_HIGH_PRIORITY_PER_DAY = 3;
+
+const PRIORITY_LABELS: Record<TaskPriority, string> = {
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
+};
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
@@ -33,6 +48,7 @@ export interface TaskFormValues {
   startTime: string;
   endTime: string;
   completed: boolean;
+  priority: TaskPriority;
 }
 
 function taskToValues(task: PlannerTask): TaskFormValues {
@@ -43,6 +59,7 @@ function taskToValues(task: PlannerTask): TaskFormValues {
     startTime: task.time ?? '',
     endTime: task.end_time ?? '',
     completed: task.completed,
+    priority: task.priority,
   };
 }
 
@@ -54,6 +71,7 @@ function emptyValues(): TaskFormValues {
     startTime: '',
     endTime: '',
     completed: false,
+    priority: 'medium',
   };
 }
 
@@ -127,6 +145,7 @@ export function TaskFormDialog({
       time: values.startTime || null,
       end_time: values.endTime || null,
       completed: values.completed,
+      priority: values.priority,
     };
 
     setSubmitting(true);
@@ -139,6 +158,26 @@ export function TaskFormDialog({
       setSubmitting(false);
       toast.error('Your session has expired. Please sign in again.');
       return;
+    }
+
+    if (values.priority === 'high') {
+      let highQuery = supabase
+        .from('planner_tasks')
+        .select('id', { count: 'exact', head: true })
+        .eq('scheduled_date', values.date)
+        .eq('priority', 'high');
+      if (isEdit && task) {
+        highQuery = highQuery.neq('id', task.id);
+      }
+      const { count } = await highQuery;
+      if ((count ?? 0) >= MAX_HIGH_PRIORITY_PER_DAY) {
+        setSubmitting(false);
+        toast('Only 3 High Priority tasks per day', {
+          description:
+            'You already have 3 High Priority tasks for this day. Try changing this one to Medium or Low.',
+        });
+        return;
+      }
     }
 
     const result = isEdit
@@ -235,6 +274,27 @@ export function TaskFormDialog({
                 </Label>
               </div>
             )}
+            <div className="space-y-2">
+              <Label htmlFor="task-priority">Priority</Label>
+              <Select
+                value={values.priority}
+                onValueChange={(v) => update({ priority: v as TaskPriority })}
+              >
+                <SelectTrigger id="task-priority" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(PRIORITY_LABELS) as TaskPriority[]).map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {PRIORITY_LABELS[p]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Up to {MAX_HIGH_PRIORITY_PER_DAY} High-priority tasks per day.
+              </p>
+            </div>
           </div>
           <DialogFooter className="mt-6">
             <Button

@@ -12,6 +12,7 @@ import {
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +31,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { PlannerTask } from '@/types/database';
+import type { PlannerTask, TaskPriority } from '@/types/database';
+import { PRIORITY_ORDER } from '@/types/database';
 import {
   TaskFormDialog,
   taskToValues,
@@ -39,6 +41,18 @@ import {
 } from '@/features/planner/new-task-dialog';
 
 export const PLANNER_TASKS_CHANGED = 'planner-tasks-changed';
+
+const PRIORITY_BADGE_STYLES: Record<TaskPriority, string> = {
+  high: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  medium: 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300',
+  low: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+};
+
+const PRIORITY_LABELS: Record<TaskPriority, string> = {
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
+};
 
 function formatTime(time: string | null): string {
   if (!time) return '';
@@ -127,6 +141,7 @@ export function TasksList() {
 
   const sorted = [...tasks].sort((a, b) => {
     if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    if (a.priority !== b.priority) return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
     if (a.time && b.time) return a.time.localeCompare(b.time);
     if (a.time) return -1;
     if (b.time) return 1;
@@ -185,6 +200,12 @@ export function TasksList() {
                   </span>
                 )}
               </div>
+              <Badge
+                variant="outline"
+                className={cn('shrink-0 text-[10px] font-medium', PRIORITY_BADGE_STYLES[task.priority])}
+              >
+                {PRIORITY_LABELS[task.priority]}
+              </Badge>
               {task.time && (
                 <span className="text-xs font-medium tabular-nums text-muted-foreground">
                   {formatTimeRange(task.time, task.end_time)}

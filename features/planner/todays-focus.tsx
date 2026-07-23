@@ -113,10 +113,10 @@ export function TodaysFocus() {
   }, [loadTasks]);
 
   const focusTasks = useMemo(() => {
-    const incomplete = tasks.filter((t) => !t.completed);
-    const complete = tasks.filter((t) => t.completed);
-    const ordered = [...incomplete, ...complete].slice(0, 3);
-    return ordered;
+    const high = tasks.filter((t) => t.priority === 'high');
+    const incomplete = high.filter((t) => !t.completed);
+    const complete = high.filter((t) => t.completed);
+    return [...incomplete, ...complete].slice(0, 3);
   }, [tasks]);
 
   const toggleTask = async (task: PlannerTask) => {
@@ -192,7 +192,7 @@ export function TodaysFocus() {
               Today&apos;s Focus
             </h2>
             <span className="text-sm text-muted-foreground">
-              {isToday ? 'Top 3 priorities' : formatDateLong(selectedDate)}
+              {isToday ? 'Top 3 high priorities' : formatDateLong(selectedDate)}
             </span>
           </div>
           <span className="hidden text-xs font-medium uppercase tracking-wider text-muted-foreground sm:block">
@@ -215,10 +215,10 @@ export function TodaysFocus() {
           ) : focusTasks.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 px-6 py-12 text-center">
               <p className="text-sm font-medium text-foreground">
-                Nothing scheduled yet
+                No high-priority tasks yet
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Add a task to set your focus for the day.
+                Choose up to 3 tasks that matter most today. Focus on what counts.
               </p>
               <div className="mt-5 flex justify-center">
                 <NewTaskDialog />
@@ -272,7 +272,7 @@ export function TodaysFocus() {
                     variant="outline"
                     className={cn('shrink-0 border text-[11px]', badge.badge)}
                   >
-                    Priority
+                    High Priority
                   </Badge>
 
                   {task.time && (

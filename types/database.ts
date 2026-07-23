@@ -149,6 +149,38 @@ export type Database = {
         };
         Relationships: [];
       };
+      family_members: {
+        Row: {
+          id: string;
+          user_id: string;
+          first_name: string;
+          relationship: FamilyRelationship;
+          birth_date: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          first_name: string;
+          relationship: FamilyRelationship;
+          birth_date?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          first_name?: string;
+          relationship?: FamilyRelationship;
+          birth_date?: string | null;
+          notes?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;
@@ -160,6 +192,7 @@ export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type PlannerTask = Database['public']['Tables']['planner_tasks']['Row'];
 export type PlannerGoal = Database['public']['Tables']['planner_goals']['Row'];
 export type PantryItem = Database['public']['Tables']['pantry_items']['Row'];
+export type FamilyMember = Database['public']['Tables']['family_members']['Row'];
 
 export type TaskPriority = 'high' | 'medium' | 'low';
 
@@ -229,4 +262,31 @@ export const PANTRY_UNITS: PantryUnit[] = [
   'Bottle',
   'Can',
   'Box',
+];
+
+export type FamilyRelationship =
+  | 'Self'
+  | 'Spouse'
+  | 'Son'
+  | 'Daughter'
+  | 'Father'
+  | 'Mother'
+  | 'Brother'
+  | 'Sister'
+  | 'Grandfather'
+  | 'Grandmother'
+  | 'Other';
+
+export const FAMILY_RELATIONSHIPS: FamilyRelationship[] = [
+  'Self',
+  'Spouse',
+  'Son',
+  'Daughter',
+  'Father',
+  'Mother',
+  'Brother',
+  'Sister',
+  'Grandfather',
+  'Grandmother',
+  'Other',
 ];

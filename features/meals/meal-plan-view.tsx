@@ -97,14 +97,6 @@ export function MealPlanView({
             )}
             Regenerate Plan
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setEditOpen(true)}
-          >
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit Meal
-          </Button>
           <Button size="sm" onClick={handleSave} disabled={saving}>
             {saving ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -142,31 +134,37 @@ export function MealPlanView({
                   />
                 </div>
                 <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <Badge variant="outline" className="mb-2 text-[10px] font-medium">
-                        {getMealTypeLabel(meal.type)}
-                      </Badge>
-                      <h3 className="text-sm font-semibold text-foreground">
-                        {meal.name}
-                      </h3>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 shrink-0"
-                      onClick={() => {
-                        setEditMeal(meal);
-                        setEditOpen(true);
-                      }}
-                      aria-label="Edit meal"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground">
+                  <Badge variant="outline" className="mb-2 text-[10px] font-medium">
+                    {getMealTypeLabel(meal.type)}
+                  </Badge>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {meal.name}
+                  </h3>
+                  <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
                     {meal.description}
                   </p>
+                  <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
+                    {meal.ingredients.length > 0 && (
+                      <span>{meal.ingredients.length} ingredients</span>
+                    )}
+                    {(meal.prepTime > 0 || meal.cookTime > 0) && (
+                      <span>
+                        {meal.prepTime + meal.cookTime} min total
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 -ml-2 h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      setEditMeal(meal);
+                      setEditOpen(true);
+                    }}
+                  >
+                    <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                    Customize Meal
+                  </Button>
                 </CardContent>
               </Card>
             ))}

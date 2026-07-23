@@ -8,6 +8,7 @@ import {
   HeartPulse,
   Handshake,
   BookOpen,
+  Archive,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -20,6 +21,7 @@ export const moduleIconMap: Record<ModuleIconName, LucideIcon> = {
   'heart-pulse': HeartPulse,
   handshake: Handshake,
   'book-open': BookOpen,
+  archive: Archive,
 };
 
 export const lifeModules: LifeModule[] = [
@@ -32,6 +34,16 @@ export const lifeModules: LifeModule[] = [
     accent: 'from-brand-dark to-brand-mid',
     icon: 'moon',
     href: '/dashboard/prayer-times',
+  },
+  {
+    id: 'pantry',
+    name: 'Pantry',
+    description:
+      'Track your household food inventory, manage quantities, and reduce waste.',
+    status: 'beta',
+    accent: 'from-brand-dark to-brand-mid',
+    icon: 'archive',
+    href: '/dashboard/pantry',
   },
   {
     id: 'family',

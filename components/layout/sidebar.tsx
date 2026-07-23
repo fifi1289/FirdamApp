@@ -14,6 +14,7 @@ import {
   HeartPulse,
   Handshake,
   BookOpen,
+  Archive,
   LifeBuoy,
   Settings,
   type LucideIcon,
@@ -36,6 +37,7 @@ const mainNav: NavItem[] = [
 
 const moduleNav: NavItem[] = [
   { label: 'Prayer Times', href: '/dashboard/prayer-times', icon: Moon },
+  { label: 'Pantry', href: '/dashboard/pantry', icon: Archive, badge: 'Beta' },
   { label: 'Family', href: '/dashboard/family', icon: Users },
   { label: 'Finance', href: '/dashboard/finance', icon: Wallet },
   { label: 'Travel', href: '/dashboard/travel', icon: Plane },

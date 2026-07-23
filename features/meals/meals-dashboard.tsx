@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
+  ArrowLeft,
   CalendarDays,
   ChevronRight,
   Loader2,
@@ -90,8 +91,7 @@ export function MealsDashboard() {
     const { data, error } = await supabase
       .from('meal_plans')
       .select('*')
-      .order('created_at', { ascending: false })
-      .limit(5);
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Failed to load saved meal plans:', error.message);
@@ -182,7 +182,12 @@ export function MealsDashboard() {
         <PageHeader
           title="Meal Planner"
           description="Plan and organize your family's meals."
-        />
+        >
+          <Button variant="ghost" size="sm" onClick={() => setView('home')} disabled={generating}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </PageHeader>
         {generating ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center px-6 py-20 text-center">
@@ -212,7 +217,12 @@ export function MealsDashboard() {
         <PageHeader
           title="Meal Planner"
           description="Plan and organize your family's meals."
-        />
+        >
+          <Button variant="ghost" size="sm" onClick={handleBackHome}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </PageHeader>
         <MealPlanView
           plan={generatedPlan}
           preferences={preferences}
@@ -240,45 +250,29 @@ export function MealsDashboard() {
         </Button>
       </PageHeader>
 
-      <div className="space-y-8">
-        <Card className="overflow-hidden">
-          <CardContent className="flex flex-col items-center justify-center px-6 py-20 text-center">
-            <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <CalendarDays className="h-7 w-7" />
-            </span>
-            <h3 className="mt-5 text-lg font-semibold text-foreground">
-              {savedPlans.length === 0
-                ? 'No meal plans yet'
-                : 'Ready for your next plan'}
-            </h3>
-            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-              {savedPlans.length === 0
-                ? "Generate your first meal plan to start organizing your family's weekly menu."
-                : 'Create a new plan tailored to your preferences and pantry.'}
-            </p>
-            <Button
-              size="sm"
-              className="mt-6"
-              onClick={() => setView('preferences')}
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Generate New Meal Plan
-            </Button>
-          </CardContent>
-        </Card>
-
+      <div className="space-y-4">
         <section>
           <div className="mb-3 flex items-center gap-2">
             <Utensils className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-sm font-semibold text-foreground">
-              Recent Meal Plans
+              Meal Plans
             </h2>
           </div>
-          {savedPlans.length === 0 ? (
+          {loading ? (
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center px-6 py-12 text-center">
-                <p className="text-sm text-muted-foreground">
-                  Your generated meal plans will appear here.
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </CardContent>
+            </Card>
+          ) : savedPlans.length === 0 ? (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center px-6 py-16 text-center">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <CalendarDays className="h-6 w-6" />
+                </span>
+                <h3 className="mt-4 text-sm font-semibold text-foreground">No meal plans yet</h3>
+                <p className="mt-1.5 max-w-sm text-xs text-muted-foreground">
+                  Generate your first meal plan to start organizing your family's weekly menu.
                 </p>
               </CardContent>
             </Card>

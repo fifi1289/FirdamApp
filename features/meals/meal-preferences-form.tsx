@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Loader2, Lock, Plus, Sparkles, X } from 'lucide-react';
+import { Loader2, Lock, Plus, Sparkles, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -105,13 +105,6 @@ export function MealPreferencesForm({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={onCancel}>
-          <ArrowLeft className="mr-1.5 h-4 w-4" />
-          Back
-        </Button>
-      </div>
-
       <Card className="border-border/60">
         <CardContent className="p-0">
           <div className="divide-y divide-border">

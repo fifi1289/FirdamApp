@@ -26,14 +26,14 @@ export const moduleIconMap: Record<ModuleIconName, LucideIcon> = {
 
 export const lifeModules: LifeModule[] = [
   {
-    id: 'prayer-times',
-    name: 'Prayer Times',
+    id: 'family',
+    name: 'Family',
     description:
-      'Track daily prayer schedules, set reminders, and stay consistent with your spiritual routine.',
+      'Manage family events, milestones, and shared calendars to keep everyone in sync.',
     status: 'active',
-    accent: 'from-brand-dark to-brand-mid',
-    icon: 'moon',
-    href: '/dashboard/prayer-times',
+    accent: 'from-brand-dark to-brand-light',
+    icon: 'users',
+    href: '/dashboard/family',
   },
   {
     id: 'pantry',
@@ -46,14 +46,14 @@ export const lifeModules: LifeModule[] = [
     href: '/dashboard/pantry',
   },
   {
-    id: 'family',
-    name: 'Family',
+    id: 'prayer-times',
+    name: 'Prayer Times',
     description:
-      'Manage family events, milestones, and shared calendars to keep everyone in sync.',
+      'Track daily prayer schedules, set reminders, and stay consistent with your spiritual routine.',
     status: 'active',
-    accent: 'from-brand-dark to-brand-light',
-    icon: 'users',
-    href: '/dashboard/family',
+    accent: 'from-brand-dark to-brand-mid',
+    icon: 'moon',
+    href: '/dashboard/prayer-times',
   },
   {
     id: 'finance',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   MapPin,
   Search,
@@ -9,6 +9,7 @@ import {
   Clock,
   Loader2,
   CalendarDays,
+  Navigation,
 } from 'lucide-react';
 
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -31,10 +32,20 @@ interface PrayerTimings {
 interface PrayerData {
   timings: PrayerTimings;
   gregorian: { date: string; weekday: string };
-  hijri: { date: string; day: string; month: string; year: string; weekday: string };
+  hijri: { day: string; month: string; year: string; weekday: string };
 }
 
-type LocationMode = 'auto' | 'manual';
+interface Place {
+  id: number;
+  name: string;
+  country: string;
+  region: string;
+  latitude: number;
+  longitude: number;
+  label: string;
+}
+
+type GeoStatus = 'prompt' | 'granted' | 'denied' | 'unavailable';
 
 const PRAYER_ORDER: { key: keyof PrayerTimings; label: string }[] = [
   { key: 'Fajr', label: 'Fajr' },
@@ -133,9 +144,15 @@ export function PrayerSchedule() {
   const [data, setData] = useState<PrayerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<LocationMode>('auto');
+  const [geoStatus, setGeoStatus] = useState<GeoStatus>('prompt');
+  const [activePlace, setActivePlace] = useState<Place | null>(null);
+
   const [cityInput, setCityInput] = useState('');
-  const [activeCity, setActiveCity] = useState<string | null>(null);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
   const [now, setNow] = useState<Date>(new Date());
 
   useEffect(() => {
@@ -143,8 +160,18 @@ export function PrayerSchedule() {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const fetchPrayers = useCallback(
-    async (params: { lat?: number; lng?: number; city?: string }) => {
+    async (lat: number, lng: number, place?: Place) => {
       setLoading(true);
       setError(null);
       try {
@@ -154,14 +181,10 @@ export function PrayerSchedule() {
           setLoading(false);
           return;
         }
-        const query: Record<string, string> = {};
-        if (params.lat != null && params.lng != null) {
-          query.lat = String(params.lat);
-          query.lng = String(params.lng);
-        } else if (params.city) {
-          query.city = params.city;
-        }
-        const qs = new URLSearchParams(query).toString();
+        const qs = new URLSearchParams({
+          lat: String(lat),
+          lng: String(lng),
+        }).toString();
         const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/prayer-times?${qs}`;
         const res = await fetch(functionUrl, {
           headers: {
@@ -181,6 +204,10 @@ export function PrayerSchedule() {
           return;
         }
         setData(result);
+        if (place) {
+          setActivePlace(place);
+          localStorage.setItem(LOC_KEY, JSON.stringify(place));
+        }
         setLoading(false);
       } catch {
         setError('Something went wrong while loading prayer times.');
@@ -192,20 +219,29 @@ export function PrayerSchedule() {
 
   const requestGeolocation = useCallback(() => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setMode('manual');
+      setGeoStatus('unavailable');
       setLoading(false);
       return;
     }
-    setMode('auto');
+    setGeoStatus('prompt');
     setLoading(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        localStorage.setItem(LOC_KEY, JSON.stringify({ lat: latitude, lng: longitude }));
-        fetchPrayers({ lat: latitude, lng: longitude });
+        setGeoStatus('granted');
+        const place: Place = {
+          id: -1,
+          name: 'Current location',
+          country: '',
+          region: '',
+          latitude,
+          longitude,
+          label: 'Current location',
+        };
+        fetchPrayers(latitude, longitude, place);
       },
       () => {
-        setMode('manual');
+        setGeoStatus('denied');
         setLoading(false);
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
@@ -216,16 +252,13 @@ export function PrayerSchedule() {
     const saved = localStorage.getItem(LOC_KEY);
     if (saved) {
       try {
-        const parsed = JSON.parse(saved) as { lat?: number; lng?: number; city?: string };
-        if (parsed.lat != null && parsed.lng != null) {
-          setMode('auto');
-          fetchPrayers({ lat: parsed.lat, lng: parsed.lng });
-          return;
-        }
-        if (parsed.city) {
-          setMode('manual');
-          setActiveCity(parsed.city);
-          fetchPrayers({ city: parsed.city });
+        const parsed = JSON.parse(saved) as Place;
+        if (
+          typeof parsed.latitude === 'number' &&
+          typeof parsed.longitude === 'number'
+        ) {
+          setActivePlace(parsed);
+          fetchPrayers(parsed.latitude, parsed.longitude);
           return;
         }
       } catch {
@@ -235,18 +268,48 @@ export function PrayerSchedule() {
     requestGeolocation();
   }, [requestGeolocation, fetchPrayers]);
 
-  const handleCitySearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const city = cityInput.trim();
-    if (!city) return;
-    setActiveCity(city);
-    setMode('manual');
-    localStorage.setItem(LOC_KEY, JSON.stringify({ city }));
-    fetchPrayers({ city });
+  // Debounced city search
+  useEffect(() => {
+    if (!cityInput.trim() || cityInput.trim().length < 2) {
+      setPlaces([]);
+      setShowDropdown(false);
+      return;
+    }
+    setSearching(true);
+    const t = setTimeout(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const qs = new URLSearchParams({ q: cityInput.trim() }).toString();
+        const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/prayer-times?${qs}`;
+        const res = await fetch(functionUrl, {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          },
+        });
+        if (!res.ok) return;
+        const json = (await res.json()) as { places?: Place[] };
+        setPlaces(json.places ?? []);
+        setShowDropdown(true);
+      } catch {
+        // ignore
+      } finally {
+        setSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(t);
+  }, [cityInput, supabase]);
+
+  const handleSelectPlace = (place: Place) => {
+    setCityInput(place.label);
+    setShowDropdown(false);
+    fetchPrayers(place.latitude, place.longitude, place);
   };
 
   const current = data ? computeCurrent(data.timings, now) : null;
   const remainingMs = current ? current.nextDate.getTime() - now.getTime() : 0;
+  const showCitySearch = geoStatus === 'denied' || geoStatus === 'unavailable' || !!activePlace;
 
   return (
     <AppShell>
@@ -260,28 +323,62 @@ export function PrayerSchedule() {
         </Button>
       </PageHeader>
 
-      {mode === 'manual' && (
-        <form onSubmit={handleCitySearch} className="mb-4 flex gap-2">
-          <div className="relative flex-1">
+      {showCitySearch && (
+        <div ref={searchRef} className="relative mb-4 max-w-md">
+          <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={cityInput}
               onChange={(e) => setCityInput(e.target.value)}
-              placeholder="Search your city (e.g. London, Istanbul)"
+              placeholder="Search your city (e.g. London, Istanbul, Cairo)"
               className="pl-9"
+              onFocus={() => places.length > 0 && setShowDropdown(true)}
             />
+            {searching && (
+              <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+            )}
           </div>
-          <Button type="submit" size="sm" disabled={loading || !cityInput.trim()}>
-            Search
-          </Button>
-        </form>
+
+          {showDropdown && places.length > 0 && (
+            <ul className="absolute z-50 mt-1 max-h-72 w-full overflow-auto rounded-lg border border-border bg-popover p-1 shadow-lg">
+              {places.map((place) => (
+                <li key={place.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectPlace(place)}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent"
+                  >
+                    <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="flex-1 truncate text-foreground">{place.label}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       )}
 
-      {activeCity && (
+      {activePlace && (
         <p className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          {activeCity}
+          {activePlace.label}
         </p>
+      )}
+
+      {geoStatus === 'denied' && !activePlace && !loading && (
+        <Card className="mb-4 border-primary/20 bg-primary/5">
+          <CardContent className="flex items-start gap-3 py-4">
+            <Navigation className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Location permission denied
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Search for your city above to see today&apos;s prayer schedule.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {loading && (
@@ -397,7 +494,7 @@ export function PrayerSchedule() {
         </Card>
       )}
 
-      {!loading && !error && !data && mode === 'manual' && (
+      {!loading && !error && !data && geoStatus !== 'prompt' && (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">

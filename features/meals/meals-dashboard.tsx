@@ -47,7 +47,7 @@ import {
   normalizePlan,
   type GeneratedMealPlan,
 } from '@/features/meals/meal-plan-generator';
-import type { MealPlanRecord } from '@/types/database';
+import type { MealPlanRecord, PantryItem } from '@/types/database';
 
 type View = 'home' | 'preferences' | 'plan';
 
@@ -68,6 +68,7 @@ export function MealsDashboard() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [householdSize, setHouseholdSize] = useState(4);
+  const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
 
   const loadPreferences = useCallback(async () => {
     const { data, error } = await supabase
@@ -112,12 +113,24 @@ export function MealsDashboard() {
     setHouseholdSize(size > 0 ? size + 1 : 4);
   }, [supabase]);
 
+  const loadPantryItems = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('pantry_items')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Failed to load pantry items:', error.message);
+      return;
+    }
+    setPantryItems(data ?? []);
+  }, [supabase]);
+
   useEffect(() => {
     (async () => {
-      await Promise.all([loadPreferences(), loadSavedPlans(), loadHouseholdSize()]);
+      await Promise.all([loadPreferences(), loadSavedPlans(), loadHouseholdSize(), loadPantryItems()]);
       setLoading(false);
     })();
-  }, [loadPreferences, loadSavedPlans, loadHouseholdSize]);
+  }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems]);
 
   const handleGenerate = async (prefs: MealPreferencesState) => {
     setPreferences(prefs);
@@ -162,7 +175,7 @@ export function MealsDashboard() {
   };
 
   const handleBackHome = async () => {
-    await loadSavedPlans();
+    await Promise.all([loadSavedPlans(), loadPantryItems()]);
     setGeneratedPlan(null);
     setActivePlanId(null);
     setView('home');
@@ -246,6 +259,7 @@ export function MealsDashboard() {
           plan={generatedPlan}
           preferences={preferences}
           planId={activePlanId}
+          pantryItems={pantryItems}
           onRegenerate={handleRegenerate}
           onBack={handleBackHome}
         />

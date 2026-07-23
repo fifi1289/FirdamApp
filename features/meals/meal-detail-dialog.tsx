@@ -1,8 +1,11 @@
 'use client';
 
 import {
+  AlertTriangle,
+  CheckCircle2,
   ChefHat,
   Clock,
+  PackageX,
   Soup,
   Users,
   Utensils,
@@ -19,11 +22,19 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { getMealTypeLabel } from '@/features/meals/meals-config';
 import type { MockMeal } from '@/features/meals/meal-plan-generator';
+import {
+  checkMealIngredients,
+  formatQuantityWithUnit,
+  type IngredientCheck,
+  type IngredientStatus,
+} from '@/features/meals/pantry-check';
+import type { PantryItem } from '@/types/database';
 
 interface MealDetailDialogProps {
   meal: MockMeal | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  pantryItems: PantryItem[];
 }
 
 const DIFFICULTY_STYLES: Record<string, string> = {
@@ -32,11 +43,106 @@ const DIFFICULTY_STYLES: Record<string, string> = {
   Hard: 'bg-red-500/10 text-red-600 dark:text-red-400',
 };
 
+const STATUS_CONFIG: Record<
+  IngredientStatus,
+  { icon: typeof CheckCircle2; label: string; className: string; textClass: string }
+> = {
+  available: {
+    icon: CheckCircle2,
+    label: 'Available',
+    className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+    textClass: 'text-emerald-600 dark:text-emerald-400',
+  },
+  low: {
+    icon: AlertTriangle,
+    label: 'Low quantity',
+    className: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+    textClass: 'text-amber-600 dark:text-amber-400',
+  },
+  missing: {
+    icon: PackageX,
+    label: 'Not available',
+    className: 'border-destructive/30 bg-destructive/10 text-destructive',
+    textClass: 'text-destructive',
+  },
+};
+
+function PantryStatusRow({ check }: { check: IngredientCheck }) {
+  const config = STATUS_CONFIG[check.status];
+  const StatusIcon = config.icon;
+
+  return (
+    <div className="rounded-lg border border-border/60 p-3">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-medium text-foreground">
+          {check.ingredient.name}
+        </p>
+        <span
+          className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${config.className}`}
+        >
+          <StatusIcon className="h-3 w-3" />
+          {config.label}
+        </span>
+      </div>
+      <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between gap-2">
+          <span>Required</span>
+          <span className="font-medium text-foreground">
+            {formatQuantityWithUnit(
+              check.requiredQuantity,
+              check.requiredUnit
+            )}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span>Available</span>
+          <span className="font-medium text-foreground">
+            {check.matchedItem
+              ? formatQuantityWithUnit(
+                  check.availableQuantity,
+                  check.availableUnit
+                )
+              : 'Not in pantry'}
+          </span>
+        </div>
+        {check.status === 'available' && (
+          <div className="flex items-center justify-between gap-2">
+            <span>Remaining</span>
+            <span className={`font-medium ${config.textClass}`}>
+              {formatQuantityWithUnit(
+                check.remainingQuantity,
+                check.remainingUnit
+              )}
+            </span>
+          </div>
+        )}
+        {check.status === 'low' && check.matchedItem && (
+          <div className="flex items-center justify-between gap-2">
+            <span>Status</span>
+            <span className={`font-medium ${config.textClass}`}>
+              Insufficient quantity
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function MealDetailDialog({
   meal,
   open,
   onOpenChange,
+  pantryItems,
 }: MealDetailDialogProps) {
+  const checks = meal
+    ? checkMealIngredients(meal.ingredients, pantryItems)
+    : [];
+
+  const availableCount = checks.filter((c) => c.status === 'available').length;
+  const lowCount = checks.filter((c) => c.status === 'low').length;
+  const missingCount = checks.filter((c) => c.status === 'missing').length;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
@@ -122,6 +228,52 @@ export function MealDetailDialog({
                   ))}
                 </ul>
               </div>
+            )}
+
+            {meal.ingredients.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <PackageX className="h-4 w-4 text-primary" />
+                      Pantry Status
+                    </h4>
+                    <div className="flex items-center gap-2 text-[11px]">
+                      {availableCount > 0 && (
+                        <span className="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="h-3 w-3" />
+                          {availableCount}
+                        </span>
+                      )}
+                      {lowCount > 0 && (
+                        <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
+                          <AlertTriangle className="h-3 w-3" />
+                          {lowCount}
+                        </span>
+                      )}
+                      {missingCount > 0 && (
+                        <span className="flex items-center gap-1 font-medium text-destructive">
+                          <PackageX className="h-3 w-3" />
+                          {missingCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {pantryItems.length === 0 ? (
+                    <p className="rounded-lg border border-dashed border-border/60 px-3 py-4 text-center text-xs text-muted-foreground">
+                      Your pantry is empty. Add items in the Pantry module to
+                      see availability for this meal.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {checks.map((check, i) => (
+                        <PantryStatusRow key={i} check={check} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
 
             {meal.recipe.length > 0 && (

@@ -217,18 +217,20 @@ export function PrayerSchedule() {
     [supabase]
   );
 
+  const [geoLoading, setGeoLoading] = useState(false);
+
   const requestGeolocation = useCallback(() => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
       setGeoStatus('unavailable');
-      setLoading(false);
       return;
     }
     setGeoStatus('prompt');
-    setLoading(true);
+    setGeoLoading(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
         setGeoStatus('granted');
+        setGeoLoading(false);
         const place: Place = {
           id: -1,
           name: 'Current location',
@@ -242,7 +244,7 @@ export function PrayerSchedule() {
       },
       () => {
         setGeoStatus('denied');
-        setLoading(false);
+        setGeoLoading(false);
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
     );
@@ -317,7 +319,12 @@ export function PrayerSchedule() {
         title="Prayer Times"
         description="Today's prayer schedule based on your location."
       >
-        <Button variant="outline" size="sm" onClick={requestGeolocation} disabled={loading}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={requestGeolocation}
+          disabled={geoLoading}
+        >
           <LocateFixed className="mr-2 h-4 w-4" />
           Use my location
         </Button>

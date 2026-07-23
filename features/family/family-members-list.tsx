@@ -37,6 +37,7 @@ import {
   emptyMemberValues,
   type FamilyMemberFormValues,
 } from '@/features/family/family-member-form-dialog';
+import { HouseholdSummary } from '@/features/family/household-summary';
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -241,7 +242,10 @@ export function FamilyMembersList() {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-4">
+        <HouseholdSummary members={members} />
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {members.map((member) => (
           <FamilyMemberCard
             key={member.id}
@@ -253,6 +257,7 @@ export function FamilyMembersList() {
             }}
           />
         ))}
+        </div>
       </div>
 
       <FamilyMemberFormDialog

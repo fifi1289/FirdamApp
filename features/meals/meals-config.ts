@@ -50,3 +50,7 @@ export type MealPreferencesState = {
   dietaryPreferences: string[];
   allergies: string[];
 };
+
+export function getMealTypeLabel(key: string): string {
+  return MEAL_TYPES.find((m) => m.key === key)?.label ?? key;
+}

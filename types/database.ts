@@ -216,6 +216,35 @@ export type Database = {
         };
         Relationships: [];
       };
+      meal_plans: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          plan_data: Record<string, unknown>;
+          preferences: Record<string, unknown>;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          plan_data: Record<string, unknown>;
+          preferences: Record<string, unknown>;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          plan_data?: Record<string, unknown>;
+          preferences?: Record<string, unknown>;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;
@@ -229,6 +258,7 @@ export type PlannerGoal = Database['public']['Tables']['planner_goals']['Row'];
 export type PantryItem = Database['public']['Tables']['pantry_items']['Row'];
 export type FamilyMember = Database['public']['Tables']['family_members']['Row'];
 export type MealPreference = Database['public']['Tables']['meal_preferences']['Row'];
+export type MealPlanRecord = Database['public']['Tables']['meal_plans']['Row'];
 
 export type TaskPriority = 'high' | 'medium' | 'low';
 

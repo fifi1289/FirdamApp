@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import {
   DURATION_OPTIONS,
   MEAL_TYPES,
@@ -22,14 +21,15 @@ import {
 interface MealPreferencesFormProps {
   initial: MealPreferencesState;
   onCancel: () => void;
+  onGenerate: (preferences: MealPreferencesState) => void;
 }
 
 export function MealPreferencesForm({
   initial,
   onCancel,
+  onGenerate,
 }: MealPreferencesFormProps) {
-  const supabase = createSupabaseBrowserClient();
-  const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [planningDuration, setPlanningDuration] = useState<number>(
     initial.planningDuration
   );
@@ -80,30 +80,23 @@ export function MealPreferencesForm({
   };
 
   const handleGenerate = async () => {
-    setSaving(true);
-    const { error } = await supabase.from('meal_preferences').upsert(
-      {
-        planning_duration: planningDuration,
-        meal_types: mealTypes,
-        use_pantry_first: usePantryFirst,
-        dietary_preferences: dietaryPreferences,
-        allergies,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id' }
-    );
-
-    setSaving(false);
-    if (error) {
-      toast.error('Could not save preferences', {
-        description: error.message,
-      });
+    if (!DURATION_OPTIONS.some((o) => o.value === planningDuration)) {
+      toast.error('Please select a planning duration');
       return;
     }
-    toast.success('Preferences saved', {
-      description: 'Your meal plan preferences are ready for the next step.',
+    if (mealTypes.length === 0) {
+      toast.error('Please select at least one meal type');
+      return;
+    }
+
+    setGenerating(true);
+    onGenerate({
+      planningDuration,
+      mealTypes,
+      usePantryFirst,
+      dietaryPreferences,
+      allergies,
     });
-    onCancel();
   };
 
   const customAllergies = allergies.filter(
@@ -359,11 +352,11 @@ export function MealPreferencesForm({
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleGenerate} disabled={saving}>
-          {saving ? (
+        <Button onClick={handleGenerate} disabled={generating}>
+          {generating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving…
+              Generating…
             </>
           ) : (
             <>

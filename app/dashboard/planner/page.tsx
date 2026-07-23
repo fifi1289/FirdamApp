@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TasksList } from '@/features/planner/tasks-list';
 import { TodaysFocus } from '@/features/planner/todays-focus';
-import { DayTimeline } from '@/features/planner/day-timeline';
+import { UpNext } from '@/features/planner/up-next';
 import { PlannerProvider } from '@/features/planner/planner-context';
 import { cn } from '@/lib/utils';
 
@@ -94,9 +94,9 @@ export default function PlannerPage() {
           </Card>
         </section>
 
-        {/* Day Timeline */}
-        <section aria-labelledby="timeline-heading" className="lg:col-span-2">
-          <DayTimeline />
+        {/* Up Next */}
+        <section aria-labelledby="up-next-heading" className="lg:col-span-2">
+          <UpNext />
         </section>
       </div>
 

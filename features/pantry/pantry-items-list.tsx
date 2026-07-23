@@ -7,6 +7,7 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
+  Search,
   Trash2,
 } from 'lucide-react';
 
@@ -14,6 +15,12 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  PANTRY_CATEGORIES,
+  type PantryCategory,
+  type PantryItem,
+} from '@/types/database';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +39,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import type { PantryItem } from '@/types/database';
 import { CATEGORY_ICONS } from '@/features/pantry/pantry-config';
 import {
   PantryItemFormDialog,
@@ -177,10 +183,37 @@ function PantryItemCard({
   );
 }
 
+function CategoryChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+        active
+          ? 'border-primary bg-primary text-primary-foreground'
+          : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
 export function PantryItemsList() {
   const supabase = createSupabaseBrowserClient();
   const [items, setItems] = useState<PantryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState<PantryCategory | 'All'>('All');
   const [editingItem, setEditingItem] = useState<PantryItem | null>(null);
   const [editValues, setEditValues] = useState<PantryItemFormValues>(emptyItemValues());
   const [editOpen, setEditOpen] = useState(false);
@@ -263,20 +296,85 @@ export function PantryItemsList() {
     );
   }
 
+  const trimmedSearch = search.trim().toLowerCase();
+  const filtered = items.filter((item) => {
+    const matchesSearch =
+      !trimmedSearch || item.name.toLowerCase().includes(trimmedSearch);
+    const matchesCategory =
+      activeCategory === 'All' || item.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => (
-          <PantryItemCard
-            key={item.id}
-            item={item}
-            onEdit={startEdit}
-            onDelete={(i) => {
-              setDeletingItem(i);
-              setDeleteOpen(true);
-            }}
+      <div className="space-y-4">
+        <div className="relative max-w-sm">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search items by name…"
+            className="pl-9"
+            aria-label="Search pantry items"
           />
-        ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <CategoryChip
+            label="All"
+            active={activeCategory === 'All'}
+            onClick={() => setActiveCategory('All')}
+          />
+          {PANTRY_CATEGORIES.map((c) => (
+            <CategoryChip
+              key={c}
+              label={c}
+              active={activeCategory === c}
+              onClick={() => setActiveCategory(c)}
+            />
+          ))}
+        </div>
+
+        {filtered.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center px-6 py-16 text-center">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                <Search className="h-6 w-6" />
+              </span>
+              <h3 className="mt-4 text-base font-semibold text-foreground">
+                No matching items
+              </h3>
+              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                Try a different search term or category filter.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-5"
+                onClick={() => {
+                  setSearch('');
+                  setActiveCategory('All');
+                }}
+              >
+                Clear filters
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((item) => (
+              <PantryItemCard
+                key={item.id}
+                item={item}
+                onEdit={startEdit}
+                onDelete={(i) => {
+                  setDeletingItem(i);
+                  setDeleteOpen(true);
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <PantryItemFormDialog

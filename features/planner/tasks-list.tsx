@@ -39,6 +39,7 @@ import {
   emptyValues,
   type TaskFormValues,
 } from '@/features/planner/new-task-dialog';
+import { usePlannerDate } from '@/features/planner/planner-context';
 
 export const PLANNER_TASKS_CHANGED = 'planner-tasks-changed';
 
@@ -70,6 +71,7 @@ function formatTimeRange(start: string | null, end: string | null): string {
 
 export function TasksList() {
   const supabase = createSupabaseBrowserClient();
+  const { selectedDate } = usePlannerDate();
   const [tasks, setTasks] = useState<PlannerTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState<PlannerTask | null>(null);
@@ -80,11 +82,10 @@ export function TasksList() {
   const [deleting, setDeleting] = useState(false);
 
   const loadTasks = useCallback(async () => {
-    const today = new Date().toISOString().slice(0, 10);
     const { data, error } = await supabase
       .from('planner_tasks')
       .select('*')
-      .eq('scheduled_date', today)
+      .eq('scheduled_date', selectedDate)
       .order('time', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: true });
 
@@ -93,7 +94,7 @@ export function TasksList() {
     }
     setTasks(data ?? []);
     setLoading(false);
-  }, [supabase]);
+  }, [supabase, selectedDate]);
 
   useEffect(() => {
     loadTasks();
@@ -165,7 +166,7 @@ export function TasksList() {
           </p>
         ) : sorted.length === 0 ? (
           <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-            No tasks for today.
+            No tasks for this day.
           </p>
         ) : (
           sorted.map((task) => (

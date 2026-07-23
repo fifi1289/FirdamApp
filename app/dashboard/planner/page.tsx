@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TasksList } from '@/features/planner/tasks-list';
 import { TodaysFocus } from '@/features/planner/todays-focus';
+import { PlannerProvider } from '@/features/planner/planner-context';
 import { cn } from '@/lib/utils';
 
 export const metadata = { title: 'Planner' };
@@ -40,6 +41,7 @@ const calendarDays = [
 export default function PlannerPage() {
   return (
     <AppShell>
+      <PlannerProvider>
       <TodaysFocus />
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -159,6 +161,7 @@ export default function PlannerPage() {
           </CardContent>
         </Card>
       </section>
+      </PlannerProvider>
     </AppShell>
   );
 }

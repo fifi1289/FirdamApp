@@ -13,6 +13,11 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { NewTaskDialog } from '@/features/planner/new-task-dialog';
 import { PLANNER_TASKS_CHANGED } from '@/features/planner/tasks-list';
+import {
+  usePlannerDate,
+  isToday as isDateToday,
+  formatDateLong as formatDateLongUtil,
+} from '@/features/planner/planner-context';
 import { cn } from '@/lib/utils';
 import type { PlannerTask } from '@/types/database';
 
@@ -30,33 +35,18 @@ function buildDisplayName(
   return 'friend';
 }
 
-function greetingFor(date: Date): string {
-  const h = date.getHours();
+function greetingFor(dateKey: string): string {
+  const h = new Date().getHours();
   if (h < 12) return 'Good morning';
   if (h < 18) return 'Good afternoon';
   return 'Good evening';
 }
 
-function subtitleFor(date: Date): string {
-  const h = date.getHours();
+function subtitleFor(dateKey: string): string {
+  const h = new Date().getHours();
   if (h < 12) return 'Take a breath. A calm, intentional day starts here.';
   if (h < 18) return 'Keep the momentum steady. One task at a time.';
   return 'Reflect on today. Ease gently into the evening.';
-}
-
-function formatDateLong(date: Date): string {
-  return date.toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
-function toLocalDateInputValue(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
 }
 
 function formatTime(time: string | null): string {
@@ -82,12 +72,12 @@ const PRIORITY_BADGES = [
 export function TodaysFocus() {
   const supabase = createSupabaseBrowserClient();
   const { user, loading } = useAuth();
+  const { selectedDate, setSelectedDate } = usePlannerDate();
   const [tasks, setTasks] = useState<PlannerTask[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
 
-  const dateKey = toLocalDateInputValue(selectedDate);
-  const isToday = dateKey === toLocalDateInputValue(new Date());
+  const dateKey = selectedDate;
+  const isToday = isDateToday(dateKey);
 
   const loadTasks = useCallback(async () => {
     const { data, error } = await supabase
@@ -140,8 +130,8 @@ export function TodaysFocus() {
     return full.split(' ')[0] ?? full;
   }, [user]);
 
-  const greeting = greetingFor(selectedDate);
-  const subtitle = subtitleFor(selectedDate);
+  const greeting = greetingFor(dateKey);
+  const subtitle = subtitleFor(dateKey);
 
   return (
     <section className="space-y-6">
@@ -169,7 +159,7 @@ export function TodaysFocus() {
               value={dateKey}
               onChange={(e) => {
                 const v = e.target.value;
-                if (v) setSelectedDate(new Date(`${v}T00:00:00`));
+                if (v) setSelectedDate(v);
               }}
               className="w-[180px] pl-9 text-sm"
               aria-label="Select date"
@@ -192,7 +182,7 @@ export function TodaysFocus() {
               Today&apos;s Focus
             </h2>
             <span className="text-sm text-muted-foreground">
-              {isToday ? 'Top 3 high priorities' : formatDateLong(selectedDate)}
+              {isToday ? 'Top 3 high priorities' : formatDateLongUtil(selectedDate)}
             </span>
           </div>
           <span className="hidden text-xs font-medium uppercase tracking-wider text-muted-foreground sm:block">

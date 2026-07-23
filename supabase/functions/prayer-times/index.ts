@@ -37,6 +37,34 @@ interface GeocodeResult {
   admin1?: string;
 }
 
+interface NominatimAddress {
+  city?: string;
+  town?: string;
+  village?: string;
+  hamlet?: string;
+  county?: string;
+  state?: string;
+  country?: string;
+}
+
+interface NominatimResponse {
+  name?: string;
+  address?: NominatimAddress;
+}
+
+async function reverseGeocode(lat: string, lng: string): Promise<string | null> {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&accept-language=en`;
+  const res = await fetch(url, { headers: { "User-Agent": "firdam-app" } });
+  if (!res.ok) return null;
+  const json = (await res.json()) as NominatimResponse;
+  const addr = json.address;
+  if (!addr) return json.name ?? null;
+  const city = addr.city ?? addr.town ?? addr.village ?? addr.hamlet ?? addr.county ?? json.name ?? null;
+  const country = addr.country ?? null;
+  if (city && country) return `${city}, ${country}`;
+  return city ?? country ?? json.name ?? null;
+}
+
 function filterTimings(raw: Record<string, string>): PrayerTimings {
   return {
     Fajr: raw.Fajr ?? "",
@@ -66,6 +94,16 @@ Deno.serve(async (req: Request) => {
     const lat = url.searchParams.get("lat");
     const lng = url.searchParams.get("lng");
     const q = url.searchParams.get("q"); // city search query
+    const reverse = url.searchParams.get("reverse") === "1";
+
+    // Reverse geocode: coordinates -> "City, Country"
+    if (reverse && lat && lng) {
+      const label = await reverseGeocode(lat, lng);
+      return new Response(
+        JSON.stringify({ label }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // City search via Open-Meteo geocoding
     if (q) {

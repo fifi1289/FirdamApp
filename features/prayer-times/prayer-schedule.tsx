@@ -129,13 +129,16 @@ function formatRemaining(ms: number): string {
 }
 
 function GregorianLabel({ gregorian }: { gregorian: PrayerData['gregorian'] }) {
-  const d = new Date(`${gregorian.date}T00:00:00`);
-  const formatted = d.toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const [dd, mm, yyyy] = gregorian.date.split('-').map(Number);
+  const d = new Date(yyyy, mm - 1, dd);
+  const formatted = isNaN(d.getTime())
+    ? gregorian.date
+    : d.toLocaleDateString(undefined, {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
   return <span>{formatted}</span>;
 }
 
@@ -217,6 +220,33 @@ export function PrayerSchedule() {
     [supabase]
   );
 
+  const reverseGeocode = useCallback(
+    async (lat: number, lng: number): Promise<string> => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return 'Current location';
+        const qs = new URLSearchParams({
+          lat: String(lat),
+          lng: String(lng),
+          reverse: '1',
+        }).toString();
+        const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/prayer-times?${qs}`;
+        const res = await fetch(functionUrl, {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          },
+        });
+        if (!res.ok) return 'Current location';
+        const json = (await res.json()) as { label?: string };
+        return json.label || 'Current location';
+      } catch {
+        return 'Current location';
+      }
+    },
+    [supabase]
+  );
+
   const [geoLoading, setGeoLoading] = useState(false);
 
   const requestGeolocation = useCallback(() => {
@@ -227,18 +257,19 @@ export function PrayerSchedule() {
     setGeoStatus('prompt');
     setGeoLoading(true);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const { latitude, longitude } = pos.coords;
         setGeoStatus('granted');
         setGeoLoading(false);
+        const label = await reverseGeocode(latitude, longitude);
         const place: Place = {
           id: -1,
-          name: 'Current location',
+          name: label,
           country: '',
           region: '',
           latitude,
           longitude,
-          label: 'Current location',
+          label,
         };
         fetchPrayers(latitude, longitude, place);
       },
@@ -248,7 +279,7 @@ export function PrayerSchedule() {
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
     );
-  }, [fetchPrayers]);
+  }, [fetchPrayers, reverseGeocode]);
 
   useEffect(() => {
     const saved = localStorage.getItem(LOC_KEY);
@@ -269,7 +300,6 @@ export function PrayerSchedule() {
     }
     requestGeolocation();
   }, [requestGeolocation, fetchPrayers]);
-
   // Debounced city search
   useEffect(() => {
     if (!cityInput.trim() || cityInput.trim().length < 2) {

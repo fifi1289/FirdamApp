@@ -75,6 +75,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      planner_goals: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          description: string | null;
+          target_date: string | null;
+          progress: number;
+          completed: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          title: string;
+          description?: string | null;
+          target_date?: string | null;
+          progress?: number;
+          completed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          description?: string | null;
+          target_date?: string | null;
+          progress?: number;
+          completed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;
@@ -84,6 +120,7 @@ export type Database = {
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type PlannerTask = Database['public']['Tables']['planner_tasks']['Row'];
+export type PlannerGoal = Database['public']['Tables']['planner_goals']['Row'];
 
 export type TaskPriority = 'high' | 'medium' | 'low';
 

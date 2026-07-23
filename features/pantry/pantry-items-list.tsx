@@ -17,6 +17,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   PANTRY_CATEGORIES,
   type PantryCategory,
   type PantryItem,
@@ -183,6 +190,47 @@ function PantryItemCard({
   );
 }
 
+type SortOption = 'expiration' | 'recent' | 'name' | 'category';
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'expiration', label: 'Expiration Date (Soonest First)' },
+  { value: 'recent', label: 'Recently Added' },
+  { value: 'name', label: 'Name (A–Z)' },
+  { value: 'category', label: 'Category' },
+];
+
+function sortItems(list: PantryItem[], sort: SortOption): PantryItem[] {
+  const sorted = [...list];
+  switch (sort) {
+    case 'expiration':
+      sorted.sort((a, b) => {
+        if (!a.expiration_date && !b.expiration_date) return 0;
+        if (!a.expiration_date) return 1;
+        if (!b.expiration_date) return -1;
+        return a.expiration_date.localeCompare(b.expiration_date);
+      });
+      break;
+    case 'recent':
+      sorted.sort((a, b) => b.created_at.localeCompare(a.created_at));
+      break;
+    case 'name':
+      sorted.sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+      );
+      break;
+    case 'category':
+      sorted.sort((a, b) => {
+        const c = a.category.localeCompare(b.category, undefined, {
+          sensitivity: 'base',
+        });
+        if (c !== 0) return c;
+        return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+      });
+      break;
+  }
+  return sorted;
+}
+
 function CategoryChip({
   label,
   active,
@@ -214,6 +262,7 @@ export function PantryItemsList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<PantryCategory | 'All'>('All');
+  const [sort, setSort] = useState<SortOption>('recent');
   const [editingItem, setEditingItem] = useState<PantryItem | null>(null);
   const [editValues, setEditValues] = useState<PantryItemFormValues>(emptyItemValues());
   const [editOpen, setEditOpen] = useState(false);
@@ -304,19 +353,37 @@ export function PantryItemsList() {
       activeCategory === 'All' || item.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
+  const sorted = sortItems(filtered, sort);
 
   return (
     <>
       <div className="space-y-4">
-        <div className="relative max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search items by name…"
-            className="pl-9"
-            aria-label="Search pantry items"
-          />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative max-w-sm flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search items by name…"
+              className="pl-9"
+              aria-label="Search pantry items"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Sort by</span>
+            <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
+              <SelectTrigger className="h-9 w-[230px]" aria-label="Sort pantry items">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -362,7 +429,7 @@ export function PantryItemsList() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((item) => (
+            {sorted.map((item) => (
               <PantryItemCard
                 key={item.id}
                 item={item}

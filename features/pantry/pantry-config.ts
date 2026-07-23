@@ -1,0 +1,42 @@
+import {
+  Apple,
+  Carrot,
+  Beef,
+  Drumstick,
+  Fish,
+  Milk,
+  Egg,
+  Wheat,
+  Soup,
+  Cookie,
+  Snowflake,
+  Croissant,
+  Candy,
+  Coffee,
+  FlaskConical,
+  Droplet,
+  Package,
+  type LucideIcon,
+} from 'lucide-react';
+
+import type { PantryCategory } from '@/types/database';
+
+export const CATEGORY_ICONS: Record<PantryCategory, LucideIcon> = {
+  Fruits: Apple,
+  Vegetables: Carrot,
+  Meat: Beef,
+  Poultry: Drumstick,
+  Seafood: Fish,
+  Dairy: Milk,
+  Eggs: Egg,
+  Grains: Wheat,
+  'Pasta & Rice': Soup,
+  'Canned Foods': FlaskConical,
+  'Frozen Foods': Snowflake,
+  Bakery: Croissant,
+  Snacks: Candy,
+  Beverages: Coffee,
+  Spices: Droplet,
+  'Oils & Condiments': Droplet,
+  Other: Package,
+};

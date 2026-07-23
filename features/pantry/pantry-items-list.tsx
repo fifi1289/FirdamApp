@@ -1,0 +1,288 @@
+'use client';
+
+import { useEffect, useState, useCallback } from 'react';
+import {
+  Archive,
+  CalendarDays,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2,
+} from 'lucide-react';
+
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import type { PantryItem } from '@/types/database';
+import { CATEGORY_ICONS } from '@/features/pantry/pantry-config';
+import {
+  PantryItemFormDialog,
+  itemToValues,
+  emptyItemValues,
+  type PantryItemFormValues,
+} from '@/features/pantry/pantry-item-form-dialog';
+
+export { PANTRY_ITEMS_CHANGED } from '@/features/pantry/pantry-item-form-dialog';
+
+function formatExpiration(iso: string | null): {
+  label: string;
+  tone: 'expired' | 'soon' | 'normal';
+} | null {
+  if (!iso) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  if (isNaN(date.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round(
+    (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  const label = date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  if (diffDays < 0) return { label, tone: 'expired' };
+  if (diffDays <= 3) return { label, tone: 'soon' };
+  return { label, tone: 'normal' };
+}
+
+function PantryItemCard({
+  item,
+  onEdit,
+  onDelete,
+}: {
+  item: PantryItem;
+  onEdit: (item: PantryItem) => void;
+  onDelete: (item: PantryItem) => void;
+}) {
+  const Icon = CATEGORY_ICONS[item.category] ?? Archive;
+  const exp = formatExpiration(item.expiration_date);
+
+  return (
+    <div className="group rounded-xl border border-border/60 bg-card p-4 transition-colors hover:border-border">
+      <div className="flex items-start gap-3">
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-semibold text-foreground">{item.name}</p>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-label="Item actions"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => onEdit(item)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => onDelete(item)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className="text-[10px] font-medium">
+              {item.category}
+            </Badge>
+            <span className="text-xs font-medium tabular-nums text-muted-foreground">
+              {item.quantity} {item.unit}
+            </span>
+          </div>
+          {exp && (
+            <p
+              className={cn(
+                'mt-2 flex items-center gap-1 text-xs',
+                exp.tone === 'expired'
+                  ? 'text-destructive'
+                  : exp.tone === 'soon'
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-muted-foreground'
+              )}
+            >
+              <CalendarDays className="h-3.5 w-3.5" />
+              {exp.tone === 'expired'
+                ? `Expired ${exp.label}`
+                : `Expires ${exp.label}`}
+            </p>
+          )}
+          {item.notes && (
+            <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
+              {item.notes}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function PantryItemsList() {
+  const supabase = createSupabaseBrowserClient();
+  const [items, setItems] = useState<PantryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingItem, setEditingItem] = useState<PantryItem | null>(null);
+  const [editValues, setEditValues] = useState<PantryItemFormValues>(emptyItemValues());
+  const [editOpen, setEditOpen] = useState(false);
+  const [deletingItem, setDeletingItem] = useState<PantryItem | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const loadItems = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('pantry_items')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to load pantry items:', error.message);
+    }
+    setItems(data ?? []);
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    loadItems();
+    const handler = () => loadItems();
+    window.addEventListener('pantry-items-changed', handler);
+    return () => window.removeEventListener('pantry-items-changed', handler);
+  }, [loadItems]);
+
+  const startEdit = (item: PantryItem) => {
+    setEditingItem(item);
+    setEditValues(itemToValues(item));
+    setEditOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingItem) return;
+    const id = deletingItem.id;
+    setDeleting(true);
+    const { error } = await supabase.from('pantry_items').delete().eq('id', id);
+    setDeleting(false);
+    if (error) {
+      console.error('Failed to delete item:', error.message);
+      toast.error('Could not delete item', { description: error.message });
+      return;
+    }
+    setItems((prev) => prev.filter((i) => i.id !== id));
+    setDeleteOpen(false);
+    setDeletingItem(null);
+    toast.success('Item removed from pantry');
+  };
+
+  if (loading) {
+    return (
+      <Card className="border-dashed">
+        <CardContent className="flex flex-col items-center justify-center px-6 py-20 text-center">
+          <p className="text-sm text-muted-foreground">Loading your pantry…</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <Card className="border-dashed">
+        <CardContent className="flex flex-col items-center justify-center px-6 py-20 text-center">
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Archive className="h-7 w-7" />
+          </span>
+          <h3 className="mt-5 text-lg font-semibold text-foreground">
+            Your pantry is empty
+          </h3>
+          <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+            Add your first item to start managing your household food inventory and reduce waste.
+          </p>
+          <Button size="sm" className="mt-6" onClick={() => window.dispatchEvent(new Event('pantry-open-add'))}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add your first item
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => (
+          <PantryItemCard
+            key={item.id}
+            item={item}
+            onEdit={startEdit}
+            onDelete={(i) => {
+              setDeletingItem(i);
+              setDeleteOpen(true);
+            }}
+          />
+        ))}
+      </div>
+
+      <PantryItemFormDialog
+        mode="edit"
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        values={editValues}
+        onValuesChange={setEditValues}
+        item={editingItem ?? undefined}
+      />
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deletingItem
+                ? `"${deletingItem.name}" will be permanently removed from your pantry.`
+                : 'This item will be permanently removed.'}{' '}
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

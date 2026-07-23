@@ -111,6 +111,44 @@ export type Database = {
         };
         Relationships: [];
       };
+      pantry_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          category: PantryCategory;
+          quantity: number;
+          unit: PantryUnit;
+          expiration_date: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          category?: PantryCategory;
+          quantity?: number;
+          unit?: PantryUnit;
+          expiration_date?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          category?: PantryCategory;
+          quantity?: number;
+          unit?: PantryUnit;
+          expiration_date?: string | null;
+          notes?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;
@@ -121,6 +159,7 @@ export type Database = {
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type PlannerTask = Database['public']['Tables']['planner_tasks']['Row'];
 export type PlannerGoal = Database['public']['Tables']['planner_goals']['Row'];
+export type PantryItem = Database['public']['Tables']['pantry_items']['Row'];
 
 export type TaskPriority = 'high' | 'medium' | 'low';
 
@@ -129,3 +168,65 @@ export const PRIORITY_ORDER: Record<TaskPriority, number> = {
   medium: 1,
   low: 2,
 };
+
+export type PantryCategory =
+  | 'Fruits'
+  | 'Vegetables'
+  | 'Meat'
+  | 'Poultry'
+  | 'Seafood'
+  | 'Dairy'
+  | 'Eggs'
+  | 'Grains'
+  | 'Pasta & Rice'
+  | 'Canned Foods'
+  | 'Frozen Foods'
+  | 'Bakery'
+  | 'Snacks'
+  | 'Beverages'
+  | 'Spices'
+  | 'Oils & Condiments'
+  | 'Other';
+
+export type PantryUnit =
+  | 'Pieces'
+  | 'g'
+  | 'kg'
+  | 'ml'
+  | 'L'
+  | 'Pack'
+  | 'Bottle'
+  | 'Can'
+  | 'Box';
+
+export const PANTRY_CATEGORIES: PantryCategory[] = [
+  'Fruits',
+  'Vegetables',
+  'Meat',
+  'Poultry',
+  'Seafood',
+  'Dairy',
+  'Eggs',
+  'Grains',
+  'Pasta & Rice',
+  'Canned Foods',
+  'Frozen Foods',
+  'Bakery',
+  'Snacks',
+  'Beverages',
+  'Spices',
+  'Oils & Condiments',
+  'Other',
+];
+
+export const PANTRY_UNITS: PantryUnit[] = [
+  'Pieces',
+  'g',
+  'kg',
+  'ml',
+  'L',
+  'Pack',
+  'Bottle',
+  'Can',
+  'Box',
+];

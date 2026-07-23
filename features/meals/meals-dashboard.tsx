@@ -44,6 +44,7 @@ import { MealPreferencesForm } from '@/features/meals/meal-preferences-form';
 import { MealPlanView } from '@/features/meals/meal-plan-view';
 import {
   mockMealPlanGenerator,
+  normalizePlan,
   type GeneratedMealPlan,
 } from '@/features/meals/meal-plan-generator';
 import type { MealPlanRecord } from '@/types/database';
@@ -66,6 +67,7 @@ export function MealsDashboard() {
   const [deletingPlan, setDeletingPlan] = useState<MealPlanRecord | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [householdSize, setHouseholdSize] = useState(4);
 
   const loadPreferences = useCallback(async () => {
     const { data, error } = await supabase
@@ -99,12 +101,23 @@ export function MealsDashboard() {
     setSavedPlans(data ?? []);
   }, [supabase]);
 
+  const loadHouseholdSize = useCallback(async () => {
+    const { count, error } = await supabase
+      .from('family_members')
+      .select('*', { count: 'exact', head: true });
+    if (error) {
+      return;
+    }
+    const size = count ?? 0;
+    setHouseholdSize(size > 0 ? size + 1 : 4);
+  }, [supabase]);
+
   useEffect(() => {
     (async () => {
-      await Promise.all([loadPreferences(), loadSavedPlans()]);
+      await Promise.all([loadPreferences(), loadSavedPlans(), loadHouseholdSize()]);
       setLoading(false);
     })();
-  }, [loadPreferences, loadSavedPlans]);
+  }, [loadPreferences, loadSavedPlans, loadHouseholdSize]);
 
   const handleGenerate = async (prefs: MealPreferencesState) => {
     setPreferences(prefs);
@@ -128,7 +141,10 @@ export function MealsDashboard() {
       console.error('Failed to save preferences:', prefError.message);
     }
 
-    const plan = await mockMealPlanGenerator.generate({ preferences: prefs });
+    const plan = await mockMealPlanGenerator.generate({
+      preferences: prefs,
+      householdSize,
+    });
     setGeneratedPlan(plan);
     setActivePlanId(null);
     setGenerating(false);
@@ -137,7 +153,10 @@ export function MealsDashboard() {
 
   const handleRegenerate = async () => {
     setGenerating(true);
-    const plan = await mockMealPlanGenerator.generate({ preferences });
+    const plan = await mockMealPlanGenerator.generate({
+      preferences,
+      householdSize,
+    });
     setGeneratedPlan(plan);
     setGenerating(false);
   };
@@ -150,8 +169,8 @@ export function MealsDashboard() {
   };
 
   const openSavedPlan = (record: MealPlanRecord) => {
-    const plan = record.plan_data as unknown as GeneratedMealPlan;
-    if (!plan || !Array.isArray(plan.days)) {
+    const plan = normalizePlan(record.plan_data as Record<string, unknown>);
+    if (!plan || !Array.isArray(plan.days) || plan.days.length === 0) {
       toast.error('This meal plan could not be opened.');
       return;
     }

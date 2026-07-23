@@ -7,6 +7,7 @@ import {
   RefreshCw,
   Save,
   Utensils,
+  Users,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -163,7 +164,7 @@ export function MealPlanView({
                   <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
                     {meal.description}
                   </p>
-                  <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
                     {meal.ingredients.length > 0 && (
                       <span>{meal.ingredients.length} ingredients</span>
                     )}
@@ -172,6 +173,11 @@ export function MealPlanView({
                         {meal.prepTime + meal.cookTime} min total
                       </span>
                     )}
+                    <span className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      {meal.servings}
+                    </span>
+                    <span>{meal.difficulty}</span>
                   </div>
                   <Button
                     variant="ghost"

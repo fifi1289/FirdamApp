@@ -21,6 +21,7 @@ import type {
   MockMeal,
 } from '@/features/meals/meal-plan-generator';
 import { MealEditDialog } from '@/features/meals/meal-edit-dialog';
+import { MealDetailDialog } from '@/features/meals/meal-detail-dialog';
 
 interface MealPlanViewProps {
   plan: GeneratedMealPlan;
@@ -39,6 +40,8 @@ export function MealPlanView({
   const [currentPlan, setCurrentPlan] = useState(plan);
   const [editMeal, setEditMeal] = useState<MockMeal | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [detailMeal, setDetailMeal] = useState<MockMeal | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
 
@@ -124,7 +127,14 @@ export function MealPlanView({
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {day.meals.map((meal) => (
-              <Card key={meal.id} className="overflow-hidden">
+              <Card
+                key={meal.id}
+                className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+                onClick={() => {
+                  setDetailMeal(meal);
+                  setDetailOpen(true);
+                }}
+              >
                 <div className="relative h-32 w-full bg-muted">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -157,7 +167,8 @@ export function MealPlanView({
                     variant="ghost"
                     size="sm"
                     className="mt-2 -ml-2 h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setEditMeal(meal);
                       setEditOpen(true);
                     }}
@@ -172,6 +183,11 @@ export function MealPlanView({
         </div>
       ))}
 
+      <MealDetailDialog
+        meal={detailMeal}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
       <MealEditDialog
         meal={editMeal}
         open={editOpen}

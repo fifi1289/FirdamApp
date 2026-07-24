@@ -87,6 +87,8 @@ export function MealsDashboard() {
         usePantryFirst: data.use_pantry_first,
         dietaryPreferences: data.dietary_preferences,
         allergies: data.allergies,
+        cuisinePreferences:
+          (data.cuisine_preferences as Record<string, string[]>) ?? {},
       });
     }
   }, [supabase]);
@@ -150,6 +152,7 @@ export function MealsDashboard() {
           use_pantry_first: prefs.usePantryFirst,
           dietary_preferences: prefs.dietaryPreferences,
           allergies: prefs.allergies,
+          cuisine_preferences: prefs.cuisinePreferences,
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'user_id' }

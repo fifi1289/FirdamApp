@@ -16,6 +16,8 @@ import {
   MEAL_TYPES,
   DIETARY_OPTIONS,
   PREDEFINED_ALLERGIES,
+  CUISINE_OPTIONS,
+  type CuisinePreferences,
   type MealPreferencesState,
 } from '@/features/meals/meals-config';
 import {
@@ -47,6 +49,9 @@ export function MealPreferencesForm({
   const [allergies, setAllergies] = useState<string[]>(initial.allergies);
   const [otherSelected, setOtherSelected] = useState(false);
   const [customAllergy, setCustomAllergy] = useState('');
+  const [cuisinePreferences, setCuisinePreferences] = useState<CuisinePreferences>(
+    initial.cuisinePreferences ?? {}
+  );
 
   const thisWeekStart = useMemo(() => getStartOfWeek(new Date()), []);
   const nextWeekStart = useMemo(() => {
@@ -82,6 +87,24 @@ export function MealPreferencesForm({
         ? prev.filter((d) => d !== option)
         : [...prev, option]
     );
+  };
+
+  const toggleCuisine = (mealKey: string, cuisine: string) => {
+    setCuisinePreferences((prev) => {
+      const current = prev[mealKey] ?? [];
+      const updated = current.includes(cuisine)
+        ? current.filter((c) => c !== cuisine)
+        : [...current, cuisine];
+      return { ...prev, [mealKey]: updated };
+    });
+  };
+
+  const clearCuisinesForMealType = (mealKey: string) => {
+    setCuisinePreferences((prev) => {
+      const next = { ...prev };
+      delete next[mealKey];
+      return next;
+    });
   };
 
   const toggleAllergy = (allergy: string) => {
@@ -125,6 +148,7 @@ export function MealPreferencesForm({
         usePantryFirst,
         dietaryPreferences,
         allergies,
+        cuisinePreferences,
       },
       formatDateISO(weekStartDate)
     );
@@ -362,6 +386,60 @@ export function MealPreferencesForm({
                     >
                       {option}
                     </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="p-6">
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Cuisine Preferences
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Choose which cuisines to include for each meal type. Leave empty to use all cuisines.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {MEAL_TYPES.map((meal) => {
+                  const selected = cuisinePreferences[meal.key] ?? [];
+                  return (
+                    <div key={meal.key}>
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-xs font-semibold text-foreground">
+                          {meal.label}
+                        </span>
+                        {selected.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => clearCuisinesForMealType(meal.key)}
+                            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {CUISINE_OPTIONS.map((cuisine) => {
+                          const isSelected = selected.includes(cuisine);
+                          return (
+                            <button
+                              key={cuisine}
+                              type="button"
+                              onClick={() => toggleCuisine(meal.key, cuisine)}
+                              className={cn(
+                                'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                                isSelected
+                                  ? 'border-primary bg-primary text-primary-foreground'
+                                  : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                              )}
+                            >
+                              {cuisine}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
               </div>

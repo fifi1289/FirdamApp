@@ -796,6 +796,39 @@ const TEMPLATES_BY_TYPE: Record<string, MealTemplate[]> = {
   snack: SNACK_TEMPLATES,
 };
 
+const CUISINE_BY_NAME: Record<string, string> = {
+  'Dates & Oat Porridge': 'Mediterranean',
+  'Lentil & Spinach Stew': 'Egyptian',
+  'Avocado Toast on Rye': 'American',
+  'Chickpea Shakshuka': 'Mediterranean',
+  'Banana & Honey Smoothie Bowl': 'American',
+  'Foul Medames': 'Egyptian',
+  'Vegetable Paratha & Yogurt': 'Pakistani',
+  'Quinoa Fruit Bowl': 'American',
+  'Grilled Chicken Shawarma Bowl': 'Lebanese',
+  'Falafel & Hummus Wrap': 'Lebanese',
+  'Lamb Kofta with Rice': 'Turkish',
+  'Mediterranean Salad with Tofu': 'Mediterranean',
+  'Chicken & Quinoa Salad': 'American',
+  'Vegetable Biryani': 'Indian',
+  'Grilled Salmon & Greens': 'Mediterranean',
+  'Stuffed Vine Leaves': 'Greek',
+  'Moroccan Lamb Tagine': 'Moroccan',
+  'Chicken Tagine with Olives': 'Moroccan',
+  'Vegetable Couscous': 'Moroccan',
+  'Grilled Branzino with Herbs': 'Italian',
+  'Beef Shawarma Plate': 'Lebanese',
+  'Mushroom & Lentil Ragout': 'French',
+  'Chicken Mansaf': 'Syrian',
+  'Roasted Vegetable Moussaka': 'Greek',
+  'Mixed Fruit & Nuts': 'American',
+  'Hummus & Veggie Sticks': 'Lebanese',
+  'Greek Yogurt with Honey': 'Greek',
+  'Stuffed Dates with Almonds': 'Moroccan',
+  'Rice Cakes with Avocado': 'American',
+  'Fresh Fruit Smoothie': 'American',
+};
+
 const ALLERGY_KEYWORDS: Record<string, string[]> = {
   Peanuts: ['peanut', 'nut'],
   'Tree Nuts': ['nut', 'almond', 'cashew', 'walnut', 'pecan', 'hazelnut', 'pistachio'],
@@ -842,12 +875,26 @@ function pickMeals(
   type: string,
   count: number,
   dietary: string[],
-  allergies: string[]
+  allergies: string[],
+  cuisines: string[]
 ): MealTemplate[] {
-  const pool = (TEMPLATES_BY_TYPE[type] ?? []).filter((t) =>
+  const all = TEMPLATES_BY_TYPE[type] ?? [];
+  const dietaryAllergyPool = all.filter((t) =>
     isCompatible(t, dietary, allergies)
   );
-  const source = pool.length > 0 ? pool : TEMPLATES_BY_TYPE[type] ?? [];
+
+  let pool = dietaryAllergyPool;
+  if (cuisines.length > 0) {
+    const cuisineFiltered = dietaryAllergyPool.filter((t) => {
+      const c = CUISINE_BY_NAME[t.name];
+      return c && cuisines.includes(c);
+    });
+    if (cuisineFiltered.length > 0) {
+      pool = cuisineFiltered;
+    }
+  }
+
+  const source = pool.length > 0 ? pool : all;
   const shuffled = [...source].sort(() => Math.random() - 0.5);
   const picked: MealTemplate[] = [];
   for (let i = 0; i < count; i++) {
@@ -880,7 +927,7 @@ const FALLBACK_TEMPLATE: MealTemplate = {
 export class MockMealPlanGenerator implements MealPlanGenerator {
   async generate(input: MealPlanGeneratorInput): Promise<GeneratedMealPlan> {
     const { preferences, householdSize = 4, weekStartDate } = input;
-    const { planningDuration, mealTypes, dietaryPreferences, allergies } =
+    const { planningDuration, mealTypes, dietaryPreferences, allergies, cuisinePreferences } =
       preferences;
 
     await new Promise((resolve) => setTimeout(resolve, 1200));
@@ -897,7 +944,8 @@ export class MockMealPlanGenerator implements MealPlanGenerator {
           type,
           1,
           dietaryPreferences,
-          allergies
+          allergies,
+          cuisinePreferences[type] ?? []
         );
         const template = candidates[0] ?? FALLBACK_TEMPLATE;
         return {

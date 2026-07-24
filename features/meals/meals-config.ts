@@ -35,12 +35,36 @@ export const PREDEFINED_ALLERGIES = [
   'Gluten',
 ] as const;
 
+export const CUISINE_OPTIONS = [
+  'Moroccan',
+  'Mediterranean',
+  'Italian',
+  'French',
+  'Spanish',
+  'Greek',
+  'Turkish',
+  'Lebanese',
+  'Syrian',
+  'Egyptian',
+  'Indian',
+  'Pakistani',
+  'Chinese',
+  'Japanese',
+  'Korean',
+  'Thai',
+  'Mexican',
+  'American',
+] as const;
+
+export type CuisinePreferences = Record<string, string[]>;
+
 export const DEFAULT_PREFERENCES = {
   planningDuration: 7,
   mealTypes: ['breakfast', 'lunch', 'dinner'] as string[],
   usePantryFirst: false,
   dietaryPreferences: [] as string[],
   allergies: [] as string[],
+  cuisinePreferences: {} as CuisinePreferences,
 } as const;
 
 export type MealPreferencesState = {
@@ -49,6 +73,7 @@ export type MealPreferencesState = {
   usePantryFirst: boolean;
   dietaryPreferences: string[];
   allergies: string[];
+  cuisinePreferences: CuisinePreferences;
 };
 
 export function getMealTypeLabel(key: string): string {

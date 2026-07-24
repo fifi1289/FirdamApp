@@ -190,6 +190,7 @@ export type Database = {
           use_pantry_first: boolean;
           dietary_preferences: string[];
           allergies: string[];
+          cuisine_preferences: Record<string, string[]>;
           created_at: string;
           updated_at: string;
         };
@@ -201,6 +202,7 @@ export type Database = {
           use_pantry_first?: boolean;
           dietary_preferences?: string[];
           allergies?: string[];
+          cuisine_preferences?: Record<string, string[]>;
           created_at?: string;
           updated_at?: string;
         };
@@ -212,6 +214,7 @@ export type Database = {
           use_pantry_first?: boolean;
           dietary_preferences?: string[];
           allergies?: string[];
+          cuisine_preferences?: Record<string, string[]>;
           updated_at?: string;
         };
         Relationships: [];

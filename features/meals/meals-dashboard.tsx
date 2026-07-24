@@ -42,6 +42,8 @@ import {
 } from '@/features/meals/meals-config';
 import { MealPreferencesForm } from '@/features/meals/meal-preferences-form';
 import { MealPlanView } from '@/features/meals/meal-plan-view';
+import { PlanPantrySummary } from '@/features/meals/plan-pantry-summary';
+import { getPlanPantrySummary } from '@/features/meals/pantry-check';
 import {
   mockMealPlanGenerator,
   normalizePlan,
@@ -284,6 +286,27 @@ export function MealsDashboard() {
       </PageHeader>
 
       <div className="space-y-4">
+        {(() => {
+          const latest = savedPlans[0];
+          if (!latest) return null;
+          const latestPlan = normalizePlan(
+            latest.plan_data as Record<string, unknown>
+          );
+          if (
+            !latestPlan ||
+            !Array.isArray(latestPlan.days) ||
+            latestPlan.days.length === 0
+          ) {
+            return null;
+          }
+          const latestSummary = getPlanPantrySummary(latestPlan, pantryItems);
+          return (
+            <section>
+              <PlanPantrySummary summary={latestSummary} />
+            </section>
+          );
+        })()}
+
         <section>
           <div className="mb-3 flex items-center gap-2">
             <Utensils className="h-4 w-4 text-muted-foreground" />

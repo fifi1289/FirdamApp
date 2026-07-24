@@ -56,13 +56,13 @@ const DAY_NAMES = [
 
 const MEAL_IMAGES: Record<string, string> = {
   breakfast:
-    'https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'https://images.pexels.com/photos/13510354/pexels-photo-13510354.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
   lunch:
-    'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'https://images.pexels.com/photos/19150339/pexels-photo-19150339.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
   dinner:
-    'https://images.pexels.com/photos/675951/pexels-photo-675951.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'https://images.pexels.com/photos/18479665/pexels-photo-18479665.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
   snack:
-    'https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'https://images.pexels.com/photos/15312466/pexels-photo-15312466.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
 };
 
 interface MealTemplate {

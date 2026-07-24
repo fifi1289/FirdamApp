@@ -63,11 +63,19 @@ export function getStartOfWeek(date: Date = new Date()): Date {
 }
 
 export function formatDateISO(date: Date): string {
-  return date.toISOString().split('T')[0];
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function parseDateLocal(iso: string): Date {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }
 
 export function formatWeekRange(weekStartDate: string): string {
-  const start = new Date(weekStartDate);
+  const start = parseDateLocal(weekStartDate);
   const end = new Date(start);
   end.setDate(end.getDate() + 6);
   const startLabel = start.toLocaleDateString(undefined, {

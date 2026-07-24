@@ -218,9 +218,14 @@ export function MealPlanView({
         weekStartDate: currentPlan.weekStartDate,
       });
 
-      const sameTypeMeals = candidate.days.flatMap((d) => d.meals).filter(
-        (m) => m.type === meal.type && m.name !== meal.name
+      const existingNames = new Set(
+        currentPlan.days.flatMap((d) => d.meals.map((m) => m.name))
       );
+      const sameTypeMeals = candidate.days
+        .flatMap((d) => d.meals)
+        .filter(
+          (m) => m.type === meal.type && !existingNames.has(m.name)
+        );
       const replacement = sameTypeMeals.length > 0 ? sameTypeMeals[0] : null;
 
       if (!replacement) {

@@ -10,6 +10,7 @@ import {
   PackageX,
   Pencil,
   RefreshCw,
+  Replace,
   Save,
   Utensils,
   Users,
@@ -49,11 +50,14 @@ import {
   getPlanPantrySummary,
   type MealPantrySummary,
 } from '@/features/meals/pantry-check';
+import {
+  mockMealPlanGenerator,
+  formatWeekRange,
+} from '@/features/meals/meal-plan-generator';
 import { PlanPantrySummary } from '@/features/meals/plan-pantry-summary';
 import { MealEditDialog } from '@/features/meals/meal-edit-dialog';
 import { MealDetailDialog } from '@/features/meals/meal-detail-dialog';
 import { MealImage } from '@/features/meals/meal-image';
-import { formatWeekRange } from '@/features/meals/meal-plan-generator';
 import type { PantryItem } from '@/types/database';
 
 interface MealWithLocation {
@@ -140,6 +144,9 @@ export function MealPlanView({
   const [swapOpen, setSwapOpen] = useState(false);
   const [swapping, setSwapping] = useState(false);
 
+  // Replace state
+  const [replaceMealId, setReplaceMealId] = useState<string | null>(null);
+
   useEffect(() => {
     setCurrentPlan(plan);
   }, [plan]);
@@ -194,6 +201,62 @@ export function MealPlanView({
       .eq('id', planId);
     if (error) {
       toast.error('Could not persist swap', { description: error.message });
+    }
+  };
+
+  const handleReplaceMeal = async (
+    meal: MockMeal,
+    dayIndex: number,
+    mealIndex: number
+  ) => {
+    setReplaceMealId(meal.id);
+
+    try {
+      const candidate = await mockMealPlanGenerator.generate({
+        preferences,
+        householdSize: meal.servings,
+        weekStartDate: currentPlan.weekStartDate,
+      });
+
+      const sameTypeMeals = candidate.days.flatMap((d) => d.meals).filter(
+        (m) => m.type === meal.type && m.name !== meal.name
+      );
+      const replacement = sameTypeMeals.length > 0 ? sameTypeMeals[0] : null;
+
+      if (!replacement) {
+        setReplaceMealId(null);
+        toast.error('No alternative meal found for this slot.');
+        return;
+      }
+
+      const newMeal: MockMeal = {
+        ...replacement,
+        id: meal.id,
+        type: meal.type,
+        servings: meal.servings,
+      };
+
+      const newPlan: GeneratedMealPlan = {
+        ...currentPlan,
+        days: currentPlan.days.map((day) =>
+          day.dayIndex === dayIndex
+            ? {
+                ...day,
+                meals: day.meals.map((m, idx) =>
+                  idx === mealIndex ? newMeal : m
+                ),
+              }
+            : day
+        ),
+      };
+
+      setCurrentPlan(newPlan);
+      await silentSave(newPlan);
+      toast.success('Meal replaced.');
+    } catch {
+      toast.error('Could not replace this meal. Please try again.');
+    } finally {
+      setReplaceMealId(null);
     }
   };
 
@@ -400,6 +463,16 @@ export function MealPlanView({
                       category={meal.type}
                       className="h-full w-full object-cover"
                     />
+                    {replaceMealId === meal.id && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm">
+                        <div className="flex flex-col items-center gap-2">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                          <span className="text-xs font-medium text-foreground">
+                            Replacing meal…
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <CardContent className="p-4">
                     <Badge variant="outline" className="mb-2 text-[10px] font-medium">
@@ -459,6 +532,23 @@ export function MealPlanView({
                       >
                         <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" />
                         Swap
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                        disabled={replaceMealId === meal.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReplaceMeal(meal, day.dayIndex, mealIndex);
+                        }}
+                      >
+                        {replaceMealId === meal.id ? (
+                          <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Replace className="mr-1.5 h-3.5 w-3.5" />
+                        )}
+                        Replace
                       </Button>
                     </div>
                   </CardContent>

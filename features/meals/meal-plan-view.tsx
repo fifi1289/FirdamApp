@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
+  ArrowLeftRight,
   CalendarDays,
   CheckCircle2,
   Loader2,
@@ -27,6 +28,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getMealTypeLabel } from '@/features/meals/meals-config';
@@ -46,6 +55,13 @@ import { MealDetailDialog } from '@/features/meals/meal-detail-dialog';
 import { MealImage } from '@/features/meals/meal-image';
 import { formatWeekRange } from '@/features/meals/meal-plan-generator';
 import type { PantryItem } from '@/types/database';
+
+interface MealWithLocation {
+  meal: MockMeal;
+  dayIndex: number;
+  dayName: string;
+  mealIndex: number;
+}
 
 interface MealPlanViewProps {
   plan: GeneratedMealPlan;
@@ -119,6 +135,11 @@ export function MealPlanView({
   const [conflictPlanId, setConflictPlanId] = useState<string | null>(null);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
 
+  // Swap state
+  const [swapSource, setSwapSource] = useState<MealWithLocation | null>(null);
+  const [swapOpen, setSwapOpen] = useState(false);
+  const [swapping, setSwapping] = useState(false);
+
   useEffect(() => {
     setCurrentPlan(plan);
   }, [plan]);
@@ -127,6 +148,22 @@ export function MealPlanView({
     () => getPlanPantrySummary(currentPlan, pantryItems),
     [currentPlan, pantryItems]
   );
+
+  // All meals in the plan with their location, used to populate the swap dialog
+  const allMealsWithLocation = useMemo<MealWithLocation[]>(() => {
+    const result: MealWithLocation[] = [];
+    currentPlan.days.forEach((day) => {
+      day.meals.forEach((meal, mealIndex) => {
+        result.push({
+          meal,
+          dayIndex: day.dayIndex,
+          dayName: day.dayName,
+          mealIndex,
+        });
+      });
+    });
+    return result;
+  }, [currentPlan]);
 
   const handleEditSave = (updated: MockMeal) => {
     setCurrentPlan((prev) => ({
@@ -143,6 +180,61 @@ export function MealPlanView({
     setRegenerating(true);
     onRegenerate();
     setRegenerating(false);
+  };
+
+  // Silent save used after a swap — does not navigate away
+  const silentSave = async (updatedPlan: GeneratedMealPlan) => {
+    if (!planId) return;
+    const { error } = await supabase
+      .from('meal_plans')
+      .update({
+        plan_data: updatedPlan as unknown as Record<string, unknown>,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', planId);
+    if (error) {
+      toast.error('Could not persist swap', { description: error.message });
+    }
+  };
+
+  const openSwapDialog = (source: MealWithLocation) => {
+    setSwapSource(source);
+    setSwapOpen(true);
+  };
+
+  const handleSwapSelect = async (target: MealWithLocation) => {
+    if (!swapSource) return;
+    setSwapping(true);
+
+    const newPlan: GeneratedMealPlan = {
+      ...currentPlan,
+      days: currentPlan.days.map((day) => {
+        if (day.dayIndex !== swapSource.dayIndex && day.dayIndex !== target.dayIndex) {
+          return day;
+        }
+        return {
+          ...day,
+          meals: day.meals.map((m, idx) => {
+            // Source day: replace the source meal slot with the target meal
+            if (day.dayIndex === swapSource.dayIndex && idx === swapSource.mealIndex) {
+              return target.meal;
+            }
+            // Target day: replace the target meal slot with the source meal
+            if (day.dayIndex === target.dayIndex && idx === target.mealIndex) {
+              return swapSource.meal;
+            }
+            return m;
+          }),
+        };
+      }),
+    };
+
+    setCurrentPlan(newPlan);
+    setSwapOpen(false);
+    setSwapSource(null);
+    await silentSave(newPlan);
+    setSwapping(false);
+    toast.success('Meals swapped successfully.');
   };
 
   const persistSave = async (replaceId?: string) => {
@@ -218,6 +310,23 @@ export function MealPlanView({
     }
   };
 
+  // Group swap candidates by day for display in the dialog
+  const swapCandidatesByDay = useMemo(() => {
+    if (!swapSource) return [];
+    const candidates = allMealsWithLocation.filter(
+      (loc) =>
+        !(loc.dayIndex === swapSource.dayIndex && loc.mealIndex === swapSource.mealIndex)
+    );
+    const dayMap = new Map<number, { dayName: string; items: MealWithLocation[] }>();
+    candidates.forEach((loc) => {
+      if (!dayMap.has(loc.dayIndex)) {
+        dayMap.set(loc.dayIndex, { dayName: loc.dayName, items: [] });
+      }
+      dayMap.get(loc.dayIndex)!.items.push(loc);
+    });
+    return Array.from(dayMap.values());
+  }, [swapSource, allMealsWithLocation]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -270,7 +379,7 @@ export function MealPlanView({
             </span>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {day.meals.map((meal) => {
+            {day.meals.map((meal, mealIndex) => {
               const summary = getMealPantrySummary(
                 meal.ingredients,
                 pantryItems
@@ -320,19 +429,38 @@ export function MealPlanView({
                     <div className="mt-2.5">
                       <PantrySummaryBadge summary={summary} compact />
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="mt-2 -ml-2 h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditMeal(meal);
-                        setEditOpen(true);
-                      }}
-                    >
-                      <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                      Customize Meal
-                    </Button>
+                    <div className="mt-2 flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="-ml-2 h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditMeal(meal);
+                          setEditOpen(true);
+                        }}
+                      >
+                        <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                        Customize
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openSwapDialog({
+                            meal,
+                            dayIndex: day.dayIndex,
+                            dayName: day.dayName,
+                            mealIndex,
+                          });
+                        }}
+                      >
+                        <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" />
+                        Swap
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -340,6 +468,66 @@ export function MealPlanView({
           </div>
         </div>
       ))}
+
+      {/* Swap Dialog */}
+      <Dialog open={swapOpen} onOpenChange={(open) => { if (!swapping) setSwapOpen(open); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Swap Meal</DialogTitle>
+            <DialogDescription>
+              Swapping{' '}
+              <span className="font-medium text-foreground">
+                {swapSource?.meal.name}
+              </span>{' '}
+              on <span className="font-medium text-foreground">{swapSource?.dayName}</span>.
+              Select the meal to swap it with.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] pr-1">
+            <div className="space-y-5 py-1">
+              {swapCandidatesByDay.map((group) => (
+                <div key={group.dayName}>
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    {group.dayName}
+                  </p>
+                  <div className="space-y-1.5">
+                    {group.items.map((loc) => (
+                      <button
+                        key={`${loc.dayIndex}-${loc.mealIndex}`}
+                        disabled={swapping}
+                        className="flex w-full items-center gap-3 rounded-lg border border-border bg-background px-3 py-2.5 text-left transition-colors hover:border-primary/50 hover:bg-accent disabled:opacity-50"
+                        onClick={() => handleSwapSelect(loc)}
+                      >
+                        <div className="h-10 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
+                          <MealImage
+                            src={loc.meal.image}
+                            alt={loc.meal.name}
+                            category={loc.meal.type}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-[10px]">
+                              {getMealTypeLabel(loc.meal.type)}
+                            </Badge>
+                          </div>
+                          <p className="mt-0.5 truncate text-sm font-medium text-foreground">
+                            {loc.meal.name}
+                          </p>
+                        </div>
+                        {swapping && (
+                          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
 
       <MealDetailDialog
         meal={detailMeal}

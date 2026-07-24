@@ -422,11 +422,10 @@ export function MealsDashboard() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete meal plan?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Meal Plan?</AlertDialogTitle>
             <AlertDialogDescription>
-              {deletingPlan
-                ? `"${deletingPlan.name}" will be permanently removed.`
-                : 'This meal plan will be permanently removed.'}{' '}
+              Are you sure you want to delete this meal plan?
+              <br />
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -21,6 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { getMealTypeLabel } from '@/features/meals/meals-config';
+import { MealImage } from '@/features/meals/meal-image';
 import type { MockMeal } from '@/features/meals/meal-plan-generator';
 import {
   checkMealIngredients,
@@ -149,10 +150,10 @@ export function MealDetailDialog({
         {meal && (
           <>
             <div className="relative -mx-6 -mt-6 h-44 w-[calc(100%+3rem)] overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <MealImage
                 src={meal.image}
                 alt={meal.name}
+                category={meal.type}
                 className="h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />

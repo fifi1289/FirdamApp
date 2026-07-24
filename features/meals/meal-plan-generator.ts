@@ -1,4 +1,5 @@
 import type { MealPreferencesState } from '@/features/meals/meals-config';
+import { getMealImage } from '@/features/meals/meal-images';
 
 export type MealDifficulty = 'Easy' | 'Medium' | 'Hard';
 
@@ -53,17 +54,6 @@ const DAY_NAMES = [
   'Saturday',
   'Sunday',
 ];
-
-const MEAL_IMAGES: Record<string, string> = {
-  breakfast:
-    'https://images.pexels.com/photos/13510354/pexels-photo-13510354.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-  lunch:
-    'https://images.pexels.com/photos/19150339/pexels-photo-19150339.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-  dinner:
-    'https://images.pexels.com/photos/18479665/pexels-photo-18479665.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-  snack:
-    'https://images.pexels.com/photos/15312466/pexels-photo-15312466.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-};
 
 interface MealTemplate {
   name: string;
@@ -875,7 +865,7 @@ export class MockMealPlanGenerator implements MealPlanGenerator {
           name: template.name,
           type,
           description: template.description,
-          image: MEAL_IMAGES[type] ?? MEAL_IMAGES.dinner,
+          image: getMealImage(template.name, type),
           ingredients: template.ingredients,
           recipe: template.recipe,
           prepTime: template.prepTime,

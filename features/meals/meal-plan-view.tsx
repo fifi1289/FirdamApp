@@ -32,6 +32,7 @@ import {
 import { PlanPantrySummary } from '@/features/meals/plan-pantry-summary';
 import { MealEditDialog } from '@/features/meals/meal-edit-dialog';
 import { MealDetailDialog } from '@/features/meals/meal-detail-dialog';
+import { MealImage } from '@/features/meals/meal-image';
 import type { PantryItem } from '@/types/database';
 
 interface MealPlanViewProps {
@@ -219,10 +220,10 @@ export function MealPlanView({
                   }}
                 >
                   <div className="relative h-32 w-full bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <MealImage
                       src={meal.image}
                       alt={meal.name}
+                      category={meal.type}
                       className="h-full w-full object-cover"
                     />
                   </div>

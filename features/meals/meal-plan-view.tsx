@@ -125,8 +125,17 @@ export function MealPlanView({
 
   const handleSave = async () => {
     setSaving(true);
-    const payload = {
-      name: `Meal Plan — ${new Date().toLocaleDateString()}`,
+    const defaultPlanName =
+  currentPlan.days.length === 7
+    ? `7-Day Meal Plan (${new Date().toLocaleDateString()})`
+    : `${currentPlan.days.length}-Day Meal Plan (${new Date().toLocaleDateString()})`;
+
+const planName =
+  window.prompt("Give your meal plan a name:", defaultPlanName) ??
+  defaultPlanName;
+
+const payload = {
+  name: planName.trim() || defaultPlanName,
       plan_data: currentPlan as unknown as Record<string, unknown>,
       preferences: preferences as unknown as Record<string, unknown>,
       updated_at: new Date().toISOString(),

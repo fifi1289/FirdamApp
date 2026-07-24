@@ -1,23 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
   ChefHat,
-  Loader2,
+  Clock,
   PackageX,
-  Pencil,
-  RefreshCw,
-  Save,
-  Utensils,
+  Soup,
   Users,
-  X,
+  Utensils,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -25,509 +18,289 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
-import { toast } from 'sonner';
-import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { getMealTypeLabel } from '@/features/meals/meals-config';
-import type { MealPreferencesState } from '@/features/meals/meals-config';
-import type {
-  GeneratedMealPlan,
-  MockMeal,
-} from '@/features/meals/meal-plan-generator';
+import type { MockMeal } from '@/features/meals/meal-plan-generator';
 import {
+  checkMealIngredients,
   formatQuantityWithUnit,
-  getMealPantrySummary,
-  getPlanPantrySummary,
-  type MealPantrySummary,
-  type MissingIngredient,
+  type IngredientCheck,
+  type IngredientStatus,
 } from '@/features/meals/pantry-check';
-import { MealEditDialog } from '@/features/meals/meal-edit-dialog';
-import { MealDetailDialog } from '@/features/meals/meal-detail-dialog';
 import type { PantryItem } from '@/types/database';
 
-interface MealPlanViewProps {
-  plan: GeneratedMealPlan;
-  preferences: MealPreferencesState;
-  planId: string | null;
+interface MealDetailDialogProps {
+  meal: MockMeal | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   pantryItems: PantryItem[];
-  onRegenerate: () => void;
-  onBack: () => void;
 }
 
-function PantrySummaryBadge({
-  summary,
-  compact = false,
-}: {
-  summary: MealPantrySummary;
-  compact?: boolean;
-}) {
-  if (summary.total === 0) return null;
+const DIFFICULTY_STYLES: Record<string, string> = {
+  Easy: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  Medium: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  Hard: 'bg-red-500/10 text-red-600 dark:text-red-400',
+};
 
-  const config = {
-    'all-available': {
-      icon: CheckCircle2,
-      label: compact ? 'In pantry' : 'All ingredients available',
-      className:
-        'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-    },
-    'some-missing': {
-      icon: AlertTriangle,
-      label: compact
-        ? `${summary.missingCount + summary.lowCount} missing`
-        : 'Some ingredients missing',
-      className:
-        'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
-    },
-    'all-missing': {
-      icon: PackageX,
-      label: compact ? 'Not in pantry' : 'All ingredients missing',
-      className:
-        'border-destructive/30 bg-destructive/10 text-destructive',
-    },
-  } as const;
+const STATUS_CONFIG: Record<
+  IngredientStatus,
+  { icon: typeof CheckCircle2; label: string; className: string; textClass: string }
+> = {
+  available: {
+    icon: CheckCircle2,
+    label: 'Available',
+    className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+    textClass: 'text-emerald-600 dark:text-emerald-400',
+  },
+  low: {
+    icon: AlertTriangle,
+    label: 'Low quantity',
+    className: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+    textClass: 'text-amber-600 dark:text-amber-400',
+  },
+  missing: {
+    icon: PackageX,
+    label: 'Not available',
+    className: 'border-destructive/30 bg-destructive/10 text-destructive',
+    textClass: 'text-destructive',
+  },
+};
 
-  const { icon: Icon, label, className } = config[summary.status];
+function PantryStatusRow({ check }: { check: IngredientCheck }) {
+  const config = STATUS_CONFIG[check.status];
+  const StatusIcon = config.icon;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${className}`}
-    >
-      <Icon className="h-3 w-3" />
-      {label}
-    </span>
-  );
-}
-
-function SummaryStat({
-  icon: Icon,
-  label,
-  value,
-  accent,
-}: {
-  icon: typeof CheckCircle2;
-  label: string;
-  value: number | string;
-  accent: string;
-}) {
-  return (
-    <div className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-card/50 p-3">
-      <span
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${accent}`}
-      >
-        <Icon className="h-4 w-4" />
-      </span>
-      <div className="min-w-0">
-        <p className="text-lg font-semibold leading-none text-foreground tabular-nums">
-          {value}
+    <div className="rounded-lg border border-border/60 p-3">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-medium text-foreground">
+          {check.ingredient.name}
         </p>
-        <p className="mt-1 text-[11px] leading-none text-muted-foreground">
-          {label}
-        </p>
+        <span
+          className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${config.className}`}
+        >
+          <StatusIcon className="h-3 w-3" />
+          {config.label}
+        </span>
+      </div>
+      <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between gap-2">
+          <span>Required</span>
+          <span className="font-medium text-foreground">
+            {formatQuantityWithUnit(
+              check.requiredQuantity,
+              check.requiredUnit
+            )}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span>Available</span>
+          <span className="font-medium text-foreground">
+            {check.matchedItem
+              ? formatQuantityWithUnit(
+                  check.availableQuantity,
+                  check.availableUnit
+                )
+              : 'Not in pantry'}
+          </span>
+        </div>
+        {check.status === 'available' && (
+          <div className="flex items-center justify-between gap-2">
+            <span>Remaining</span>
+            <span className={`font-medium ${config.textClass}`}>
+              {formatQuantityWithUnit(
+                check.remainingQuantity,
+                check.remainingUnit
+              )}
+            </span>
+          </div>
+        )}
+        {check.status === 'low' && check.matchedItem && (
+          <div className="flex items-center justify-between gap-2">
+            <span>Status</span>
+            <span className={`font-medium ${config.textClass}`}>
+              Insufficient quantity
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function MissingIngredientsDialog({
-  missing,
+export function MealDetailDialog({
+  meal,
   open,
   onOpenChange,
-}: {
-  missing: MissingIngredient[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
+  pantryItems,
+}: MealDetailDialogProps) {
+  const checks = meal
+    ? checkMealIngredients(meal.ingredients, pantryItems)
+    : [];
+
+  const availableCount = checks.filter((c) => c.status === 'available').length;
+  const lowCount = checks.filter((c) => c.status === 'low').length;
+  const missingCount = checks.filter((c) => c.status === 'missing').length;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <PackageX className="h-5 w-5 text-destructive" />
-            Missing Ingredients
-          </DialogTitle>
-          <DialogDescription>
-            {missing.length === 0
-              ? 'You have everything you need for this meal plan.'
-              : `${missing.length} ingredient${missing.length === 1 ? '' : 's'} need attention across your meal plan.`}
-          </DialogDescription>
-        </DialogHeader>
-
-        {missing.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 className="h-7 w-7" />
-            </span>
-            <p className="mt-4 text-sm font-medium text-foreground">
-              All ingredients available
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Your pantry covers every ingredient in this meal plan.
-            </p>
-          </div>
-        ) : (
-          <div className="max-h-[55vh] space-y-2.5 overflow-y-auto pr-1">
-            {missing.map((item, i) => (
-              <div
-                key={i}
-                className="rounded-lg border border-border/60 p-3"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-semibold text-foreground">
-                    {item.name}
-                  </p>
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
-                    <PackageX className="h-3 w-3" />
-                    {item.meals.length} meal{item.meals.length === 1 ? '' : 's'}
-                  </span>
-                </div>
-                <div className="mt-2.5 grid grid-cols-3 gap-2 text-xs">
-                  <div className="rounded-md bg-muted/40 px-2.5 py-2">
-                    <p className="text-muted-foreground">Need</p>
-                    <p className="mt-0.5 font-medium text-foreground">
-                      {formatQuantityWithUnit(
-                        item.neededQuantity,
-                        item.neededUnit
-                      )}
-                    </p>
-                  </div>
-                  <div className="rounded-md bg-muted/40 px-2.5 py-2">
-                    <p className="text-muted-foreground">Available</p>
-                    <p className="mt-0.5 font-medium text-foreground">
-                      {item.availableQuantity > 0
-                        ? formatQuantityWithUnit(
-                            item.availableQuantity,
-                            item.availableUnit
-                          )
-                        : 'None'}
-                    </p>
-                  </div>
-                  <div className="rounded-md border border-destructive/20 bg-destructive/5 px-2.5 py-2">
-                    <p className="text-destructive/80 dark:text-destructive/70">
-                      Missing
-                    </p>
-                    <p className="mt-0.5 font-semibold text-destructive">
-                      {formatQuantityWithUnit(
-                        item.missingQuantity,
-                        item.missingUnit
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-2 text-[11px] text-muted-foreground">
-                  Used in: {item.meals.join(', ')}
-                </p>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        {meal && (
+          <>
+            <div className="relative -mx-6 -mt-6 h-44 w-[calc(100%+3rem)] overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={meal.image}
+                alt={meal.name}
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+              <div className="absolute left-4 top-4 flex gap-2">
+                <Badge
+                  variant="secondary"
+                  className="bg-white/90 text-foreground shadow-sm"
+                >
+                  {getMealTypeLabel(meal.type)}
+                </Badge>
+                <Badge
+                  className={`${DIFFICULTY_STYLES[meal.difficulty] ?? DIFFICULTY_STYLES.Medium} shadow-sm`}
+                >
+                  {meal.difficulty}
+                </Badge>
               </div>
-            ))}
-          </div>
+            </div>
+            <DialogHeader>
+              <DialogTitle className="text-lg">{meal.name}</DialogTitle>
+              <DialogDescription>{meal.description}</DialogDescription>
+            </DialogHeader>
+
+            <div className="grid grid-cols-2 gap-2 rounded-lg border border-border/60 bg-muted/30 p-3 text-xs sm:grid-cols-4">
+              <div className="flex flex-col items-center gap-1 text-center">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span className="font-semibold text-foreground">
+                  {meal.prepTime}
+                </span>
+                <span className="text-muted-foreground">min prep</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <Utensils className="h-4 w-4 text-muted-foreground" />
+                <span className="font-semibold text-foreground">
+                  {meal.cookTime}
+                </span>
+                <span className="text-muted-foreground">min cook</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <Soup className="h-4 w-4 text-muted-foreground" />
+                <span className="font-semibold text-foreground">
+                  {meal.prepTime + meal.cookTime}
+                </span>
+                <span className="text-muted-foreground">min total</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 text-center">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span className="font-semibold text-foreground">
+                  {meal.servings}
+                </span>
+                <span className="text-muted-foreground">servings</span>
+              </div>
+            </div>
+
+            {meal.ingredients.length > 0 && (
+              <div className="space-y-2.5">
+                <h4 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <ChefHat className="h-4 w-4 text-primary" />
+                  Ingredients
+                </h4>
+                <ul className="space-y-1.5">
+                  {meal.ingredients.map((ing, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center justify-between gap-3 rounded-md border border-border/40 px-3 py-2 text-sm text-foreground"
+                    >
+                      <span>{ing.name}</span>
+                      {ing.quantity && (
+                        <span className="shrink-0 text-xs font-medium text-muted-foreground">
+                          {ing.quantity} {ing.unit}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {meal.ingredients.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <PackageX className="h-4 w-4 text-primary" />
+                      Pantry Status
+                    </h4>
+                    <div className="flex items-center gap-2 text-[11px]">
+                      {availableCount > 0 && (
+                        <span className="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="h-3 w-3" />
+                          {availableCount}
+                        </span>
+                      )}
+                      {lowCount > 0 && (
+                        <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
+                          <AlertTriangle className="h-3 w-3" />
+                          {lowCount}
+                        </span>
+                      )}
+                      {missingCount > 0 && (
+                        <span className="flex items-center gap-1 font-medium text-destructive">
+                          <PackageX className="h-3 w-3" />
+                          {missingCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {pantryItems.length === 0 ? (
+                    <p className="rounded-lg border border-dashed border-border/60 px-3 py-4 text-center text-xs text-muted-foreground">
+                      Your pantry is empty. Add items in the Pantry module to
+                      see availability for this meal.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {checks.map((check, i) => (
+                        <PantryStatusRow key={i} check={check} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {meal.recipe.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-foreground">
+                    Recipe
+                  </h4>
+                  <ol className="space-y-3">
+                    {meal.recipe.map((step, i) => (
+                      <li key={i} className="flex gap-3">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                          {i + 1}
+                        </span>
+                        <p className="pt-0.5 text-sm leading-relaxed text-foreground">
+                          {step}
+                        </p>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </>
+            )}
+          </>
         )}
       </DialogContent>
     </Dialog>
-  );
-}
-
-export function MealPlanView({
-  plan,
-  preferences,
-  planId,
-  pantryItems,
-  onRegenerate,
-  onBack,
-}: MealPlanViewProps) {
-  const supabase = createSupabaseBrowserClient();
-  const [currentPlan, setCurrentPlan] = useState(plan);
-  const [editMeal, setEditMeal] = useState<MockMeal | null>(null);
-  const [editOpen, setEditOpen] = useState(false);
-  const [detailMeal, setDetailMeal] = useState<MockMeal | null>(null);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [regenerating, setRegenerating] = useState(false);
-  const [missingOpen, setMissingOpen] = useState(false);
-
-  useEffect(() => {
-    setCurrentPlan(plan);
-  }, [plan]);
-
-  const planSummary = useMemo(
-    () => getPlanPantrySummary(currentPlan, pantryItems),
-    [currentPlan, pantryItems]
-  );
-
-  const handleEditSave = (updated: MockMeal) => {
-    setCurrentPlan((prev) => ({
-      ...prev,
-      days: prev.days.map((day) => ({
-        ...day,
-        meals: day.meals.map((m) => (m.id === updated.id ? updated : m)),
-      })),
-    }));
-    toast.success('Meal updated');
-  };
-
-  const handleRegenerate = async () => {
-    setRegenerating(true);
-    onRegenerate();
-    setRegenerating(false);
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    const payload = {
-      name: `Meal Plan — ${new Date().toLocaleDateString()}`,
-      plan_data: currentPlan as unknown as Record<string, unknown>,
-      preferences: preferences as unknown as Record<string, unknown>,
-      updated_at: new Date().toISOString(),
-    };
-    const result = planId
-      ? await supabase.from('meal_plans').update(payload).eq('id', planId)
-      : await supabase.from('meal_plans').insert(payload);
-    setSaving(false);
-    if (result.error) {
-      toast.error('Could not save meal plan', {
-        description: result.error.message,
-      });
-      return;
-    }
-    toast.success(
-      planId ? 'Meal plan updated' : 'Meal plan saved',
-      {
-        description: planId
-          ? 'Your changes have been saved.'
-          : 'You can find it in your Recent Meal Plans.',
-      }
-    );
-    onBack();
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRegenerate}
-            disabled={regenerating}
-          >
-            {regenerating ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            Regenerate Plan
-          </Button>
-          <Button size="sm" onClick={handleSave} disabled={saving}>
-            {saving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            {planId ? 'Save Changes' : 'Save Meal Plan'}
-          </Button>
-        </div>
-      </div>
-
-      <Card className="overflow-hidden">
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-              <ChefHat className="h-4 w-4 text-primary" />
-              Pantry Summary
-            </h2>
-            {planSummary.missingIngredients.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8"
-                onClick={() => setMissingOpen(true)}
-              >
-                <PackageX className="mr-1.5 h-3.5 w-3.5" />
-                View Missing Ingredients
-              </Button>
-            )}
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            <SummaryStat
-              icon={Utensils}
-              label="Total ingredients"
-              value={planSummary.totalIngredients}
-              accent="bg-primary/10 text-primary"
-            />
-            <SummaryStat
-              icon={CheckCircle2}
-              label="Fully available"
-              value={planSummary.availableCount}
-              accent="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-            />
-            <SummaryStat
-              icon={AlertTriangle}
-              label="Low quantity"
-              value={planSummary.lowCount}
-              accent="bg-amber-500/10 text-amber-600 dark:text-amber-400"
-            />
-            <SummaryStat
-              icon={PackageX}
-              label="Missing"
-              value={planSummary.missingCount}
-              accent="bg-destructive/10 text-destructive"
-            />
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border border-border/60 bg-muted/30 p-3.5">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Estimated pantry usage
-                </p>
-                <span className="text-sm font-semibold text-foreground tabular-nums">
-                  {planSummary.usagePercentage}%
-                </span>
-              </div>
-              <Progress
-                value={planSummary.usagePercentage}
-                className="mt-2.5 h-2"
-              />
-              <p className="mt-2 text-[11px] text-muted-foreground">
-                {planSummary.availableCount} of {planSummary.totalIngredients}{' '}
-                ingredients are in your pantry.
-              </p>
-            </div>
-            <div className="rounded-lg border border-border/60 bg-muted/30 p-3.5">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Meals you can prepare now
-                </p>
-                <span className="text-sm font-semibold text-foreground tabular-nums">
-                  {planSummary.completableMeals} / {planSummary.totalMeals}
-                </span>
-              </div>
-              <div className="mt-2.5 flex items-center gap-2">
-                <div className="flex-1">
-                  <Progress
-                    value={
-                      planSummary.totalMeals > 0
-                        ? (planSummary.completableMeals /
-                            planSummary.totalMeals) *
-                          100
-                        : 0
-                    }
-                    className="h-2"
-                  />
-                </div>
-              </div>
-              <p className="mt-2 text-[11px] text-muted-foreground">
-                {planSummary.completableMeals === planSummary.totalMeals
-                  ? 'Every meal can be prepared with what you have.'
-                  : `${planSummary.totalMeals - planSummary.completableMeals} meal${planSummary.totalMeals - planSummary.completableMeals === 1 ? '' : 's'} need ingredients from the store.`}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {currentPlan.days.map((day) => (
-        <div key={day.dayIndex} className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Utensils className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold text-foreground">
-              {day.dayName}
-            </h2>
-            <span className="text-xs text-muted-foreground">
-              {new Date(day.date).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-              })}
-            </span>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {day.meals.map((meal) => {
-              const summary = getMealPantrySummary(
-                meal.ingredients,
-                pantryItems
-              );
-              return (
-                <Card
-                  key={meal.id}
-                  className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
-                  onClick={() => {
-                    setDetailMeal(meal);
-                    setDetailOpen(true);
-                  }}
-                >
-                  <div className="relative h-32 w-full bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={meal.image}
-                      alt={meal.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <Badge variant="outline" className="mb-2 text-[10px] font-medium">
-                      {getMealTypeLabel(meal.type)}
-                    </Badge>
-                    <h3 className="text-sm font-semibold text-foreground">
-                      {meal.name}
-                    </h3>
-                    <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
-                      {meal.description}
-                    </p>
-                    <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
-                      {meal.ingredients.length > 0 && (
-                        <span>{meal.ingredients.length} ingredients</span>
-                      )}
-                      {(meal.prepTime > 0 || meal.cookTime > 0) && (
-                        <span>
-                          {meal.prepTime + meal.cookTime} min total
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {meal.servings}
-                      </span>
-                      <span>{meal.difficulty}</span>
-                    </div>
-                    <div className="mt-2.5">
-                      <PantrySummaryBadge summary={summary} compact />
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="mt-2 -ml-2 h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditMeal(meal);
-                        setEditOpen(true);
-                      }}
-                    >
-                      <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                      Customize Meal
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      ))}
-
-      <MissingIngredientsDialog
-        missing={planSummary.missingIngredients}
-        open={missingOpen}
-        onOpenChange={setMissingOpen}
-      />
-      <MealDetailDialog
-        meal={detailMeal}
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        pantryItems={pantryItems}
-      />
-      <MealEditDialog
-        meal={editMeal}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        onSave={handleEditSave}
-      />
-    </div>
   );
 }

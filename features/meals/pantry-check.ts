@@ -302,6 +302,129 @@ export function getMealPantrySummary(
   };
 }
 
+export interface MissingIngredient {
+  name: string;
+  neededQuantity: number;
+  neededUnit: string;
+  availableQuantity: number;
+  availableUnit: string;
+  missingQuantity: number;
+  missingUnit: string;
+  meals: string[];
+}
+
+export interface PlanPantrySummary {
+  totalIngredients: number;
+  availableCount: number;
+  lowCount: number;
+  missingCount: number;
+  usagePercentage: number;
+  completableMeals: number;
+  totalMeals: number;
+  missingIngredients: MissingIngredient[];
+}
+
+function computeMissingQuantity(check: IngredientCheck): number {
+  if (check.status === 'available') return 0;
+  if (check.status === 'missing') return check.requiredQuantity;
+
+  const reqBase = toBaseValue(check.requiredQuantity, check.requiredUnit);
+  const availBase = toBaseValue(check.availableQuantity, check.availableUnit);
+  if (reqBase !== null && availBase !== null) {
+    return fromBaseValue(reqBase - availBase, check.requiredUnit);
+  }
+  return check.requiredQuantity;
+}
+
+export function getPlanPantrySummary(
+  plan: { days: { meals: { id: string; name: string; ingredients: MealIngredient[] }[] }[] },
+  pantry: PantryItem[]
+): PlanPantrySummary {
+  let totalIngredients = 0;
+  let availableCount = 0;
+  let lowCount = 0;
+  let missingCount = 0;
+  let completableMeals = 0;
+  let totalMeals = 0;
+
+  const missingMap = new Map<string, MissingIngredient>();
+
+  for (const day of plan.days) {
+    for (const meal of day.meals) {
+      totalMeals++;
+      const checks = checkMealIngredients(meal.ingredients, pantry);
+      let mealComplete = true;
+
+      for (const check of checks) {
+        totalIngredients++;
+        if (check.status === 'available') {
+          availableCount++;
+        } else if (check.status === 'low') {
+          lowCount++;
+          mealComplete = false;
+        } else {
+          missingCount++;
+          mealComplete = false;
+        }
+
+        if (check.status !== 'available') {
+          const key = normalizeName(check.ingredient.name);
+          const missingQty = computeMissingQuantity(check);
+          const existing = missingMap.get(key);
+          if (existing) {
+            const reqBase = toBaseValue(check.requiredQuantity, check.requiredUnit);
+            const missBase = toBaseValue(missingQty, check.requiredUnit);
+            if (reqBase !== null && missBase !== null) {
+              const newReqBase =
+                toBaseValue(existing.neededQuantity, existing.neededUnit) ?? 0;
+              const newMissBase =
+                toBaseValue(existing.missingQuantity, existing.missingUnit) ?? 0;
+              existing.neededQuantity = fromBaseValue(newReqBase + reqBase, existing.neededUnit);
+              existing.missingQuantity = fromBaseValue(newMissBase + missBase, existing.missingUnit);
+            }
+            if (!existing.meals.includes(meal.name)) {
+              existing.meals.push(meal.name);
+            }
+          } else {
+            missingMap.set(key, {
+              name: check.ingredient.name,
+              neededQuantity: check.requiredQuantity,
+              neededUnit: check.requiredUnit,
+              availableQuantity: check.availableQuantity,
+              availableUnit: check.availableUnit,
+              missingQuantity: missingQty,
+              missingUnit: check.requiredUnit,
+              meals: [meal.name],
+            });
+          }
+        }
+      }
+
+      if (mealComplete && meal.ingredients.length > 0) {
+        completableMeals++;
+      }
+    }
+  }
+
+  const usagePercentage =
+    totalIngredients > 0
+      ? Math.round((availableCount / totalIngredients) * 100)
+      : 0;
+
+  const missingIngredients = Array.from(missingMap.values());
+
+  return {
+    totalIngredients,
+    availableCount,
+    lowCount,
+    missingCount,
+    usagePercentage,
+    completableMeals,
+    totalMeals,
+    missingIngredients,
+  };
+}
+
 export function formatQuantityWithUnit(quantity: number, unit: string): string {
   return `${formatQuantity(quantity)} ${unit}`.trim();
 }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
+  CalendarDays,
   CheckCircle2,
   Loader2,
   PackageX,
@@ -33,6 +34,7 @@ import { PlanPantrySummary } from '@/features/meals/plan-pantry-summary';
 import { MealEditDialog } from '@/features/meals/meal-edit-dialog';
 import { MealDetailDialog } from '@/features/meals/meal-detail-dialog';
 import { MealImage } from '@/features/meals/meal-image';
+import { formatWeekRange } from '@/features/meals/meal-plan-generator';
 import type { PantryItem } from '@/types/database';
 
 interface MealPlanViewProps {
@@ -133,8 +135,9 @@ export function MealPlanView({
 
   const handleSave = async () => {
     setSaving(true);
+    const weekLabel = formatWeekRange(currentPlan.weekStartDate);
     const payload = {
-      name: `Meal Plan — ${new Date().toLocaleDateString()}`,
+      name: `Meal Plan — ${weekLabel}`,
       plan_data: currentPlan as unknown as Record<string, unknown>,
       preferences: preferences as unknown as Record<string, unknown>,
       updated_at: new Date().toISOString(),
@@ -189,6 +192,13 @@ export function MealPlanView({
       </div>
 
       <PlanPantrySummary summary={planSummary} />
+
+      <div className="flex items-center gap-2 border-b border-border pb-3">
+        <CalendarDays className="h-4 w-4 text-muted-foreground" />
+        <h2 className="text-sm font-semibold text-foreground">
+          {formatWeekRange(currentPlan.weekStartDate)}
+        </h2>
+      </div>
 
       {currentPlan.days.map((day) => (
         <div key={day.dayIndex} className="space-y-3">

@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { Loader2, Lock, Plus, Sparkles, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { CalendarDays, Loader2, Lock, Plus, Sparkles, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
@@ -17,11 +18,16 @@ import {
   PREDEFINED_ALLERGIES,
   type MealPreferencesState,
 } from '@/features/meals/meals-config';
+import {
+  formatDateISO,
+  formatWeekRange,
+  getStartOfWeek,
+} from '@/features/meals/meal-plan-generator';
 
 interface MealPreferencesFormProps {
   initial: MealPreferencesState;
   onCancel: () => void;
-  onGenerate: (preferences: MealPreferencesState) => void;
+  onGenerate: (preferences: MealPreferencesState, weekStartDate: string) => void;
 }
 
 export function MealPreferencesForm({
@@ -41,6 +47,28 @@ export function MealPreferencesForm({
   const [allergies, setAllergies] = useState<string[]>(initial.allergies);
   const [otherSelected, setOtherSelected] = useState(false);
   const [customAllergy, setCustomAllergy] = useState('');
+
+  const thisWeekStart = useMemo(() => getStartOfWeek(new Date()), []);
+  const nextWeekStart = useMemo(() => {
+    const d = new Date(thisWeekStart);
+    d.setDate(d.getDate() + 7);
+    return d;
+  }, [thisWeekStart]);
+  const [weekOption, setWeekOption] = useState<'this' | 'next' | 'custom'>('this');
+  const [customDate, setCustomDate] = useState<Date | undefined>(thisWeekStart);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  const weekStartDate = useMemo(() => {
+    if (weekOption === 'this') return thisWeekStart;
+    if (weekOption === 'next') return nextWeekStart;
+    return customDate ?? thisWeekStart;
+  }, [weekOption, thisWeekStart, nextWeekStart, customDate]);
+
+  const handleCustomSelect = (date: Date | undefined) => {
+    if (!date) return;
+    setCustomDate(getStartOfWeek(date));
+    setCalendarOpen(false);
+  };
 
   const toggleMealType = (key: string) => {
     setMealTypes((prev) =>
@@ -90,13 +118,16 @@ export function MealPreferencesForm({
     }
 
     setGenerating(true);
-    onGenerate({
-      planningDuration,
-      mealTypes,
-      usePantryFirst,
-      dietaryPreferences,
-      allergies,
-    });
+    onGenerate(
+      {
+        planningDuration,
+        mealTypes,
+        usePantryFirst,
+        dietaryPreferences,
+        allergies,
+      },
+      formatDateISO(weekStartDate)
+    );
   };
 
   const customAllergies = allergies.filter(
@@ -108,6 +139,97 @@ export function MealPreferencesForm({
       <Card className="border-border/60">
         <CardContent className="p-0">
           <div className="divide-y divide-border">
+            <section className="p-6">
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Plan Week
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Choose which calendar week this meal plan covers.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {(
+                  [
+                    { key: 'this', label: 'This Week', sub: formatWeekRange(formatDateISO(thisWeekStart)) },
+                    { key: 'next', label: 'Next Week', sub: formatWeekRange(formatDateISO(nextWeekStart)) },
+                  ] as const
+                ).map((opt) => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => setWeekOption(opt.key)}
+                    className={cn(
+                      'flex flex-col items-start gap-0.5 rounded-xl border p-4 text-left transition-colors',
+                      weekOption === opt.key
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border bg-card hover:border-primary/40'
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'text-sm font-semibold',
+                        weekOption === opt.key
+                          ? 'text-primary'
+                          : 'text-foreground'
+                      )}
+                    >
+                      {opt.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {opt.sub}
+                    </span>
+                  </button>
+                ))}
+                <div
+                  className={cn(
+                    'relative rounded-xl border p-4 transition-colors',
+                    weekOption === 'custom'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border bg-card hover:border-primary/40'
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWeekOption('custom');
+                      setCalendarOpen((v) => !v);
+                    }}
+                    className="flex w-full flex-col items-start gap-0.5 text-left"
+                  >
+                    <span
+                      className={cn(
+                        'text-sm font-semibold',
+                        weekOption === 'custom'
+                          ? 'text-primary'
+                          : 'text-foreground'
+                      )}
+                    >
+                      Custom Week
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {weekOption === 'custom'
+                        ? formatWeekRange(formatDateISO(weekStartDate))
+                        : 'Pick a starting Monday'}
+                    </span>
+                  </button>
+                  {weekOption === 'custom' && calendarOpen && (
+                    <div className="absolute left-0 top-full z-50 mt-2">
+                      <div className="rounded-xl border border-border bg-popover p-3 shadow-lg">
+                        <Calendar
+                          mode="single"
+                          selected={customDate}
+                          onSelect={handleCustomSelect}
+                          disabled={(date) => date < new Date('2000-01-01')}
+                          initialFocus
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+
             <section className="p-6">
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-foreground">

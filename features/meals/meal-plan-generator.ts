@@ -33,16 +33,14 @@ export interface MockDay {
 export interface GeneratedMealPlan {
   id: string;
   duration: number;
+  weekStartDate: string;
   days: MockDay[];
 }
 
 export interface MealPlanGeneratorInput {
   preferences: MealPreferencesState;
   householdSize?: number;
-}
-
-export interface MealPlanGenerator {
-  generate(input: MealPlanGeneratorInput): Promise<GeneratedMealPlan>;
+  weekStartDate: string;
 }
 
 const DAY_NAMES = [
@@ -54,6 +52,38 @@ const DAY_NAMES = [
   'Saturday',
   'Sunday',
 ];
+
+export function getStartOfWeek(date: Date = new Date()): Date {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+export function formatDateISO(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+export function formatWeekRange(weekStartDate: string): string {
+  const start = new Date(weekStartDate);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  const startLabel = start.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+  const endLabel = end.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+  return `Week of ${startLabel} \u2013 ${endLabel}`;
+}
+
+export interface MealPlanGenerator {
+  generate(input: MealPlanGeneratorInput): Promise<GeneratedMealPlan>;
+}
 
 interface MealTemplate {
   name: string;
@@ -841,16 +871,19 @@ const FALLBACK_TEMPLATE: MealTemplate = {
 
 export class MockMealPlanGenerator implements MealPlanGenerator {
   async generate(input: MealPlanGeneratorInput): Promise<GeneratedMealPlan> {
-    const { preferences, householdSize = 4 } = input;
+    const { preferences, householdSize = 4, weekStartDate } = input;
     const { planningDuration, mealTypes, dietaryPreferences, allergies } =
       preferences;
 
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
+    const start = new Date(weekStartDate);
+    start.setHours(0, 0, 0, 0);
+
     const days: MockDay[] = [];
     for (let i = 0; i < planningDuration; i++) {
       const dayName = DAY_NAMES[i % DAY_NAMES.length];
-      const date = new Date();
+      const date = new Date(start);
       date.setDate(date.getDate() + i);
       const meals: MockMeal[] = mealTypes.map((type, idx) => {
         const candidates = pickMeals(
@@ -885,6 +918,7 @@ export class MockMealPlanGenerator implements MealPlanGenerator {
     return {
       id: crypto.randomUUID(),
       duration: planningDuration,
+      weekStartDate: formatDateISO(start),
       days,
     };
   }
@@ -936,9 +970,11 @@ export function normalizeMeal(meal: Record<string, unknown>): MockMeal {
 
 export function normalizePlan(data: Record<string, unknown>): GeneratedMealPlan {
   const rawDays = (data.days as Record<string, unknown>[]) ?? [];
+  const today = getStartOfWeek();
   return {
     id: String(data.id ?? ''),
     duration: Number(data.duration ?? 0),
+    weekStartDate: String(data.weekStartDate ?? formatDateISO(today)),
     days: rawDays.map((day) => ({
       dayIndex: Number(day.dayIndex ?? 0),
       dayName: String(day.dayName ?? ''),

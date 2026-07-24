@@ -40,6 +40,9 @@ import { getPlanPantrySummary } from '@/features/meals/pantry-check';
 import {
   mockMealPlanGenerator,
   normalizePlan,
+  formatWeekRange,
+  getStartOfWeek,
+  formatDateISO,
   type GeneratedMealPlan,
 } from '@/features/meals/meal-plan-generator';
 import type { MealPlanRecord, PantryItem } from '@/types/database';
@@ -64,6 +67,9 @@ export function MealsDashboard() {
   const [deleting, setDeleting] = useState(false);
   const [householdSize, setHouseholdSize] = useState(4);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
+  const [weekStartDate, setWeekStartDate] = useState(
+    formatDateISO(getStartOfWeek(new Date()))
+  );
 
   const loadPreferences = useCallback(async () => {
     const { data, error } = await supabase
@@ -127,8 +133,12 @@ export function MealsDashboard() {
     })();
   }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems]);
 
-  const handleGenerate = async (prefs: MealPreferencesState) => {
+  const handleGenerate = async (
+    prefs: MealPreferencesState,
+    selectedWeekStart: string
+  ) => {
     setPreferences(prefs);
+    setWeekStartDate(selectedWeekStart);
     setGenerating(true);
 
     const { error: prefError } = await supabase
@@ -152,6 +162,7 @@ export function MealsDashboard() {
     const plan = await mockMealPlanGenerator.generate({
       preferences: prefs,
       householdSize,
+      weekStartDate: selectedWeekStart,
     });
     setGeneratedPlan(plan);
     setActivePlanId(null);
@@ -164,6 +175,7 @@ export function MealsDashboard() {
     const plan = await mockMealPlanGenerator.generate({
       preferences,
       householdSize,
+      weekStartDate,
     });
     setGeneratedPlan(plan);
     setGenerating(false);
@@ -349,11 +361,21 @@ export function MealsDashboard() {
                             {plan.name}
                           </p>
                           <p className="mt-0.5 text-xs text-muted-foreground">
-                            {new Date(plan.created_at).toLocaleDateString(undefined, {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            })}
+                            {(() => {
+                              const wp = normalizePlan(
+                                plan.plan_data as Record<string, unknown>
+                              );
+                              return wp.weekStartDate
+                                ? formatWeekRange(wp.weekStartDate)
+                                : new Date(plan.created_at).toLocaleDateString(
+                                    undefined,
+                                    {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    }
+                                  );
+                            })()}
                           </p>
                         </div>
                         <div className="flex items-center gap-1">

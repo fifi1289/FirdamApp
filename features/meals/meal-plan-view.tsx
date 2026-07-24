@@ -17,6 +17,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getMealTypeLabel } from '@/features/meals/meals-config';
@@ -106,6 +116,8 @@ export function MealPlanView({
   const [detailOpen, setDetailOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  const [conflictPlanId, setConflictPlanId] = useState<string | null>(null);
+  const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
 
   useEffect(() => {
     setCurrentPlan(plan);
@@ -133,7 +145,7 @@ export function MealPlanView({
     setRegenerating(false);
   };
 
-  const handleSave = async () => {
+  const persistSave = async (replaceId?: string) => {
     setSaving(true);
     const weekLabel = formatWeekRange(currentPlan.weekStartDate);
     const payload = {
@@ -142,25 +154,68 @@ export function MealPlanView({
       preferences: preferences as unknown as Record<string, unknown>,
       updated_at: new Date().toISOString(),
     };
-    const result = planId
+
+    if (replaceId) {
+      const { error: delError } = await supabase
+        .from('meal_plans')
+        .delete()
+        .eq('id', replaceId);
+      if (delError) {
+        setSaving(false);
+        toast.error('Could not replace meal plan', { description: delError.message });
+        return;
+      }
+    }
+
+    const result = planId && !replaceId
       ? await supabase.from('meal_plans').update(payload).eq('id', planId)
       : await supabase.from('meal_plans').insert(payload);
+
     setSaving(false);
     if (result.error) {
-      toast.error('Could not save meal plan', {
-        description: result.error.message,
-      });
+      toast.error('Could not save meal plan', { description: result.error.message });
       return;
     }
-    toast.success(
-      planId ? 'Meal plan updated' : 'Meal plan saved',
-      {
-        description: planId
-          ? 'Your changes have been saved.'
-          : 'You can find it in your Recent Meal Plans.',
-      }
-    );
+    toast.success(planId && !replaceId ? 'Meal plan updated' : 'Meal plan saved', {
+      description: planId && !replaceId
+        ? 'Your changes have been saved.'
+        : 'You can find it in your Meal Plans.',
+    });
     onBack();
+  };
+
+  const handleSave = async () => {
+    if (planId) {
+      await persistSave();
+      return;
+    }
+    setSaving(true);
+    const { data: existing, error: checkError } = await supabase
+      .from('meal_plans')
+      .select('id, plan_data')
+      .order('created_at', { ascending: false });
+    setSaving(false);
+    if (checkError) {
+      toast.error('Could not check for existing plans', { description: checkError.message });
+      return;
+    }
+    const duplicate = (existing ?? []).find((row) => {
+      const pd = row.plan_data as Record<string, unknown>;
+      return pd?.weekStartDate === currentPlan.weekStartDate;
+    });
+    if (duplicate) {
+      setConflictPlanId(duplicate.id);
+      setConflictDialogOpen(true);
+      return;
+    }
+    await persistSave();
+  };
+
+  const handleReplaceExisting = async () => {
+    setConflictDialogOpen(false);
+    if (conflictPlanId) {
+      await persistSave(conflictPlanId);
+    }
   };
 
   return (
@@ -298,6 +353,27 @@ export function MealPlanView({
         onOpenChange={setEditOpen}
         onSave={handleEditSave}
       />
+
+      <AlertDialog open={conflictDialogOpen} onOpenChange={setConflictDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Meal Plan Already Exists</AlertDialogTitle>
+            <AlertDialogDescription>
+              A meal plan already exists for{' '}
+              <span className="font-medium text-foreground">
+                {formatWeekRange(currentPlan.weekStartDate)}
+              </span>
+              . Would you like to replace it with this new plan?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleReplaceExisting}>
+              Replace Existing
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

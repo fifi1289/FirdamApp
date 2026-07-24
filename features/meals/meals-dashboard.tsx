@@ -166,6 +166,7 @@ export function MealsDashboard() {
       preferences: prefs,
       householdSize,
       weekStartDate: selectedWeekStart,
+      pantryItems,
     });
     setGeneratedPlan(plan);
     setActivePlanId(null);
@@ -179,6 +180,7 @@ export function MealsDashboard() {
       preferences,
       householdSize,
       weekStartDate,
+      pantryItems,
     });
     setGeneratedPlan(plan);
     setGenerating(false);

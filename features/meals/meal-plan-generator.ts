@@ -1,5 +1,7 @@
 import type { MealPreferencesState } from '@/features/meals/meals-config';
 import { getMealImage } from '@/features/meals/meal-images';
+import { getMealPantrySummary } from '@/features/meals/pantry-check';
+import type { PantryItem } from '@/types/database';
 
 export type MealDifficulty = 'Easy' | 'Medium' | 'Hard';
 
@@ -41,6 +43,7 @@ export interface MealPlanGeneratorInput {
   preferences: MealPreferencesState;
   householdSize?: number;
   weekStartDate: string;
+  pantryItems?: PantryItem[];
 }
 
 const DAY_NAMES = [
@@ -871,38 +874,6 @@ function isCompatible(
   return dietaryMatch && !allergyBlocked;
 }
 
-function pickMeals(
-  type: string,
-  count: number,
-  dietary: string[],
-  allergies: string[],
-  cuisines: string[]
-): MealTemplate[] {
-  const all = TEMPLATES_BY_TYPE[type] ?? [];
-  const dietaryAllergyPool = all.filter((t) =>
-    isCompatible(t, dietary, allergies)
-  );
-
-  let pool = dietaryAllergyPool;
-  if (cuisines.length > 0) {
-    const cuisineFiltered = dietaryAllergyPool.filter((t) => {
-      const c = CUISINE_BY_NAME[t.name];
-      return c && cuisines.includes(c);
-    });
-    if (cuisineFiltered.length > 0) {
-      pool = cuisineFiltered;
-    }
-  }
-
-  const source = pool.length > 0 ? pool : all;
-  const shuffled = [...source].sort(() => Math.random() - 0.5);
-  const picked: MealTemplate[] = [];
-  for (let i = 0; i < count; i++) {
-    picked.push(shuffled[i % shuffled.length]);
-  }
-  return picked;
-}
-
 const FALLBACK_TEMPLATE: MealTemplate = {
   name: 'Simple Meal',
   description: 'A balanced halal meal.',
@@ -924,15 +895,95 @@ const FALLBACK_TEMPLATE: MealTemplate = {
   difficulty: 'Easy',
 };
 
+function shuffle<T>(arr: T[]): T[] {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function pantryCoverage(template: MealTemplate, pantry: PantryItem[]): number {
+  if (template.ingredients.length === 0) return 0;
+  const summary = getMealPantrySummary(
+    template.ingredients as MealIngredient[],
+    pantry
+  );
+  return summary.availableCount;
+}
+
+function pickMeal(
+  type: string,
+  dietary: string[],
+  allergies: string[],
+  cuisines: string[],
+  pantry: PantryItem[],
+  usePantryFirst: boolean,
+  rotationState: Map<string, number>,
+  usedNames: Set<string>
+): MealTemplate {
+  const all = TEMPLATES_BY_TYPE[type] ?? [];
+
+  // Always enforce dietary + allergy constraints — never relax.
+  const safe = all.filter((t) => isCompatible(t, dietary, allergies));
+
+  // Apply cuisine filter when cuisines are selected for this meal type.
+  // An empty cuisine list means "any cuisine".
+  const pool =
+    cuisines.length > 0
+      ? safe.filter((t) => {
+          const c = CUISINE_BY_NAME[t.name];
+          return c && cuisines.includes(c);
+        })
+      : safe;
+
+  if (pool.length === 0) {
+    return FALLBACK_TEMPLATE;
+  }
+
+  // Prefer unused meals to avoid repetition across the week.
+  const unused = pool.filter((t) => !usedNames.has(t.name));
+  let candidates = unused.length > 0 ? unused : pool;
+
+  // Rotate cuisines naturally: advance the per-type cuisine cursor each call
+  // and bias toward the cuisine at the cursor, while still allowing others.
+  if (cuisines.length > 1) {
+    const cursorKey = type;
+    const cursor = rotationState.get(cursorKey) ?? 0;
+    const targetCuisine = cuisines[cursor % cuisines.length];
+    rotationState.set(cursorKey, cursor + 1);
+    const atCursor = candidates.filter((t) => CUISINE_BY_NAME[t.name] === targetCuisine);
+    if (atCursor.length > 0) {
+      candidates = atCursor;
+    }
+  }
+
+  let sorted = shuffle(candidates);
+
+  // When "use pantry first" is enabled, sort by pantry ingredient coverage
+  // (most available ingredients first) while keeping the random tiebreak order.
+  if (usePantryFirst && pantry.length > 0) {
+    sorted = [...sorted].sort(
+      (a, b) => pantryCoverage(b, pantry) - pantryCoverage(a, pantry)
+    );
+  }
+
+  return sorted[0];
+}
+
 export class MockMealPlanGenerator implements MealPlanGenerator {
   async generate(input: MealPlanGeneratorInput): Promise<GeneratedMealPlan> {
-    const { preferences, householdSize = 4, weekStartDate } = input;
-    const { planningDuration, mealTypes, dietaryPreferences, allergies, cuisinePreferences } =
-      preferences;
+    const { preferences, householdSize = 4, weekStartDate, pantryItems = [] } = input;
+    const {
+      planningDuration,
+      mealTypes,
+      dietaryPreferences,
+      allergies,
+      cuisinePreferences,
+      usePantryFirst,
+    } = preferences;
 
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
     const start = parseDateLocal(weekStartDate);
+    const rotationState = new Map<string, number>();
+    const usedNames = new Set<string>();
 
     const days: MockDay[] = [];
     for (let i = 0; i < planningDuration; i++) {
@@ -940,14 +991,17 @@ export class MockMealPlanGenerator implements MealPlanGenerator {
       const date = new Date(start);
       date.setDate(date.getDate() + i);
       const meals: MockMeal[] = mealTypes.map((type, idx) => {
-        const candidates = pickMeals(
+        const template = pickMeal(
           type,
-          1,
           dietaryPreferences,
           allergies,
-          cuisinePreferences[type] ?? []
+          cuisinePreferences[type] ?? [],
+          pantryItems,
+          usePantryFirst,
+          rotationState,
+          usedNames
         );
-        const template = candidates[0] ?? FALLBACK_TEMPLATE;
+        usedNames.add(template.name);
         return {
           id: `${i}-${type}-${idx}`,
           name: template.name,

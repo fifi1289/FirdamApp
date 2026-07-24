@@ -1,5 +1,14 @@
 'use client';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
+import { Input } from "@/components/ui/input";
 import { useEffect, useState } from 'react';
 import {
   AlertTriangle,
@@ -100,6 +109,8 @@ export function MealPlanView({
   const [detailMeal, setDetailMeal] = useState<MockMeal | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [mealPlanName, setMealPlanName] = useState("");
   const [regenerating, setRegenerating] = useState(false);
 
   useEffect(() => {
@@ -123,12 +134,51 @@ export function MealPlanView({
     setRegenerating(false);
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    const defaultPlanName =
-  currentPlan.days.length === 7
-    ? `7-Day Meal Plan (${new Date().toLocaleDateString()})`
-    : `${currentPlan.days.length}-Day Meal Plan (${new Date().toLocaleDateString()})`;
+const handleSave = () => {
+  const defaultPlanName =
+    currentPlan.days.length === 7
+      ? `7-Day Meal Plan (${new Date().toLocaleDateString()})`
+      : `${currentPlan.days.length}-Day Meal Plan (${new Date().toLocaleDateString()})`;
+
+  setMealPlanName(defaultPlanName);
+  setSaveDialogOpen(true);
+};
+const handleConfirmSave = async () => {
+  setSaving(true);
+
+  const payload = {
+    name: mealPlanName.trim(),
+    plan_data: currentPlan as unknown as Record<string, unknown>,
+    preferences: preferences as unknown as Record<string, unknown>,
+    updated_at: new Date().toISOString(),
+  };
+
+  const result = planId
+    ? await supabase.from("meal_plans").update(payload).eq("id", planId)
+    : await supabase.from("meal_plans").insert(payload);
+
+  setSaving(false);
+
+  if (result.error) {
+    toast.error("Could not save meal plan", {
+      description: result.error.message,
+    });
+    return;
+  }
+
+  setSaveDialogOpen(false);
+
+  toast.success(
+    planId ? "Meal plan updated" : "Meal plan saved",
+    {
+      description: planId
+        ? "Your changes have been saved."
+        : "You can find it in your Recent Meal Plans.",
+    }
+  );
+
+  onBack();
+};
 
 const planName =
   window.prompt("Give your meal plan a name:", defaultPlanName) ??

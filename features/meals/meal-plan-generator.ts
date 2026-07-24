@@ -885,8 +885,7 @@ export class MockMealPlanGenerator implements MealPlanGenerator {
 
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
-    const start = new Date(weekStartDate);
-    start.setHours(0, 0, 0, 0);
+    const start = parseDateLocal(weekStartDate);
 
     const days: MockDay[] = [];
     for (let i = 0; i < planningDuration; i++) {
@@ -918,7 +917,7 @@ export class MockMealPlanGenerator implements MealPlanGenerator {
       days.push({
         dayIndex: i,
         dayName,
-        date: date.toISOString().split('T')[0],
+        date: formatDateISO(date),
         meals,
       });
     }

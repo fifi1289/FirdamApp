@@ -337,6 +337,61 @@ const payload = {
         onOpenChange={setEditOpen}
         onSave={handleEditSave}
       />
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+  <DialogContent className="sm:max-w-md rounded-3xl border-0 shadow-2xl">
+    <DialogHeader>
+      <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-[#5B3A29]">
+        <Save className="h-5 w-5" />
+        Save Meal Plan
+      </DialogTitle>
+
+      <DialogDescription className="pt-1 text-sm text-muted-foreground">
+        Give your meal plan a memorable name so you can easily find it later.
+      </DialogDescription>
+    </DialogHeader>
+
+    <div className="space-y-2 py-2">
+      <label className="text-sm font-medium text-[#5B3A29]">
+        Meal Plan Name
+      </label>
+
+      <Input
+        value={mealPlanName}
+        onChange={(e) => setMealPlanName(e.target.value)}
+        placeholder="Example: Family Week 1"
+        className="h-12 rounded-xl border-stone-300 focus-visible:ring-[#855C49]"
+      />
+    </div>
+
+    <DialogFooter className="gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setSaveDialogOpen(false)}
+      >
+        Cancel
+      </Button>
+
+      <Button
+        onClick={handleConfirmSave}
+        disabled={saving || !mealPlanName.trim()}
+        className="bg-[#855C49] hover:bg-[#714B3A] text-white"
+      >
+        {saving ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Saving...
+          </>
+        ) : (
+          <>
+            <Save className="mr-2 h-4 w-4" />
+            Save Meal Plan
+          </>
+        )}
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
     </div>
   );
 }

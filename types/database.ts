@@ -248,6 +248,361 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipes: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string | null;
+          short_description: string | null;
+          long_description: string | null;
+          cuisine_id: string | null;
+          meal_type_id: string | null;
+          difficulty_id: string | null;
+          prep_time_minutes: number | null;
+          cook_time_minutes: number | null;
+          servings: number | null;
+          calories: number | null;
+          protein: number | null;
+          carbs: number | null;
+          fat: number | null;
+          fiber: number | null;
+          image_path: string | null;
+          halal: boolean | null;
+          is_active: boolean | null;
+          is_featured: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+          sugar: number | null;
+          sodium: number | null;
+          cholesterol: number | null;
+          storage_instructions: string | null;
+          reheating_instructions: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug?: string | null;
+          short_description?: string | null;
+          long_description?: string | null;
+          cuisine_id?: string | null;
+          meal_type_id?: string | null;
+          difficulty_id?: string | null;
+          prep_time_minutes?: number | null;
+          cook_time_minutes?: number | null;
+          servings?: number | null;
+          calories?: number | null;
+          protein?: number | null;
+          carbs?: number | null;
+          fat?: number | null;
+          fiber?: number | null;
+          image_path?: string | null;
+          halal?: boolean | null;
+          is_active?: boolean | null;
+          is_featured?: boolean | null;
+          sugar?: number | null;
+          sodium?: number | null;
+          cholesterol?: number | null;
+          storage_instructions?: string | null;
+          reheating_instructions?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string | null;
+          short_description?: string | null;
+          long_description?: string | null;
+          cuisine_id?: string | null;
+          meal_type_id?: string | null;
+          difficulty_id?: string | null;
+          prep_time_minutes?: number | null;
+          cook_time_minutes?: number | null;
+          servings?: number | null;
+          calories?: number | null;
+          protein?: number | null;
+          carbs?: number | null;
+          fat?: number | null;
+          fiber?: number | null;
+          image_path?: string | null;
+          halal?: boolean | null;
+          is_active?: boolean | null;
+          is_featured?: boolean | null;
+          sugar?: number | null;
+          sodium?: number | null;
+          cholesterol?: number | null;
+          storage_instructions?: string | null;
+          reheating_instructions?: string | null;
+        };
+        Relationships: [];
+      };
+      recipe_ingredients: {
+        Row: {
+          id: string;
+          recipe_id: string;
+          ingredient_id: string;
+          quantity: number | null;
+          unit: string | null;
+          optional: boolean | null;
+          display_order: number | null;
+          notes: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          recipe_id: string;
+          ingredient_id: string;
+          quantity?: number | null;
+          unit?: string | null;
+          optional?: boolean | null;
+          display_order?: number | null;
+          notes?: string | null;
+        };
+        Update: {
+          id?: string;
+          recipe_id?: string;
+          ingredient_id?: string;
+          quantity?: number | null;
+          unit?: string | null;
+          optional?: boolean | null;
+          display_order?: number | null;
+          notes?: string | null;
+        };
+        Relationships: [];
+      };
+      recipe_steps: {
+        Row: {
+          id: string;
+          recipe_id: string;
+          step_number: number;
+          instruction: string;
+          estimated_minutes: number | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          recipe_id: string;
+          step_number: number;
+          instruction: string;
+          estimated_minutes?: number | null;
+        };
+        Update: {
+          id?: string;
+          recipe_id?: string;
+          step_number?: number;
+          instruction?: string;
+          estimated_minutes?: number | null;
+        };
+        Relationships: [];
+      };
+      recipe_tips: {
+        Row: {
+          id: string;
+          recipe_id: string;
+          tip: string;
+          display_order: number | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          recipe_id: string;
+          tip: string;
+          display_order?: number | null;
+        };
+        Update: {
+          id?: string;
+          recipe_id?: string;
+          tip?: string;
+          display_order?: number | null;
+        };
+        Relationships: [];
+      };
+      recipe_equipment: {
+        Row: {
+          id: string;
+          recipe_id: string;
+          equipment: string;
+          display_order: number | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          recipe_id: string;
+          equipment: string;
+          display_order?: number | null;
+        };
+        Update: {
+          id?: string;
+          recipe_id?: string;
+          equipment?: string;
+          display_order?: number | null;
+        };
+        Relationships: [];
+      };
+      recipe_tags: {
+        Row: { recipe_id: string; tag_id: string };
+        Insert: { recipe_id: string; tag_id: string };
+        Update: { recipe_id?: string; tag_id?: string };
+        Relationships: [];
+      };
+      recipe_allergens: {
+        Row: { recipe_id: string; allergen_id: string };
+        Insert: { recipe_id: string; allergen_id: string };
+        Update: { recipe_id?: string; allergen_id?: string };
+        Relationships: [];
+      };
+      recipe_age_groups: {
+        Row: {
+          recipe_id: string;
+          age_group_id: string;
+          recommended: boolean | null;
+        };
+        Insert: {
+          recipe_id: string;
+          age_group_id: string;
+          recommended?: boolean | null;
+        };
+        Update: {
+          recipe_id?: string;
+          age_group_id?: string;
+          recommended?: boolean | null;
+        };
+        Relationships: [];
+      };
+      recipe_adaptations: {
+        Row: {
+          id: string;
+          recipe_id: string;
+          age_group_id: string;
+          title: string;
+          adaptation_instructions: string;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          recipe_id: string;
+          age_group_id: string;
+          title: string;
+          adaptation_instructions: string;
+        };
+        Update: {
+          id?: string;
+          recipe_id?: string;
+          age_group_id?: string;
+          title?: string;
+          adaptation_instructions?: string;
+        };
+        Relationships: [];
+      };
+      cuisines: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string | null;
+          active: boolean | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug?: string | null;
+          active?: boolean | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string | null;
+          active?: boolean | null;
+        };
+        Relationships: [];
+      };
+      meal_types: {
+        Row: { id: string; name: string; active: boolean | null };
+        Insert: { id?: string; name: string; active?: boolean | null };
+        Update: { id?: string; name?: string; active?: boolean | null };
+        Relationships: [];
+      };
+      difficulties: {
+        Row: {
+          id: string;
+          name: string;
+          active: boolean | null;
+          created_at: string | null;
+        };
+        Insert: { id?: string; name: string; active?: boolean | null };
+        Update: { id?: string; name?: string; active?: boolean | null };
+        Relationships: [];
+      };
+      ingredients: {
+        Row: {
+          id: string;
+          name: string;
+          category: string | null;
+          halal: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+          slug: string | null;
+          category_id: string | null;
+          default_unit: string | null;
+          pantry_trackable: boolean | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          category?: string | null;
+          halal?: boolean | null;
+          slug?: string | null;
+          category_id?: string | null;
+          default_unit?: string | null;
+          pantry_trackable?: boolean | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          category?: string | null;
+          halal?: boolean | null;
+          slug?: string | null;
+          category_id?: string | null;
+          default_unit?: string | null;
+          pantry_trackable?: boolean | null;
+        };
+        Relationships: [];
+      };
+      tags: {
+        Row: { id: string; name: string; created_at: string | null };
+        Insert: { id?: string; name: string };
+        Update: { id?: string; name?: string };
+        Relationships: [];
+      };
+      allergens: {
+        Row: { id: string; name: string; created_at: string | null };
+        Insert: { id?: string; name: string };
+        Update: { id?: string; name?: string };
+        Relationships: [];
+      };
+      age_groups: {
+        Row: {
+          id: string;
+          name: string;
+          min_months: number | null;
+          max_months: number | null;
+          active: boolean | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          min_months?: number | null;
+          max_months?: number | null;
+          active?: boolean | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          min_months?: number | null;
+          max_months?: number | null;
+          active?: boolean | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;

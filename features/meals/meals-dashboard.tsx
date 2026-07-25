@@ -38,7 +38,7 @@ import { MealPlanView } from '@/features/meals/meal-plan-view';
 import { PlanPantrySummary } from '@/features/meals/plan-pantry-summary';
 import { getPlanPantrySummary } from '@/features/meals/pantry-check';
 import {
-  mockMealPlanGenerator,
+  generateMealPlanFromSupabase,
   normalizePlan,
   formatWeekRange,
   getStartOfWeek,
@@ -46,10 +46,6 @@ import {
   type GeneratedMealPlan,
   type MealPlanGeneratorInput,
 } from '@/features/meals/meal-plan-generator';
-import {
-  requestGeneratedMealPlan,
-  GenerateMealPlanError,
-} from '@/features/meals/generate-meal-plan-service';
 import type { MealPlanRecord, PantryItem } from '@/types/database';
 
 type View = 'home' | 'preferences' | 'plan';
@@ -176,21 +172,14 @@ export function MealsDashboard() {
 
     let plan: GeneratedMealPlan;
     try {
-      plan = await requestGeneratedMealPlan(input);
+      plan = await generateMealPlanFromSupabase(input);
     } catch (err) {
-      console.warn(
-        'AI meal plan failed, falling back to local generator:',
-        err instanceof GenerateMealPlanError
-          ? `${err.message} (status ${err.status})`
-          : err
-      );
-      toast.warning('Using offline planner', {
+      setGenerating(false);
+      toast.error('Could not generate meal plan', {
         description:
-          err instanceof GenerateMealPlanError
-            ? err.message
-            : 'The AI planner was unavailable, so a local plan was generated instead.',
+          err instanceof Error ? err.message : 'No recipes were found to build a plan.',
       });
-      plan = await mockMealPlanGenerator.generate(input);
+      return;
     }
     setGeneratedPlan(plan);
     setActivePlanId(null);
@@ -209,21 +198,14 @@ export function MealsDashboard() {
 
     let plan: GeneratedMealPlan;
     try {
-      plan = await requestGeneratedMealPlan(input);
+      plan = await generateMealPlanFromSupabase(input);
     } catch (err) {
-      console.warn(
-        'AI meal plan failed, falling back to local generator:',
-        err instanceof GenerateMealPlanError
-          ? `${err.message} (status ${err.status})`
-          : err
-      );
-      toast.warning('Using offline planner', {
+      setGenerating(false);
+      toast.error('Could not generate meal plan', {
         description:
-          err instanceof GenerateMealPlanError
-            ? err.message
-            : 'The AI planner was unavailable, so a local plan was generated instead.',
+          err instanceof Error ? err.message : 'No recipes were found to build a plan.',
       });
-      plan = await mockMealPlanGenerator.generate(input);
+      return;
     }
     setGeneratedPlan(plan);
     setGenerating(false);

@@ -51,7 +51,7 @@ import {
   type MealPantrySummary,
 } from '@/features/meals/pantry-check';
 import {
-  mockMealPlanGenerator,
+  generateMealPlanFromSupabase,
   formatWeekRange,
 } from '@/features/meals/meal-plan-generator';
 import { PlanPantrySummary } from '@/features/meals/plan-pantry-summary';
@@ -212,7 +212,7 @@ export function MealPlanView({
     setReplaceMealId(meal.id);
 
     try {
-      const candidate = await mockMealPlanGenerator.generate({
+      const candidate = await generateMealPlanFromSupabase({
         preferences,
         householdSize: meal.servings,
         weekStartDate: currentPlan.weekStartDate,

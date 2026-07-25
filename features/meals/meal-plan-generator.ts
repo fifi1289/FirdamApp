@@ -920,21 +920,39 @@ function pickMeal(
 ): MealTemplate {
   const all = TEMPLATES_BY_TYPE[type] ?? [];
 
-  // Always enforce dietary + allergy constraints — never relax.
+  if (all.length === 0) {
+    console.warn(
+      `[MealGenerator] No templates found for meal type "${type}". Using fallback.`
+    );
+    return FALLBACK_TEMPLATE;
+  }
+
+  // Always enforce dietary + allergy constraints — never relax these.
   const safe = all.filter((t) => isCompatible(t, dietary, allergies));
 
-  // Apply cuisine filter when cuisines are selected for this meal type.
-  // An empty cuisine list means "any cuisine".
-  const pool =
-    cuisines.length > 0
-      ? safe.filter((t) => {
-          const c = CUISINE_BY_NAME[t.name];
-          return c && cuisines.includes(c);
-        })
-      : safe;
-
-  if (pool.length === 0) {
+  if (safe.length === 0) {
+    console.warn(
+      `[MealGenerator] All ${all.length} "${type}" templates were filtered out by dietary=${JSON.stringify(dietary)} / allergies=${JSON.stringify(allergies)}. Using fallback.`
+    );
     return FALLBACK_TEMPLATE;
+  }
+
+  // Cuisine is a soft preference. Filter by it when selected, but if nothing
+  // matches, relax back to the safe pool instead of producing a placeholder
+  // "Simple Meal" — dietary/allergy-safe recipes are always preferable.
+  let pool = safe;
+  if (cuisines.length > 0) {
+    const matched = safe.filter((t) => {
+      const c = CUISINE_BY_NAME[t.name];
+      return c && cuisines.includes(c);
+    });
+    if (matched.length === 0) {
+      console.warn(
+        `[MealGenerator] No "${type}" recipes matched cuisines=${JSON.stringify(cuisines)} (${safe.length} safe recipes available). Relaxing cuisine filter.`
+      );
+    } else {
+      pool = matched;
+    }
   }
 
   // Prefer unused meals to avoid repetition across the week.

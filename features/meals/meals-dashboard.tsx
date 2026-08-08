@@ -74,6 +74,7 @@ export function MealsDashboard() {
   );
   const [cuisines, setCuisines] = useState<string[]>([]);
 
+ // --- START OF REPLACEMENT ---
   const loadCuisines = useCallback(async () => {
     const { data, error } = await supabase
       .from('cuisines')
@@ -84,6 +85,30 @@ export function MealsDashboard() {
       console.error('Failed to load cuisines:', error.message);
       return;
     }
+    
+    if (data) {
+      setCuisines(data.map(c => c.name));
+    }
+  }, [supabase]);
+
+  const [allergens, setAllergens] = useState<string[]>([]);
+
+  const loadAllergens = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('allergens')
+      .select('name')
+      .order('name');
+      
+    if (error) {
+      console.error('Failed to load allergens:', error.message);
+      return;
+    }
+    
+    if (data) {
+      setAllergens(data.map(a => a.name));
+    }
+  }, [supabase]);
+// --- FINISH OF REPLACEMENT ---
     
     if (data) {
       setCuisines(data.map(c => c.name));
@@ -156,11 +181,12 @@ export function MealsDashboard() {
         loadSavedPlans(), 
         loadHouseholdSize(), 
         loadPantryItems(),
-        loadCuisines()
+        loadCuisines(),
+        loadAllergens()
       ]);
       setLoading(false);
     })();
-  }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems, loadCuisines]);
+  }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems, loadCuisines, loadAllergens]);
 // --- FINISH OF REPLACEMENT ---
 
   const handleGenerate = async (
@@ -298,9 +324,11 @@ export function MealsDashboard() {
           </Card>
         ) : (
  // --- START OF REPLACEMENT ---
+      // --- START OF REPLACEMENT ---
         <MealPreferencesForm
           initial={preferences}
           availableCuisines={cuisines}
+          availableAllergens={allergens}
           onCancel={() => setView('home')}
           onGenerate={handleGenerate}
         />

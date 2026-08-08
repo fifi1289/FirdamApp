@@ -20,20 +20,6 @@ export const DIETARY_OPTIONS = [
   'Seafood-Free',
 ] as const;
 
-export const PREDEFINED_ALLERGIES = [
-  'Peanuts',
-  'Tree Nuts',
-  'Milk',
-  'Eggs',
-  'Wheat',
-  'Soy',
-  'Fish',
-  'Shellfish',
-  'Sesame',
-  'Mustard',
-  'Sulphites',
-  'Gluten',
-] as const;
 
 export const CUISINE_OPTIONS = [
   'Moroccan',

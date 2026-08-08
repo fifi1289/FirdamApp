@@ -11,24 +11,26 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+// --- START OF REPLACEMENT ---
 import {
   DURATION_OPTIONS,
   MEAL_TYPES,
   DIETARY_OPTIONS,
-  PREDEFINED_ALLERGIES,
-  CUISINE_OPTIONS,
   type CuisinePreferences,
   type MealPreferencesState,
 } from '@/features/meals/meals-config';
+// --- FINISH OF REPLACEMENT ---
 import {
   formatDateISO,
   formatWeekRange,
   getStartOfWeek,
 } from '@/features/meals/meal-plan-generator';
 
+// --- START OF REPLACEMENT ---
 interface MealPreferencesFormProps {
   initial: MealPreferencesState;
   availableCuisines: string[];
+  availableAllergens: string[];
   onCancel: () => void;
   onGenerate: (preferences: MealPreferencesState, weekStartDate: string) => void;
 }
@@ -36,9 +38,11 @@ interface MealPreferencesFormProps {
 export function MealPreferencesForm({
   initial,
   availableCuisines,
+  availableAllergens,
   onCancel,
   onGenerate,
 }: MealPreferencesFormProps) {
+// --- FINISH OF REPLACEMENT ---
   const [generating, setGenerating] = useState(false);
   const [planningDuration, setPlanningDuration] = useState<number>(
     initial.planningDuration
@@ -156,9 +160,11 @@ export function MealPreferencesForm({
     );
   };
 
+  // --- START OF REPLACEMENT ---
   const customAllergies = allergies.filter(
-    (a) => !PREDEFINED_ALLERGIES.includes(a as (typeof PREDEFINED_ALLERGIES)[number])
+    (a) => !availableAllergens.includes(a)
   );
+// --- FINISH OF REPLACEMENT ---
 
   return (
     <div className="space-y-6">
@@ -457,7 +463,9 @@ export function MealPreferencesForm({
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                {PREDEFINED_ALLERGIES.map((allergy) => {
+            
+                {availableAllergens.map((allergy) => {
+// --- FINISH OF REPLACEMENT --- {
                   const selected = allergies.includes(allergy);
                   return (
                     <button

@@ -68,9 +68,28 @@ export function MealsDashboard() {
   const [deleting, setDeleting] = useState(false);
   const [householdSize, setHouseholdSize] = useState(4);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
+  // --- START OF REPLACEMENT ---
   const [weekStartDate, setWeekStartDate] = useState(
     formatDateISO(getStartOfWeek(new Date()))
   );
+  const [cuisines, setCuisines] = useState<string[]>([]);
+
+  const loadCuisines = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('cuisines')
+      .select('name')
+      .order('name');
+      
+    if (error) {
+      console.error('Failed to load cuisines:', error.message);
+      return;
+    }
+    
+    if (data) {
+      setCuisines(data.map(c => c.name));
+    }
+  }, [supabase]);
+// --- FINISH OF REPLACEMENT ---
 
   const loadPreferences = useCallback(async () => {
     const { data, error } = await supabase
@@ -129,12 +148,20 @@ export function MealsDashboard() {
     setPantryItems(data ?? []);
   }, [supabase]);
 
+ // --- START OF REPLACEMENT ---
   useEffect(() => {
     (async () => {
-      await Promise.all([loadPreferences(), loadSavedPlans(), loadHouseholdSize(), loadPantryItems()]);
+      await Promise.all([
+        loadPreferences(), 
+        loadSavedPlans(), 
+        loadHouseholdSize(), 
+        loadPantryItems(),
+        loadCuisines()
+      ]);
       setLoading(false);
     })();
-  }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems]);
+  }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems, loadCuisines]);
+// --- FINISH OF REPLACEMENT ---
 
   const handleGenerate = async (
     prefs: MealPreferencesState,
@@ -270,11 +297,14 @@ export function MealsDashboard() {
             </CardContent>
           </Card>
         ) : (
-          <MealPreferencesForm
-            initial={preferences}
-            onCancel={() => setView('home')}
-            onGenerate={handleGenerate}
-          />
+ // --- START OF REPLACEMENT ---
+        <MealPreferencesForm
+          initial={preferences}
+          availableCuisines={cuisines}
+          onCancel={() => setView('home')}
+          onGenerate={handleGenerate}
+        />
+// --- FINISH OF REPLACEMENT ---
         )}
       </AppShell>
     );

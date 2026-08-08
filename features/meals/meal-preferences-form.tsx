@@ -28,12 +28,14 @@ import {
 
 interface MealPreferencesFormProps {
   initial: MealPreferencesState;
+  availableCuisines: string[];
   onCancel: () => void;
   onGenerate: (preferences: MealPreferencesState, weekStartDate: string) => void;
 }
 
 export function MealPreferencesForm({
   initial,
+  availableCuisines,
   onCancel,
   onGenerate,
 }: MealPreferencesFormProps) {

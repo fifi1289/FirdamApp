@@ -20,28 +20,6 @@ export const DIETARY_OPTIONS = [
   'Seafood-Free',
 ] as const;
 
-
-export const CUISINE_OPTIONS = [
-  'Moroccan',
-  'Mediterranean',
-  'Italian',
-  'French',
-  'Spanish',
-  'Greek',
-  'Turkish',
-  'Lebanese',
-  'Syrian',
-  'Egyptian',
-  'Indian',
-  'Pakistani',
-  'Chinese',
-  'Japanese',
-  'Korean',
-  'Thai',
-  'Mexican',
-  'American',
-] as const;
-
 export type CuisinePreferences = Record<string, string[]>;
 
 export const DEFAULT_PREFERENCES = {

@@ -74,7 +74,7 @@ export function MealsDashboard() {
   );
   const [cuisines, setCuisines] = useState<string[]>([]);
 
- // --- START OF REPLACEMENT ---
+// --- START OF REPLACEMENT ---
   const loadCuisines = useCallback(async () => {
     const { data, error } = await supabase
       .from('cuisines')
@@ -106,12 +106,6 @@ export function MealsDashboard() {
     
     if (data) {
       setAllergens(data.map(a => a.name));
-    }
-  }, [supabase]);
-// --- FINISH OF REPLACEMENT ---
-    
-    if (data) {
-      setCuisines(data.map(c => c.name));
     }
   }, [supabase]);
 // --- FINISH OF REPLACEMENT ---

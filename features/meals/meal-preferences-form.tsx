@@ -427,9 +427,11 @@ export function MealPreferencesForm({
                           </button>
                         )}
                       </div>
+                      // --- START OF REPLACEMENT ---
                       <div className="flex flex-wrap gap-1.5">
-                        {CUISINE_OPTIONS.map((cuisine) => {
+                        {availableCuisines.map((cuisine) => {
                           const isSelected = selected.includes(cuisine);
+// --- FINISH OF REPLACEMENT ---
                           return (
                             <button
                               key={cuisine}

@@ -91,6 +91,7 @@ export function MealsDashboard() {
     }
   }, [supabase]);
 
+  // --- START OF REPLACEMENT ---
   const [allergens, setAllergens] = useState<string[]>([]);
 
   const loadAllergens = useCallback(async () => {
@@ -171,7 +172,7 @@ export function MealsDashboard() {
     setPantryItems(data ?? []);
   }, [supabase]);
 
- // --- START OF REPLACEMENT ---
+// --- START OF REPLACEMENT ---
   useEffect(() => {
     (async () => {
       await Promise.all([
@@ -180,11 +181,12 @@ export function MealsDashboard() {
         loadHouseholdSize(), 
         loadPantryItems(),
         loadCuisines(),
+        loadDietaryOptions(),
         loadAllergens()
       ]);
       setLoading(false);
     })();
-  }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems, loadCuisines, loadAllergens]);
+  }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems, loadCuisines, loadDietaryOptions, loadAllergens]);
 // --- FINISH OF REPLACEMENT ---
 
   const handleGenerate = async (

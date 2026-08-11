@@ -74,6 +74,10 @@ export function MealsDashboard() {
   );
   const [cuisines, setCuisines] = useState<string[]>([]);
 // --- START OF REPLACEMENT ---
+ // --- START OF REPLACEMENT ---
+  const [weekStartDate, setWeekStartDate] = useState(
+    formatDateISO(getStartOfWeek(new Date()))
+  );
   const [cuisines, setCuisines] = useState<string[]>([]);
 
   const loadCuisines = useCallback(async () => {
@@ -91,6 +95,7 @@ export function MealsDashboard() {
       setCuisines(data.map(c => c.name));
     }
   }, [supabase]);
+// --- FINISH OF REPLACEMENT ---
 
   const [dietaryOptions, setDietaryOptions] = useState<string[]>([]);
 

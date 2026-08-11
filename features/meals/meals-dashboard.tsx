@@ -73,8 +73,9 @@ export function MealsDashboard() {
     formatDateISO(getStartOfWeek(new Date()))
   );
   const [cuisines, setCuisines] = useState<string[]>([]);
-
 // --- START OF REPLACEMENT ---
+  const [cuisines, setCuisines] = useState<string[]>([]);
+
   const loadCuisines = useCallback(async () => {
     const { data, error } = await supabase
       .from('cuisines')
@@ -91,7 +92,24 @@ export function MealsDashboard() {
     }
   }, [supabase]);
 
-  // --- START OF REPLACEMENT ---
+  const [dietaryOptions, setDietaryOptions] = useState<string[]>([]);
+
+  const loadDietaryOptions = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('dietary_preferences')
+      .select('name')
+      .order('name');
+      
+    if (error) {
+      console.error('Failed to load dietary preferences:', error.message);
+      return;
+    }
+    
+    if (data) {
+      setDietaryOptions(data.map(d => d.name));
+    }
+  }, [supabase]);
+
   const [allergens, setAllergens] = useState<string[]>([]);
 
   const loadAllergens = useCallback(async () => {

@@ -11,14 +11,6 @@ export const MEAL_TYPES = [
   { key: 'snack', label: 'Snack' },
 ] as const;
 
-export const DIETARY_OPTIONS = [
-  'Vegetarian',
-  'Vegan',
-  'Gluten-Free',
-  'Dairy-Free',
-  'Nut-Free',
-  'Seafood-Free',
-] as const;
 
 export type CuisinePreferences = Record<string, string[]>;
 

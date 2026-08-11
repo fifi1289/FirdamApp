@@ -110,6 +110,7 @@ export function MealsDashboard() {
   }, [supabase]);
 // --- FINISH OF REPLACEMENT ---
 
+// --- START OF REPLACEMENT ---
   const loadPreferences = useCallback(async () => {
     const { data, error } = await supabase
       .from('meal_preferences')
@@ -118,7 +119,9 @@ export function MealsDashboard() {
 
     if (error) {
       console.error('Failed to load meal preferences:', error.message);
+      return;
     }
+    
     if (data) {
       setPreferences({
         planningDuration: data.planning_duration,
@@ -131,6 +134,7 @@ export function MealsDashboard() {
       });
     }
   }, [supabase]);
+// --- FINISH OF REPLACEMENT ---
 
   const loadSavedPlans = useCallback(async () => {
     const { data, error } = await supabase

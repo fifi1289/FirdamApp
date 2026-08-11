@@ -30,6 +30,7 @@ interface MealPreferencesFormProps {
   initial: MealPreferencesState;
   availableCuisines: string[];
   availableDietary: string[];
+  availableAllergens: string[];
   onCancel: () => void;
   onGenerate: (preferences: MealPreferencesState, weekStartDate: string) => void;
 }
@@ -38,10 +39,12 @@ export function MealPreferencesForm({
   initial,
   availableCuisines,
   availableDietary,
+  availableAllergens,
   onCancel,
   onGenerate,
 }: MealPreferencesFormProps) {
 // --- FINISH OF REPLACEMENT ---
+  
   const [generating, setGenerating] = useState(false);
   const [planningDuration, setPlanningDuration] = useState<number>(
     initial.planningDuration
@@ -160,7 +163,7 @@ export function MealPreferencesForm({
   };
 
   // --- START OF REPLACEMENT ---
-  const customAllergies = allergies.filter(
+const customAllergies = allergies.filter(
     (a) => !availableAllergens.includes(a)
   );
 // --- FINISH OF REPLACEMENT ---
@@ -465,7 +468,7 @@ export function MealPreferencesForm({
               </div>
               <div className="flex flex-wrap gap-2">
             
-                {availableAllergens.map((allergy) => {
+               {availableAllergens.map((allergy) => {
 // --- FINISH OF REPLACEMENT --- {
                   const selected = allergies.includes(allergy);
                   return (

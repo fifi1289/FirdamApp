@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import {
   DURATION_OPTIONS,
   MEAL_TYPES,
-  DIETARY_OPTIONS,
   type CuisinePreferences,
   type MealPreferencesState,
 } from '@/features/meals/meals-config';

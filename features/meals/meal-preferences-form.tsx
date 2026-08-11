@@ -30,7 +30,7 @@ import {
 interface MealPreferencesFormProps {
   initial: MealPreferencesState;
   availableCuisines: string[];
-  availableAllergens: string[];
+  availableDietary: string[];
   onCancel: () => void;
   onGenerate: (preferences: MealPreferencesState, weekStartDate: string) => void;
 }
@@ -38,7 +38,7 @@ interface MealPreferencesFormProps {
 export function MealPreferencesForm({
   initial,
   availableCuisines,
-  availableAllergens,
+  availableDietary,
   onCancel,
   onGenerate,
 }: MealPreferencesFormProps) {
@@ -378,7 +378,7 @@ export function MealPreferencesForm({
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {DIETARY_OPTIONS.map((option) => {
+                {availableDietary.map((option) => {
                   const selected = dietaryPreferences.includes(option);
                   return (
                     <button

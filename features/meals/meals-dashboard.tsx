@@ -68,12 +68,7 @@ export function MealsDashboard() {
   const [deleting, setDeleting] = useState(false);
   const [householdSize, setHouseholdSize] = useState(4);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
-  // --- START OF REPLACEMENT ---
-  const [weekStartDate, setWeekStartDate] = useState(
-    formatDateISO(getStartOfWeek(new Date()))
-  );
-  const [cuisines, setCuisines] = useState<string[]>([]);
-// --- START OF REPLACEMENT ---
+
  // --- START OF REPLACEMENT ---
   const [weekStartDate, setWeekStartDate] = useState(
     formatDateISO(getStartOfWeek(new Date()))

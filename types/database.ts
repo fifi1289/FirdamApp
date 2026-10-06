@@ -718,6 +718,70 @@ export type Database = {
         };
         Relationships: [];
       };
+      grocery_lists: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          store_name: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          store_name?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          store_name?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      grocery_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          list_id: string;
+          name: string;
+          quantity: number | null;
+          unit: string | null;
+          category: PantryCategory;
+          checked: boolean;
+          note: string | null;
+          from_meal_plan: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          list_id: string;
+          name: string;
+          quantity?: number | null;
+          unit?: string | null;
+          category?: PantryCategory;
+          checked?: boolean;
+          note?: string | null;
+          from_meal_plan?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          quantity?: number | null;
+          unit?: string | null;
+          category?: PantryCategory;
+          checked?: boolean;
+          note?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -854,3 +918,6 @@ export type CommunityHalalStatus = 'halal' | 'halal_options' | 'muslim_owned';
 export type HalalPlaceRecord = Database['public']['Tables']['halal_places']['Row'];
 export type HalalPlaceReview = Database['public']['Tables']['halal_place_reviews']['Row'];
 export type SavedHalalPlace = Database['public']['Tables']['saved_halal_places']['Row'];
+
+export type GroceryList = Database['public']['Tables']['grocery_lists']['Row'];
+export type GroceryItem = Database['public']['Tables']['grocery_items']['Row'];

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   BadgeCheck,
   Heart,
@@ -179,6 +179,14 @@ export function HalalPlacesDashboard() {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+
+  // Deep link support, e.g. /dashboard/halal-places?category=butcher
+  useEffect(() => {
+    const param = new URLSearchParams(window.location.search).get('category');
+    if (param && (FILTER_CATEGORIES as string[]).includes(param)) {
+      setCategory(param as HalalPlaceCategory);
+    }
+  }, []);
 
   const center = useMemo(
     () => (location ? { latitude: location.latitude, longitude: location.longitude } : null),

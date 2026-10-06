@@ -872,6 +872,65 @@ export type Database = {
         };
         Relationships: [];
       };
+      ramadan_days: {
+        Row: {
+          id: string;
+          user_id: string;
+          hijri_year: number;
+          day: number;
+          fast_status: FastStatus | null;
+          taraweeh: boolean;
+          quran_pages: number;
+          charity: boolean;
+          note: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          hijri_year: number;
+          day: number;
+          fast_status?: FastStatus | null;
+          taraweeh?: boolean;
+          quran_pages?: number;
+          charity?: boolean;
+          note?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          fast_status?: FastStatus | null;
+          taraweeh?: boolean;
+          quran_pages?: number;
+          charity?: boolean;
+          note?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      quran_reading_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          read_on: string;
+          pages: number;
+          note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          read_on?: string;
+          pages: number;
+          note?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          read_on?: string;
+          pages?: number;
+          note?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -1026,3 +1085,7 @@ export type SavingsGoalKind =
 export type BudgetCategory = Database['public']['Tables']['budget_categories']['Row'];
 export type BudgetTransaction = Database['public']['Tables']['budget_transactions']['Row'];
 export type SavingsGoal = Database['public']['Tables']['savings_goals']['Row'];
+
+export type FastStatus = 'fasted' | 'missed' | 'excused';
+export type RamadanDay = Database['public']['Tables']['ramadan_days']['Row'];
+export type QuranReadingSession = Database['public']['Tables']['quran_reading_sessions']['Row'];

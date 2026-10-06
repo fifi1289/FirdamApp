@@ -150,8 +150,10 @@ export function PlaceDetailSheet({
       author_name: displayNameFor(user),
       updated_at: new Date().toISOString(),
     };
+    const { place_key: _key, ...changes } = payload;
+    void _key;
     const { error } = myReview
-      ? await supabase.from('halal_place_reviews').update(payload).eq('id', myReview.id)
+      ? await supabase.from('halal_place_reviews').update(changes).eq('id', myReview.id)
       : await supabase.from('halal_place_reviews').insert(payload);
     setSubmitting(false);
     if (error) {

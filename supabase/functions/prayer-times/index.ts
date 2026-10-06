@@ -7,12 +7,14 @@ const corsHeaders = {
 };
 
 interface PrayerTimings {
+  Imsak: string;
   Fajr: string;
   Sunrise: string;
   Dhuhr: string;
   Asr: string;
   Maghrib: string;
   Isha: string;
+  Midnight: string;
 }
 
 interface AladhanData {
@@ -21,11 +23,13 @@ interface AladhanData {
     gregorian: { date: string; weekday: { en: string } };
     hijri: {
       day: string;
-      month: { en: string };
+      month: { en: string; ar?: string; number: number };
       year: string;
       weekday: { en: string };
+      holidays?: string[];
     };
   };
+  meta?: { method?: { name?: string } };
 }
 
 interface GeocodeResult {
@@ -65,23 +69,60 @@ async function reverseGeocode(lat: string, lng: string): Promise<string | null> 
   return city ?? country ?? json.name ?? null;
 }
 
+/** Aladhan's calendar endpoint appends a zone, e.g. "05:12 (EDT)" — keep HH:MM. */
+function clean(t: string | undefined): string {
+  return (t ?? "").trim().split(" ")[0] ?? "";
+}
+
 function filterTimings(raw: Record<string, string>): PrayerTimings {
   return {
-    Fajr: raw.Fajr ?? "",
-    Sunrise: raw.Sunrise ?? "",
-    Dhuhr: raw.Dhuhr ?? "",
-    Asr: raw.Asr ?? "",
-    Maghrib: raw.Maghrib ?? "",
-    Isha: raw.Isha ?? "",
+    Imsak: clean(raw.Imsak),
+    Fajr: clean(raw.Fajr),
+    Sunrise: clean(raw.Sunrise),
+    Dhuhr: clean(raw.Dhuhr),
+    Asr: clean(raw.Asr),
+    Maghrib: clean(raw.Maghrib),
+    Isha: clean(raw.Isha),
+    Midnight: clean(raw.Midnight),
   };
 }
 
+function toDay(d: AladhanData) {
+  return {
+    timings: filterTimings(d.timings),
+    gregorian: {
+      date: d.date.gregorian.date,
+      weekday: d.date.gregorian.weekday.en,
+    },
+    hijri: {
+      day: d.date.hijri.day,
+      month: d.date.hijri.month.en,
+      monthAr: d.date.hijri.month.ar ?? null,
+      monthNumber: d.date.hijri.month.number,
+      year: d.date.hijri.year,
+      weekday: d.date.hijri.weekday.en,
+      holidays: d.date.hijri.holidays ?? [],
+    },
+    method: d.meta?.method?.name ?? null,
+  };
+}
+
+/** Server time is UTC, so the client sends its own local date (DD-MM-YYYY). */
 function todayDatePath(): string {
   const d = new Date();
-  const dd = d.getDate().toString().padStart(2, "0");
-  const mm = (d.getMonth() + 1).toString().padStart(2, "0");
-  const yyyy = d.getFullYear();
+  const dd = d.getUTCDate().toString().padStart(2, "0");
+  const mm = (d.getUTCMonth() + 1).toString().padStart(2, "0");
+  const yyyy = d.getUTCFullYear();
   return `${dd}-${mm}-${yyyy}`;
+}
+
+const VALID_METHODS = new Set([0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]);
+
+function calcParams(url: URL): string {
+  const method = Number(url.searchParams.get("method") ?? "2");
+  const school = url.searchParams.get("school") === "1" ? 1 : 0;
+  const m = VALID_METHODS.has(method) ? method : 2;
+  return `method=${m}&school=${school}`;
 }
 
 Deno.serve(async (req: Request) => {
@@ -130,10 +171,34 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Prayer times by coordinates
+    // Monthly timetable: ?lat&lng&month=10&year=2026 (Gregorian) or &hijriMonth=9&hijriYear=1448
+    const month = url.searchParams.get("month");
+    const year = url.searchParams.get("year");
+    const hijriMonth = url.searchParams.get("hijriMonth");
+    const hijriYear = url.searchParams.get("hijriYear");
+    if (lat && lng && ((month && year) || (hijriMonth && hijriYear))) {
+      const path = hijriMonth && hijriYear
+        ? `hijriCalendar/${encodeURIComponent(hijriYear)}/${encodeURIComponent(hijriMonth)}`
+        : `calendar/${encodeURIComponent(year!)}/${encodeURIComponent(month!)}`;
+      const apiUrl = `https://api.aladhan.com/v1/${path}?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lng)}&${calcParams(url)}`;
+      const res = await fetch(apiUrl);
+      if (!res.ok) {
+        return new Response(
+          JSON.stringify({ error: `Upstream API error (${res.status})` }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const json = (await res.json()) as { data: AladhanData[] };
+      return new Response(JSON.stringify({ days: json.data.map(toDay) }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Prayer times for one day by coordinates (?date=DD-MM-YYYY, defaults to today UTC)
     if (lat && lng) {
-      const datePath = todayDatePath();
-      const apiUrl = `https://api.aladhan.com/v1/timings/${datePath}?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lng)}&method=2`;
+      const requested = url.searchParams.get("date");
+      const datePath = requested && /^\d{2}-\d{2}-\d{4}$/.test(requested) ? requested : todayDatePath();
+      const apiUrl = `https://api.aladhan.com/v1/timings/${datePath}?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lng)}&${calcParams(url)}`;
       const res = await fetch(apiUrl);
       if (!res.ok) {
         return new Response(
@@ -143,21 +208,7 @@ Deno.serve(async (req: Request) => {
       }
       const json = (await res.json()) as { data: AladhanData };
 
-      const payload = {
-        timings: filterTimings(json.data.timings),
-        gregorian: {
-          date: json.data.date.gregorian.date,
-          weekday: json.data.date.gregorian.weekday.en,
-        },
-        hijri: {
-          day: json.data.date.hijri.day,
-          month: json.data.date.hijri.month.en,
-          year: json.data.date.hijri.year,
-          weekday: json.data.date.hijri.weekday.en,
-        },
-      };
-
-      return new Response(JSON.stringify(payload), {
+      return new Response(JSON.stringify(toDay(json.data)), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

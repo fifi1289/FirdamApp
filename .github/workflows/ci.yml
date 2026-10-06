@@ -67,3 +67,38 @@ jobs:
             echo "::error title=RLS smoke test::$(tail -n 4 smoke.log | tr '\n' ' ')"
           fi
           exit $status
+
+  edge-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type check edge functions
+        run: deno check supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts
+      - name: Live smoke test against public APIs
+        run: |
+          set -e
+          deno run --allow-net --allow-env supabase/functions/halal-places/index.ts > hp.log 2>&1 &
+          sleep 5
+          body=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000")
+          count=$(echo "$body" | jq '.places | length')
+          sample=$(echo "$body" | jq -r '[.places[] | "\(.category): \(.name)"] | .[0:6] | join("; ")')
+          echo "::notice title=halal-places Ottawa 5km::$count places — $sample"
+          [ "$count" -gt 0 ]
+          geo=$(curl -sf "http://localhost:8000/?address=Parliament%20Hill%20Ottawa" | jq '.results | length')
+          echo "::notice title=halal-places address search::$geo results"
+          kill %1
+
+          deno run --allow-net --allow-env supabase/functions/prayer-times/index.ts > pt.log 2>&1 &
+          sleep 5
+          day=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&date=06-10-2026&method=2&school=0")
+          echo "::notice title=prayer-times day::$(echo "$day" | jq -c '{timings, hijri: {day: .hijri.day, month: .hijri.month, n: .hijri.monthNumber, year: .hijri.year}, method}')"
+          echo "$day" | jq -e '.timings.Fajr | test("^[0-9]{2}:[0-9]{2}$")'
+          ram=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&hijriMonth=9&hijriYear=1448&method=2")
+          echo "::notice title=prayer-times Ramadan 1448::$(echo "$ram" | jq -c '{days: (.days | length), first: .days[0].gregorian.date, firstIftar: .days[0].timings.Maghrib, firstImsak: .days[0].timings.Imsak}')"
+          echo "$ram" | jq -e '.days | length >= 29'
+          month=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&month=10&year=2026&method=2" | jq '.days | length')
+          echo "::notice title=prayer-times Oct 2026::$month days"
+          kill %1

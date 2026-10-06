@@ -931,6 +931,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      family_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          kind: FamilyEventKind;
+          starts_on: string;
+          start_time: string | null;
+          end_time: string | null;
+          location: string | null;
+          notes: string | null;
+          member_ids: string[];
+          repeats_yearly: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          title: string;
+          kind?: FamilyEventKind;
+          starts_on: string;
+          start_time?: string | null;
+          end_time?: string | null;
+          location?: string | null;
+          notes?: string | null;
+          member_ids?: string[];
+          repeats_yearly?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          title?: string;
+          kind?: FamilyEventKind;
+          starts_on?: string;
+          start_time?: string | null;
+          end_time?: string | null;
+          location?: string | null;
+          notes?: string | null;
+          member_ids?: string[];
+          repeats_yearly?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -1089,3 +1134,17 @@ export type SavingsGoal = Database['public']['Tables']['savings_goals']['Row'];
 export type FastStatus = 'fasted' | 'missed' | 'excused';
 export type RamadanDay = Database['public']['Tables']['ramadan_days']['Row'];
 export type QuranReadingSession = Database['public']['Tables']['quran_reading_sessions']['Row'];
+
+export type FamilyEventKind =
+  | 'eid'
+  | 'aqiqah'
+  | 'nikah'
+  | 'walima'
+  | 'birthday'
+  | 'anniversary'
+  | 'school'
+  | 'appointment'
+  | 'gathering'
+  | 'islamic'
+  | 'other';
+export type FamilyEvent = Database['public']['Tables']['family_events']['Row'];

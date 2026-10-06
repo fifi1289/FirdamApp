@@ -1084,9 +1084,244 @@ export type Database = {
         };
         Relationships: [];
       };
+      businesses: {
+        Row: {
+          id: string;
+          owner_id: string;
+          name: string;
+          category: BusinessCategory;
+          description: string | null;
+          services: string[];
+          address: string | null;
+          city: string | null;
+          country: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          serves_online: boolean;
+          phone: string | null;
+          email: string | null;
+          website: string | null;
+          logo_url: string | null;
+          licence_number: string | null;
+          languages: string[];
+          partner_offer: string | null;
+          status: 'pending' | 'approved' | 'rejected';
+          is_partner: boolean;
+          featured: boolean;
+          admin_note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id?: string;
+          name: string;
+          category: BusinessCategory;
+          description?: string | null;
+          services?: string[];
+          address?: string | null;
+          city?: string | null;
+          country?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          serves_online?: boolean;
+          phone?: string | null;
+          email?: string | null;
+          website?: string | null;
+          logo_url?: string | null;
+          licence_number?: string | null;
+          languages?: string[];
+          partner_offer?: string | null;
+          status?: 'pending' | 'approved' | 'rejected';
+          is_partner?: boolean;
+          featured?: boolean;
+          admin_note?: string | null;
+        };
+        Update: {
+          name?: string;
+          category?: BusinessCategory;
+          description?: string | null;
+          services?: string[];
+          address?: string | null;
+          city?: string | null;
+          country?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          serves_online?: boolean;
+          phone?: string | null;
+          email?: string | null;
+          website?: string | null;
+          logo_url?: string | null;
+          licence_number?: string | null;
+          languages?: string[];
+          partner_offer?: string | null;
+          status?: 'pending' | 'approved' | 'rejected';
+          is_partner?: boolean;
+          featured?: boolean;
+          admin_note?: string | null;
+        };
+        Relationships: [];
+      };
+      business_enquiries: {
+        Row: {
+          id: string;
+          business_id: string;
+          user_id: string;
+          name: string;
+          email: string;
+          phone: string | null;
+          message: string;
+          travel_date: string | null;
+          travellers: number | null;
+          status: 'new' | 'contacted' | 'closed';
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          business_id: string;
+          user_id?: string;
+          name: string;
+          email: string;
+          phone?: string | null;
+          message: string;
+          travel_date?: string | null;
+          travellers?: number | null;
+          status?: 'new' | 'contacted' | 'closed';
+        };
+        Update: { status?: 'new' | 'contacted' | 'closed' };
+        Relationships: [];
+      };
+      trips: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          kind: TripKind;
+          destination_label: string;
+          latitude: number;
+          longitude: number;
+          start_date: string | null;
+          end_date: string | null;
+          travellers: number;
+          budget: number | null;
+          notes: string | null;
+          checklist: ChecklistItem[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          kind?: TripKind;
+          destination_label: string;
+          latitude: number;
+          longitude: number;
+          start_date?: string | null;
+          end_date?: string | null;
+          travellers?: number;
+          budget?: number | null;
+          notes?: string | null;
+          checklist?: ChecklistItem[];
+        };
+        Update: {
+          name?: string;
+          kind?: TripKind;
+          destination_label?: string;
+          latitude?: number;
+          longitude?: number;
+          start_date?: string | null;
+          end_date?: string | null;
+          travellers?: number;
+          budget?: number | null;
+          notes?: string | null;
+          checklist?: ChecklistItem[];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      community_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          kind: CommunityEventKind;
+          description: string | null;
+          starts_at: string;
+          ends_at: string | null;
+          venue: string | null;
+          address: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          online_url: string | null;
+          organizer: string | null;
+          contact: string | null;
+          audience: 'everyone' | 'brothers' | 'sisters' | 'families' | 'youth' | 'kids';
+          is_free: boolean;
+          price: string | null;
+          status: 'active' | 'hidden';
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          title: string;
+          kind?: CommunityEventKind;
+          description?: string | null;
+          starts_at: string;
+          ends_at?: string | null;
+          venue?: string | null;
+          address?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          online_url?: string | null;
+          organizer?: string | null;
+          contact?: string | null;
+          audience?: 'everyone' | 'brothers' | 'sisters' | 'families' | 'youth' | 'kids';
+          is_free?: boolean;
+          price?: string | null;
+          status?: 'active' | 'hidden';
+        };
+        Update: {
+          title?: string;
+          kind?: CommunityEventKind;
+          description?: string | null;
+          starts_at?: string;
+          ends_at?: string | null;
+          venue?: string | null;
+          address?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          online_url?: string | null;
+          organizer?: string | null;
+          contact?: string | null;
+          audience?: 'everyone' | 'brothers' | 'sisters' | 'families' | 'youth' | 'kids';
+          is_free?: boolean;
+          price?: string | null;
+          status?: 'active' | 'hidden';
+        };
+        Relationships: [];
+      };
+      event_rsvps: {
+        Row: { event_id: string; user_id: string; status: 'going' | 'interested'; created_at: string };
+        Insert: { event_id: string; user_id?: string; status?: 'going' | 'interested' };
+        Update: { status?: 'going' | 'interested' };
+        Relationships: [];
+      };
+      event_reports: {
+        Row: { id: string; event_id: string; user_id: string; reason: string; created_at: string };
+        Insert: { id?: string; event_id: string; user_id?: string; reason: string };
+        Update: { reason?: string };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
+      event_rsvp_counts: {
+        Args: { ids: string[] };
+        Returns: { event_id: string; going: number; interested: number }[];
+      };
       is_admin: {
         Args: Record<string, never>;
         Returns: boolean;
@@ -1274,3 +1509,39 @@ export type SubscriptionStatus =
 export type Subscription = Database['public']['Tables']['subscriptions']['Row'];
 
 export type UserRecipe = Database['public']['Tables']['user_recipes']['Row'];
+
+export type BusinessCategory =
+  | 'travel_agency'
+  | 'hajj_umrah'
+  | 'halal_hotel'
+  | 'tour_guide'
+  | 'islamic_school'
+  | 'tutor'
+  | 'halal_catering'
+  | 'islamic_finance'
+  | 'other';
+export type Business = Database['public']['Tables']['businesses']['Row'];
+export type BusinessEnquiry = Database['public']['Tables']['business_enquiries']['Row'];
+export type TripKind = 'holiday' | 'umrah' | 'hajj' | 'family_visit' | 'business' | 'other';
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  done: boolean;
+  group?: string;
+}
+export type Trip = Database['public']['Tables']['trips']['Row'];
+
+export type CommunityEventKind =
+  | 'halaqa'
+  | 'iftar'
+  | 'eid'
+  | 'jumuah'
+  | 'fundraiser'
+  | 'volunteering'
+  | 'sisters'
+  | 'youth'
+  | 'kids'
+  | 'social'
+  | 'class'
+  | 'other';
+export type CommunityEvent = Database['public']['Tables']['community_events']['Row'];

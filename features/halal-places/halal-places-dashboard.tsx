@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/select';
 import { LocationPicker } from '@/components/location/location-picker';
 import { PlacesMap, type MapMarker } from '@/components/map/places-map';
-import { useSavedLocation, formatDistance, distanceKm } from '@/lib/geo/location';
+import { useSavedLocation, formatDistance, distanceKm, type SavedLocation } from '@/lib/geo/location';
 import { cn } from '@/lib/utils';
 import type { HalalPlaceCategory } from '@/types/database';
 import {
@@ -180,17 +180,28 @@ export function HalalPlacesDashboard() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
 
-  // Deep link support, e.g. /dashboard/halal-places?category=butcher
+  // Temporary location from a deep link (e.g. a trip destination) — not saved.
+  const [override, setOverride] = useState<SavedLocation | null>(null);
+
+  // Deep links: ?category=butcher, ?lat=..&lng=..&label=..
   useEffect(() => {
-    const param = new URLSearchParams(window.location.search).get('category');
+    const params = new URLSearchParams(window.location.search);
+    const param = params.get('category');
     if (param && (FILTER_CATEGORIES as string[]).includes(param)) {
       setCategory(param as HalalPlaceCategory);
     }
+    const lat = Number(params.get('lat'));
+    const lng = Number(params.get('lng'));
+    if (params.get('lat') && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      const label = params.get('label') || 'Destination';
+      setOverride({ id: -2, name: label.split(',')[0] ?? label, country: '', region: '', latitude: lat, longitude: lng, label });
+    }
   }, []);
 
+  const activeLocation = override ?? location;
   const center = useMemo(
-    () => (location ? { latitude: location.latitude, longitude: location.longitude } : null),
-    [location]
+    () => (activeLocation ? { latitude: activeLocation.latitude, longitude: activeLocation.longitude } : null),
+    [activeLocation]
   );
   const { places, ratings, loading, osmError } = useHalalPlaces(center, radius);
   const { saved, list: savedList, toggle } = useSavedPlaces();
@@ -285,9 +296,15 @@ export function HalalPlacesDashboard() {
 
       <Card className="mb-5 overflow-hidden">
         <CardContent className="bg-girih space-y-4 p-4 sm:p-5">
-          <LocationPicker value={location} onChange={saveLocation} />
+          <LocationPicker
+            value={activeLocation}
+            onChange={(loc) => {
+              setOverride(null);
+              saveLocation(loc);
+            }}
+          />
 
-          {location && (
+          {activeLocation && (
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-wrap gap-2">
                 <CategoryChip
@@ -331,7 +348,7 @@ export function HalalPlacesDashboard() {
         </CardContent>
       </Card>
 
-      {!ready ? null : !location ? (
+      {!ready ? null : !activeLocation ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center px-6 py-16 text-center">
             <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -433,7 +450,7 @@ export function HalalPlacesDashboard() {
                 <Card>
                   <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Finding halal places near {location.name || 'you'}…
+                    Finding halal places near {activeLocation.name || 'you'}…
                   </CardContent>
                 </Card>
               ) : visible.length === 0 ? (
@@ -497,7 +514,7 @@ export function HalalPlacesDashboard() {
                 <>
                   <p className="px-1 text-xs text-muted-foreground">
                     {visible.length} place{visible.length === 1 ? '' : 's'}
-                    {tab === 'nearby' && ` within ${radius} km of ${location.name || 'you'}`}
+                    {tab === 'nearby' && ` within ${radius} km of ${activeLocation.name || 'you'}`}
                   </p>
                   <div className="space-y-2.5 lg:max-h-[calc(100vh-330px)] lg:overflow-y-auto lg:pr-1">
                     {visible.map((p) => (

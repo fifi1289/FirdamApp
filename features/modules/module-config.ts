@@ -7,6 +7,7 @@ import {
   Handshake,
   HeartPulse,
   Plane,
+  Store,
   CalendarHeart,
   ListChecks,
   MapPin,
@@ -36,6 +37,7 @@ export const moduleIconMap: Record<ModuleIconName, LucideIcon> = {
   'heart-pulse': HeartPulse,
   handshake: Handshake,
   plane: Plane,
+  store: Store,
 };
 
 export const MODULE_GROUPS: ModuleGroup[] = ['Halal living', 'Faith', 'Family', 'Community & travel', 'Money'];
@@ -192,6 +194,16 @@ export const lifeModules: LifeModule[] = [
     accent: 'from-brand-mid to-brand-light',
     icon: 'plane',
     href: '/dashboard/travel',
+    group: 'Community & travel',
+  },
+  {
+    id: 'directory',
+    name: 'Directory',
+    description: 'Trusted Muslim businesses — Umrah operators, tutors, caterers, Islamic finance.',
+    status: 'active',
+    accent: 'from-brand-dark to-brand-mid',
+    icon: 'store',
+    href: '/dashboard/directory',
     group: 'Community & travel',
   },
   {

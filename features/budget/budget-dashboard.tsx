@@ -182,6 +182,11 @@ export function BudgetDashboard() {
   const [dialogInitial, setDialogInitial] = useState<Partial<BudgetTransaction> | null>(null);
   const [tab, setTab] = useState('overview');
 
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('tab');
+    if (t && ['overview', 'goals', 'zakat'].includes(t)) setTab(t);
+  }, []);
+
   const loadCategories = useCallback(async () => {
     const { data, error } = await supabase
       .from('budget_categories')

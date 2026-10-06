@@ -112,6 +112,8 @@ jobs:
           [ "$count" -gt 0 ]
           geo=$(curl -sf "http://localhost:8000/?address=Parliament%20Hill%20Ottawa" | jq '.results | length')
           echo "::notice title=halal-places address search::$geo results"
+          trav=$(curl -sf "http://localhost:8000/?kind=travel&lat=45.4215&lng=-75.6972&radius=10000" | jq -r '"\(.agencies | length) agencies — " + ([.agencies[] | .name + (if .muslimFocused then " (Muslim-focused)" else "" end)] | .[0:6] | join("; "))')
+          echo "::notice title=travel agencies Ottawa 10km::$trav"
           sleep 3
           lonbody=$(curl -s -w ' HTTP %{http_code} in %{time_total}s' "http://localhost:8000/?lat=51.5155&lng=-0.0722&radius=2000")
           echo "::notice title=halal-places London 2km::$(echo "$lonbody" | sed 's/ HTTP.*//' | jq -r 'if .places then "\(.places|length) places" else . end' 2>/dev/null | tr '\n' ' ' | cut -c1-300) $(echo "$lonbody" | grep -o 'HTTP.*')"

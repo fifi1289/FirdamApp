@@ -87,4 +87,60 @@ DO $$ BEGIN
 END $$;
 RESET ROLE;
 
+-- Business directory: listings start pending, owners can't self-approve.
+INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-000000000003', 'admin@example.com');
+INSERT INTO public.app_admins (user_id) VALUES ('00000000-0000-0000-0000-000000000003');
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO authenticated;
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+INSERT INTO public.businesses (name, category, email) VALUES ('Barakah Umrah Tours', 'hajj_umrah', 'hi@example.com');
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO public.businesses (name, category, status, is_partner) VALUES ('Sneaky', 'other', 'approved', true);
+    RAISE EXCEPTION 'owner inserted an approved partner listing';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+END $$;
+UPDATE public.businesses SET status = 'approved', featured = true;
+DO $$ BEGIN
+  IF (SELECT status FROM public.businesses LIMIT 1) <> 'pending' THEN RAISE EXCEPTION 'owner self-approved'; END IF;
+  IF (SELECT featured FROM public.businesses LIMIT 1) THEN RAISE EXCEPTION 'owner self-featured'; END IF;
+END $$;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.businesses) <> 0 THEN RAISE EXCEPTION 'pending listing visible to others'; END IF;
+END $$;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000003';
+UPDATE public.businesses SET status = 'approved', is_partner = true;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
+INSERT INTO public.business_enquiries (business_id, name, email, message)
+  SELECT id, 'Amina', 'amina@example.com', 'Umrah in March for 4' FROM public.businesses LIMIT 1;
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.businesses WHERE is_partner) <> 1 THEN RAISE EXCEPTION 'approved partner not visible'; END IF;
+END $$;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.business_enquiries) <> 1 THEN RAISE EXCEPTION 'owner cannot see enquiry'; END IF;
+  IF (SELECT count(*) FROM public.trips) <> 0 THEN RAISE EXCEPTION 'unexpected trips'; END IF;
+END $$;
+INSERT INTO public.trips (name, destination_label, latitude, longitude) VALUES ('Umrah', 'Makkah', 21.42, 39.83);
+
+-- Community events: visible to all, RSVP counts, reports hidden from others.
+INSERT INTO public.community_events (title, kind, starts_at) VALUES ('Community iftar', 'iftar', now() + interval '2 days');
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
+INSERT INTO public.event_rsvps (event_id, status) SELECT id, 'going' FROM public.community_events LIMIT 1;
+INSERT INTO public.event_reports (event_id, reason) SELECT id, 'test' FROM public.community_events LIMIT 1;
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.trips) <> 0 THEN RAISE EXCEPTION 'trips leaked'; END IF;
+  IF (SELECT going FROM public.event_rsvp_counts(ARRAY(SELECT id FROM public.community_events))) <> 1 THEN
+    RAISE EXCEPTION 'rsvp count wrong';
+  END IF;
+END $$;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.event_rsvps) <> 0 THEN RAISE EXCEPTION 'other users rsvps visible'; END IF;
+  IF (SELECT count(*) FROM public.event_reports) <> 0 THEN RAISE EXCEPTION 'reports visible to author'; END IF;
+END $$;
+RESET ROLE;
+
 SELECT 'RLS smoke test passed' AS result;

@@ -147,10 +147,55 @@ function normalize(el: OsmElement): NormalizedPlace | null {
   };
 }
 
-async function queryOverpass(lat: number, lng: number, radius: number): Promise<OsmElement[]> {
+function travelQuery(lat: number, lng: number, radius: number): string {
+  return `
+    [out:json][timeout:30];
+    (
+      nwr(around:${radius},${lat},${lng})["shop"="travel_agency"];
+      nwr(around:${radius},${lat},${lng})["office"="travel_agent"];
+    );
+    out center tags 200;
+  `;
+}
+
+interface TravelAgency {
+  key: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  address: string | null;
+  phone: string | null;
+  website: string | null;
+  openingHours: string | null;
+  /** Name mentions Hajj, Umrah, Islamic, halal or similar. */
+  muslimFocused: boolean;
+}
+
+const MUSLIM_TRAVEL_RE = /(hajj|umrah|umra|halal|islam|muslim|makkah|mecca|madinah|medina|haram|zamzam|hijaz)/i;
+
+function normalizeAgency(el: OsmElement): TravelAgency | null {
+  const tags = el.tags ?? {};
+  const lat = el.lat ?? el.center?.lat;
+  const lon = el.lon ?? el.center?.lon;
+  const name = tags.name ?? tags.brand;
+  if (lat === undefined || lon === undefined || !name) return null;
+  return {
+    key: `osm:${el.type}/${el.id}`,
+    name,
+    latitude: lat,
+    longitude: lon,
+    address: buildAddress(tags),
+    phone: tags.phone ?? tags["contact:phone"] ?? null,
+    website: tags.website ?? tags["contact:website"] ?? null,
+    openingHours: tags.opening_hours ?? null,
+    muslimFocused: MUSLIM_TRAVEL_RE.test(`${name} ${tags.description ?? ""}`),
+  };
+}
+
+async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?: string): Promise<OsmElement[]> {
   // Gather shops and amenities in the area once, then filter that set in
   // memory — far cheaper than one spatial query per condition in dense cities.
-  const query = `
+  const query = rawQuery ?? `
     [out:json][timeout:45];
     (
       nwr(around:${radius},${lat},${lng})["shop"];
@@ -271,6 +316,25 @@ Deno.serve(async (req: Request) => {
       const hit = cached<unknown>(key);
       if (hit) return json(hit);
       const body = { results: await geocodeAddress(address) };
+      remember(key, body);
+      return json(body);
+    }
+
+    const kind = url.searchParams.get("kind");
+    if (kind === "travel" && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      const key = `t:${lat.toFixed(2)}:${lng.toFixed(2)}:${radius}`;
+      const hit = cached<unknown>(key);
+      if (hit) return json(hit);
+      const elements = await queryOverpass(lat, lng, radius, travelQuery(lat, lng, radius));
+      const seen = new Set<string>();
+      const agencies: TravelAgency[] = [];
+      for (const el of elements) {
+        const a = normalizeAgency(el);
+        if (!a || seen.has(a.key)) continue;
+        seen.add(a.key);
+        agencies.push(a);
+      }
+      const body = { agencies, attribution: "© OpenStreetMap contributors" };
       remember(key, body);
       return json(body);
     }

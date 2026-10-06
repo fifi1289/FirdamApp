@@ -14,6 +14,7 @@ export type ModuleId =
   | 'health'
   | 'community'
   | 'travel'
+  | 'directory'
   | 'finance';
 
 export type ModuleGroup = 'Halal living' | 'Faith' | 'Family' | 'Community & travel' | 'Money';
@@ -52,6 +53,7 @@ export type ModuleIconName =
   | 'graduation-cap'
   | 'heart-pulse'
   | 'handshake'
-  | 'plane';
+  | 'plane'
+  | 'store';
 
 export type Theme = 'light' | 'dark' | 'system';

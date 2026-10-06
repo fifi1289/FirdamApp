@@ -154,6 +154,9 @@ async function queryOverpass(lat: number, lng: number, radius: number): Promise<
     (
       nwr["diet:halal"~"^(yes|only|limited)$"]${around};
       nwr["halal"="yes"]${around};
+      nwr["cuisine"~"halal",i]${around};
+      nwr["shop"]["name"~"halal",i]${around};
+      nwr["amenity"~"^(restaurant|fast_food|cafe|food_court)$"]["name"~"halal",i]${around};
       nwr["amenity"="place_of_worship"]["religion"="muslim"]${around};
     );
     out center tags 400;

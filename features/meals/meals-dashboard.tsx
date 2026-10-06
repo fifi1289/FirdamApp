@@ -1,8 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import {
   ArrowLeft,
+  BookOpen,
   CalendarDays,
   ChevronRight,
   Loader2,
@@ -473,8 +475,14 @@ export function MealsDashboard() {
     <AppShell>
       <PageHeader
         title="Meal Planner"
-        description="Plan and organize your family's meals."
+        description="Plan your family's halal meals — generate a week in one tap, or pick recipes yourself."
       >
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/recipes">
+            <BookOpen className="mr-2 h-4 w-4" />
+            Pick from recipes
+          </Link>
+        </Button>
         <Button
           size="sm"
           onClick={() => setView('preferences')}

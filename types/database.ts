@@ -1018,6 +1018,72 @@ export type Database = {
         Update: { kind?: string };
         Relationships: [];
       };
+      recipe_favorites: {
+        Row: { id: string; user_id: string; recipe_key: string; created_at: string };
+        Insert: { id?: string; user_id?: string; recipe_key: string; created_at?: string };
+        Update: { recipe_key?: string };
+        Relationships: [];
+      };
+      user_recipes: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          description: string | null;
+          cuisine: string | null;
+          meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+          difficulty: 'Easy' | 'Medium' | 'Hard';
+          prep_minutes: number;
+          cook_minutes: number;
+          servings: number;
+          ingredients: { name: string; quantity: string; unit: string }[];
+          steps: string[];
+          tips: string | null;
+          image_url: string | null;
+          is_public: boolean;
+          author_name: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          description?: string | null;
+          cuisine?: string | null;
+          meal_type?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+          difficulty?: 'Easy' | 'Medium' | 'Hard';
+          prep_minutes?: number;
+          cook_minutes?: number;
+          servings?: number;
+          ingredients?: { name: string; quantity: string; unit: string }[];
+          steps?: string[];
+          tips?: string | null;
+          image_url?: string | null;
+          is_public?: boolean;
+          author_name?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          cuisine?: string | null;
+          meal_type?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+          difficulty?: 'Easy' | 'Medium' | 'Hard';
+          prep_minutes?: number;
+          cook_minutes?: number;
+          servings?: number;
+          ingredients?: { name: string; quantity: string; unit: string }[];
+          steps?: string[];
+          tips?: string | null;
+          image_url?: string | null;
+          is_public?: boolean;
+          author_name?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -1206,3 +1272,5 @@ export type SubscriptionStatus =
   | 'unpaid'
   | 'paused';
 export type Subscription = Database['public']['Tables']['subscriptions']['Row'];
+
+export type UserRecipe = Database['public']['Tables']['user_recipes']['Row'];

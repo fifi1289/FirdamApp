@@ -58,4 +58,33 @@ DO $$ BEGIN
   IF (SELECT count(*) FROM public.grocery_items) <> 1 THEN RAISE EXCEPTION 'cross-user grocery insert succeeded'; END IF;
 END $$;
 
+-- Recipe seed and user recipes
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.recipes) < 27 THEN RAISE EXCEPTION 'recipe seed missing'; END IF;
+  IF (SELECT count(*) FROM public.recipe_steps) < 100 THEN RAISE EXCEPTION 'recipe steps missing'; END IF;
+  IF EXISTS (SELECT 1 FROM public.recipes r WHERE r.cuisine_id IS NULL OR r.meal_type_id IS NULL) THEN
+    RAISE EXCEPTION 'recipe lookups not linked';
+  END IF;
+END $$;
+INSERT INTO public.user_recipes (name, is_public) VALUES ('My private stew', false), ('Shared cake', true);
+INSERT INTO public.recipe_favorites (recipe_key) VALUES ('catalog:x');
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.user_recipes) <> 1 THEN RAISE EXCEPTION 'private user recipe leaked or public one hidden'; END IF;
+  IF (SELECT count(*) FROM public.recipe_favorites) <> 0 THEN RAISE EXCEPTION 'favourites leaked'; END IF;
+  IF (SELECT count(*) FROM public.subscriptions) <> 0 THEN RAISE EXCEPTION 'subscriptions leaked'; END IF;
+  IF public.is_admin() THEN RAISE EXCEPTION 'non-admin reported as admin'; END IF;
+END $$;
+-- Users cannot grant themselves a paid plan.
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO public.subscriptions (user_id, plan, status) VALUES ('00000000-0000-0000-0000-000000000002', 'premium', 'active');
+    RAISE EXCEPTION 'user could insert a subscription';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+END $$;
+RESET ROLE;
+
 SELECT 'RLS smoke test passed' AS result;

@@ -233,6 +233,54 @@ const RECIPE_SELECT = `
   )
 ` as const;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Builds a detail view from the meal itself (AI-generated or user recipes). */
+function detailFromMeal(meal: import('@/features/meals/meal-plan-generator').MockMeal): RecipeDetail {
+  return {
+    id: meal.id,
+    name: meal.name,
+    short_description: meal.description || null,
+    long_description: null,
+    image_path: meal.image || null,
+    prep_time_minutes: meal.prepTime || null,
+    cook_time_minutes: meal.cookTime || null,
+    servings: meal.servings || null,
+    calories: null,
+    protein: null,
+    carbs: null,
+    fat: null,
+    fiber: null,
+    sugar: null,
+    sodium: null,
+    cholesterol: null,
+    storage_instructions: null,
+    reheating_instructions: null,
+    cuisine: null,
+    meal_type: { name: meal.type },
+    difficulty: { name: meal.difficulty },
+    recipe_ingredients: meal.ingredients.map((ing, i) => ({
+      quantity: ing.quantity && !Number.isNaN(Number(ing.quantity)) ? Number(ing.quantity) : null,
+      unit: ing.unit || (ing.quantity && Number.isNaN(Number(ing.quantity)) ? ing.quantity : null),
+      optional: false,
+      display_order: i,
+      notes: null,
+      ingredient: { name: ing.name },
+    })),
+    recipe_steps: meal.recipe.map((instruction, i) => ({
+      step_number: i + 1,
+      instruction,
+      estimated_minutes: null,
+    })),
+    recipe_tips: [],
+    recipe_equipment: [],
+    recipe_tags: [],
+    recipe_allergens: [],
+    recipe_age_groups: [],
+    recipe_adaptations: [],
+  };
+}
+
 function PantryStatusRow({ check }: { check: IngredientCheck }) {
   const config = STATUS_CONFIG[check.status];
   const StatusIcon = config.icon;
@@ -345,31 +393,31 @@ export function MealDetailDialog({
 
     (async () => {
       try {
+        // Library recipes are looked up by id; AI or custom meals carry
+        // their own ingredients and steps.
+        if (!meal || !UUID_RE.test(meal.id)) {
+          if (!cancelled && meal) setDetail({ loading: false, recipe: detailFromMeal(meal), error: null });
+          return;
+        }
         const { data, error } = await supabase
           .from('recipes')
           .select(RECIPE_SELECT)
-          .eq('is_active', true)
-          .order('created_at', { ascending: true })
-          .limit(1)
+          .eq('id', meal.id)
           .maybeSingle();
 
         if (cancelled) return;
 
-        if (error) {
-          setDetail({ loading: false, recipe: null, error: error.message });
-          return;
-        }
-        if (!data) {
-          setDetail({
-            loading: false,
-            recipe: null,
-            error: 'No recipe found.',
-          });
+        if (error || !data) {
+          setDetail({ loading: false, recipe: detailFromMeal(meal), error: null });
           return;
         }
         setDetail({ loading: false, recipe: data as unknown as RecipeDetail, error: null });
       } catch (err) {
         if (cancelled) return;
+        if (meal) {
+          setDetail({ loading: false, recipe: detailFromMeal(meal), error: null });
+          return;
+        }
         const message = err instanceof Error ? err.message : 'Failed to load recipe.';
         setDetail({ loading: false, recipe: null, error: message });
       }
@@ -378,7 +426,7 @@ export function MealDetailDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, supabase]);
+  }, [open, supabase, meal]);
 
   const recipe = detail.recipe;
   const loading = detail.loading;

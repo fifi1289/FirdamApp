@@ -51,7 +51,14 @@ jobs:
               echo "::error file=$f::$(echo "$out" | tail -n 3 | tr '\n' ' ')"
               exit 1
             fi
+            if echo "$out" | grep -q WARNING; then
+              echo "::error file=$f::$(echo "$out" | grep WARNING | head -n 2 | tr '\n' ' ')"
+              exit 1
+            fi
           done
+          # On a fresh database the recipe tables exist only after the later
+          # schema migration, so apply the read-policy migration last.
+          psql -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260725194112_add_recipe_read_policies.sql
       - name: Re-apply new migrations (idempotency)
         run: |
           for f in $(ls supabase/migrations/2026100*.sql | sort); do

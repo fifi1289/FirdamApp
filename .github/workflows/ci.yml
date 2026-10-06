@@ -76,7 +76,14 @@ jobs:
         with:
           deno-version: v2.x
       - name: Type check edge functions
-        run: deno check supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts
+        run: |
+          for f in supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts; do
+            if ! out=$(deno check "$f" 2>&1); then
+              echo "$out"
+              echo "::error file=$f::$(echo "$out" | grep -v '^Download' | head -n 12 | tr '\n' ' ' | cut -c1-900)"
+              exit 1
+            fi
+          done
       - name: Live smoke test against public APIs
         run: |
           set -e

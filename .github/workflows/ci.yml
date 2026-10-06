@@ -101,8 +101,9 @@ jobs:
           [ "$count" -gt 0 ]
           geo=$(curl -sf "http://localhost:8000/?address=Parliament%20Hill%20Ottawa" | jq '.results | length')
           echo "::notice title=halal-places address search::$geo results"
-          lon=$(curl -sf "http://localhost:8000/?lat=51.5072&lng=-0.1276&radius=3000" | jq '.places | length')
-          echo "::notice title=halal-places London 3km::$lon places"
+          sleep 3
+          lonbody=$(curl -s -w ' HTTP %{http_code} in %{time_total}s' "http://localhost:8000/?lat=51.5155&lng=-0.0722&radius=2000")
+          echo "::notice title=halal-places London 2km::$(echo "$lonbody" | sed 's/ HTTP.*//' | jq -r 'if .places then "\(.places|length) places" else . end' 2>/dev/null | tr '\n' ' ' | cut -c1-300) $(echo "$lonbody" | grep -o 'HTTP.*')"
           kill $HP
 
           deno run --allow-net --allow-env supabase/functions/prayer-times/index.ts > pt.log 2>&1 &

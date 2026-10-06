@@ -22,3 +22,36 @@ jobs:
         run: npx tsc --noEmit
       - name: Build
         run: npx next build
+
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply migrations to a clean database
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/ci-auth-stub.sql
+          for f in $(ls supabase/migrations/*.sql | sort); do
+            # Recipe tables are managed outside these migrations.
+            case "$f" in *add_recipe_read_policies*) continue;; esac
+            echo "== $f"
+            psql -v ON_ERROR_STOP=1 -q -f "$f"
+          done
+      - name: Re-apply new migrations (idempotency)
+        run: |
+          for f in $(ls supabase/migrations/2026100*.sql | sort); do
+            psql -v ON_ERROR_STOP=1 -q -f "$f"
+          done
+      - name: RLS smoke test
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/ci-smoke.sql

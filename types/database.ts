@@ -572,6 +572,12 @@ export type Database = {
         Update: { id?: string; name?: string };
         Relationships: [];
       };
+      dietary_preferences: {
+        Row: { id: string; name: string; created_at: string | null };
+        Insert: { id?: string; name: string };
+        Update: { id?: string; name?: string };
+        Relationships: [];
+      };
       allergens: {
         Row: { id: string; name: string; created_at: string | null };
         Insert: { id?: string; name: string };

@@ -5,17 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
-  CalendarRange,
-  Moon,
-  Users,
-  Wallet,
-  Plane,
-  ShoppingCart,
-  HeartPulse,
-  Handshake,
-  BookOpen,
-  Archive,
-  Utensils,
   LifeBuoy,
   Settings,
   type LucideIcon,
@@ -23,6 +12,11 @@ import {
 
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/brand/logo';
+import {
+  MODULE_GROUPS,
+  lifeModules,
+  moduleIconMap,
+} from '@/features/modules/module-config';
 
 interface NavItem {
   label: string;
@@ -32,22 +26,20 @@ interface NavItem {
 }
 
 const mainNav: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Planner', href: '/dashboard/planner', icon: CalendarRange },
+  { label: 'Home', href: '/dashboard', icon: LayoutDashboard },
 ];
 
-const moduleNav: NavItem[] = [
-  { label: 'Family', href: '/dashboard/family', icon: Users },
-  { label: 'Pantry', href: '/dashboard/pantry', icon: Archive, badge: 'Beta' },
-  { label: 'Meals', href: '/dashboard/meals', icon: Utensils },
-  { label: 'Prayer Times', href: '/dashboard/prayer-times', icon: Moon },
-  { label: 'Finance', href: '/dashboard/finance', icon: Wallet },
-  { label: 'Travel', href: '/dashboard/travel', icon: Plane },
-  { label: 'Shopping', href: '/dashboard/shopping', icon: ShoppingCart },
-  { label: 'Health', href: '/dashboard/health', icon: HeartPulse },
-  { label: 'Community', href: '/dashboard/community', icon: Handshake, badge: 'Beta' },
-  { label: 'Learning', href: '/dashboard/learning', icon: BookOpen, badge: 'Beta' },
-];
+const groupedNav = MODULE_GROUPS.map((group) => ({
+  title: group,
+  items: lifeModules
+    .filter((m) => m.group === group)
+    .map<NavItem>((m) => ({
+      label: m.name,
+      href: m.href,
+      icon: moduleIconMap[m.icon],
+      badge: m.status === 'beta' ? 'Beta' : undefined,
+    })),
+}));
 
 const footerNav: NavItem[] = [
   { label: 'Settings', href: '/settings', icon: Settings },
@@ -114,19 +106,25 @@ export function Sidebar() {
         <Logo href="/" height={56} />
       </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-5">
         <NavSection title="Overview" items={mainNav} />
-        <NavSection title="Modules" items={moduleNav} />
+        {groupedNav.map((g) => (
+          <NavSection key={g.title} title={g.title} items={g.items} />
+        ))}
         <NavSection title="Account" items={footerNav} />
       </nav>
 
       <div className="border-t border-border p-4">
-        <div className="rounded-xl bg-gradient-to-br from-primary/10 to-brand-light/10 p-3">
+        <div className="bg-girih rounded-xl bg-gradient-to-br from-primary/10 to-brand-light/10 p-3">
           <p className="text-sm font-medium text-foreground">
-            Everything that matters
+            One home for your Muslim life
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            New modules land every month.
+          <p
+            className="mt-1 font-arabic text-sm text-primary"
+            lang="ar"
+            dir="rtl"
+          >
+            بِسْمِ ٱللَّٰهِ
           </p>
         </div>
       </div>

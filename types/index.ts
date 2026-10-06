@@ -1,14 +1,17 @@
 export type ModuleId =
-  | 'prayer-times'
-  | 'family'
-  | 'finance'
-  | 'travel'
-  | 'shopping'
-  | 'health'
-  | 'community'
-  | 'learning'
+  | 'halal-places'
+  | 'meals'
   | 'pantry'
-  | 'meals';
+  | 'groceries'
+  | 'prayer-times'
+  | 'ramadan'
+  | 'quran'
+  | 'family'
+  | 'calendar'
+  | 'planner'
+  | 'budget';
+
+export type ModuleGroup = 'Halal living' | 'Faith' | 'Family' | 'Money';
 
 export type ModuleStatus = 'active' | 'beta' | 'planned';
 
@@ -23,18 +26,20 @@ export interface LifeModule {
   icon: ModuleIconName;
   /** Route the module card links to once implemented. */
   href: string;
+  group: ModuleGroup;
 }
 
 export type ModuleIconName =
   | 'moon'
+  | 'moon-star'
   | 'users'
   | 'wallet'
-  | 'plane'
+  | 'map-pin'
   | 'shopping-cart'
-  | 'heart-pulse'
-  | 'handshake'
   | 'book-open'
   | 'archive'
-  | 'utensils';
+  | 'utensils'
+  | 'calendar-heart'
+  | 'list-checks';
 
 export type Theme = 'light' | 'dark' | 'system';

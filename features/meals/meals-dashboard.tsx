@@ -69,7 +69,6 @@ export function MealsDashboard() {
   const [householdSize, setHouseholdSize] = useState(4);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
 
- // --- START OF REPLACEMENT ---
   const [weekStartDate, setWeekStartDate] = useState(
     formatDateISO(getStartOfWeek(new Date()))
   );
@@ -90,7 +89,6 @@ export function MealsDashboard() {
       setCuisines(data.map(c => c.name));
     }
   }, [supabase]);
-// --- FINISH OF REPLACEMENT ---
 
   const [dietaryOptions, setDietaryOptions] = useState<string[]>([]);
 
@@ -127,9 +125,7 @@ export function MealsDashboard() {
       setAllergens(data.map(a => a.name));
     }
   }, [supabase]);
-// --- FINISH OF REPLACEMENT ---
 
-// --- START OF REPLACEMENT ---
   const loadPreferences = useCallback(async () => {
     const { data, error } = await supabase
       .from('meal_preferences')
@@ -153,7 +149,6 @@ export function MealsDashboard() {
       });
     }
   }, [supabase]);
-// --- FINISH OF REPLACEMENT ---
 
   const loadSavedPlans = useCallback(async () => {
     const { data, error } = await supabase
@@ -190,7 +185,6 @@ export function MealsDashboard() {
     setPantryItems(data ?? []);
   }, [supabase]);
 
-// --- START OF REPLACEMENT ---
   useEffect(() => {
     (async () => {
       await Promise.all([
@@ -205,7 +199,6 @@ export function MealsDashboard() {
       setLoading(false);
     })();
   }, [loadPreferences, loadSavedPlans, loadHouseholdSize, loadPantryItems, loadCuisines, loadDietaryOptions, loadAllergens]);
-// --- FINISH OF REPLACEMENT ---
 
   const handleGenerate = async (
     prefs: MealPreferencesState,
@@ -341,16 +334,14 @@ export function MealsDashboard() {
             </CardContent>
           </Card>
         ) : (
- // --- START OF REPLACEMENT ---
-      // --- START OF REPLACEMENT ---
         <MealPreferencesForm
           initial={preferences}
           availableCuisines={cuisines}
+          availableDietary={dietaryOptions}
           availableAllergens={allergens}
           onCancel={() => setView('home')}
           onGenerate={handleGenerate}
         />
-// --- FINISH OF REPLACEMENT ---
         )}
       </AppShell>
     );

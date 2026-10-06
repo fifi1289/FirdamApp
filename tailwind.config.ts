@@ -20,6 +20,8 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         display: ['var(--font-display)', 'system-ui', 'sans-serif'],
+        inter: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        arabic: ['var(--font-arabic)', 'serif'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -28,10 +30,11 @@ const config: Config = {
       },
       borderRadius: {
         lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
-        xl: 'calc(var(--radius) + 4px)',
-        '2xl': 'calc(var(--radius) + 10px)',
+        md: 'calc(var(--radius) - 4px)',
+        sm: 'calc(var(--radius) - 8px)',
+        xl: 'calc(var(--radius) + 2px)',
+        '2xl': 'calc(var(--radius) + 4px)',
+        '3xl': 'calc(var(--radius) + 8px)',
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -88,10 +91,16 @@ const config: Config = {
         },
         /* Firdam raw brand tokens — use when you need the exact logo colours */
         brand: {
-          dark: '#7a3b1e',
-          mid: '#a05830',
-          light: '#c8916a',
-          ink: '#1c1c1c',
+          dark: '#6E4A3A',
+          mid: '#855C49',
+          light: '#C49A6C',
+          ink: '#3B2A24',
+          walnut: '#855C49',
+          linen: '#F8F4EE',
+          sand: '#D9C8BA',
+          gold: '#C49A6C',
+          espresso: '#3B2A24',
+          sage: '#5E8B6F',
         },
       },
       keyframes: {

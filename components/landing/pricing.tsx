@@ -10,45 +10,47 @@ const tiers = [
     name: 'Free',
     price: '$0',
     period: 'forever',
-    description: 'Everything you need to start organizing your life.',
+    description: 'Everything you need to begin.',
     features: [
-      'Up to 4 active modules',
-      'Basic reminders',
-      'Light & dark themes',
-      '1 GB storage',
+      'Prayer times, Qibla & monthly timetable',
+      'Halal Places finder',
+      'Daily duas & Quran tracker',
+      'Family calendar',
+      'Basic meal and grocery planning',
     ],
     cta: 'Get started',
     href: '/auth/register',
     highlighted: false,
   },
   {
-    name: 'Plus',
-    price: '$6',
-    period: 'per month',
-    description: 'Unlock every module and power features.',
+    name: 'Premium',
+    price: '$19.99',
+    period: 'month',
+    description: 'For individuals and couples who want it all.',
     features: [
-      'All modules unlocked',
-      'Smart reminders & routines',
-      'Advanced insights & exports',
-      'Unlimited storage',
+      'Unlimited AI halal meal planning',
+      'Budget, savings goals & zakat calculator',
+      'Ramadan planner & tracker',
+      'Reminders for prayers and events',
       'Priority support',
     ],
-    cta: 'Start 14-day trial',
+    cta: 'Start Premium',
     href: '/auth/register',
     highlighted: true,
   },
   {
-    name: 'Family',
-    price: '$12',
-    period: 'per month',
-    description: 'Share Firdam with the people you love.',
+    name: 'Family+',
+    price: '$39.99',
+    period: 'month',
+    description: 'One home for the whole household.',
     features: [
-      'Everything in Plus',
-      'Up to 6 members',
-      'Shared calendars & lists',
-      'Family roles & permissions',
+      'Everything in Premium',
+      'Shared family workspace',
+      'Multiple family profiles',
+      'Shared calendars and grocery lists',
+      'Advanced collaboration',
     ],
-    cta: 'Choose Family',
+    cta: 'Choose Family+',
     href: '/auth/register',
     highlighted: false,
   },
@@ -63,10 +65,10 @@ export function Pricing() {
             Pricing
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Simple pricing that grows with you
+            Simple pricing for every family
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
-            Start free. Upgrade only when you need more.
+            Start free. Upgrade when your family is ready for more.
           </p>
         </div>
 

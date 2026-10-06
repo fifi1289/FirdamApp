@@ -13,23 +13,27 @@ import {
 const faqs = [
   {
     q: 'What is Firdam?',
-    a: 'Firdam is a modern life management platform. It brings together the areas that matter most — family, finance, travel, shopping, health, community, and more — into one calm, modular workspace. Each area is an independent module you can turn on or off.',
+    a: 'Firdam is a digital home for Muslim families. It brings halal places, halal meal planning, groceries, prayer times, Ramadan, Quran and duas, your family calendar and your budget together in one calm, trusted app — instead of a dozen disconnected ones.',
   },
   {
-    q: 'Can I use Firdam without signing up?',
-    a: 'You can explore the dashboard preview, but saving your data — lists, reminders, budgets — requires a free account so your information stays private and synced across devices.',
+    q: 'How do you know a place is halal?',
+    a: 'Places come from OpenStreetMap, where contributors tag halal shops and restaurants, and from Firdam members who add places they know. Members rate places, note their certification and confirm whether they found them halal. Always ask to see a current certificate when in doubt.',
   },
   {
-    q: 'Is my data private and secure?',
-    a: 'Yes. Every record is protected with row-level security scoped to your account. Your data is never shared or sold, and you can export or delete it at any time.',
+    q: 'Does it work outside my home country?',
+    a: 'Yes. Halal Places, prayer times and the Qibla work anywhere in the world — search your travel destination to plan ahead.',
+  },
+  {
+    q: 'Which prayer time calculation methods are supported?',
+    a: 'ISNA, Muslim World League, Umm al-Qura, Egyptian, Karachi, Moonsighting Committee, JAKIM, MUIS, Diyanet, Gulf, Dubai, Qatar, Kuwait and more, with standard or Hanafi Asr.',
+  },
+  {
+    q: 'Is my family’s data private?',
+    a: 'Yes. Every record is protected with row-level security and scoped to your account. Your data is never sold, and you can export it at any time from Settings.',
   },
   {
     q: 'Which devices does Firdam work on?',
-    a: 'Firdam is a responsive web app that works on any modern browser — phone, tablet, or desktop. Data syncs automatically across all of them.',
-  },
-  {
-    q: 'Can I cancel anytime?',
-    a: 'Absolutely. Plans are month-to-month with no lock-in. Cancel from settings and you keep access until the end of your billing period.',
+    a: 'Firdam is a responsive web app that works in any modern browser on phone, tablet or computer.',
   },
 ];
 

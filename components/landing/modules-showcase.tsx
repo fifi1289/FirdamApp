@@ -14,11 +14,11 @@ export function ModulesShowcase() {
             Modules
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Turn on the parts of life you care about
+            Everything your family needs, in one place
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
-            Every module is independent and optional. Add what you need today —
-            expand when life grows.
+            Halal living, faith and family life — designed to work together, so
+            your meal plan fills your grocery list and your prayer times shape your day.
           </p>
         </div>
 

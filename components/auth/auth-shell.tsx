@@ -5,14 +5,15 @@ import { Logo } from '@/components/brand/logo';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 
 const highlights = [
-  'Organize every part of life in modules',
-  'Private, secure, and synced across devices',
-  'Calm, distraction-free interface',
+  'Halal places near you, wherever you are',
+  'Prayer times, Ramadan, Quran and duas',
+  'Family calendar, meals, groceries and budget',
+  'Private and secure — your data stays yours',
 ];
 
 export function AuthAside() {
   return (
-    <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-dark via-brand-mid to-brand-light p-12 text-white lg:flex">
+    <aside className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-espresso via-brand-dark to-brand-mid p-12 text-white lg:flex">
       <div
         className="pointer-events-none absolute inset-0 opacity-20"
         style={{
@@ -29,11 +30,14 @@ export function AuthAside() {
 
       <div className="relative max-w-md">
         <h2 className="font-display text-3xl font-bold leading-tight">
-          Everything that matters. One place.
+          One home for your Muslim life.
         </h2>
+        <p className="mt-3 font-arabic text-xl text-brand-gold" lang="ar" dir="rtl">
+          بِسْمِ ٱللَّٰهِ
+        </p>
         <p className="mt-4 text-white/80">
-          Firdam is a modern life management platform — bring every part of
-          your life into one calm, modular workspace.
+          Firdam brings halal living, faith and family together in one calm,
+          trusted app.
         </p>
         <ul className="mt-8 space-y-4">
           {highlights.map((h) => (
@@ -48,7 +52,7 @@ export function AuthAside() {
       </div>
 
       <div className="relative text-sm text-white/70">
-        © {new Date().getFullYear()} Firdam. Everything that matters. One place.
+        © {new Date().getFullYear()} Firdam. One home for your Muslim life.
       </div>
     </aside>
   );

@@ -291,7 +291,7 @@ export function HomeDashboard() {
           }
         />
         <Tile
-          href="/dashboard/budget"
+          href="/dashboard/finance"
           icon={Wallet}
           label={snap && snap.budgetLeft !== null ? 'Budget left' : 'Spent this month'}
           value={
@@ -310,7 +310,7 @@ export function HomeDashboard() {
           }
         />
         <Tile
-          href="/dashboard/groceries"
+          href="/dashboard/shopping"
           icon={ShoppingCart}
           label="Groceries to buy"
           value={snap ? snap.groceriesLeft : '—'}

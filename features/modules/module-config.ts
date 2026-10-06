@@ -2,6 +2,11 @@ import type { LifeModule, ModuleGroup, ModuleIconName } from '@/types';
 import {
   Archive,
   BookOpen,
+  ChefHat,
+  GraduationCap,
+  Handshake,
+  HeartPulse,
+  Plane,
   CalendarHeart,
   ListChecks,
   MapPin,
@@ -26,9 +31,14 @@ export const moduleIconMap: Record<ModuleIconName, LucideIcon> = {
   utensils: Utensils,
   'calendar-heart': CalendarHeart,
   'list-checks': ListChecks,
+  'chef-hat': ChefHat,
+  'graduation-cap': GraduationCap,
+  'heart-pulse': HeartPulse,
+  handshake: Handshake,
+  plane: Plane,
 };
 
-export const MODULE_GROUPS: ModuleGroup[] = ['Halal living', 'Faith', 'Family', 'Money'];
+export const MODULE_GROUPS: ModuleGroup[] = ['Halal living', 'Faith', 'Family', 'Community & travel', 'Money'];
 
 export const lifeModules: LifeModule[] = [
   {
@@ -43,6 +53,16 @@ export const lifeModules: LifeModule[] = [
     group: 'Halal living',
   },
   {
+    id: 'recipes',
+    name: 'Recipes',
+    description: 'Halal recipes from around the Muslim world — browse, save, scale and cook.',
+    status: 'active',
+    accent: 'from-brand-mid to-brand-light',
+    icon: 'chef-hat',
+    href: '/dashboard/recipes',
+    group: 'Halal living',
+  },
+  {
     id: 'meals',
     name: 'Meal Planner',
     description: 'Plan wholesome halal meals for the whole family, built around your pantry.',
@@ -53,14 +73,14 @@ export const lifeModules: LifeModule[] = [
     group: 'Halal living',
   },
   {
-    id: 'groceries',
-    name: 'Groceries',
+    id: 'shopping',
+    name: 'Shopping',
     description:
-      'Shared grocery lists filled straight from your meal plan, minus what you already have.',
+      'Smart shopping lists filled straight from your meal plan, minus what you already have.',
     status: 'active',
     accent: 'from-brand-mid to-brand-light',
     icon: 'shopping-cart',
-    href: '/dashboard/groceries',
+    href: '/dashboard/shopping',
     group: 'Halal living',
   },
   {
@@ -134,13 +154,54 @@ export const lifeModules: LifeModule[] = [
     group: 'Family',
   },
   {
-    id: 'budget',
-    name: 'Budget',
+    id: 'learning',
+    name: 'Learning',
+    description:
+      'Learning goals for every family member, a kids’ corner, and trusted tutors and schools.',
+    status: 'active',
+    accent: 'from-brand-dark to-brand-mid',
+    icon: 'graduation-cap',
+    href: '/dashboard/learning',
+    group: 'Family',
+  },
+  {
+    id: 'health',
+    name: 'Health',
+    description: 'Healthy and sunnah habits, plus appointments, vaccinations and allergies.',
+    status: 'active',
+    accent: 'from-brand-mid to-brand-light',
+    icon: 'heart-pulse',
+    href: '/dashboard/health',
+    group: 'Family',
+  },
+  {
+    id: 'community',
+    name: 'Community',
+    description: 'Halaqas, iftars, Eid prayers and fundraisers happening near you.',
+    status: 'active',
+    accent: 'from-brand-dark to-brand-light',
+    icon: 'handshake',
+    href: '/dashboard/community',
+    group: 'Community & travel',
+  },
+  {
+    id: 'travel',
+    name: 'Travel',
+    description: 'Plan halal-friendly trips, Umrah and Hajj, and find trusted travel agencies.',
+    status: 'active',
+    accent: 'from-brand-mid to-brand-light',
+    icon: 'plane',
+    href: '/dashboard/travel',
+    group: 'Community & travel',
+  },
+  {
+    id: 'finance',
+    name: 'Finance',
     description: 'Monthly budget, expenses, savings goals, sadaqah and a zakat calculator.',
     status: 'active',
     accent: 'from-brand-mid to-brand-light',
     icon: 'wallet',
-    href: '/dashboard/budget',
+    href: '/dashboard/finance',
     group: 'Money',
   },
 ];

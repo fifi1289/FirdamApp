@@ -976,9 +976,55 @@ export type Database = {
         };
         Relationships: [];
       };
+      subscriptions: {
+        Row: {
+          user_id: string;
+          plan: PlanId;
+          status: SubscriptionStatus;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          price_id: string | null;
+          current_period_end: string | null;
+          cancel_at_period_end: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          plan?: PlanId;
+          status?: SubscriptionStatus;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          price_id?: string | null;
+          current_period_end?: string | null;
+          cancel_at_period_end?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          plan?: PlanId;
+          status?: SubscriptionStatus;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      app_admins: {
+        Row: { user_id: string; created_at: string };
+        Insert: { user_id: string; created_at?: string };
+        Update: { created_at?: string };
+        Relationships: [];
+      };
+      ai_usage: {
+        Row: { id: string; user_id: string; kind: string; created_at: string };
+        Insert: { id?: string; user_id: string; kind: string; created_at?: string };
+        Update: { kind?: string };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
+      is_admin: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
       halal_place_ratings: {
         Args: { keys: string[] };
         Returns: {
@@ -1148,3 +1194,15 @@ export type FamilyEventKind =
   | 'islamic'
   | 'other';
 export type FamilyEvent = Database['public']['Tables']['family_events']['Row'];
+
+export type PlanId = 'free' | 'premium' | 'family';
+export type SubscriptionStatus =
+  | 'trialing'
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'unpaid'
+  | 'paused';
+export type Subscription = Database['public']['Tables']['subscriptions']['Row'];

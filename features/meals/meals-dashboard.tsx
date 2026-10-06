@@ -47,6 +47,14 @@ import {
   type MealPlanGeneratorInput,
 } from '@/features/meals/meal-plan-generator';
 import type { MealPlanRecord, PantryItem } from '@/types/database';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { PremiumBadge, UpgradeDialog } from '@/components/plan/upgrade-prompt';
+import { PLAN_LIMITS, usePlan } from '@/lib/plan/plan';
+import {
+  GenerateMealPlanError,
+  requestGeneratedMealPlan,
+} from '@/features/meals/generate-meal-plan-service';
 
 type View = 'home' | 'preferences' | 'plan';
 
@@ -73,6 +81,49 @@ export function MealsDashboard() {
     formatDateISO(getStartOfWeek(new Date()))
   );
   const [cuisines, setCuisines] = useState<string[]>([]);
+  const { plan: userPlan, isPaid } = usePlan();
+  const [useAI, setUseAI] = useState(false);
+  const [aiUsed, setAiUsed] = useState(0);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  useEffect(() => {
+    const start = new Date();
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+    supabase
+      .from('ai_usage')
+      .select('id', { count: 'exact', head: true })
+      .eq('kind', 'ai_meal_plan')
+      .gte('created_at', start.toISOString())
+      .then(({ count }) => setAiUsed(count ?? 0));
+  }, [supabase]);
+
+  const aiLimit = PLAN_LIMITS[userPlan].aiMealPlansPerMonth;
+  const aiRemaining = Number.isFinite(aiLimit) ? Math.max(0, aiLimit - aiUsed) : Infinity;
+
+  /** Builds a plan with the AI chef when chosen, otherwise from the recipe library. */
+  const buildPlan = async (input: MealPlanGeneratorInput): Promise<GeneratedMealPlan | null> => {
+    if (useAI) {
+      if (!isPaid && aiRemaining <= 0) {
+        setUpgradeOpen(true);
+        return null;
+      }
+      try {
+        const plan = await requestGeneratedMealPlan(input);
+        setAiUsed((n) => n + 1);
+        return plan;
+      } catch (err) {
+        if (err instanceof GenerateMealPlanError && err.status === 402) {
+          setUpgradeOpen(true);
+          return null;
+        }
+        toast.message('The AI chef is unavailable right now', {
+          description: 'Building your plan from the recipe library instead.',
+        });
+      }
+    }
+    return generateMealPlanFromSupabase(input);
+  };
 
   const loadCuisines = useCallback(async () => {
     const { data, error } = await supabase
@@ -234,15 +285,19 @@ export function MealsDashboard() {
       pantryItems,
     };
 
-    let plan: GeneratedMealPlan;
+    let plan: GeneratedMealPlan | null;
     try {
-      plan = await generateMealPlanFromSupabase(input);
+      plan = await buildPlan(input);
     } catch (err) {
       setGenerating(false);
       toast.error('Could not generate meal plan', {
         description:
           err instanceof Error ? err.message : 'No recipes were found to build a plan.',
       });
+      return;
+    }
+    if (!plan) {
+      setGenerating(false);
       return;
     }
     setGeneratedPlan(plan);
@@ -260,9 +315,9 @@ export function MealsDashboard() {
       pantryItems,
     };
 
-    let plan: GeneratedMealPlan;
+    let plan: GeneratedMealPlan | null;
     try {
-      plan = await generateMealPlanFromSupabase(input);
+      plan = await buildPlan(input);
     } catch (err) {
       setGenerating(false);
       toast.error('Could not generate meal plan', {
@@ -271,7 +326,7 @@ export function MealsDashboard() {
       });
       return;
     }
-    setGeneratedPlan(plan);
+    if (plan) setGeneratedPlan(plan);
     setGenerating(false);
   };
 
@@ -334,6 +389,43 @@ export function MealsDashboard() {
             </CardContent>
           </Card>
         ) : (
+        <>
+        <Card className="mb-5 overflow-hidden">
+          <CardContent className="bg-girih flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Sparkles className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
+                  AI chef
+                  {!isPaid && <PremiumBadge />}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Creates brand-new halal recipes tailored to your family, cuisines and pantry.
+                  {!isPaid &&
+                    ` ${aiRemaining} of ${PLAN_LIMITS.free.aiMealPlansPerMonth} free this month.`}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="use-ai" className="text-sm text-muted-foreground">
+                {useAI ? 'On' : 'Off — use recipe library'}
+              </Label>
+              <Switch
+                id="use-ai"
+                checked={useAI}
+                onCheckedChange={(v) => {
+                  if (v && !isPaid && aiRemaining <= 0) {
+                    setUpgradeOpen(true);
+                    return;
+                  }
+                  setUseAI(v);
+                }}
+              />
+            </div>
+          </CardContent>
+        </Card>
         <MealPreferencesForm
           initial={preferences}
           availableCuisines={cuisines}
@@ -342,7 +434,13 @@ export function MealsDashboard() {
           onCancel={() => setView('home')}
           onGenerate={handleGenerate}
         />
+        </>
         )}
+        <UpgradeDialog
+          open={upgradeOpen}
+          onOpenChange={setUpgradeOpen}
+          limitKey="aiMealPlansPerMonth"
+        />
       </AppShell>
     );
   }

@@ -47,6 +47,8 @@ import {
   asPantryCategory,
 } from '@/features/groceries/grocery-utils';
 import { FromMealPlanDialog } from '@/features/groceries/from-meal-plan-dialog';
+import { usePlan } from '@/lib/plan/plan';
+import { UpgradeDialog } from '@/components/plan/upgrade-prompt';
 
 const ACTIVE_LIST_KEY = 'firdam.groceries.activeList';
 
@@ -123,6 +125,8 @@ export function GroceriesDashboard() {
   const [mealPlanOpen, setMealPlanOpen] = useState(false);
   const [movingToPantry, setMovingToPantry] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { atLimit } = usePlan();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const activeList = lists.find((l) => l.id === activeId) ?? null;
 
@@ -344,8 +348,8 @@ export function GroceriesDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Groceries"
-        description="Shopping lists that fill themselves from your meal plan — minus what's already in your pantry."
+        title="Shopping"
+        description="Smart shopping lists that fill themselves from your meal plan — minus what's already in your pantry."
       >
         <Button variant="outline" size="sm" onClick={shareList} disabled={!activeList || remaining.length === 0}>
           <Share2 className="mr-2 h-4 w-4" />
@@ -462,7 +466,13 @@ export function GroceriesDashboard() {
                 variant="ghost"
                 size="sm"
                 className="w-full justify-start text-muted-foreground"
-                onClick={() => setCreatingList(true)}
+                onClick={() => {
+                  if (atLimit('shoppingLists', lists.length)) {
+                    setUpgradeOpen(true);
+                    return;
+                  }
+                  setCreatingList(true);
+                }}
               >
                 <ListPlus className="mr-2 h-4 w-4" />
                 New list
@@ -605,6 +615,7 @@ export function GroceriesDashboard() {
         </div>
       )}
 
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} limitKey="shoppingLists" />
       <FromMealPlanDialog
         open={mealPlanOpen}
         onOpenChange={setMealPlanOpen}

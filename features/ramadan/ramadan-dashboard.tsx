@@ -53,8 +53,8 @@ const PREP_ITEMS: { id: string; label: string; href?: string }[] = [
   { id: 'qada', label: 'Make up any missed fasts from last year' },
   { id: 'quran', label: 'Set a Quran goal for the month', href: '/dashboard/quran?tab=reading' },
   { id: 'meals', label: 'Plan suhoor and iftar meals', href: '/dashboard/meals' },
-  { id: 'groceries', label: 'Stock up on dates, water and staples', href: '/dashboard/groceries' },
-  { id: 'zakat', label: 'Calculate zakat and plan your sadaqah', href: '/dashboard/budget' },
+  { id: 'groceries', label: 'Stock up on dates, water and staples', href: '/dashboard/shopping' },
+  { id: 'zakat', label: 'Calculate zakat and plan your sadaqah', href: '/dashboard/finance' },
   { id: 'masjid', label: 'Find your local masjid for taraweeh', href: '/dashboard/halal-places?category=mosque' },
   { id: 'eid', label: 'Prepare Eid gifts and clothes for the family' },
 ];
@@ -610,7 +610,7 @@ export function RamadanDashboard() {
                       before the Eid prayer.
                     </p>
                     <Button asChild size="sm" variant="outline" className="mt-3">
-                      <Link href="/dashboard/budget">
+                      <Link href="/dashboard/finance">
                         <HandHeart className="mr-2 h-4 w-4" />
                         Record Zakat al-Fitr
                       </Link>

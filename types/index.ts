@@ -1,17 +1,22 @@
 export type ModuleId =
   | 'halal-places'
+  | 'recipes'
   | 'meals'
+  | 'shopping'
   | 'pantry'
-  | 'groceries'
   | 'prayer-times'
   | 'ramadan'
   | 'quran'
   | 'family'
   | 'calendar'
   | 'planner'
-  | 'budget';
+  | 'learning'
+  | 'health'
+  | 'community'
+  | 'travel'
+  | 'finance';
 
-export type ModuleGroup = 'Halal living' | 'Faith' | 'Family' | 'Money';
+export type ModuleGroup = 'Halal living' | 'Faith' | 'Family' | 'Community & travel' | 'Money';
 
 export type ModuleStatus = 'active' | 'beta' | 'planned';
 
@@ -27,6 +32,8 @@ export interface LifeModule {
   /** Route the module card links to once implemented. */
   href: string;
   group: ModuleGroup;
+  /** Shown as a small badge — e.g. features that need Premium. */
+  premium?: boolean;
 }
 
 export type ModuleIconName =
@@ -40,6 +47,11 @@ export type ModuleIconName =
   | 'archive'
   | 'utensils'
   | 'calendar-heart'
-  | 'list-checks';
+  | 'list-checks'
+  | 'chef-hat'
+  | 'graduation-cap'
+  | 'heart-pulse'
+  | 'handshake'
+  | 'plane';
 
 export type Theme = 'light' | 'dark' | 'system';

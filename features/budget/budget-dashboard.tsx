@@ -294,7 +294,7 @@ export function BudgetDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Budget"
+        title="Finance"
         description="Spend with intention, save for what matters, and keep track of your giving."
       >
         <Select value={currency} onValueChange={setCurrency}>

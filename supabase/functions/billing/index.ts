@@ -1,0 +1,189 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+
+/**
+ * Billing — Stripe Checkout and the Stripe customer portal.
+ *
+ *   POST { action: "checkout", plan: "premium" | "family", interval: "month" | "year" }
+ *     → { url }  (redirect the browser there)
+ *   POST { action: "portal" }
+ *     → { url }
+ *
+ * Secrets (supabase secrets set …):
+ *   STRIPE_SECRET_KEY
+ *   STRIPE_PRICE_PREMIUM_MONTHLY, STRIPE_PRICE_PREMIUM_YEARLY
+ *   STRIPE_PRICE_FAMILY_MONTHLY,  STRIPE_PRICE_FAMILY_YEARLY
+ *   SITE_URL   e.g. https://firdam.app
+ * SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
+ */
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+};
+
+const TRIAL_DAYS = 14;
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function env(name: string): string | undefined {
+  const v = Deno.env.get(name);
+  return v && v.trim() ? v.trim() : undefined;
+}
+
+/** Form-encodes nested params the way Stripe's API expects. */
+function encodeForm(params: Record<string, unknown>, prefix = ""): string[] {
+  const out: string[] = [];
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null) continue;
+    const key = prefix ? `${prefix}[${k}]` : k;
+    if (Array.isArray(v)) {
+      v.forEach((item, i) => {
+        if (typeof item === "object" && item !== null) {
+          out.push(...encodeForm(item as Record<string, unknown>, `${key}[${i}]`));
+        } else {
+          out.push(`${encodeURIComponent(`${key}[${i}]`)}=${encodeURIComponent(String(item))}`);
+        }
+      });
+    } else if (typeof v === "object") {
+      out.push(...encodeForm(v as Record<string, unknown>, key));
+    } else {
+      out.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(v))}`);
+    }
+  }
+  return out;
+}
+
+async function stripe<T>(path: string, params?: Record<string, unknown>, method = "POST"): Promise<T> {
+  const key = env("STRIPE_SECRET_KEY");
+  if (!key) throw new Error("Stripe is not configured");
+  const body = params ? encodeForm(params).join("&") : undefined;
+  const url = method === "GET" && body ? `https://api.stripe.com/v1/${path}?${body}` : `https://api.stripe.com/v1/${path}`;
+  const res = await fetch(url, {
+    method,
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: method === "GET" ? undefined : body,
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    const message = (data as { error?: { message?: string } }).error?.message ?? `Stripe error ${res.status}`;
+    throw new Error(message);
+  }
+  return data as T;
+}
+
+interface AuthUser {
+  id: string;
+  email?: string;
+}
+
+async function getUser(req: Request): Promise<AuthUser | null> {
+  const auth = req.headers.get("Authorization");
+  const url = env("SUPABASE_URL");
+  const anon = env("SUPABASE_ANON_KEY");
+  if (!auth || !url || !anon) return null;
+  const res = await fetch(`${url}/auth/v1/user`, { headers: { Authorization: auth, apikey: anon } });
+  if (!res.ok) return null;
+  return (await res.json()) as AuthUser;
+}
+
+async function existingCustomerId(userId: string): Promise<string | null> {
+  const url = env("SUPABASE_URL");
+  const service = env("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !service) return null;
+  const res = await fetch(
+    `${url}/rest/v1/subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=stripe_customer_id`,
+    { headers: { apikey: service, Authorization: `Bearer ${service}` } },
+  );
+  if (!res.ok) return null;
+  const rows = (await res.json()) as { stripe_customer_id: string | null }[];
+  return rows[0]?.stripe_customer_id ?? null;
+}
+
+async function findOrCreateCustomer(user: AuthUser): Promise<string> {
+  const known = await existingCustomerId(user.id);
+  if (known) return known;
+  const search = await stripe<{ data: { id: string }[] }>(
+    "customers/search",
+    { query: `metadata['user_id']:'${user.id}'` },
+    "GET",
+  );
+  if (search.data[0]) return search.data[0].id;
+  const created = await stripe<{ id: string }>("customers", {
+    email: user.email,
+    metadata: { user_id: user.id },
+  });
+  return created.id;
+}
+
+function priceFor(plan: string, interval: string): string | undefined {
+  const p = plan === "family" ? "FAMILY" : "PREMIUM";
+  const i = interval === "year" ? "YEARLY" : "MONTHLY";
+  return env(`STRIPE_PRICE_${p}_${i}`);
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+
+  try {
+    if (!env("STRIPE_SECRET_KEY")) {
+      return json({ error: "Billing is not set up yet.", code: "not_configured" }, 501);
+    }
+    const user = await getUser(req);
+    if (!user) return json({ error: "Please sign in." }, 401);
+
+    const body = (await req.json().catch(() => ({}))) as {
+      action?: string;
+      plan?: string;
+      interval?: string;
+      returnPath?: string;
+    };
+    const site = env("SITE_URL") ?? req.headers.get("origin") ?? "";
+    const returnTo = `${site}${body.returnPath && body.returnPath.startsWith("/") ? body.returnPath : "/dashboard/upgrade"}`;
+    const customer = await findOrCreateCustomer(user);
+
+    if (body.action === "portal") {
+      const session = await stripe<{ url: string }>("billing_portal/sessions", {
+        customer,
+        return_url: returnTo,
+      });
+      return json({ url: session.url });
+    }
+
+    if (body.action === "checkout") {
+      const plan = body.plan === "family" ? "family" : "premium";
+      const interval = body.interval === "year" ? "year" : "month";
+      const price = priceFor(plan, interval);
+      if (!price) return json({ error: `No Stripe price configured for ${plan} (${interval}).` }, 501);
+
+      const session = await stripe<{ url: string }>("checkout/sessions", {
+        mode: "subscription",
+        customer,
+        client_reference_id: user.id,
+        line_items: [{ price, quantity: 1 }],
+        allow_promotion_codes: "true",
+        subscription_data: {
+          trial_period_days: TRIAL_DAYS,
+          metadata: { user_id: user.id, plan },
+        },
+        metadata: { user_id: user.id, plan },
+        success_url: `${returnTo}?checkout=success`,
+        cancel_url: `${returnTo}?checkout=cancelled`,
+      });
+      return json({ url: session.url });
+    }
+
+    return json({ error: "Unknown action" }, 400);
+  } catch (err) {
+    return json({ error: err instanceof Error ? err.message : "Unknown error" }, 500);
+  }
+});

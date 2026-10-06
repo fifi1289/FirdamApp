@@ -51,6 +51,7 @@ const SEARCH_EXTRAS = [
   { name: 'Settings', href: '/settings', keywords: 'preferences theme reminders notifications' },
   { name: 'Profile', href: '/profile', keywords: 'account name' },
   { name: 'Support', href: '/support', keywords: 'help faq contact' },
+  { name: 'Plans & billing', href: '/dashboard/upgrade', keywords: 'premium subscription upgrade pricing' },
 ];
 
 function ModuleSearch() {
@@ -225,6 +226,9 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/settings')}>
                   Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/dashboard/upgrade')}>
+                  Plans &amp; billing
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} disabled={signingOut}>

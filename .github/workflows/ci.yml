@@ -81,13 +81,15 @@ jobs:
           deno-version: v2.x
       - name: Type check edge functions
         run: |
-          for f in supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts; do
+          for f in supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts supabase/functions/billing/index.ts supabase/functions/stripe-webhook/index.ts; do
             if ! out=$(deno check "$f" 2>&1); then
               echo "$out"
               echo "::error file=$f::$(echo "$out" | grep -v '^Download' | head -n 12 | tr '\n' ' ' | cut -c1-900)"
               exit 1
             fi
           done
+      - name: Unit tests
+        run: deno test supabase/functions/stripe-webhook/signature.test.ts
       - name: Live smoke test against public APIs
         run: |
           set -e

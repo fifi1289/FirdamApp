@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  Crown,
   LayoutDashboard,
   LifeBuoy,
   Settings,
@@ -12,6 +13,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/brand/logo';
+import { PLAN_NAMES, usePlan } from '@/lib/plan/plan';
 import {
   MODULE_GROUPS,
   lifeModules,
@@ -99,6 +101,39 @@ function NavSection({
   );
 }
 
+function PlanCard() {
+  const { plan, loading } = usePlan();
+  if (loading) return <div className="h-[74px]" />;
+  if (plan !== 'free') {
+    return (
+      <Link
+        href="/dashboard/upgrade"
+        className="bg-girih flex items-center gap-3 rounded-xl bg-gradient-to-br from-brand-gold/20 to-brand-light/10 p-3"
+      >
+        <Crown className="h-5 w-5 text-[#7a5a30] dark:text-brand-gold" />
+        <div>
+          <p className="text-sm font-medium text-foreground">Firdam {PLAN_NAMES[plan]}</p>
+          <p className="text-xs text-muted-foreground">Jazakum Allahu khayran for your support</p>
+        </div>
+      </Link>
+    );
+  }
+  return (
+    <Link
+      href="/dashboard/upgrade"
+      className="bg-girih block rounded-xl bg-gradient-to-br from-primary/10 to-brand-light/10 p-3 transition-colors hover:from-primary/15"
+    >
+      <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+        <Crown className="h-4 w-4 text-primary" />
+        Try Premium free
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Unlimited AI meal plans, trips, habits and more — 14 days free.
+      </p>
+    </Link>
+  );
+}
+
 export function Sidebar() {
   return (
     <aside className="flex h-full w-64 flex-col border-r border-border bg-card/40 backdrop-blur-sm">
@@ -115,18 +150,7 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-border p-4">
-        <div className="bg-girih rounded-xl bg-gradient-to-br from-primary/10 to-brand-light/10 p-3">
-          <p className="text-sm font-medium text-foreground">
-            One home for your Muslim life
-          </p>
-          <p
-            className="mt-1 font-arabic text-sm text-primary"
-            lang="ar"
-            dir="rtl"
-          >
-            بِسْمِ ٱللَّٰهِ
-          </p>
-        </div>
+        <PlanCard />
       </div>
     </aside>
   );

@@ -1,7 +1,7 @@
 import { GroceriesDashboard } from '@/features/groceries/groceries-dashboard';
 
-export const metadata = { title: 'Groceries' };
+export const metadata = { title: 'Shopping' };
 
-export default function GroceriesPage() {
+export default function ShoppingPage() {
   return <GroceriesDashboard />;
 }

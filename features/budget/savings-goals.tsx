@@ -33,6 +33,8 @@ import {
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { SavingsGoal, SavingsGoalKind } from '@/types/database';
 import { GOAL_KINDS, formatMoney } from '@/features/budget/budget-config';
+import { usePlan } from '@/lib/plan/plan';
+import { UpgradeDialog, UsageNote } from '@/components/plan/upgrade-prompt';
 
 function monthsUntil(date: string | null): number | null {
   if (!date) return null;
@@ -170,6 +172,8 @@ export function SavingsGoals({ currency }: { currency: string }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<SavingsGoal | null>(null);
   const [contribution, setContribution] = useState<Record<string, string>>({});
+  const { atLimit, limit } = usePlan();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const load = async () => {
     const { data, error } = await supabase
@@ -223,6 +227,10 @@ export function SavingsGoals({ currency }: { currency: string }) {
         <Button
           size="sm"
           onClick={() => {
+            if (atLimit('savingsGoals', goals.length)) {
+              setUpgradeOpen(true);
+              return;
+            }
             setEditing(null);
             setDialogOpen(true);
           }}
@@ -331,7 +339,18 @@ export function SavingsGoals({ currency }: { currency: string }) {
         </div>
       )}
 
+      {goals.length > 0 && (
+        <div className="mt-4">
+          <UsageNote
+            used={goals.length}
+            limit={limit('savingsGoals')}
+            label="savings goals"
+            onUpgrade={() => setUpgradeOpen(true)}
+          />
+        </div>
+      )}
       <GoalDialog open={dialogOpen} onOpenChange={setDialogOpen} goal={editing} onSaved={load} />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} limitKey="savingsGoals" />
     </>
   );
 }

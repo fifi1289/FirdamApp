@@ -148,22 +148,29 @@ function normalize(el: OsmElement): NormalizedPlace | null {
 }
 
 async function queryOverpass(lat: number, lng: number, radius: number): Promise<OsmElement[]> {
-  const around = `(around:${radius},${lat},${lng})`;
+  // Gather shops and amenities in the area once, then filter that set in
+  // memory — far cheaper than one spatial query per condition in dense cities.
   const query = `
-    [out:json][timeout:25];
+    [out:json][timeout:45];
     (
-      nwr["diet:halal"~"^(yes|only|limited)$"]${around};
-      nwr["halal"="yes"]${around};
-      nwr["cuisine"~"halal",i]${around};
-      nwr["shop"]["name"~"halal",i]${around};
-      nwr["amenity"~"^(restaurant|fast_food|cafe|food_court)$"]["name"~"halal",i]${around};
-      nwr["amenity"="place_of_worship"]["religion"="muslim"]${around};
+      nwr(around:${radius},${lat},${lng})["shop"];
+      nwr(around:${radius},${lat},${lng})["amenity"];
+    )->.pois;
+    (
+      nwr.pois["diet:halal"~"^(yes|only|limited)$"];
+      nwr.pois["halal"="yes"];
+      nwr.pois["cuisine"~"halal",i];
+      nwr.pois["name"~"halal",i];
+      nwr.pois["amenity"="place_of_worship"]["religion"="muslim"];
     );
     out center tags 400;
   `;
 
   let lastError: unknown = null;
+  const deadline = Date.now() + 55_000;
   for (const endpoint of OVERPASS_ENDPOINTS) {
+    const remaining = deadline - Date.now();
+    if (remaining < 5_000) break;
     try {
       const res = await fetch(endpoint, {
         method: "POST",
@@ -172,7 +179,7 @@ async function queryOverpass(lat: number, lng: number, radius: number): Promise<
           "User-Agent": USER_AGENT,
         },
         body: `data=${encodeURIComponent(query)}`,
-        signal: AbortSignal.timeout(28_000),
+        signal: AbortSignal.timeout(Math.min(50_000, remaining)),
       });
       if (!res.ok) {
         lastError = new Error(`Overpass ${res.status}`);

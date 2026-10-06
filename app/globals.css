@@ -182,3 +182,59 @@
   0%, 100% { background-position: 0% 50%; }
   50%       { background-position: 100% 50%; }
 }
+
+/* ── Map pins (Halal Places) ──────────────────────────────────── */
+.firdam-pin-wrap {
+  background: transparent;
+  border: 0;
+}
+.firdam-pin {
+  --pin: #855c49;
+  position: relative;
+  display: flex;
+  height: 30px;
+  width: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% 50% 50% 4px;
+  transform: rotate(-45deg);
+  background: var(--pin);
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgb(59 42 36 / 0.25);
+  transition: transform 160ms ease;
+}
+.firdam-pin > span {
+  transform: rotate(45deg);
+  color: #fff;
+  font: 600 11px/1 var(--font-sans), system-ui, sans-serif;
+}
+.firdam-pin-wrap:hover .firdam-pin,
+.firdam-pin-wrap--active .firdam-pin {
+  transform: rotate(-45deg) scale(1.18);
+}
+.firdam-pin-wrap--active .firdam-pin {
+  box-shadow: 0 0 0 4px rgb(196 154 108 / 0.45), 0 6px 14px rgb(59 42 36 / 0.3);
+}
+.firdam-pin--grocery { --pin: #5e8b6f; }
+.firdam-pin--butcher { --pin: #b75a52; }
+.firdam-pin--restaurant { --pin: #855c49; }
+.firdam-pin--cafe { --pin: #c49a6c; }
+.firdam-pin--mosque { --pin: #3b2a24; }
+.firdam-pin--other { --pin: #6b7280; }
+
+.firdam-you {
+  background: transparent;
+  border: 0;
+}
+.firdam-you__dot {
+  display: block;
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background: #3b82f6;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgb(59 130 246 / 0.2);
+}
+.leaflet-container {
+  font-family: var(--font-sans), system-ui, sans-serif;
+}

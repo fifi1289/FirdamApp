@@ -609,9 +609,129 @@ export type Database = {
         };
         Relationships: [];
       };
+      halal_places: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          category: HalalPlaceCategory;
+          address: string | null;
+          city: string | null;
+          country: string | null;
+          latitude: number;
+          longitude: number;
+          phone: string | null;
+          website: string | null;
+          certification: string | null;
+          halal_status: CommunityHalalStatus;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          category?: HalalPlaceCategory;
+          address?: string | null;
+          city?: string | null;
+          country?: string | null;
+          latitude: number;
+          longitude: number;
+          phone?: string | null;
+          website?: string | null;
+          certification?: string | null;
+          halal_status?: CommunityHalalStatus;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          category?: HalalPlaceCategory;
+          address?: string | null;
+          city?: string | null;
+          country?: string | null;
+          latitude?: number;
+          longitude?: number;
+          phone?: string | null;
+          website?: string | null;
+          certification?: string | null;
+          halal_status?: CommunityHalalStatus;
+          notes?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      halal_place_reviews: {
+        Row: {
+          id: string;
+          user_id: string;
+          place_key: string;
+          place_name: string | null;
+          rating: number;
+          comment: string | null;
+          halal_confirmed: boolean | null;
+          author_name: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          place_key: string;
+          place_name?: string | null;
+          rating: number;
+          comment?: string | null;
+          halal_confirmed?: boolean | null;
+          author_name?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          rating?: number;
+          comment?: string | null;
+          halal_confirmed?: boolean | null;
+          author_name?: string | null;
+          place_name?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      saved_halal_places: {
+        Row: {
+          id: string;
+          user_id: string;
+          place_key: string;
+          snapshot: Record<string, unknown>;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          place_key: string;
+          snapshot?: Record<string, unknown>;
+          created_at?: string;
+        };
+        Update: {
+          snapshot?: Record<string, unknown>;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
-    Functions: Record<never, never>;
+    Functions: {
+      halal_place_ratings: {
+        Args: { keys: string[] };
+        Returns: {
+          place_key: string;
+          avg_rating: number;
+          review_count: number;
+          confirmations: number;
+          disputes: number;
+        }[];
+      };
+    };
     Enums: Record<never, never>;
   };
 };
@@ -720,3 +840,17 @@ export const FAMILY_RELATIONSHIPS: FamilyRelationship[] = [
   'Grandmother',
   'Other',
 ];
+
+export type HalalPlaceCategory =
+  | 'grocery'
+  | 'butcher'
+  | 'restaurant'
+  | 'cafe'
+  | 'mosque'
+  | 'other';
+
+export type CommunityHalalStatus = 'halal' | 'halal_options' | 'muslim_owned';
+
+export type HalalPlaceRecord = Database['public']['Tables']['halal_places']['Row'];
+export type HalalPlaceReview = Database['public']['Tables']['halal_place_reviews']['Row'];
+export type SavedHalalPlace = Database['public']['Tables']['saved_halal_places']['Row'];

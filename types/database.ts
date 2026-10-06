@@ -782,6 +782,96 @@ export type Database = {
         };
         Relationships: [];
       };
+      budget_categories: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          icon: string;
+          monthly_limit: number | null;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          icon?: string;
+          monthly_limit?: number | null;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          icon?: string;
+          monthly_limit?: number | null;
+          position?: number;
+        };
+        Relationships: [];
+      };
+      budget_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: TransactionType;
+          amount: number;
+          category_id: string | null;
+          description: string | null;
+          occurred_on: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          type: TransactionType;
+          amount: number;
+          category_id?: string | null;
+          description?: string | null;
+          occurred_on?: string;
+          created_at?: string;
+        };
+        Update: {
+          type?: TransactionType;
+          amount?: number;
+          category_id?: string | null;
+          description?: string | null;
+          occurred_on?: string;
+        };
+        Relationships: [];
+      };
+      savings_goals: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          kind: SavingsGoalKind;
+          target: number;
+          saved: number;
+          target_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          kind?: SavingsGoalKind;
+          target: number;
+          saved?: number;
+          target_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          kind?: SavingsGoalKind;
+          target?: number;
+          saved?: number;
+          target_date?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -921,3 +1011,18 @@ export type SavedHalalPlace = Database['public']['Tables']['saved_halal_places']
 
 export type GroceryList = Database['public']['Tables']['grocery_lists']['Row'];
 export type GroceryItem = Database['public']['Tables']['grocery_items']['Row'];
+
+export type TransactionType = 'income' | 'expense' | 'sadaqah' | 'zakat';
+export type SavingsGoalKind =
+  | 'general'
+  | 'hajj'
+  | 'umrah'
+  | 'eid'
+  | 'education'
+  | 'emergency'
+  | 'home'
+  | 'wedding';
+
+export type BudgetCategory = Database['public']['Tables']['budget_categories']['Row'];
+export type BudgetTransaction = Database['public']['Tables']['budget_transactions']['Row'];
+export type SavingsGoal = Database['public']['Tables']['savings_goals']['Row'];

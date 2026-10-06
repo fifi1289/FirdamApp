@@ -50,6 +50,9 @@ import { FromMealPlanDialog } from '@/features/groceries/from-meal-plan-dialog';
 
 const ACTIVE_LIST_KEY = 'firdam.groceries.activeList';
 
+// Guards against creating the default list twice (React Strict Mode).
+let creatingDefaultList: Promise<GroceryList | null> | null = null;
+
 function ItemRow({
   item,
   onToggle,
@@ -135,12 +138,13 @@ export function GroceriesDashboard() {
     }
     let rows = data ?? [];
     if (rows.length === 0) {
-      const { data: created, error: createError } = await supabase
-        .from('grocery_lists')
-        .insert({ name: 'Weekly groceries' })
-        .select()
-        .single();
-      if (createError) console.error('Failed to create default list:', createError.message);
+      creatingDefaultList ??= Promise.resolve(
+        supabase.from('grocery_lists').insert({ name: 'Weekly groceries' }).select().single()
+      ).then(({ data: created, error: createError }) => {
+        if (createError) console.error('Failed to create default list:', createError.message);
+        return created ?? null;
+      });
+      const created = await creatingDefaultList;
       rows = created ? [created] : [];
     }
     setLists(rows);

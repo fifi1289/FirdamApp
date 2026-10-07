@@ -51,7 +51,9 @@ const sections: LegalSection[] = [
             <strong>Faith trackers:</strong> Quran reading, Ramadan fasting and other trackers you choose to use.
           </li>
           <li>
-            <strong>Money:</strong> budgets, spending, sadaqah and zakat records and savings goals you enter. We never ask
+            <strong>Money:</strong> budgets, spending, sadaqah and zakat payments and savings goals you enter. The figures
+            you type into the zakat calculator (gold, silver, savings, debts) stay on your device and are never sent to us.
+            We never ask
             for bank or card details for these tools.
           </li>
           <li>
@@ -211,8 +213,9 @@ const sections: LegalSection[] = [
     body: (
       <p>
         Your information is sent over encrypted connections (HTTPS) and stored with access controls so that only you and
-        your household can read your private data. Our team’s access is limited to what’s needed to run and support the
-        app. No system is perfectly secure; if a breach ever puts you at real risk of significant harm, we will notify
+        your household can read your private data. Zakat calculator figures are calculated on your device and never sent
+        to us. You can turn on two-step verification in Settings. Our team’s access is limited to what’s needed to run and
+        support the app. See <Link href="/security">Security</Link> for more. No system is perfectly secure; if a breach ever puts you at real risk of significant harm, we will notify
         you and the Privacy Commissioner of Canada as the law requires.
       </p>
     ),

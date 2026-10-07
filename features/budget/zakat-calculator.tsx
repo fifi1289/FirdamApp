@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Info, Scale } from 'lucide-react';
+import { Info, Lock, Scale } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -67,26 +67,42 @@ export function ZakatCalculator({
 }) {
   const [values, setValues] = useState<Values>(EMPTY);
   const [basis, setBasis] = useState<'silver' | 'gold'>('silver');
+  // Figures never leave this device. "Remember" keeps them in this browser only.
+  const [remember, setRemember] = useState(false);
 
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setValues({ ...EMPTY, ...(JSON.parse(raw) as Partial<Values>) });
+      if (raw) {
+        setValues({ ...EMPTY, ...(JSON.parse(raw) as Partial<Values>) });
+        setRemember(true);
+      }
     } catch {
       // ignore
     }
   }, []);
 
+  const persist = (next: Values, keep: boolean) => {
+    try {
+      if (keep) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      else window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+  };
+
   const set = (key: Field, v: string) => {
     setValues((prev) => {
       const next = { ...prev, [key]: v };
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // ignore
-      }
+      persist(next, remember);
       return next;
     });
+  };
+
+  const forget = () => {
+    setValues(EMPTY);
+    setRemember(false);
+    persist(EMPTY, false);
   };
 
   const result = useMemo(() => {
@@ -104,6 +120,31 @@ export function ZakatCalculator({
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
       <Card>
         <CardContent className="space-y-6 p-5">
+          <div className="flex flex-col gap-2 rounded-xl bg-brand-sage/10 px-3 py-2.5 text-xs text-foreground sm:flex-row sm:items-center sm:justify-between">
+            <span className="flex items-start gap-2">
+              <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-sage" />
+              <span>
+                <strong>Private by design:</strong> these figures are calculated on your device and are never sent to
+                Firdam’s servers.
+              </span>
+            </span>
+            <span className="flex shrink-0 items-center gap-3">
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => {
+                    setRemember(e.target.checked);
+                    persist(values, e.target.checked);
+                  }}
+                />
+                Remember on this device
+              </label>
+              <button type="button" onClick={forget} className="text-primary hover:underline">
+                Clear
+              </button>
+            </span>
+          </div>
           <section>
             <h3 className="text-sm font-semibold text-foreground">1. Today&apos;s metal prices</h3>
             <p className="mt-1 text-xs text-muted-foreground">

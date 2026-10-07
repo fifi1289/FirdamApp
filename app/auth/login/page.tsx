@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { AuthShell } from '@/components/auth/auth-shell';
@@ -31,6 +31,39 @@ function LoginForm() {
   const [password, setPassword] = React.useState('');
   const [errors, setErrors] = React.useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = React.useState(false);
+  // Two-step verification step (authenticator app code).
+  const [step, setStep] = React.useState<'password' | 'code'>(searchParams.get('mfa') === '1' ? 'code' : 'password');
+  const [code, setCode] = React.useState('');
+
+  const goOn = () => {
+    const redirect = searchParams.get('redirect') ?? '/dashboard';
+    router.push(redirect.startsWith('/') ? redirect : '/dashboard');
+    router.refresh();
+  };
+
+  const verifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!/^\d{6}$/.test(code.trim())) {
+      toast.error('Enter the 6-digit code from your authenticator app.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: factors, error } = await supabase.auth.mfa.listFactors();
+      if (error) throw error;
+      const factor = factors.totp.find((f) => f.status === 'verified');
+      if (!factor) throw new Error('No authenticator app is set up for this account.');
+      const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: code.trim() });
+      if (verifyError) throw verifyError;
+      await supabase.auth.getSession();
+      goOn();
+    } catch (error) {
+      toast.error(error instanceof Error && /invalid|expired/i.test(error.message) ? 'That code didn’t work. Check the time on your phone and try the newest code.' : getAuthErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,14 +89,63 @@ function LoginForm() {
       // can run before the cookies are set and bounce the user back to login.
       await supabase.auth.getSession();
 
-      const redirect = searchParams.get('redirect') ?? '/dashboard';
-      router.push(redirect);
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
+        setStep('code');
+        return;
+      }
+      goOn();
     } catch (error) {
       toast.error(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
   };
+
+  if (step === 'code') {
+    return (
+      <AuthShell title="Two-step verification" description="Enter the 6-digit code from your authenticator app.">
+        <form className="space-y-4" onSubmit={verifyCode}>
+          <div className="space-y-2">
+            <Label htmlFor="code">Code</Label>
+            <div className="relative">
+              <ShieldCheck className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="123456"
+                className="pl-9 tracking-[0.3em]"
+                autoFocus
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              />
+            </div>
+          </div>
+          <Button type="submit" className="w-full" size="lg" disabled={loading}>
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
+            Verify
+          </Button>
+          <button
+            type="button"
+            className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
+            onClick={async () => {
+              await createSupabaseBrowserClient().auth.signOut();
+              setStep('password');
+              setCode('');
+            }}
+          >
+            Use a different account
+          </button>
+          <p className="text-center text-xs text-muted-foreground">
+            Lost your phone? Email us from your account’s email address and we’ll help you get back in.
+          </p>
+        </form>
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell

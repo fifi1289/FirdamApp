@@ -96,6 +96,13 @@ insert into public.app_admins (user_id) select id from auth.users where email = 
 
 ### Edge functions
 
+**From the Supabase dashboard:** each file in `supabase/dashboard-functions/` is a single-file copy of a
+function (shared code included). In Edge Functions, open (or create) the function with the same name,
+replace its code with the file's contents and click Deploy. For `stripe-webhook`, turn off
+"Enforce JWT verification". Regenerate the copies with `node supabase/build-dashboard-functions.mjs`.
+
+**With the Supabase CLI:**
+
 ```bash
 supabase functions deploy prayer-times
 supabase functions deploy halal-places

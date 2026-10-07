@@ -241,7 +241,7 @@ export async function fetchRecipe(key: string): Promise<RecipeDetail | null> {
       .filter((i) => i.ingredient?.name)
       .map((i) => ({
         name: i.ingredient!.name,
-        quantity: i.quantity != null ? Number(i.quantity) : null,
+        quantity: i.quantity != null && Number(i.quantity) > 0 ? Number(i.quantity) : null,
         unit: i.unit ?? '',
         optional: i.optional ?? false,
         notes: i.notes,

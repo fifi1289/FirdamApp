@@ -13,6 +13,11 @@ existing "Milk" allergen is reused for Dairy).
 DO $seed$
 DECLARE
   missing_cols text;
+  -- Some projects require these columns; "to taste" then gets 0 (the app shows it as "to taste").
+  qty_required boolean := EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public'
+    AND table_name = 'recipe_ingredients' AND column_name = 'quantity' AND is_nullable = 'NO');
+  nutrition_required boolean := EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public'
+    AND table_name = 'recipes' AND column_name IN ('calories', 'protein', 'carbs', 'fat') AND is_nullable = 'NO');
 BEGIN
 
   SELECT string_agg(c.table_name || '.' || c.column_name, ', ' ORDER BY c.table_name, c.column_name) INTO missing_cols
@@ -1215,7 +1220,12 @@ BEGIN
     (SELECT id FROM public.cuisines c WHERE lower(c.name) = lower(v.cuisine) LIMIT 1),
     (SELECT id FROM public.meal_types m WHERE lower(m.name) = lower(v.meal_type) LIMIT 1),
     (SELECT id FROM public.difficulties d WHERE lower(d.name) = lower(v.difficulty) LIMIT 1),
-    v.prep, v.cook, v.servings, v.calories::numeric, v.protein::numeric, v.carbs::numeric, v.fat::numeric, true, true, false
+    v.prep, v.cook, v.servings,
+    CASE WHEN nutrition_required THEN coalesce(v.calories::numeric, 0) ELSE v.calories::numeric END,
+    CASE WHEN nutrition_required THEN coalesce(v.protein::numeric, 0) ELSE v.protein::numeric END,
+    CASE WHEN nutrition_required THEN coalesce(v.carbs::numeric, 0) ELSE v.carbs::numeric END,
+    CASE WHEN nutrition_required THEN coalesce(v.fat::numeric, 0) ELSE v.fat::numeric END,
+    true, true, false
   FROM (VALUES
     ('Shakshuka', 'shakshuka', 'Eggs gently poached in a spiced tomato and pepper sauce — perfect with warm bread.', 'Middle Eastern', 'Breakfast', 'Easy', 10, 20, 4, 280, 15, 14, 18),
     ('Ful Medames', 'ful-medames', 'Egypt’s beloved breakfast of warm fava beans with garlic, lemon, cumin and olive oil.', 'Egyptian', 'Breakfast', 'Easy', 5, 10, 4, 260, 13, 30, 9),
@@ -1636,7 +1646,7 @@ BEGIN
   SELECT x.recipe_id, x.ingredient_id, x.qty, x.unit, x.ord FROM (
     SELECT (SELECT id FROM public.recipes WHERE lower(name) = lower(v.recipe) LIMIT 1) AS recipe_id,
            (SELECT id FROM public.ingredients i WHERE lower(i.name) = lower(v.ingredient) LIMIT 1) AS ingredient_id,
-           v.qty::numeric AS qty, v.unit, v.ord
+           CASE WHEN qty_required THEN coalesce(v.qty::numeric, 0) ELSE v.qty::numeric END AS qty, v.unit, v.ord
     FROM (VALUES
     ('Shakshuka', 'olive oil', 2, 'tbsp', 1),
     ('Shakshuka', 'onion', 1, 'pieces', 2),

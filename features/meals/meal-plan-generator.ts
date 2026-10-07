@@ -177,7 +177,7 @@ function toMockMeal(recipe: RecipeRow, type: string, householdSize: number): Moc
   const ingredients: MealIngredient[] = recipe.recipe_ingredients
     .map((ri) => ({
       name: ri.ingredient?.name ?? '',
-      quantity: ri.quantity != null ? String(ri.quantity) : '',
+      quantity: ri.quantity != null && Number(ri.quantity) > 0 ? String(ri.quantity) : '',
       unit: ri.unit ?? '',
     }))
     .filter((i) => i.name);

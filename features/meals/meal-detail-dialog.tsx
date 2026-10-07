@@ -439,7 +439,7 @@ export function MealDetailDialog({
     )
     .map((ri) => ({
       name: ri.ingredient?.name ?? '',
-      quantity: ri.quantity != null ? String(ri.quantity) : '',
+      quantity: ri.quantity != null && Number(ri.quantity) > 0 ? String(ri.quantity) : '',
       unit: ri.unit ?? '',
       optional: ri.optional ?? false,
       notes: ri.notes ?? '',

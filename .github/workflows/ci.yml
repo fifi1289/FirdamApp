@@ -104,7 +104,11 @@ jobs:
           HP=$!
           sleep 5
           start=$(date +%s)
-          body=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000")
+          if ! body=$(curl -sf --max-time 90 "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000"); then
+            resp=$(curl -s --max-time 90 "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000" | head -c 300)
+            echo "::error title=halal-places Ottawa::$resp | $(tail -n 5 hp.log | tr '\n' ' ')"
+            exit 1
+          fi
           echo "::notice title=halal-places Ottawa timing::$(( $(date +%s) - start ))s"
           count=$(echo "$body" | jq '.places | length')
           sample=$(echo "$body" | jq -r '[.places[] | "\(.category): \(.name)"] | .[0:6] | join("; ")')

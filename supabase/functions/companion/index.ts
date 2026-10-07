@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import { countUsageToday, getPlan, getUser, recordUsage, FREE_COMPANION_MESSAGES_PER_DAY } from "../_shared/plan.ts";
 
 /**
@@ -24,7 +25,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4o-mini";
 const MAX_HISTORY = 16;
 const MAX_TOOL_ROUNDS = 3;
@@ -457,17 +457,16 @@ Deno.serve(async (req: Request) => {
     const actions: { type: string; summary: string }[] = [];
 
     for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-      const res = await fetch(OPENAI_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: MODEL,
-          messages,
-          temperature: 0.5,
-          tools: round < MAX_TOOL_ROUNDS ? TOOLS : undefined,
-        }),
+      const res = await fetchOpenAI(apiKey, {
+        model: MODEL,
+        messages,
+        temperature: 0.5,
+        tools: round < MAX_TOOL_ROUNDS ? TOOLS : undefined,
       });
-      if (!res.ok) return json({ error: `AI request failed (${res.status}).` }, 502);
+      if (!res.ok) {
+        const fail = await describeOpenAIFailure(res);
+        return json({ error: fail.message, code: fail.code }, fail.status);
+      }
       const data = (await res.json()) as { choices?: { message?: ChatMessage }[] };
       const msg = data.choices?.[0]?.message;
       if (!msg) return json({ error: "Empty AI response." }, 502);

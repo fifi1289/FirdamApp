@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,7 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4o-mini";
 
 interface PlannerRecipe {
@@ -171,13 +171,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const openaiRes = await fetch(OPENAI_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
+    const openaiRes = await fetchOpenAI(apiKey, {
         model: MODEL,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
@@ -185,18 +179,14 @@ Deno.serve(async (req: Request) => {
         ],
         temperature: 0.8,
         response_format: { type: "json_object" },
-      }),
-    });
+      });
 
     if (!openaiRes.ok) {
-      const errText = await openaiRes.text();
-      return new Response(
-        JSON.stringify({
-          error: `OpenAI request failed (${openaiRes.status}).`,
-          details: errText,
-        }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      const fail = await describeOpenAIFailure(openaiRes);
+      return new Response(JSON.stringify({ error: fail.message, code: fail.code }), {
+        status: fail.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const openaiJson = (await openaiRes.json()) as {

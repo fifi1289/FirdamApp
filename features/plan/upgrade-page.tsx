@@ -42,7 +42,7 @@ const FEATURES: { label: string; free: string | boolean; premium: string | boole
   { label: 'Learning goals for the family', free: '2', premium: 'Unlimited', family: 'Unlimited' },
   { label: 'Shopping lists', free: '2', premium: 'Unlimited', family: 'Unlimited' },
   { label: 'Priority support', free: false, premium: true, family: true },
-  { label: 'Shared family workspace', free: false, premium: false, family: 'Coming soon' },
+  { label: 'Shared household — up to 8 people', free: false, premium: false, family: true },
 ];
 
 function Cell({ value }: { value: string | boolean }) {

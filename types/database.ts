@@ -1303,6 +1303,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      households: {
+        Row: { id: string; name: string; owner_id: string; created_at: string };
+        Insert: { id?: string; name: string; owner_id: string };
+        Update: { name?: string };
+        Relationships: [];
+      };
+      household_members: {
+        Row: {
+          household_id: string;
+          user_id: string;
+          role: 'owner' | 'member';
+          display_name: string | null;
+          joined_at: string;
+        };
+        Insert: { household_id: string; user_id: string; role?: 'owner' | 'member'; display_name?: string | null };
+        Update: { display_name?: string | null };
+        Relationships: [];
+      };
+      household_invites: {
+        Row: {
+          id: string;
+          household_id: string;
+          email: string;
+          token: string;
+          invited_by: string;
+          status: 'pending' | 'accepted' | 'revoked';
+          created_at: string;
+          expires_at: string;
+        };
+        Insert: { household_id: string; email: string; invited_by?: string };
+        Update: { status?: 'pending' | 'accepted' | 'revoked' };
+        Relationships: [];
+      };
       event_rsvps: {
         Row: { event_id: string; user_id: string; status: 'going' | 'interested'; created_at: string };
         Insert: { event_id: string; user_id?: string; status?: 'going' | 'interested' };
@@ -1318,6 +1351,15 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      my_household_id: { Args: Record<string, never>; Returns: string | null };
+      create_household: { Args: { household_name: string }; Returns: string };
+      accept_household_invite: { Args: { invite_token: string }; Returns: string };
+      leave_household: { Args: Record<string, never>; Returns: undefined };
+      remove_household_member: { Args: { member: string }; Returns: undefined };
+      household_invite_preview: {
+        Args: { invite_token: string };
+        Returns: { household_name: string; invited_by_name: string | null; email: string; valid: boolean }[];
+      };
       event_rsvp_counts: {
         Args: { ids: string[] };
         Returns: { event_id: string; going: number; interested: number }[];
@@ -1347,6 +1389,9 @@ export type PlannerGoal = Database['public']['Tables']['planner_goals']['Row'];
 export type PantryItem = Database['public']['Tables']['pantry_items']['Row'];
 export type FamilyMember = Database['public']['Tables']['family_members']['Row'];
 export type MealPreference = Database['public']['Tables']['meal_preferences']['Row'];
+export type Household = Database['public']['Tables']['households']['Row'];
+export type HouseholdMember = Database['public']['Tables']['household_members']['Row'];
+export type HouseholdInvite = Database['public']['Tables']['household_invites']['Row'];
 export type MealPlanRecord = Database['public']['Tables']['meal_plans']['Row'];
 
 export type TaskPriority = 'high' | 'medium' | 'low';

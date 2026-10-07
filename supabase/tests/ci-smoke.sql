@@ -143,4 +143,96 @@ DO $$ BEGIN
 END $$;
 RESET ROLE;
 
+-- Shared households (Family+)
+INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-000000000004', 'c@example.com');
+INSERT INTO public.subscriptions (user_id, plan, status) VALUES ('00000000-0000-0000-0000-000000000001', 'family', 'active');
+SET ROLE authenticated;
+-- Free users cannot create a household.
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
+DO $$ BEGIN
+  BEGIN
+    PERFORM public.create_household('Sneaky');
+    RAISE EXCEPTION 'free user created a household';
+  EXCEPTION WHEN raise_exception THEN
+    IF SQLERRM = 'free user created a household' THEN RAISE; END IF;
+  END;
+END $$;
+-- Nor share their items into someone else's household directly.
+DO $$ BEGIN
+  BEGIN
+    PERFORM public.share_my_items(gen_random_uuid());
+    RAISE EXCEPTION 'share_my_items callable by users';
+  EXCEPTION WHEN insufficient_privilege OR raise_exception THEN
+    IF SQLERRM = 'share_my_items callable by users' THEN RAISE; END IF;
+  END;
+END $$;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+SELECT public.create_household('The Test family');
+INSERT INTO public.household_invites (household_id, email)
+  SELECT id, 'b@example.com' FROM public.households;
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.household_members) <> 1 THEN RAISE EXCEPTION 'owner not a member'; END IF;
+  IF (SELECT count(*) FROM public.grocery_lists WHERE household_id IS NOT NULL) <> 1 THEN RAISE EXCEPTION 'items not shared on create'; END IF;
+END $$;
+-- New items are shared automatically.
+INSERT INTO public.planner_tasks (title, scheduled_date) VALUES ('Collect Eid gifts', '2027-03-09');
+RESET ROLE;
+CREATE TEMP TABLE invite_token AS SELECT token FROM public.household_invites LIMIT 1;
+GRANT SELECT ON invite_token TO authenticated;
+SET ROLE authenticated;
+-- Wrong account cannot use the invite.
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000004';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.households) <> 0 THEN RAISE EXCEPTION 'household visible to outsider'; END IF;
+  IF (SELECT count(*) FROM public.household_invites) <> 0 THEN RAISE EXCEPTION 'invites visible to outsider'; END IF;
+  BEGIN
+    PERFORM public.accept_household_invite((SELECT token FROM invite_token));
+    RAISE EXCEPTION 'invite accepted by wrong email';
+  EXCEPTION WHEN raise_exception THEN
+    IF SQLERRM = 'invite accepted by wrong email' THEN RAISE; END IF;
+  END;
+END $$;
+-- Invited user joins and sees the family's shared items, not private ones.
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
+DO $$ BEGIN
+  IF NOT (SELECT valid FROM public.household_invite_preview((SELECT token FROM invite_token))) THEN
+    RAISE EXCEPTION 'invite preview invalid';
+  END IF;
+END $$;
+SELECT public.accept_household_invite((SELECT token FROM invite_token));
+INSERT INTO public.grocery_items (list_id, name) SELECT id, 'Milk' FROM public.grocery_lists LIMIT 1;
+UPDATE public.family_events SET user_id = '00000000-0000-0000-0000-000000000002', title = 'Eid lunch at home';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.household_members) <> 2 THEN RAISE EXCEPTION 'join failed'; END IF;
+  IF (SELECT count(*) FROM public.grocery_lists) <> 1 THEN RAISE EXCEPTION 'shared list not visible'; END IF;
+  IF (SELECT count(*) FROM public.grocery_items) <> 2 THEN RAISE EXCEPTION 'shared items not visible'; END IF;
+  IF (SELECT count(*) FROM public.planner_tasks) <> 1 THEN RAISE EXCEPTION 'shared task not visible'; END IF;
+  IF (SELECT count(*) FROM public.budget_transactions) <> 0 THEN RAISE EXCEPTION 'budget leaked to household'; END IF;
+  IF (SELECT count(*) FROM public.savings_goals) <> 0 THEN RAISE EXCEPTION 'savings leaked to household'; END IF;
+  IF (SELECT user_id FROM public.family_events LIMIT 1) <> '00000000-0000-0000-0000-000000000001' THEN
+    RAISE EXCEPTION 'member took over a shared item';
+  END IF;
+  IF (SELECT title FROM public.family_events LIMIT 1) <> 'Eid lunch at home' THEN RAISE EXCEPTION 'member could not edit shared event'; END IF;
+END $$;
+-- Rows cannot be pushed into a household you are not in.
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO public.planner_tasks (title, scheduled_date, household_id) VALUES ('Spam', '2027-01-01', gen_random_uuid());
+    RAISE EXCEPTION 'row inserted into a foreign household';
+  EXCEPTION WHEN insufficient_privilege OR foreign_key_violation THEN NULL;
+  END;
+END $$;
+-- Leaving: private again, but items on the family list stay with the family.
+SELECT public.leave_household();
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.grocery_lists) <> 0 THEN RAISE EXCEPTION 'still sees family list after leaving'; END IF;
+  IF (SELECT count(*) FROM public.planner_tasks) <> 0 THEN RAISE EXCEPTION 'still sees family tasks after leaving'; END IF;
+END $$;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.household_members) <> 1 THEN RAISE EXCEPTION 'member not removed on leave'; END IF;
+  IF (SELECT count(*) FROM public.grocery_items) <> 2 THEN RAISE EXCEPTION 'family list lost items on leave'; END IF;
+END $$;
+RESET ROLE;
+
 SELECT 'RLS smoke test passed' AS result;

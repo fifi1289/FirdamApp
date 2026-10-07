@@ -61,9 +61,16 @@ async function rest<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 /** Reads a table for this user; returns [] if the table is missing or errors. */
-async function mine<T>(table: string, userId: string, query = ""): Promise<T[]> {
+/**
+ * Rows the user can see. For shared household tables, pass the household id
+ * so items other family members added are included too.
+ */
+async function mine<T>(table: string, userId: string, query = "", householdId?: string | null): Promise<T[]> {
+  const who = householdId
+    ? `or=(user_id.eq.${encodeURIComponent(userId)},household_id.eq.${encodeURIComponent(householdId)})`
+    : `user_id=eq.${encodeURIComponent(userId)}`;
   try {
-    return await rest<T[]>(`${table}?user_id=eq.${encodeURIComponent(userId)}${query ? `&${query}` : ""}`);
+    return await rest<T[]>(`${table}?${who}${query ? `&${query}` : ""}`);
   } catch {
     return [];
   }
@@ -78,6 +85,8 @@ function addDays(iso: string, n: number): string {
 interface Ctx {
   userId: string;
   today: string;
+  /** Shared household (Family+), so new items are visible to the whole family. */
+  householdId?: string | null;
 }
 
 async function buildContext(ctx: Ctx, extras: { prayerTimes?: Record<string, string>; location?: string; timezone?: string }) {
@@ -85,6 +94,7 @@ async function buildContext(ctx: Ctx, extras: { prayerTimes?: Record<string, str
   const in7 = addDays(today, 7);
   const in30 = addDays(today, 30);
   const monthStart = `${today.slice(0, 7)}-01`;
+  const hh = ctx.householdId ?? null;
 
   const [profile, members, tasks, events, plans, pantry, groceries, categories, spend, goals, quran] = await Promise.all([
     rest<{ first_name: string | null }[]>(`profiles?id=eq.${userId}&select=first_name`).catch(() => []),
@@ -92,31 +102,37 @@ async function buildContext(ctx: Ctx, extras: { prayerTimes?: Record<string, str
       "family_members",
       userId,
       "select=first_name,relationship,birth_date",
+      hh,
     ),
     mine<{ title: string; scheduled_date: string; time: string | null; completed: boolean; priority: string }>(
       "planner_tasks",
       userId,
       `select=title,scheduled_date,time,completed,priority&scheduled_date=gte.${today}&scheduled_date=lte.${in7}&order=scheduled_date`,
+      hh,
     ),
     mine<{ title: string; kind: string; starts_on: string; start_time: string | null; repeats_yearly: boolean }>(
       "family_events",
       userId,
       "select=title,kind,starts_on,start_time,repeats_yearly",
+      hh,
     ),
     mine<{ plan_data: { weekStartDate?: string; days?: { date: string; meals: { type: string; name: string }[] }[] } }>(
       "meal_plans",
       userId,
       "select=plan_data&order=created_at.desc&limit=3",
+      hh,
     ),
     mine<{ name: string; quantity: number; unit: string; expiration_date: string | null }>(
       "pantry_items",
       userId,
       "select=name,quantity,unit,expiration_date",
+      hh,
     ),
     mine<{ name: string; quantity: number | null; unit: string | null }>(
       "grocery_items",
       userId,
       "select=name,quantity,unit&checked=eq.false",
+      hh,
     ),
     mine<{ name: string; monthly_limit: number | null }>("budget_categories", userId, "select=name,monthly_limit"),
     mine<{ amount: number; type: string }>(
@@ -275,6 +291,7 @@ const TIME_RE = /^\d{2}:\d{2}$/;
 
 async function runTool(name: string, args: Record<string, unknown>, ctx: Ctx): Promise<{ result: string; summary?: string }> {
   const { userId, today } = ctx;
+  const household_id = ctx.householdId ?? null;
   const str = (v: unknown, max = 200) => (typeof v === "string" ? v.trim().slice(0, max) : "");
   try {
     if (name === "add_task") {
@@ -286,7 +303,7 @@ async function runTool(name: string, args: Record<string, unknown>, ctx: Ctx): P
       await rest("planner_tasks", {
         method: "POST",
         headers: { Prefer: "return=minimal" },
-        body: JSON.stringify({ user_id: userId, title, scheduled_date: date, time, priority }),
+        body: JSON.stringify({ user_id: userId, household_id, title, scheduled_date: date, time, priority }),
       });
       return { result: "Task added", summary: `Added task “${title}” on ${date}${time ? ` at ${time}` : ""}` };
     }
@@ -294,20 +311,23 @@ async function runTool(name: string, args: Record<string, unknown>, ctx: Ctx): P
       const items = (Array.isArray(args.items) ? args.items : []).slice(0, 30) as Record<string, unknown>[];
       if (!items.length) return { result: "No items" };
       const lists = await rest<{ id: string }[]>(
-        `grocery_lists?user_id=eq.${userId}&select=id&order=created_at.asc&limit=1`,
+        `grocery_lists?${
+          household_id ? `or=(user_id.eq.${userId},household_id.eq.${household_id})` : `user_id=eq.${userId}`
+        }&select=id&order=created_at.asc&limit=1`,
       );
       let listId = lists[0]?.id;
       if (!listId) {
         const created = await rest<{ id: string }[]>("grocery_lists", {
           method: "POST",
           headers: { Prefer: "return=representation" },
-          body: JSON.stringify({ user_id: userId, name: "Weekly groceries" }),
+          body: JSON.stringify({ user_id: userId, household_id, name: "Weekly groceries" }),
         });
         listId = created[0]?.id;
       }
       const rows = items
         .map((i) => ({
           user_id: userId,
+          household_id,
           list_id: listId,
           name: str(i.name, 120),
           quantity: typeof i.quantity === "number" && i.quantity > 0 ? i.quantity : null,
@@ -329,7 +349,7 @@ async function runTool(name: string, args: Record<string, unknown>, ctx: Ctx): P
       await rest("family_events", {
         method: "POST",
         headers: { Prefer: "return=minimal" },
-        body: JSON.stringify({ user_id: userId, title, kind, starts_on: date, start_time: time, location: str(args.location) || null }),
+        body: JSON.stringify({ user_id: userId, household_id, title, kind, starts_on: date, start_time: time, location: str(args.location) || null }),
       });
       return { result: "Event added", summary: `Added “${title}” to the family calendar on ${date}` };
     }
@@ -420,7 +440,10 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Send a message." }, 400);
     }
 
-    const ctx: Ctx = { userId: user.id, today };
+    const membership = await rest<{ household_id: string }[]>(
+      `household_members?user_id=eq.${user.id}&select=household_id`,
+    ).catch(() => []);
+    const ctx: Ctx = { userId: user.id, today, householdId: membership[0]?.household_id ?? null };
     const familyContext = await buildContext(ctx, {
       prayerTimes: body.prayerTimes,
       location: typeof body.location === "string" ? body.location.slice(0, 120) : undefined,

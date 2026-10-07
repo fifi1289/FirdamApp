@@ -15,7 +15,9 @@ import {
 export const metadata = { title: 'Support' };
 
 /** Change this to the real support inbox before launch. */
-const SUPPORT_EMAIL = 'support@firdam.app';
+import { SITE } from '@/lib/site';
+
+const SUPPORT_EMAIL = SITE.supportEmail;
 
 const FAQ: { q: string; a: string; icon: typeof MapPin }[] = [
   {

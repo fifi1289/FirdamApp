@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { Logo } from '@/components/brand/logo';
+import { SITE } from '@/lib/site';
 
 const columns = [
   {
@@ -16,8 +17,15 @@ const columns = [
     title: 'Help',
     links: [
       { label: 'Support', href: '/support' },
-      { label: 'Contact us', href: 'mailto:support@firdam.app' },
+      { label: 'Contact us', href: `mailto:${SITE.supportEmail}` },
       { label: 'Sign in', href: '/auth/login' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Use', href: '/terms' },
     ],
   },
 ];
@@ -26,7 +34,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 bg-muted/30">
       <div className="container py-14">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2">
             <Logo height={52} />
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">

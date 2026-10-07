@@ -29,6 +29,8 @@ const SUGGESTIONS = [
   'What does our family have on this week?',
   'Suggest a quick halal dinner using what’s in my pantry',
   'Add dates, milk and lamb mince to my shopping list',
+  'We used 3 potatoes and half the chicken tonight',
+  'We cooked Chicken Karahi — update the pantry',
   'Remind me to call the masjid about Jumu’ah on Friday at 10:00',
   'How are we doing on our budget this month?',
   'Help me plan a simple Eid lunch for 8 people',

@@ -30,13 +30,15 @@ function inline(file, taken, seen) {
     const target = resolve(dirname(file), spec);
     if (seen.has(target)) return '';
     seen.add(target);
-    let mod = inline(target, taken, seen);
+    const inner = inline(target, taken, seen);
+    // A shared module can itself import another shared module: put that one first.
+    let mod = typeof inner === 'string' ? inner : `${inner.parts.join('\n')}\n${inner.code}`;
     mod = mod.replace(RUNTIME_IMPORT, '').replace(/^export\s+(?=(async\s+)?(function|const|let|var|class|interface|type)\b)/gm, '');
-    // Rename this module's top-level names that clash with names already used.
+    // Rename this module's top-level names that clash with the function's own names
+    // (shared modules are written not to clash with each other).
     for (const name of declaredNames(mod)) {
       if (taken.has(name)) mod = mod.replace(new RegExp(`(?<![\\w$.])${name.replace('$', '\\$')}(?![\\w$])`, 'g'), `${name}_shared`);
     }
-    for (const name of declaredNames(mod)) taken.add(name);
     parts.push(`// ── inlined from ${spec.replace(/^\.\.\//, 'supabase/functions/').replace(/^\.\//, '')} ──\n${mod.trim()}\n`);
     return '';
   });

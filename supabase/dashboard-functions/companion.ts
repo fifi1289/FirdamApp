@@ -79,6 +79,468 @@ async function describeOpenAIFailure(res: Response): Promise<OpenAIFailure> {
   return { status: 502, code: "ai_error", message: "The AI couldn't answer just now. Please try again." };
 }
 
+// ── inlined from supabase/functions/_shared/pantry-engine.ts ──
+// ── inlined from pantry-units.ts ──
+/**
+ * Ingredient names and amounts: matching a recipe's "chicken thighs" to the
+ * pantry's "Chicken", and converting between grams, millilitres and pieces
+ * (1 potato ≈ 200 g, 1 cup rice ≈ 190 g) so recipes and pantry can be compared.
+ */
+
+type Base = 'g' | 'ml' | 'pc';
+
+// ── Names ────────────────────────────────────────────────────────────
+
+/** Words that describe preparation or quality, not what the food is. */
+const DESCRIPTORS = new Set([
+  'fresh', 'freshly', 'dried', 'dry', 'chopped', 'sliced', 'diced', 'minced', 'grated', 'crushed', 'mashed', 'ground',
+  'whole', 'plain', 'unsalted', 'salted', 'large', 'small', 'medium', 'ripe', 'boneless', 'skinless', 'skin-on',
+  'bone-in', 'warm', 'cold', 'hot', 'cooked', 'uncooked', 'raw', 'frozen', 'canned', 'tinned', 'drained', 'rinsed',
+  'peeled', 'pitted', 'extra', 'virgin', 'light', 'dark', 'fine', 'finely', 'coarse', 'roughly', 'thinly', 'thick',
+  'organic', 'halal', 'good', 'quality', 'free-range', 'lean', 'full-fat', 'low-fat', 'shredded', 'toasted', 'roasted',
+  'boiled', 'soft', 'hard', 'baby', 'young', 'mixed', 'assorted', 'of', 'and', 'or', 'the', 'a', 'for', 'to', 'serve',
+  'serving', 'garnish', 'optional', 'room', 'temperature', 'store-bought', 'homemade', 'ready-made', 'pieces', 'piece',
+]);
+
+const SYNONYMS: Record<string, string> = {
+  chiken: 'chicken', aubergine: 'eggplant', courgette: 'zucchini', coriander: 'cilantro', capsicum: 'bell pepper',
+  yoghurt: 'yogurt', mince: 'minced meat', prawn: 'shrimp', chilli: 'chili', chile: 'chili', chillies: 'chili',
+  chilies: 'chili', scallion: 'spring onion', 'green onion': 'spring onion', garbanzo: 'chickpea', 'icing sugar': 'sugar',
+  'caster sugar': 'sugar', 'granulated sugar': 'sugar', 'white sugar': 'sugar', 'brown sugar': 'sugar',
+  'all-purpose flour': 'flour', 'plain flour': 'flour', 'self-raising flour': 'flour', 'bread flour': 'flour',
+  'sunflower oil': 'oil', 'vegetable oil': 'oil', 'canola oil': 'oil', 'rapeseed oil': 'oil', 'cooking oil': 'oil',
+  'olive oil': 'olive oil', 'whole milk': 'milk', 'semi-skimmed milk': 'milk', 'skimmed milk': 'milk',
+};
+
+function singular(word: string): string {
+  if (word.length <= 3) return word;
+  if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
+  if (/(tomato|potato|mango)es$/.test(word)) return word.slice(0, -2);
+  if (word.endsWith('ves')) return word.slice(0, -3) + 'f';
+  if (word.endsWith('ses') || word.endsWith('xes') || word.endsWith('ches') || word.endsWith('shes')) return word.slice(0, -2);
+  if (word.endsWith('s') && !word.endsWith('ss') && !word.endsWith('us')) return word.slice(0, -1);
+  return word;
+}
+
+/** "Boneless chicken thighs" → "chicken thigh"; "Plain flour" → "flour". */
+function ingredientKey(name: string): string {
+  let s = name.toLowerCase().replace(/\(.*?\)/g, ' ').replace(/[’']/g, '').replace(/[^a-z\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (SYNONYMS[s]) return SYNONYMS[s]!;
+  const words = s
+    .split(' ')
+    .map((w) => SYNONYMS[w] ?? w)
+    .join(' ')
+    .split(' ')
+    .filter((w) => w && !DESCRIPTORS.has(w))
+    .map(singular);
+  s = words.join(' ').trim();
+  return SYNONYMS[s] ?? s;
+}
+
+const PROTEINS = ['chicken', 'beef', 'lamb', 'mutton', 'goat', 'veal', 'turkey', 'fish', 'salmon', 'tuna', 'shrimp'];
+
+/**
+ * How well a pantry item covers a recipe ingredient (0 = not at all).
+ * 3 = same food, 2 = pantry name is a broader word ("chicken" covers
+ * "chicken thigh"), 1 = same meat, different cut ("chicken breast" for "chicken thigh").
+ */
+function matchScore(pantryName: string, ingredientName: string): number {
+  const p = ingredientKey(pantryName);
+  const n = ingredientKey(ingredientName);
+  if (!p || !n) return 0;
+  if (p === n) return 3;
+  const pw = p.split(' ');
+  const nw = n.split(' ');
+  if (pw.every((w) => nw.includes(w))) {
+    // "oil" shouldn't cover "olive oil"… but does cover "vegetable oil" (already "oil").
+    if (p === 'oil' && n.includes('olive')) return 1;
+    return 2;
+  }
+  if (nw.every((w) => pw.includes(w)) && nw.length >= 1 && !/^(oil|sugar|flour|rice|milk)$/.test(n)) return 2;
+  const protein = PROTEINS.find((x) => pw.includes(x) && nw.includes(x));
+  if (protein) return 1;
+  return 0;
+}
+
+// ── Always-available basics ──────────────────────────────────────────
+
+const BASIC_RE =
+  /\b(salt|water|ice|cumin|paprika|turmeric|cinnamon|cardamom|clove|nutmeg|chili flake|chili powder|cayenne|garam masala|curry powder|baharat|sumac|zaatar|ras el hanout|allspice|bay leaf|oregano|thyme|black pepper|white pepper|peppercorn|saffron|ginger powder|mixed spice|seven spice|stock cube|bouillon|baking powder|baking soda|bicarbonate|vanilla powder|vinegar|yeast|coriander seed|fennel seed|mustard seed|nigella|fenugreek|dried mint|dried lime|berbere|five spice|spice)\b/;
+
+/** Salt, water and dried spices: assumed in every kitchen, never "missing" or deducted. */
+function isBasic(name: string): boolean {
+  const n = ingredientKey(name).replace(/-/g, ' ');
+  const raw = name.toLowerCase();
+  return BASIC_RE.test(n) || /\bground\b/.test(raw) && !/\b(beef|lamb|meat|chicken|turkey|almond)\b/.test(raw);
+}
+
+// ── Amounts ──────────────────────────────────────────────────────────
+
+const MASS: Record<string, number> = { g: 1, gram: 1, grams: 1, kg: 1000, kilo: 1000, oz: 28.35, lb: 453.6, lbs: 453.6 };
+const VOLUME: Record<string, number> = {
+  ml: 1, l: 1000, litre: 1000, liter: 1000, tsp: 5, teaspoon: 5, tbsp: 15, tablespoon: 15, cup: 240, cups: 240,
+};
+const COUNT = new Set(['pieces', 'piece', 'pc', 'pcs', 'cloves', 'clove', 'slices', 'slice', 'whole', 'can', 'cans', 'tin']);
+
+/** Units that only say "some" (we can't measure a pinch or a handful). */
+const PRESENCE_ONLY = new Set(['pinch', 'handful', 'bunch', 'to taste', 'pack', 'bottle', 'box', 'bag', 'jar', 'sprig', '']);
+
+/** Typical weight of one piece, by key word (last match wins for specificity). */
+const PIECE_GRAMS: [RegExp, number][] = [
+  [/potato/, 200], [/sweet potato/, 250], [/onion/, 150], [/red onion/, 150], [/shallot/, 30], [/spring onion/, 15],
+  [/tomato/, 120], [/cherry tomato/, 15], [/garlic/, 5], [/lemon/, 100], [/lime/, 60], [/orange/, 180],
+  [/carrot/, 70], [/bell pepper|red pepper|green pepper|yellow pepper/, 150], [/chili|chilli|jalapeno|scotch bonnet/, 15],
+  [/cucumber/, 300], [/eggplant/, 300], [/zucchini/, 200], [/apple/, 180], [/banana/, 120], [/avocado/, 170],
+  [/mango/, 300], [/egg\b/, 55], [/chicken breast/, 200], [/chicken thigh/, 120], [/chicken drumstick|drumstick/, 110],
+  [/chicken wing/, 90], [/whole chicken/, 1500], [/pita|pitta|flatbread|naan|tortilla|wrap|roti|chapati/, 70],
+  [/bread roll|bun/, 60], [/date/, 8], [/fig/, 50], [/okra/, 12], [/cabbage/, 900], [/cauliflower/, 600],
+  [/broccoli/, 350], [/lettuce/, 400], [/mushroom/, 20], [/plantain/, 250], [/pear/, 180], [/peach/, 150],
+  [/beetroot|beet/, 150], [/turnip/, 150], [/leek/, 200], [/celery/, 40], [/ginger/, 30], [/cinnamon stick/, 3],
+  [/cardamom pod/, 0.3], [/lemongrass/, 20], [/can|tin/, 400],
+];
+
+/** Grams per millilitre, for converting cups/spoons of dry foods to weight. */
+const DENSITY: [RegExp, number][] = [
+  [/rice/, 0.8], [/flour|semolina|cornflour|cornstarch/, 0.55], [/sugar/, 0.85], [/oil|ghee/, 0.92],
+  [/butter/, 0.96], [/milk|yogurt|cream|labneh/, 1.03], [/honey|molasses|syrup/, 1.4], [/lentil|split pea/, 0.8],
+  [/chickpea|bean/, 0.75], [/bulgur|couscous|freekeh|quinoa/, 0.75], [/oat/, 0.4], [/pasta|noodle|vermicelli|orzo/, 0.45],
+  [/nut|almond|walnut|pistachio|cashew|peanut/, 0.6], [/raisin|date/, 0.65], [/coconut/, 0.35], [/cheese/, 0.45],
+  [/tomato paste|tomato puree|tahini|paste/, 1.1], [/water|juice|stock|broth|vinegar|sauce/, 1.0],
+];
+
+function lookup(table: [RegExp, number][], name: string): number | null {
+  const n = ingredientKey(name);
+  let found: number | null = null;
+  for (const [re, v] of table) if (re.test(n)) found = v;
+  return found;
+}
+
+const gramsPerPiece = (name: string) => lookup(PIECE_GRAMS, name);
+const density = (name: string) => lookup(DENSITY, name);
+
+function normUnit(unit: string | null | undefined): string {
+  return (unit ?? '').toLowerCase().trim();
+}
+
+/** True when an amount in this unit can't really be measured (a pinch, a bunch, a pack). */
+function isPresenceOnly(unit: string | null | undefined, quantity: number | null | undefined): boolean {
+  const u = normUnit(unit);
+  return quantity == null || quantity <= 0 || PRESENCE_ONLY.has(u) || (!MASS[u] && !VOLUME[u] && !COUNT.has(u));
+}
+
+/** Amount in its natural base (g, ml or pieces), or null if it can't be measured. */
+function toBase(quantity: number | null | undefined, unit: string | null | undefined, name: string): { amount: number; base: Base } | null {
+  if (isPresenceOnly(unit, quantity)) return null;
+  const u = normUnit(unit);
+  if (MASS[u]) return { amount: quantity! * MASS[u]!, base: 'g' };
+  if (VOLUME[u]) return { amount: quantity! * VOLUME[u]!, base: 'ml' };
+  if (u === 'can' || u === 'cans' || u === 'tin') return { amount: quantity! * 400, base: 'g' };
+  return { amount: quantity!, base: 'pc' };
+}
+
+/** Converts between g, ml and pieces for a given food. Null when we don't know how. */
+function convertBase(amount: number, from: Base, to: Base, name: string): number | null {
+  if (from === to) return amount;
+  const d = density(name);
+  const p = gramsPerPiece(name);
+  const toGrams = (a: number, b: Base): number | null => (b === 'g' ? a : b === 'ml' ? (d ? a * d : null) : p ? a * p : null);
+  const g = toGrams(amount, from);
+  if (g == null) return null;
+  if (to === 'g') return g;
+  if (to === 'ml') return d ? g / d : null;
+  return p ? g / p : null;
+}
+
+/** Converts an amount into a pantry item's own unit (e.g. 3 potatoes → kg). */
+function toUnit(amount: number, base: Base, unit: string, name: string): number | null {
+  const target = toBase(1, unit, name);
+  if (!target) return null;
+  const converted = convertBase(amount, base, target.base, name);
+  return converted == null ? null : converted / target.amount;
+}
+
+// ── Display ──────────────────────────────────────────────────────────
+
+const round = (n: number, step: number) => Math.round(n / step) * step;
+
+/** "1.25 kg", "800 g", "3 pieces", "2 tbsp". */
+function formatAmount(quantity: number | null | undefined, unit: string | null | undefined): string {
+  const u = normUnit(unit);
+  if (quantity == null || quantity <= 0) return u === 'to taste' ? 'to taste' : 'some';
+  if (u === 'g' && quantity >= 1000) return `${+(quantity / 1000).toFixed(2)} kg`;
+  if (u === 'ml' && quantity >= 1000) return `${+(quantity / 1000).toFixed(2)} L`;
+  const n = quantity >= 100 ? round(quantity, 5) : quantity >= 10 ? Math.round(quantity) : +quantity.toFixed(quantity < 1 ? 2 : 1);
+  if (u === 'pieces' || u === 'piece') return `${n} ${n === 1 ? 'piece' : 'pieces'}`;
+  if (!u) return String(n);
+  return `${n} ${u === 'l' ? 'L' : unit}`;
+}
+
+/** Picks a friendly unit for a base amount: pieces for countable foods, else g/ml. */
+function friendly(amount: number, base: Base, name: string): { quantity: number; unit: string } {
+  if (base === 'pc') return { quantity: Math.ceil(amount - 0.05), unit: 'pieces' };
+  const p = gramsPerPiece(name);
+  if (p && p >= 30) {
+    const grams = base === 'g' ? amount : convertBase(amount, base, 'g', name);
+    if (grams != null) return { quantity: Math.max(1, Math.ceil(grams / p - 0.15)), unit: 'pieces' };
+  }
+  if (base === 'g') return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'kg' } : { quantity: Math.ceil(amount / 10) * 10 || amount, unit: 'g' };
+  return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'L' } : { quantity: Math.ceil(amount / 10) * 10 || amount, unit: 'ml' };
+}
+
+/**
+ * Compares what recipes need with what's in the pantry — with real amounts,
+ * scaled to the family's portions — and works out what to take out of the
+ * pantry after cooking.
+ */
+
+type Level = 'full' | 'half' | 'low' | 'out';
+
+interface PantryLike {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  tracking?: 'count' | 'level' | null;
+  level?: Level | null;
+  expiration_date?: string | null;
+}
+
+interface Need {
+  name: string;
+  quantity: number | null;
+  unit: string;
+  optional?: boolean;
+}
+
+type LineStatus =
+  | 'basic' // salt, water, spices — assumed
+  | 'optional'
+  | 'enough'
+  | 'have-some' // you have it; amount can't be compared (a bunch, a pack)
+  | 'staple' // tracked by level (rice, flour…) and not out
+  | 'staple-low'
+  | 'short' // you have some, not enough
+  | 'missing';
+
+interface Line {
+  need: Need;
+  /** Amount needed after scaling to portions (in the recipe's unit). */
+  scaled: number | null;
+  item: PantryLike | null;
+  status: LineStatus;
+  /** How much to take from the pantry item, in the item's unit (count-tracked items only). */
+  use: number | null;
+  /** What to buy, in a friendly unit. */
+  shortfall: { name: string; quantity: number | null; unit: string } | null;
+  neededText: string;
+  haveText: string;
+}
+
+interface RecipeCheck {
+  lines: Line[];
+  shortCount: number;
+  missingCount: number;
+  /** ready = cook now; almost = a few things short/missing; far = mostly missing. */
+  verdict: 'ready' | 'almost' | 'far';
+}
+
+/** Tracks what's left of each pantry item while planning several meals. */
+class Ledger {
+  private left = new Map<string, number>();
+  constructor(pantry: PantryLike[]) {
+    for (const p of pantry) this.left.set(p.id, Number(p.quantity) || 0);
+  }
+  get(item: PantryLike) {
+    return this.left.get(item.id) ?? (Number(item.quantity) || 0);
+  }
+  take(item: PantryLike, amount: number) {
+    this.left.set(item.id, Math.max(0, this.get(item) - amount));
+  }
+}
+
+function available(item: PantryLike, ledger: Ledger): boolean {
+  if (item.tracking === 'level') return item.level !== 'out';
+  return ledger.get(item) > 0;
+}
+
+function bestItem(name: string, pantry: PantryLike[], ledger: Ledger): PantryLike | null {
+  let best: PantryLike | null = null;
+  let bestScore = 0;
+  for (const p of pantry) {
+    if (!available(p, ledger)) continue;
+    const s = matchScore(p.name, name);
+    if (s > bestScore) {
+      best = p;
+      bestScore = s;
+    }
+  }
+  return best;
+}
+
+function shortfallFor(need: Need, scaled: number | null, missingInNeedUnit: number | null) {
+  if (missingInNeedUnit == null || scaled == null) return { name: need.name, quantity: null, unit: '' };
+  const base = toBase(missingInNeedUnit, need.unit, need.name);
+  if (!base) return { name: need.name, quantity: null, unit: '' };
+  const f = friendly(base.amount, base.base, need.name);
+  return { name: need.name, quantity: f.quantity, unit: f.unit };
+}
+
+/**
+ * Checks a recipe's ingredients against the pantry.
+ * `factor` scales the recipe (family portions ÷ recipe servings).
+ * With `commit`, amounts used are taken from the ledger (for weekly plans).
+ */
+function checkNeeds(
+  needs: Need[],
+  pantry: PantryLike[],
+  opts: { factor?: number; ledger?: Ledger; commit?: boolean } = {}
+): RecipeCheck {
+  const factor = opts.factor ?? 1;
+  const ledger = opts.ledger ?? new Ledger(pantry);
+  const lines: Line[] = needs.map((need) => {
+    const scaled = need.quantity != null && need.quantity > 0 ? need.quantity * factor : null;
+    const countable = /^(pieces?|cloves?|slices?)$/i.test(need.unit.trim());
+    const neededText = formatAmount(countable && scaled != null ? Math.ceil(scaled * 2 - 0.2) / 2 : scaled, need.unit);
+    const base: Omit<Line, 'status'> = { need, scaled, item: null, use: null, shortfall: null, neededText, haveText: '' };
+
+    if (need.optional) return { ...base, status: 'optional' };
+    if (isBasic(need.name)) return { ...base, status: 'basic' };
+
+    const item = bestItem(need.name, pantry, ledger);
+    if (!item) return { ...base, status: 'missing', shortfall: shortfallFor(need, scaled, scaled), haveText: 'none' };
+
+    if (item.tracking === 'level') {
+      return {
+        ...base,
+        item,
+        status: item.level === 'low' ? 'staple-low' : 'staple',
+        haveText: item.level === 'low' ? 'running low' : item.level === 'half' ? 'half left' : 'plenty',
+      };
+    }
+
+    const have = ledger.get(item);
+    const haveText = formatAmount(have, item.unit);
+    const needBase = toBase(scaled, need.unit, need.name);
+    if (!needBase || isPresenceOnly(item.unit, have)) return { ...base, item, status: 'have-some', haveText };
+
+    const needInItemUnit = toUnit(needBase.amount, needBase.base, item.unit, need.name) ?? toUnit(needBase.amount, needBase.base, item.unit, item.name);
+    if (needInItemUnit == null) return { ...base, item, status: 'have-some', haveText };
+
+    if (have >= needInItemUnit * 0.97) {
+      if (opts.commit) ledger.take(item, needInItemUnit);
+      return { ...base, item, status: 'enough', use: needInItemUnit, haveText };
+    }
+    // Not enough: use what there is, buy the rest.
+    const itemBase = toBase(needInItemUnit - have, item.unit, item.name);
+    const missingNeedUnit =
+      itemBase && scaled != null
+        ? (() => {
+            const inNeedBase = convertBase(itemBase.amount, itemBase.base, needBase.base, need.name);
+            const perUnit = toBase(1, need.unit, need.name);
+            return inNeedBase != null && perUnit ? inNeedBase / perUnit.amount : null;
+          })()
+        : null;
+    if (opts.commit) ledger.take(item, have);
+    return {
+      ...base,
+      item,
+      status: 'short',
+      use: have,
+      haveText,
+      shortfall: shortfallFor(need, scaled, missingNeedUnit ?? scaled),
+    };
+  });
+
+  const counted = lines.filter((l) => l.status !== 'basic' && l.status !== 'optional');
+  const missingCount = counted.filter((l) => l.status === 'missing').length;
+  const shortCount = counted.filter((l) => l.status === 'short').length;
+  const gaps = missingCount + shortCount;
+  const verdict: RecipeCheck['verdict'] =
+    gaps === 0 ? 'ready' : gaps <= Math.max(2, Math.ceil(counted.length * 0.35)) ? 'almost' : 'far';
+  return { lines, shortCount, missingCount, verdict };
+}
+
+interface Deduction {
+  item: PantryLike;
+  /** Amount taken, in the item's unit. */
+  use: number;
+  newQuantity: number;
+}
+
+/** What cooking this recipe takes out of the pantry (count-tracked items only). */
+function deductionsFor(check: RecipeCheck): Deduction[] {
+  const byItem = new Map<string, Deduction>();
+  for (const l of check.lines) {
+    if (!l.item || l.use == null || l.use <= 0 || l.item.tracking === 'level') continue;
+    const prev = byItem.get(l.item.id);
+    const use = (prev?.use ?? 0) + l.use;
+    const q = Number(l.item.quantity) || 0;
+    byItem.set(l.item.id, { item: l.item, use: Math.min(use, q), newQuantity: Math.max(0, +(q - use).toFixed(3)) });
+  }
+  return Array.from(byItem.values());
+}
+
+/** Merges shortfalls of the same food across several recipes. */
+function mergeShortfalls(lists: { name: string; quantity: number | null; unit: string }[][]) {
+  const out = new Map<string, { name: string; quantity: number | null; unit: string }>();
+  for (const list of lists) {
+    for (const s of list) {
+      const key = `${s.name.toLowerCase()}|${s.unit}`;
+      const prev = out.get(key);
+      if (prev && prev.quantity != null && s.quantity != null) prev.quantity = +(prev.quantity + s.quantity).toFixed(2);
+      else if (!prev) out.set(key, { ...s });
+    }
+  }
+  return Array.from(out.values());
+}
+
+// ── inlined from supabase/functions/_shared/pantry-portions.ts ──
+/** Family portions: adult (13+) = 1, child 6–12 = ¾, under 6 = ½. Shared by the app and the Companion. */
+
+interface MemberLike {
+  birth_date: string | null;
+  relationship: string;
+}
+
+function portionFor(member: MemberLike): number {
+  if (member.birth_date) {
+    const born = new Date(member.birth_date);
+    if (!Number.isNaN(born.getTime())) {
+      const age = (Date.now() - born.getTime()) / (365.25 * 24 * 3600 * 1000);
+      if (age < 6) return 0.5;
+      if (age < 13) return 0.75;
+      return 1;
+    }
+  }
+  // No birth date: assume children are school-age, everyone else an adult.
+  return member.relationship === 'Son' || member.relationship === 'Daughter' ? 0.75 : 1;
+}
+
+interface Household {
+  /** Total portions to cook for, rounded to ¼. */
+  portions: number;
+  people: number;
+  children: number;
+}
+
+function householdFrom(members: MemberLike[]): Household {
+  // The account holder counts too, unless they've added themselves as "Self".
+  const hasSelf = members.some((m) => m.relationship === 'Self');
+  const raw = (hasSelf ? 0 : 1) + members.reduce((sum, m) => sum + portionFor(m), 0);
+  return {
+    portions: Math.max(1, Math.round(raw * 4) / 4),
+    people: members.length + (hasSelf ? 0 : 1),
+    children: members.filter((m) => portionFor(m) < 1).length,
+  };
+}
+
+function formatPortions(p: number): string {
+  const whole = Math.floor(p);
+  const frac = p - whole;
+  const f = frac === 0.25 ? '¼' : frac === 0.5 ? '½' : frac === 0.75 ? '¾' : '';
+  return `${whole || (f ? '' : '0')}${f}`;
+}
+
 // ── inlined from supabase/functions/_shared/plan.ts ──
 /**
  * Shared helpers for enforcing plan limits inside edge functions.
@@ -306,10 +768,10 @@ async function buildContext(ctx: Ctx, extras: { prayerTimes?: Record<string, str
       "select=plan_data&order=created_at.desc&limit=3",
       hh,
     ),
-    mine<{ name: string; quantity: number; unit: string; expiration_date: string | null }>(
+    mine<{ name: string; quantity: number; unit: string; expiration_date: string | null; tracking: string | null; level: string | null }>(
       "pantry_items",
       userId,
-      "select=name,quantity,unit,expiration_date",
+      "select=name,quantity,unit,expiration_date,tracking,level",
       hh,
     ),
     mine<{ name: string; quantity: number | null; unit: string | null }>(
@@ -374,7 +836,13 @@ async function buildContext(ctx: Ctx, extras: { prayerTimes?: Record<string, str
       ? `Family calendar, next 30 days: ${upcoming.map((e) => `${e.date} ${e.title} [${e.kind}]`).join("; ")}.`
       : "Nothing on the family calendar in the next 30 days.",
     weekMeals.length ? `Meal plan this week: ${weekMeals.join(" | ")}.` : "No meal plan for this week.",
-    pantry.length ? `Pantry (${pantry.length} items): ${pantry.slice(0, 40).map((p) => p.name).join(", ")}.` : "Pantry is empty.",
+    pantry.length
+      ? `Pantry (${pantry.length} items): ${pantry
+          .slice(0, 60)
+          .map((p) => (p.tracking === "level" ? `${p.name} (staple, ${p.level ?? "full"})` : `${p.name} ${formatAmount(Number(p.quantity), p.unit)}`))
+          .join(", ")}.`
+      : "Pantry is empty.",
+    members.length ? `Cook for about ${householdFrom(members).portions} portions (children count as ¾ or ½).` : "",
     expiringSoon.length ? `Expiring soon: ${expiringSoon.join(", ")}.` : "",
     groceries.length
       ? `Shopping list: ${groceries.slice(0, 40).map((g) => `${g.name}${g.quantity ? ` ${g.quantity}${g.unit ? ` ${g.unit}` : ""}` : ""}`).join(", ")}.`
@@ -468,7 +936,117 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "update_pantry",
+      description:
+        "Update the family pantry when the user says they used, finished, bought or are running low on food. Use amounts the user gave; for vague amounts ('some', 'half') estimate sensibly.",
+      parameters: {
+        type: "object",
+        properties: {
+          items: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                change: { type: "string", enum: ["used", "added", "finished", "low", "out", "full"] },
+                amount: { type: "number", description: "How much was used or added (omit for finished/low/out/full)" },
+                unit: { type: "string", description: "g, kg, ml, L, pieces, cups, tbsp…" },
+              },
+              required: ["name", "change"],
+            },
+          },
+        },
+        required: ["items"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "cooked_recipe",
+      description:
+        "Record that the family cooked a recipe from the Firdam library, taking its ingredients out of the pantry for the family's portions.",
+      parameters: {
+        type: "object",
+        properties: {
+          recipe: { type: "string", description: "Recipe name, e.g. Chicken Karahi" },
+          portions: { type: "number", description: "Only if the user said how many people/portions" },
+        },
+        required: ["recipe"],
+      },
+    },
+  },
 ];
+
+interface PantryRow extends PantryLike {
+  category: string;
+  notes: string | null;
+}
+
+function snapshot(p: PantryRow) {
+  const { id, name, category, quantity, unit, expiration_date, notes, tracking, level } = p;
+  return { id, name, category, quantity, unit, expiration_date, notes, tracking, level };
+}
+
+/** Applies pantry changes with history (so the family can undo them in the app). */
+async function applyPantry(
+  ctx: Ctx,
+  changes: ({ kind: "update"; item: PantryRow; patch: Record<string, unknown> } | { kind: "delete"; item: PantryRow } | { kind: "insert"; row: Record<string, unknown> })[],
+  label: string,
+): Promise<string> {
+  const batch = crypto.randomUUID();
+  const events: Record<string, unknown>[] = [];
+  const owner = { user_id: ctx.userId, household_id: ctx.householdId ?? null };
+  for (const c of changes) {
+    if (c.kind === "update") {
+      const rows = await rest<PantryRow[]>(`pantry_items?id=eq.${c.item.id}`, {
+        method: "PATCH",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify(c.patch),
+      });
+      events.push({ ...owner, batch_id: batch, source: "companion", label, pantry_item_id: c.item.id, item_name: c.item.name, before: snapshot(c.item), after: rows[0] ? snapshot(rows[0]) : null });
+    } else if (c.kind === "delete") {
+      await rest(`pantry_items?id=eq.${c.item.id}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+      events.push({ ...owner, batch_id: batch, source: "companion", label, pantry_item_id: c.item.id, item_name: c.item.name, before: snapshot(c.item), after: null });
+    } else {
+      const rows = await rest<PantryRow[]>("pantry_items", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({ ...owner, ...c.row }),
+      });
+      if (rows[0]) events.push({ ...owner, batch_id: batch, source: "companion", label, pantry_item_id: rows[0].id, item_name: rows[0].name, before: null, after: snapshot(rows[0]) });
+    }
+  }
+  if (events.length) {
+    await rest("pantry_events", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(events) }).catch(() => undefined);
+  }
+  return batch;
+}
+
+async function loadPantry(ctx: Ctx): Promise<PantryRow[]> {
+  return await mine<PantryRow>("pantry_items", ctx.userId, "select=*", ctx.householdId);
+}
+
+function bestPantryMatch(pantry: PantryRow[], name: string): PantryRow | null {
+  let best: PantryRow | null = null;
+  let score = 0;
+  for (const p of pantry) {
+    const s = matchScore(p.name, name);
+    if (s > score) {
+      best = p;
+      score = s;
+    }
+  }
+  return score >= 2 ? best : null;
+}
+
+const PANTRY_UNIT_MAP: Record<string, string> = {
+  g: "g", gram: "g", grams: "g", kg: "kg", kilo: "kg", ml: "ml", l: "L", litre: "L", liter: "L", piece: "Pieces", pieces: "Pieces",
+  pack: "Pack", bag: "Pack", bottle: "Bottle", can: "Can", tin: "Can", box: "Box",
+};
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
@@ -555,6 +1133,127 @@ async function runTool(name: string, args: Record<string, unknown>, ctx: Ctx): P
       });
       return { result: "Recorded", summary: `Recorded ${type} of ${amount.toFixed(2)}${str(args.description) ? ` (${str(args.description)})` : ""}` };
     }
+    if (name === "update_pantry") {
+      const items = (Array.isArray(args.items) ? args.items : []).slice(0, 25) as Record<string, unknown>[];
+      if (!items.length) return { result: "No items" };
+      const pantry = await loadPantry(ctx);
+      const changes: Parameters<typeof applyPantry>[1] = [];
+      const done: string[] = [];
+      for (const it of items) {
+        const itemName = str(it.name, 80);
+        const change = str(it.change);
+        const amount = typeof it.amount === "number" && it.amount > 0 ? it.amount : null;
+        const unit = str(it.unit, 20).toLowerCase().replace(/s$/, "");
+        if (!itemName) continue;
+        const match = bestPantryMatch(pantry, itemName);
+        if (change === "added") {
+          const pUnit = PANTRY_UNIT_MAP[unit] ?? (amount ? "Pieces" : "Pack");
+          if (match && match.tracking === "level") {
+            changes.push({ kind: "update", item: match, patch: { level: "full" } });
+            done.push(`${match.name} → full`);
+            continue;
+          }
+          if (match && amount) {
+            const base = toBase(amount, pUnit, itemName);
+            const inUnit = base ? toUnit(base.amount, base.base, match.unit, itemName) : pUnit === match.unit ? amount : null;
+            if (inUnit != null) {
+              const q = +(Number(match.quantity) + inUnit).toFixed(3);
+              changes.push({ kind: "update", item: match, patch: { quantity: q } });
+              done.push(`${match.name} +${formatAmount(amount, pUnit)}`);
+              continue;
+            }
+          }
+          changes.push({ kind: "insert", row: { name: itemName.replace(/^\w/, (c) => c.toUpperCase()), category: "Other", quantity: amount ?? 1, unit: pUnit, tracking: "count" } });
+          done.push(`added ${itemName}`);
+          continue;
+        }
+        if (!match) {
+          done.push(`${itemName} isn't in the pantry`);
+          continue;
+        }
+        if (change === "finished" || (change === "out" && match.tracking !== "level")) {
+          if (match.tracking === "level") changes.push({ kind: "update", item: match, patch: { level: "out" } });
+          else changes.push({ kind: "delete", item: match });
+          done.push(`${match.name} finished`);
+        } else if (change === "low" || change === "out" || change === "full") {
+          if (match.tracking === "level") {
+            changes.push({ kind: "update", item: match, patch: { level: change } });
+            done.push(`${match.name} → ${change}`);
+          } else if (change === "low") {
+            changes.push({ kind: "update", item: match, patch: { quantity: +(Number(match.quantity) / 3).toFixed(2) } });
+            done.push(`${match.name} running low`);
+          }
+        } else if (change === "used") {
+          if (match.tracking === "level") {
+            done.push(`${match.name} is a staple (still ${match.level ?? "full"})`);
+            continue;
+          }
+          const q = Number(match.quantity) || 0;
+          let use: number | null = null;
+          if (amount) {
+            const base = toBase(amount, PANTRY_UNIT_MAP[unit] ?? (unit || "Pieces"), itemName);
+            use = base ? toUnit(base.amount, base.base, match.unit, itemName) : null;
+            if (use == null && (PANTRY_UNIT_MAP[unit] ?? "") === match.unit) use = amount;
+          }
+          if (use == null) use = q / 2;
+          const left = +(q - use).toFixed(3);
+          changes.push(left <= 0.0001 ? { kind: "delete", item: match } : { kind: "update", item: match, patch: { quantity: left } });
+          done.push(left <= 0.0001 ? `${match.name} finished` : `${match.name}: ${formatAmount(left, match.unit)} left`);
+        }
+      }
+      if (!changes.length) return { result: done.join("; ") || "Nothing to change" };
+      await applyPantry(ctx, changes, "Told the Companion");
+      return { result: `Updated: ${done.join("; ")}`, summary: `Pantry updated: ${done.join("; ")} (you can undo on the Pantry page)` };
+    }
+    if (name === "cooked_recipe") {
+      const recipeName = str(args.recipe, 120);
+      if (!recipeName) return { result: "Missing recipe" };
+      type R = { id: string; name: string; servings: number | null; recipe_ingredients: { quantity: number | null; unit: string | null; optional: boolean | null; ingredient: { name: string } | null }[] };
+      const found = await rest<R[]>(
+        `recipes?select=id,name,servings,recipe_ingredients(quantity,unit,optional,ingredient:ingredients(name))&is_active=eq.true&name=ilike.*${encodeURIComponent(recipeName.replace(/[*,()]/g, " "))}*&limit=1`,
+      );
+      const recipe = found[0];
+      if (!recipe) return { result: `No library recipe called "${recipeName}". Offer to update the pantry item by item instead.` };
+      let portions = typeof args.portions === "number" && args.portions > 0 ? args.portions : null;
+      if (!portions) {
+        const members = await mine<{ birth_date: string | null; relationship: string }>("family_members", ctx.userId, "select=birth_date,relationship", ctx.householdId);
+        portions = members.length ? householdFrom(members).portions : recipe.servings || 4;
+      }
+      const pantry = await loadPantry(ctx);
+      const needs = recipe.recipe_ingredients
+        .filter((i) => i.ingredient?.name)
+        .map((i) => ({ name: i.ingredient!.name, quantity: i.quantity != null && Number(i.quantity) > 0 ? Number(i.quantity) : null, unit: i.unit ?? "", optional: !!i.optional }));
+      const check = checkNeeds(needs, pantry, { factor: portions / (recipe.servings || portions) });
+      const deductions = deductionsFor(check);
+      const byId = new Map(pantry.map((p) => [p.id, p]));
+      const batch = await applyPantry(
+        ctx,
+        deductions.map((d) => {
+          const item = byId.get(d.item.id)!;
+          return d.newQuantity <= 0.0001 ? { kind: "delete" as const, item } : { kind: "update" as const, item, patch: { quantity: d.newQuantity } };
+        }),
+        `Cooked ${recipe.name}`,
+      );
+      await rest("cooking_log", {
+        method: "POST",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({
+          user_id: ctx.userId,
+          household_id: ctx.householdId ?? null,
+          cooked_on: today,
+          status: "cooked",
+          recipe_key: `c-${recipe.id}`,
+          recipe_name: recipe.name,
+          servings: portions,
+          batch_id: batch,
+        }),
+      });
+      const used = deductions.map((d) => `${d.item.name} −${formatAmount(d.use, d.item.unit)}`).join(", ");
+      return {
+        result: `Logged ${recipe.name} for ${portions} portions. ${used ? `Took from pantry: ${used}.` : "Nothing tracked in the pantry was used."}`,
+        summary: `Cooked ${recipe.name}${used ? ` — pantry updated (${used})` : ""}`,
+      };
+    }
     return { result: "Unknown tool" };
   } catch (err) {
     return { result: `Failed: ${err instanceof Error ? err.message : "error"}` };
@@ -566,6 +1265,8 @@ const SYSTEM_PROMPT = `You are the Firdam Family Companion, a warm, respectful a
 How you help:
 - Plan the family's days, meals, shopping, budget, Ramadan and events, using the family data provided below.
 - When the user clearly asks you to add, record or schedule something, use the tools. Confirm briefly what you did. Never invent data you weren't given.
+- Keep the pantry accurate: when the user mentions using, finishing or buying food ("we used 3 potatoes", "rice is almost gone", "I bought 2 kg chicken"), call update_pantry. When they say they cooked a library recipe, call cooked_recipe.
+- When suggesting meals, check the pantry amounts and the family's portions shown below; say what needs buying.
 - Keep answers short, clear and kind. Use the user's name occasionally. Use simple Islamic greetings and phrases naturally (e.g. "in sha Allah"), without overdoing it.
 - All food suggestions must be halal (no pork, no alcohol, halal meat).
 

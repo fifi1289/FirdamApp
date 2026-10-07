@@ -211,32 +211,43 @@ async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?
     out center tags 400;
   `;
 
-  let lastError: unknown = null;
+  // Hedged requests: ask the main server first, and if it hasn't answered after
+  // a few seconds also ask the mirrors. The first good answer wins; the rest are
+  // cancelled. This keeps searches fast when one public server is overloaded.
+  const STAGGER_MS = 6_000;
   const deadline = Date.now() + 55_000;
-  for (const endpoint of OVERPASS_ENDPOINTS) {
-    const remaining = deadline - Date.now();
-    if (remaining < 5_000) break;
+  const controllers = OVERPASS_ENDPOINTS.map(() => new AbortController());
+  const attempt = async (endpoint: string, i: number): Promise<OsmElement[]> => {
+    if (i > 0) await new Promise((r) => setTimeout(r, i * STAGGER_MS));
+    if (controllers[i].signal.aborted) throw new Error("cancelled");
+    const timer = setTimeout(() => controllers[i].abort(), Math.max(1_000, deadline - Date.now()));
     try {
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": USER_AGENT,
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": USER_AGENT },
         body: `data=${encodeURIComponent(query)}`,
-        signal: AbortSignal.timeout(Math.min(50_000, remaining)),
+        signal: controllers[i].signal,
       });
-      if (!res.ok) {
-        lastError = new Error(`Overpass ${res.status}`);
-        continue;
+      if (!res.ok) throw new Error(`Overpass ${res.status} from ${new URL(endpoint).host}`);
+      const data = (await res.json()) as { elements?: OsmElement[]; remark?: string };
+      // Overpass reports server-side timeouts as a 200 with a "remark" and no elements.
+      if (!data.elements?.length && data.remark && /timed out|runtime error/i.test(data.remark)) {
+        throw new Error(`Overpass busy (${new URL(endpoint).host})`);
       }
-      const data = (await res.json()) as { elements?: OsmElement[] };
       return data.elements ?? [];
-    } catch (err) {
-      lastError = err;
+    } finally {
+      clearTimeout(timer);
     }
+  };
+  try {
+    const elements = await Promise.any(OVERPASS_ENDPOINTS.map((e, i) => attempt(e, i)));
+    return elements;
+  } catch (err) {
+    const errors = err instanceof AggregateError ? err.errors : [err];
+    throw errors.find((e) => !(e instanceof Error && e.message === "cancelled")) ?? new Error("Overpass unavailable");
+  } finally {
+    controllers.forEach((c) => c.abort());
   }
-  throw lastError ?? new Error("Overpass unavailable");
 }
 
 interface GeoResult {

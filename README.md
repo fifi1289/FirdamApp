@@ -79,7 +79,14 @@ supabase db push
 or paste each new file into the Supabase SQL editor. Every table has row-level security; private
 data is scoped to its owner, household items are shared with members of the same household, and
 Halal Places community places and reviews are shared with all signed-in users. The recipe library
-is seeded by `20261007101500_seed_halal_recipes.sql` (generated from `supabase/seed/recipes.py`).
+(204 halal recipes from 60 cuisines, each tagged with allergens and diets) is seeded by
+`20261008101000_seed_recipe_library.sql`. To add or change recipes, edit the JSON files in
+`supabase/seed/recipes/` and run `node --experimental-strip-types supabase/seed/build-recipes.mts`
+(Node 22+). The script rejects non-halal ingredients and bad units, works out allergens and diet
+tags from the ingredients, and rewrites the seed.
+
+Recipe photos: in **Admin → Recipe photos**, upload images named after each recipe (the page can copy
+the list of file names), or generate them with your OpenAI key (`supabase functions deploy recipe-images`).
 
 To make someone an admin (directory moderation), run in the SQL editor:
 

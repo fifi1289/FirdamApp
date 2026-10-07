@@ -1,0 +1,2502 @@
+[
+ {
+  "name": "Aloo Paratha",
+  "cuisine": "Pakistani",
+  "meal_type": "Breakfast",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 20,
+  "servings": 4,
+  "calories": 420,
+  "protein": 9,
+  "carbs": 58,
+  "fat": 17,
+  "description": "Soft whole wheat flatbreads stuffed with spiced mashed potato and cooked golden with ghee.",
+  "ingredients": [
+   [
+    "wholewheat flour",
+    300,
+    "g"
+   ],
+   [
+    "water",
+    180,
+    "ml"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "potatoes",
+    400,
+    "g"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "pomegranate seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "ghee",
+    4,
+    "tbsp"
+   ],
+   [
+    "plain yogurt",
+    200,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Mix the flour with 1 tsp salt, then add the water gradually and knead for 5 minutes into a soft dough. Cover and rest for 20 minutes.",
+   "Meanwhile boil the whole potatoes in salted water for 20 minutes until tender, then drain, peel and mash until completely smooth with no lumps.",
+   "Mix the mash with finely chopped green chillies, chopped coriander, cumin, ground coriander, chilli powder, dried pomegranate seeds and the remaining salt.",
+   "Divide the dough into 8 balls. Roll one into a 10 cm circle, place a spoonful of filling in the centre, pinch the edges closed to seal, then gently flatten and roll to a 16 cm round, dusting with flour as needed.",
+   "Heat a flat pan or tawa over medium-high heat. Cook a paratha for 1 minute until pale spots appear, flip, brush with ghee and cook 1-2 minutes.",
+   "Flip again, brush the other side with ghee and cook until golden brown with crisp spots, about 1 minute. Keep warm in a cloth while you cook the rest and serve with yogurt."
+  ],
+  "tips": [
+   "Make sure the potato is cooled and dry, or the filling will tear the dough as you roll."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Two golden-brown parathas with crisp brown spots stacked on a plate, one folded in half, with a bowl of white yogurt and a pat of ghee melting on top."
+ },
+ {
+  "name": "Masala Omelette",
+  "cuisine": "Indian",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 8,
+  "servings": 4,
+  "calories": 210,
+  "protein": 13,
+  "carbs": 4,
+  "fat": 16,
+  "description": "A fluffy Indian street-style omelette packed with onion, green chilli, tomato and fresh coriander.",
+  "ingredients": [
+   [
+    "eggs",
+    8,
+    "pieces"
+   ],
+   [
+    "red onion",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato",
+    1,
+    "pieces"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "ground turmeric",
+    0.25,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    0.25,
+    "tsp"
+   ],
+   [
+    "salt",
+    0.75,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "butter",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Finely chop the onion, tomato, green chillies and coriander. Squeeze the chopped tomato lightly to remove extra juice.",
+   "Crack the eggs into a large bowl and add the turmeric, chilli powder and salt. Whisk for 1 minute until frothy.",
+   "Stir the chopped vegetables and coriander into the eggs.",
+   "Heat 1 tbsp oil in a non-stick frying pan over medium heat. Pour in a quarter of the mixture and tilt to spread it evenly.",
+   "Cook for 2 minutes until the edges set, dot with a little butter, flip and cook 1 minute more until golden.",
+   "Repeat with the remaining mixture, adding oil each time, and serve hot with toast."
+  ],
+  "tips": [
+   "Keep the heat at medium so the omelette stays soft inside and does not brown too quickly."
+  ],
+  "allergens": [
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden folded omelette flecked with red onion, tomato and green coriander on a white plate, served with buttered toast triangles."
+ },
+ {
+  "name": "Mas Huni (Tuna & Coconut) with Roshi",
+  "cuisine": "Maldivian",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 20,
+  "servings": 4,
+  "calories": 430,
+  "protein": 24,
+  "carbs": 50,
+  "fat": 15,
+  "description": "The classic Maldivian breakfast of tuna, fresh coconut, onion and lime served with thin flatbread.",
+  "ingredients": [
+   [
+    "canned tuna in brine",
+    320,
+    "g"
+   ],
+   [
+    "freshly grated coconut",
+    100,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "curry leaves",
+    10,
+    "pieces"
+   ],
+   [
+    "lime",
+    1,
+    "pieces"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "plain flour",
+    300,
+    "g"
+   ],
+   [
+    "warm water",
+    170,
+    "ml"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Mix the flour with 0.5 tsp salt, add the warm water and oil, and knead for 5 minutes into a smooth soft dough. Cover and rest for 15 minutes.",
+   "Drain the tuna well and flake it into a bowl with a fork.",
+   "Finely slice the onion, green chillies and curry leaves. Add them to the tuna with the grated coconut and the remaining salt.",
+   "Squeeze in the lime juice and mix well with your hands, pressing so the flavours combine.",
+   "Divide the dough into 8 balls and roll each into a very thin round about 18 cm wide.",
+   "Cook each roshi in a dry pan over medium-high heat for about 1 minute per side until it has light brown spots. Serve warm with the mas huni."
+  ],
+  "tips": [
+   "Use unsweetened desiccated coconut soaked in 3 tbsp warm water for 10 minutes if fresh is unavailable."
+  ],
+  "allergens": [
+   "Fish",
+   "Gluten"
+  ],
+  "kid_friendly": false,
+  "photo": "A mound of pale pink tuna and coconut mix flecked with green chilli and onion, beside a stack of thin golden roshi flatbreads and a lime wedge on a wooden board."
+ },
+ {
+  "name": "Chapli Kebab",
+  "cuisine": "Pakistani",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 15,
+  "servings": 4,
+  "calories": 420,
+  "protein": 30,
+  "carbs": 10,
+  "fat": 29,
+  "description": "Peshawari flat beef patties spiced with pomegranate seeds, coriander seeds and fresh herbs, shallow fried until crisp.",
+  "ingredients": [
+   [
+    "minced beef",
+    600,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato",
+    1,
+    "pieces"
+   ],
+   [
+    "green chillies",
+    3,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "coriander seeds",
+    1,
+    "tbsp"
+   ],
+   [
+    "dried pomegranate seeds",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli flakes",
+    1,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "eggs",
+    1,
+    "pieces"
+   ],
+   [
+    "cornflour",
+    2,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    120,
+    "ml"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Coarsely crush the coriander seeds and pomegranate seeds in a mortar. Finely chop the onion, tomato, chillies and coriander.",
+   "In a large bowl combine the beef, chopped vegetables, crushed seeds, cumin, chilli flakes, garam masala, salt, egg and cornflour.",
+   "Knead the mixture firmly with your hands for 3 minutes until sticky and well bound, then chill for 30 minutes.",
+   "Shape into 8 flat patties about 10 cm wide and 1 cm thick, pressing a slight dimple in the centre.",
+   "Heat the oil in a wide frying pan over medium heat. Fry the patties in batches for 4-5 minutes per side until deep brown and cooked through.",
+   "Drain on paper towels and serve hot with lemon wedges, naan and mint chutney."
+  ],
+  "tips": [
+   "Use beef with some fat (around 15%) so the kebabs stay juicy."
+  ],
+  "allergens": [
+   "Eggs"
+  ],
+  "kid_friendly": false,
+  "photo": "Rustic round dark-brown chapli kebabs stacked on a plate with naan, lemon wedges, sliced onion rings and green chutney."
+ },
+ {
+  "name": "Chana Masala",
+  "cuisine": "Indian",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 35,
+  "servings": 4,
+  "calories": 340,
+  "protein": 14,
+  "carbs": 48,
+  "fat": 10,
+  "description": "Chickpeas simmered in a tangy, deeply spiced onion and tomato gravy.",
+  "ingredients": [
+   [
+    "canned chickpeas",
+    800,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    2,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    1,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    1,
+    "tsp"
+   ],
+   [
+    "amchur (dried mango powder)",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "water",
+    250,
+    "ml"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Heat the oil in a deep pan over medium heat. Add the finely chopped onions and cook for 10 minutes until deep golden.",
+   "Stir in the grated garlic and ginger and cook for 1 minute.",
+   "Add the chopped tomatoes, cumin, ground coriander, turmeric, chilli powder and salt. Cook for 8 minutes, mashing the tomatoes, until the oil separates.",
+   "Drain and rinse the chickpeas, add them with the water and bring to the boil.",
+   "Simmer over low heat for 15 minutes, lightly crushing a few chickpeas against the pan to thicken the gravy.",
+   "Stir in the garam masala and amchur, simmer 2 minutes, and finish with chopped coriander. Serve with rice or bhatura."
+  ],
+  "tips": [
+   "A squeeze of lemon works instead of amchur."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "A bowl of glossy golden-brown chickpeas in thick spiced gravy topped with fresh coriander, sliced red onion and a green chilli, beside basmati rice."
+ },
+ {
+  "name": "Rajma Chawal",
+  "cuisine": "Indian",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 50,
+  "servings": 4,
+  "calories": 470,
+  "protein": 17,
+  "carbs": 76,
+  "fat": 10,
+  "description": "Punjabi red kidney beans in a thick tomato gravy served over fluffy basmati rice.",
+  "ingredients": [
+   [
+    "canned red kidney beans",
+    800,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "cumin seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "tomatoes",
+    4,
+    "pieces"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    2,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.25,
+    "tsp"
+   ],
+   [
+    "water",
+    400,
+    "ml"
+   ],
+   [
+    "basmati rice",
+    300,
+    "g"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Rinse the rice until the water runs clear, then soak for 20 minutes. Boil in plenty of salted water for 8-10 minutes until tender, drain and keep covered.",
+   "Heat the oil in a deep pot over medium heat and add the cumin seeds until they sizzle, about 30 seconds.",
+   "Add the finely chopped onions and cook for 10 minutes until golden. Stir in the garlic and ginger for 1 minute.",
+   "Add the puréed tomatoes, turmeric, chilli powder, coriander and salt. Cook for 10 minutes until thick and the oil separates.",
+   "Add the drained kidney beans and water. Simmer on low for 20 minutes, mashing some beans to thicken the gravy.",
+   "Stir in the garam masala, scatter with coriander and serve over the rice."
+  ],
+  "tips": [
+   "Dried beans soaked overnight and pressure-cooked have the best texture, if you have time."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "A white plate with fluffy basmati rice next to a ladle of dark red kidney bean curry, garnished with chopped coriander."
+ },
+ {
+  "name": "Aloo Gobi",
+  "cuisine": "Indian",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 30,
+  "servings": 4,
+  "calories": 230,
+  "protein": 6,
+  "carbs": 30,
+  "fat": 10,
+  "description": "Dry-style potato and cauliflower curry tossed with turmeric, cumin and ginger.",
+  "ingredients": [
+   [
+    "cauliflower",
+    1,
+    "pieces"
+   ],
+   [
+    "potatoes",
+    500,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "cumin seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Cut the cauliflower into medium florets and the potatoes into 2.5 cm cubes.",
+   "Heat the oil in a wide pan over medium heat and add the cumin seeds until they sizzle, about 30 seconds.",
+   "Add the sliced onion and cook for 6 minutes until soft, then add the grated ginger and garlic for 1 minute.",
+   "Stir in the chopped tomatoes, turmeric, coriander, chilli powder and salt and cook for 5 minutes until jammy.",
+   "Add the potatoes and cauliflower, stir to coat, then cover and cook on low heat for 15-18 minutes, stirring now and then, until tender.",
+   "Uncover, cook 2 minutes to dry out any liquid, then sprinkle with garam masala and coriander. Serve with roti."
+  ],
+  "tips": [
+   "Add a splash of water only if it starts to catch; the vegetables should steam in their own moisture."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "Golden-yellow cauliflower florets and potato cubes in a black karahi, scattered with fresh coriander and green chilli slivers."
+ },
+ {
+  "name": "Bhindi Masala (Okra Stir-Fry)",
+  "cuisine": "Indian",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 20,
+  "servings": 4,
+  "calories": 170,
+  "protein": 4,
+  "carbs": 15,
+  "fat": 11,
+  "description": "Tender, non-slimy okra stir-fried with onions, tomato and warming spices.",
+  "ingredients": [
+   [
+    "okra",
+    500,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "cumin seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "tomato",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "amchur (dried mango powder)",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    0.75,
+    "tsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Wash the okra and dry it thoroughly with a towel, then trim the ends and slice into 2 cm rounds. Dry okra prevents sliminess.",
+   "Heat 2 tbsp oil in a wide non-stick pan over medium-high heat. Fry the okra for 8-10 minutes, stirring now and then, until lightly browned and no longer sticky. Remove to a plate.",
+   "In the same pan heat the remaining oil over medium heat and add the cumin seeds for 30 seconds.",
+   "Add the sliced onions and cook for 7 minutes until golden, then add the chopped garlic for 1 minute.",
+   "Stir in the diced tomato, turmeric, coriander, chilli powder and salt and cook for 4 minutes until soft.",
+   "Return the okra, sprinkle with amchur, toss for 2 minutes and finish with chopped coriander. Serve with roti or rice."
+  ],
+  "tips": [
+   "Do not cover the pan while frying okra, as steam makes it slimy."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A shallow dish of bright green okra pieces glazed with golden-brown onions and spices, garnished with fresh coriander."
+ },
+ {
+  "name": "Khichuri",
+  "cuisine": "Bangladeshi",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 35,
+  "servings": 4,
+  "calories": 440,
+  "protein": 15,
+  "carbs": 66,
+  "fat": 13,
+  "description": "Comforting Bengali one-pot of rice and yellow lentils, scented with ghee, ginger and whole spices.",
+  "ingredients": [
+   [
+    "basmati rice",
+    200,
+    "g"
+   ],
+   [
+    "yellow moong dal",
+    150,
+    "g"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    3,
+    "pieces"
+   ],
+   [
+    "cloves",
+    4,
+    "pieces"
+   ],
+   [
+    "cumin seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "potatoes",
+    1,
+    "pieces"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "water",
+    1.2,
+    "l"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Dry roast the moong dal in a pan over medium heat for 3 minutes until fragrant and pale golden. Rinse it with the rice together until the water runs clear.",
+   "Heat the ghee in a heavy pot over medium heat and add the bay leaves, cinnamon, cardamom, cloves and cumin seeds for 30 seconds.",
+   "Add the sliced onion and cook for 6 minutes until golden, then stir in the grated ginger and garlic for 1 minute.",
+   "Add the peeled and diced potato, turmeric and salt, then stir in the rice and dal for 1 minute.",
+   "Pour in the water, add the slit green chillies and bring to the boil. Reduce to low, cover and cook for 25 minutes, stirring occasionally, until soft and porridge-like.",
+   "Adjust consistency with hot water if too thick, stir in coriander and serve hot with fried eggs or beef bhuna."
+  ],
+  "tips": [
+   "Khichuri thickens as it stands; loosen with hot water before serving."
+  ],
+  "allergens": [
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A deep bowl of soft golden khichuri topped with a swirl of ghee, green chilli and chopped coriander, with a fried egg on the side."
+ },
+ {
+  "name": "Nihari",
+  "cuisine": "Pakistani",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 30,
+  "cook": 240,
+  "servings": 6,
+  "calories": 620,
+  "protein": 42,
+  "carbs": 14,
+  "fat": 44,
+  "description": "Slow-cooked beef shank stew in a rich, aromatic gravy, traditionally served for weekend breakfast or dinner with naan.",
+  "ingredients": [
+   [
+    "beef shanks with bone",
+    1,
+    "kg"
+   ],
+   [
+    "ghee",
+    100,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    3,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    6,
+    "cloves"
+   ],
+   [
+    "plain flour",
+    3,
+    "tbsp"
+   ],
+   [
+    "ground fennel",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground ginger",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tbsp"
+   ],
+   [
+    "red chilli powder",
+    2,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    1,
+    "tbsp"
+   ],
+   [
+    "black cardamom pods",
+    2,
+    "pieces"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "water",
+    2,
+    "l"
+   ],
+   [
+    "green chillies",
+    3,
+    "pieces"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Heat the ghee in a heavy pot over medium heat, add the sliced onions and fry for 15 minutes until deep golden. Remove half for garnish.",
+   "Add the beef, grated garlic and 1 tbsp ginger and sear for 8 minutes until browned on all sides.",
+   "Stir in the cumin, coriander, chilli powder, turmeric, fennel, ground ginger, black cardamom, cinnamon and salt and fry for 3 minutes.",
+   "Pour in 1.5 litres of water, bring to the boil, then cover and cook on the lowest heat for 3 hours, until the meat falls off the bone.",
+   "Whisk the flour with 250 ml cold water until smooth, pour into the stew stirring constantly and simmer 15 minutes to thicken, adding more water if needed.",
+   "Stir in the garam masala. Serve in bowls topped with the reserved onions, remaining julienned ginger, slit green chillies, coriander and lemon wedges."
+  ],
+  "tips": [
+   "A pressure cooker cuts the cooking time to about 60 minutes."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": false,
+  "photo": "A deep bowl of glossy mahogany beef nihari with a bone, topped with ginger matchsticks, green chilli, coriander and crisp fried onions, with naan alongside."
+ },
+ {
+  "name": "Haleem",
+  "cuisine": "Pakistani",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 30,
+  "cook": 210,
+  "servings": 6,
+  "calories": 520,
+  "protein": 34,
+  "carbs": 42,
+  "fat": 23,
+  "description": "A thick, savoury porridge of slow-cooked beef, wheat and lentils, finished with fried onions, ginger and lemon.",
+  "ingredients": [
+   [
+    "boneless beef",
+    600,
+    "g"
+   ],
+   [
+    "cracked wheat",
+    150,
+    "g"
+   ],
+   [
+    "pearl barley",
+    50,
+    "g"
+   ],
+   [
+    "red lentils",
+    50,
+    "g"
+   ],
+   [
+    "chana dal",
+    50,
+    "g"
+   ],
+   [
+    "ghee",
+    100,
+    "g"
+   ],
+   [
+    "onion",
+    3,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    3,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    6,
+    "cloves"
+   ],
+   [
+    "plain yogurt",
+    150,
+    "g"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    2,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    2,
+    "tsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "water",
+    2.5,
+    "l"
+   ],
+   [
+    "green chillies",
+    3,
+    "pieces"
+   ],
+   [
+    "lemon",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh mint",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Rinse and soak the wheat, barley and both lentils together in water for 4 hours or overnight, then drain.",
+   "Heat half the ghee in a large pot over medium heat and fry 2 sliced onions for 15 minutes until deep golden. Remove half for garnish.",
+   "Add the beef, half the ginger and garlic, cumin, coriander, turmeric, chilli powder, yogurt and salt. Cook for 10 minutes, then add 1 litre of water.",
+   "Cover and simmer for 90 minutes until the beef is tender. Add the soaked grains and 1.5 litres of water and cook 90 minutes more, stirring often so it does not stick.",
+   "Mash vigorously with a wooden masher or blend briefly until the beef shreds into the grains and the haleem is thick and stretchy.",
+   "Stir in the garam masala. Serve topped with the reserved onions, remaining ginger, slit chillies, mint and lemon wedges."
+  ],
+  "tips": [
+   "Make it a day ahead; haleem tastes even better the next day."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": false,
+  "photo": "A wide bowl of thick golden-brown haleem crowned with fried onions, ginger matchsticks, green chilli, mint and a lemon wedge."
+ },
+ {
+  "name": "Seekh Kebab",
+  "cuisine": "Pakistani",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 15,
+  "servings": 4,
+  "calories": 380,
+  "protein": 29,
+  "carbs": 6,
+  "fat": 27,
+  "description": "Juicy minced beef kebabs flavoured with ginger, garlic, green chilli and fresh herbs, grilled on skewers.",
+  "ingredients": [
+   [
+    "minced beef",
+    700,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "green chillies",
+    3,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "fresh mint",
+    0.5,
+    "handful"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tbsp"
+   ],
+   [
+    "garam masala",
+    1,
+    "tbsp"
+   ],
+   [
+    "red chilli powder",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "gram flour",
+    2,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Grate the onion and squeeze out all the liquid in a clean cloth. Finely chop the ginger, garlic, chillies, coriander and mint.",
+   "In a large bowl mix the beef with the onion, herbs, spices, salt and gram flour. Knead hard for 5 minutes until sticky.",
+   "Cover and chill for 1 hour, which helps the mixture hold on the skewers.",
+   "Divide into 8 portions and press each firmly around a flat metal skewer into a 15 cm sausage shape, wetting your hands as you go.",
+   "Heat a grill or griddle pan to high. Brush the kebabs with oil and cook for 10-12 minutes, turning every 3 minutes, until browned and cooked through.",
+   "Rest for 3 minutes and serve with lemon wedges, naan, onion rings and chutney."
+  ],
+  "tips": [
+   "Without skewers, shape into long logs and cook on a hot griddle."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "Long charred seekh kebabs on metal skewers resting on a platter with naan, sliced red onion, lemon wedges and green chutney."
+ },
+ {
+  "name": "Yakhni Pulao (Chicken Pulao)",
+  "cuisine": "Pakistani",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 55,
+  "servings": 4,
+  "calories": 560,
+  "protein": 36,
+  "carbs": 62,
+  "fat": 19,
+  "description": "Fragrant basmati rice cooked in a spiced chicken broth (yakhni) with whole spices and caramelised onions.",
+  "ingredients": [
+   [
+    "chicken pieces on the bone",
+    800,
+    "g"
+   ],
+   [
+    "basmati rice",
+    350,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    6,
+    "cloves"
+   ],
+   [
+    "cumin seeds",
+    2,
+    "tsp"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    4,
+    "pieces"
+   ],
+   [
+    "cloves",
+    5,
+    "pieces"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "black peppercorns",
+    8,
+    "pieces"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "water",
+    1.5,
+    "l"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Put the chicken in a pot with 1.5 litres water, half the ginger and garlic, half the whole spices, 1 tsp salt and 1 sliced onion. Simmer for 35 minutes, then strain, keeping the chicken and 700 ml broth.",
+   "Rinse the rice until the water runs clear and soak it for 30 minutes, then drain.",
+   "Heat the oil in a heavy pot over medium heat and fry the remaining sliced onion for 10 minutes until dark golden.",
+   "Add the remaining whole spices, ginger and garlic and fry for 1 minute, then add the chicken pieces and brown for 5 minutes.",
+   "Add the rice, slit green chillies, remaining salt and the hot 700 ml broth. Boil on high until the liquid level reaches the rice.",
+   "Cover tightly, reduce to the lowest heat and steam for 15 minutes. Rest 5 minutes, fluff gently and serve with raita."
+  ],
+  "tips": [
+   "Use a tight lid or wrap the lid in a towel so no steam escapes."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "A platter of fluffy long-grain rice with browned chicken pieces, whole spices and caramelised onions on top, served with a bowl of raita."
+ },
+ {
+  "name": "Butter Chicken",
+  "cuisine": "Indian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 40,
+  "servings": 4,
+  "calories": 560,
+  "protein": 38,
+  "carbs": 14,
+  "fat": 38,
+  "description": "Tender yogurt-marinated chicken simmered in a silky tomato, butter and cream sauce.",
+  "ingredients": [
+   [
+    "chicken thighs boneless",
+    700,
+    "g"
+   ],
+   [
+    "plain yogurt",
+    120,
+    "g"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "garam masala",
+    2,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "unsalted butter",
+    60,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato purée",
+    3,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "double cream",
+    100,
+    "ml"
+   ],
+   [
+    "dried fenugreek leaves",
+    1,
+    "tsp"
+   ],
+   [
+    "sugar",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Mix the chicken with the yogurt, lemon juice, 1 tsp garam masala, turmeric, chilli powder, half the ginger and garlic and 0.5 tsp salt. Marinate for at least 1 hour.",
+   "Grill the chicken under a hot grill or roast at 220C for 12-15 minutes until charred at the edges. Set aside.",
+   "Melt the butter in a pan over medium heat, add the chopped onion and cook for 8 minutes until soft.",
+   "Add the remaining ginger and garlic for 1 minute, then the tomato purée, chopped tomatoes, cumin and remaining salt. Simmer for 15 minutes.",
+   "Blend the sauce until smooth and return it to the pan with the chicken. Simmer gently for 8 minutes.",
+   "Stir in the cream, crushed fenugreek leaves, sugar and remaining garam masala and warm through for 2 minutes. Garnish with coriander and serve with naan or rice."
+  ],
+  "tips": [
+   "Do not boil the sauce once the cream is added or it may split."
+  ],
+  "allergens": [
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A bowl of creamy orange-red butter chicken with charred chicken pieces, a swirl of cream and coriander leaves, with naan on the side."
+ },
+ {
+  "name": "Chicken Tikka Masala",
+  "cuisine": "Indian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 35,
+  "servings": 4,
+  "calories": 500,
+  "protein": 38,
+  "carbs": 16,
+  "fat": 31,
+  "description": "Charred, spiced yogurt-marinated chicken in a creamy, tangy tomato masala sauce.",
+  "ingredients": [
+   [
+    "chicken breast",
+    700,
+    "g"
+   ],
+   [
+    "plain yogurt",
+    150,
+    "g"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "paprika",
+    2,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    2,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato purée",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "green chillies",
+    1,
+    "pieces"
+   ],
+   [
+    "double cream",
+    100,
+    "ml"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Cut the chicken into 3 cm cubes and marinate with the yogurt, lemon juice, half the ginger and garlic, 1 tsp cumin, 1 tsp paprika, 1 tsp garam masala, turmeric and 1 tsp salt for at least 1 hour.",
+   "Thread onto skewers and grill or roast at 230C for 12-14 minutes until lightly charred and cooked through.",
+   "Heat the oil in a pan over medium heat and fry the chopped onion for 8 minutes until golden.",
+   "Add the remaining ginger and garlic and the chilli for 1 minute, then add the tomato purée, remaining spices and remaining salt for 1 minute.",
+   "Pour in the chopped tomatoes and simmer for 15 minutes until thick, then blend smooth if you prefer.",
+   "Add the chicken and cream, simmer gently for 5 minutes, and garnish with coriander. Serve with basmati rice or naan."
+  ],
+  "tips": [
+   "Thigh meat works too and stays juicier."
+  ],
+  "allergens": [
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A rich orange tikka masala with charred chicken chunks in a shallow bowl, drizzled with cream and topped with coriander, beside basmati rice."
+ },
+ {
+  "name": "Palak Paneer",
+  "cuisine": "Indian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 25,
+  "servings": 4,
+  "calories": 380,
+  "protein": 19,
+  "carbs": 12,
+  "fat": 28,
+  "description": "Cubes of soft paneer in a vibrant, mildly spiced spinach gravy.",
+  "ingredients": [
+   [
+    "fresh spinach",
+    500,
+    "g"
+   ],
+   [
+    "paneer",
+    250,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "ghee",
+    1,
+    "tbsp"
+   ],
+   [
+    "cumin seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.25,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "double cream",
+    60,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Boil a pot of water, blanch the spinach for 1 minute, then plunge into cold water. Drain, squeeze out water and blend with the green chillies to a smooth purée.",
+   "Cut the paneer into 2 cm cubes. Fry in 1 tbsp oil over medium heat for 4 minutes until lightly golden, then set aside.",
+   "Heat the remaining oil and ghee in a pan over medium heat. Add the cumin seeds for 30 seconds, then the chopped onion and cook for 7 minutes.",
+   "Add the grated ginger and garlic for 1 minute, then the chopped tomatoes, coriander, turmeric and salt. Cook for 6 minutes until soft.",
+   "Pour in the spinach purée and simmer for 5 minutes, adding a splash of water if too thick.",
+   "Stir in the paneer, garam masala and cream and heat for 2 minutes. Serve with roti or rice."
+  ],
+  "tips": [
+   "Blanching in cold water keeps the spinach bright green."
+  ],
+  "allergens": [
+   "Dairy"
+  ],
+  "kid_friendly": false,
+  "photo": "A bowl of bright green creamy spinach curry with golden paneer cubes and a swirl of cream, served with a charred roti."
+ },
+ {
+  "name": "Beef Bhuna",
+  "cuisine": "Bangladeshi",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 120,
+  "servings": 4,
+  "calories": 520,
+  "protein": 40,
+  "carbs": 10,
+  "fat": 35,
+  "description": "Bangladeshi beef slowly fried in its own concentrated spice masala until thick, dark and intensely flavoured.",
+  "ingredients": [
+   [
+    "beef chuck",
+    800,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    100,
+    "ml"
+   ],
+   [
+    "onion",
+    3,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    2,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    6,
+    "cloves"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    2,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    2,
+    "tsp"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    4,
+    "pieces"
+   ],
+   [
+    "cloves",
+    4,
+    "pieces"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "green chillies",
+    3,
+    "pieces"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    1,
+    "tsp"
+   ],
+   [
+    "water",
+    200,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Cut the beef into 4 cm cubes. Blend 2 onions with the ginger and garlic into a paste, and slice the remaining onion.",
+   "Heat the oil in a heavy pan over medium heat. Add the whole spices and bay leaves for 30 seconds, then the sliced onion and fry 10 minutes until golden.",
+   "Add the onion paste and cook for 10 minutes, stirring often, until it darkens.",
+   "Add the cumin, coriander, turmeric, chilli powder and salt with a splash of water and cook 3 minutes, then add the beef and chopped tomatoes.",
+   "Stir-fry the beef for 15 minutes on medium-high heat until sealed, then add the 200 ml water, cover and cook on low for 75 minutes until very tender.",
+   "Uncover, increase the heat and stir for 10 minutes until the gravy clings to the meat and the oil separates. Add the green chillies and garam masala and serve with rice or paratha."
+  ],
+  "tips": [
+   "The key to bhuna is patient frying; keep stirring at the end to prevent burning."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "Dark glossy chunks of beef bhuna with thick masala in a copper bowl, topped with slit green chillies and served with rice."
+ },
+ {
+  "name": "Macher Jhol (Bengali Fish Curry)",
+  "cuisine": "Bangladeshi",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 25,
+  "servings": 4,
+  "calories": 340,
+  "protein": 32,
+  "carbs": 12,
+  "fat": 19,
+  "description": "Light, turmeric-yellow Bengali fish stew with potatoes, tomato and nigella seeds.",
+  "ingredients": [
+   [
+    "rohu or cod steaks",
+    700,
+    "g"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "mustard oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "nigella seeds",
+    0.5,
+    "tsp"
+   ],
+   [
+    "potatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "green chillies",
+    3,
+    "pieces"
+   ],
+   [
+    "water",
+    500,
+    "ml"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Rub the fish with 0.5 tsp turmeric and 0.5 tsp salt and rest for 10 minutes. Peel the potatoes and cut into thick wedges.",
+   "Heat 3 tbsp mustard oil in a pan over medium-high heat until it smokes lightly, then fry the fish 1-2 minutes per side until pale golden. Remove carefully.",
+   "In the same oil, fry the potato wedges for 5 minutes until lightly golden, then set aside.",
+   "Lower the heat to medium, add the nigella seeds and chopped onion and cook for 6 minutes. Add the grated ginger and garlic for 1 minute.",
+   "Add the chopped tomatoes, cumin, chilli powder, remaining turmeric and salt and cook 5 minutes. Pour in the water, add the potatoes and simmer for 8 minutes.",
+   "Gently add the fish and green chillies and simmer for 5 minutes. Drizzle with the remaining raw mustard oil, scatter coriander and serve with rice."
+  ],
+  "tips": [
+   "Use boneless fish for children; handle the steaks gently so they do not break."
+  ],
+  "allergens": [
+   "Fish",
+   "Mustard"
+  ],
+  "kid_friendly": false,
+  "photo": "A shallow bowl of golden-yellow fish curry with thick white fish steaks, potato wedges and green chillies, served beside steamed white rice."
+ },
+ {
+  "name": "Sri Lankan Chicken Curry",
+  "cuisine": "Sri Lankan",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 45,
+  "servings": 4,
+  "calories": 480,
+  "protein": 36,
+  "carbs": 10,
+  "fat": 33,
+  "description": "Fragrant coconut milk chicken curry with roasted curry powder, curry leaves and pandan.",
+  "ingredients": [
+   [
+    "chicken pieces on the bone",
+    1,
+    "kg"
+   ],
+   [
+    "coconut oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "curry leaves",
+    15,
+    "pieces"
+   ],
+   [
+    "pandan leaf",
+    1,
+    "pieces"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "Sri Lankan roasted curry powder",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    1,
+    "tsp"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "tomato",
+    1,
+    "pieces"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "coconut milk",
+    400,
+    "ml"
+   ],
+   [
+    "lime",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Toss the chicken with the curry powder, turmeric, chilli powder, 1 tsp salt and half the grated ginger and garlic. Marinate for 30 minutes.",
+   "Heat the coconut oil in a pot over medium heat and fry the sliced onions with the cinnamon, curry leaves and pandan for 8 minutes until soft.",
+   "Add the remaining ginger and garlic and the green chillies for 1 minute.",
+   "Add the chicken and diced tomato and cook for 8 minutes, turning, until sealed.",
+   "Pour in the coconut milk plus 100 ml water, bring to a gentle simmer, cover and cook for 25 minutes until the chicken is tender.",
+   "Uncover and simmer for 5 minutes to thicken. Season with lime juice and remaining salt and serve with rice and dhal."
+  ],
+  "tips": [
+   "Keep the curry at a gentle simmer so the coconut milk does not split."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A bowl of orange-gold coconut chicken curry with bone-in pieces, curry leaves and green chillies, beside a mound of white rice."
+ },
+ {
+  "name": "Vegetable Samosas",
+  "cuisine": "Pakistani",
+  "meal_type": "Snack",
+  "difficulty": "Hard",
+  "prep": 45,
+  "cook": 25,
+  "servings": 8,
+  "calories": 230,
+  "protein": 5,
+  "carbs": 28,
+  "fat": 11,
+  "description": "Crisp triangular pastries filled with spiced potatoes and peas. Makes 16 samosas.",
+  "ingredients": [
+   [
+    "plain flour",
+    300,
+    "g"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    70,
+    "ml"
+   ],
+   [
+    "warm water",
+    120,
+    "ml"
+   ],
+   [
+    "potatoes",
+    500,
+    "g"
+   ],
+   [
+    "frozen peas",
+    100,
+    "g"
+   ],
+   [
+    "cumin seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "garam masala",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "amchur (dried mango powder)",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "vegetable oil for frying",
+    750,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Mix the flour with 1 tsp salt, rub in 70 ml oil, then add the water and knead for 5 minutes into a firm dough. Cover and rest for 30 minutes.",
+   "Boil the potatoes for 15-20 minutes until tender, then peel and roughly crush. Cook the peas in boiling water for 2 minutes and drain.",
+   "Heat 1 tbsp oil, add the cumin seeds, grated ginger and chopped chillies for 1 minute, then mix in the potato, peas, coriander, garam masala, chilli powder, amchur and remaining salt. Cool completely and stir in chopped fresh coriander.",
+   "Divide the dough into 8 balls, roll each into a 16 cm oval and cut in half. Shape each half into a cone, sealing the straight edge with a dab of water.",
+   "Fill each cone with 2 tbsp of filling, brush the open edge with water and pinch tightly closed.",
+   "Heat the frying oil to 160C in a deep pan. Fry in batches for 8-10 minutes over medium-low heat until deep golden, then drain and serve with tamarind or mint chutney."
+  ],
+  "tips": [
+   "Frying at a low temperature gives a flaky, blistered crust."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A pile of golden-brown crisp triangular samosas on a platter with a bowl of green mint chutney and a bowl of tamarind sauce."
+ },
+ {
+  "name": "Vegetable Pakoras",
+  "cuisine": "Pakistani",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 20,
+  "servings": 4,
+  "calories": 260,
+  "protein": 8,
+  "carbs": 27,
+  "fat": 14,
+  "description": "Crunchy chickpea-flour fritters of onion, potato and spinach, perfect with tea.",
+  "ingredients": [
+   [
+    "gram flour",
+    200,
+    "g"
+   ],
+   [
+    "rice flour",
+    2,
+    "tbsp"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "potato",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh spinach",
+    100,
+    "g"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "cumin seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "red chilli powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.25,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "water",
+    150,
+    "ml"
+   ],
+   [
+    "vegetable oil for frying",
+    600,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Slice the onions thinly, grate or finely slice the potato, and roughly chop the spinach, chillies and coriander.",
+   "In a bowl combine the gram flour, rice flour, cumin seeds, ground coriander, chilli powder, turmeric and salt.",
+   "Add the vegetables and mix, then pour in the water gradually to make a thick batter that coats the vegetables.",
+   "Heat the oil in a deep pan to 170C, or until a drop of batter rises and sizzles at once.",
+   "Drop in tablespoon-sized portions and fry in batches for 4-5 minutes, turning once, until deep golden and crisp.",
+   "Drain on paper towels and serve hot with mint chutney or ketchup."
+  ],
+  "tips": [
+   "Rice flour is what keeps pakoras extra crisp."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "A heap of golden crispy irregular pakoras on a lined basket with a small bowl of green chutney and lemon wedges."
+ },
+ {
+  "name": "Gulab Jamun",
+  "cuisine": "Pakistani",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 30,
+  "servings": 8,
+  "calories": 330,
+  "protein": 6,
+  "carbs": 46,
+  "fat": 14,
+  "description": "Soft milk-powder dumplings fried golden and soaked in cardamom-rose syrup. Makes 16.",
+  "ingredients": [
+   [
+    "full-fat milk powder",
+    150,
+    "g"
+   ],
+   [
+    "plain flour",
+    40,
+    "g"
+   ],
+   [
+    "baking powder",
+    0.25,
+    "tsp"
+   ],
+   [
+    "ghee",
+    2,
+    "tbsp"
+   ],
+   [
+    "whole milk",
+    100,
+    "ml"
+   ],
+   [
+    "sugar",
+    300,
+    "g"
+   ],
+   [
+    "water",
+    400,
+    "ml"
+   ],
+   [
+    "cardamom pods",
+    4,
+    "pieces"
+   ],
+   [
+    "rose water",
+    1,
+    "tsp"
+   ],
+   [
+    "saffron",
+    1,
+    "pinch"
+   ],
+   [
+    "vegetable oil for frying",
+    500,
+    "ml"
+   ],
+   [
+    "pistachios",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Boil the sugar, water and crushed cardamom pods for 8 minutes to make a light syrup. Stir in the rose water and saffron and keep warm.",
+   "Mix the milk powder, flour, baking powder and ghee in a bowl, then add the milk a little at a time to form a very soft, smooth dough. Do not overwork it.",
+   "Rest the dough for 10 minutes, then roll into 16 smooth, crack-free balls with lightly greased hands.",
+   "Heat the oil to about 130C over low heat. Fry the balls in batches for 8-10 minutes, stirring gently, until deep golden brown all over.",
+   "Drain and drop straight into the warm syrup. Soak for at least 1 hour so they swell and become juicy.",
+   "Serve warm, topped with chopped pistachios."
+  ],
+  "tips": [
+   "Keep the oil on low heat; a hot oil browns the outside before the inside cooks."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "Glossy dark-golden gulab jamun in a bowl of amber syrup, sprinkled with chopped green pistachios and saffron threads."
+ },
+ {
+  "name": "Sheer Khurma",
+  "cuisine": "Pakistani",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 15,
+  "cook": 35,
+  "servings": 6,
+  "calories": 380,
+  "protein": 10,
+  "carbs": 48,
+  "fat": 17,
+  "description": "Eid vermicelli pudding simmered in milk with dates, nuts and cardamom.",
+  "ingredients": [
+   [
+    "fine vermicelli",
+    100,
+    "g"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "whole milk",
+    1.2,
+    "l"
+   ],
+   [
+    "dates",
+    100,
+    "g"
+   ],
+   [
+    "almonds",
+    40,
+    "g"
+   ],
+   [
+    "pistachios",
+    30,
+    "g"
+   ],
+   [
+    "sugar",
+    60,
+    "g"
+   ],
+   [
+    "cardamom pods",
+    4,
+    "pieces"
+   ],
+   [
+    "saffron",
+    1,
+    "pinch"
+   ],
+   [
+    "raisins",
+    30,
+    "g"
+   ],
+   [
+    "desiccated coconut",
+    2,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Break the vermicelli into short lengths. Heat the ghee in a pan over medium heat and toast the vermicelli for 3 minutes until golden brown. Remove and set aside.",
+   "In the same pan toast the sliced almonds, pistachios and raisins for 1-2 minutes, then remove half for garnish.",
+   "Pour the milk into a heavy pot, add the crushed cardamom and bring to the boil, then simmer for 15 minutes until reduced by about a quarter.",
+   "Stir in the stoned and sliced dates, the toasted vermicelli, sugar and saffron and cook on low heat for 8-10 minutes until the vermicelli is soft.",
+   "Stir in the coconut and the nuts and raisins that were not set aside.",
+   "Serve warm or chilled, topped with the reserved nuts."
+  ],
+  "tips": [
+   "It thickens as it cools; add a splash of milk before serving."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A cream-coloured bowl of creamy vermicelli pudding topped with sliced pistachios, almonds, dates and saffron strands."
+ },
+ {
+  "name": "Mango Lassi",
+  "cuisine": "Indian",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 5,
+  "cook": 0,
+  "servings": 4,
+  "calories": 190,
+  "protein": 6,
+  "carbs": 34,
+  "fat": 4,
+  "description": "A thick, chilled yogurt drink blended with sweet mango and a touch of cardamom.",
+  "ingredients": [
+   [
+    "ripe mango pulp",
+    400,
+    "g"
+   ],
+   [
+    "plain yogurt",
+    400,
+    "g"
+   ],
+   [
+    "whole milk",
+    200,
+    "ml"
+   ],
+   [
+    "sugar",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground cardamom",
+    0.25,
+    "tsp"
+   ],
+   [
+    "ice cubes",
+    8,
+    "pieces"
+   ],
+   [
+    "pistachios",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Peel and chop ripe mangoes, or measure out canned mango pulp.",
+   "Add the mango, yogurt, milk, sugar, cardamom and ice to a blender.",
+   "Blend on high for 1 minute until completely smooth and frothy.",
+   "Taste and add more sugar if the mango is not sweet enough.",
+   "Pour into tall glasses and top with chopped pistachios. Serve straight away."
+  ],
+  "tips": [
+   "Freeze chopped mango beforehand and skip the ice for a thicker lassi."
+  ],
+  "allergens": [
+   "Dairy",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "Tall glasses of thick golden-yellow mango lassi sprinkled with chopped pistachios, with a slice of fresh mango on the rim."
+ }
+]

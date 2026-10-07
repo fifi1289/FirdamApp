@@ -267,6 +267,7 @@ export type Database = {
           fat: number | null;
           fiber: number | null;
           image_path: string | null;
+          image_prompt: string | null;
           halal: boolean | null;
           is_active: boolean | null;
           is_featured: boolean | null;
@@ -296,6 +297,7 @@ export type Database = {
           fat?: number | null;
           fiber?: number | null;
           image_path?: string | null;
+          image_prompt?: string | null;
           halal?: boolean | null;
           is_active?: boolean | null;
           is_featured?: boolean | null;
@@ -323,6 +325,7 @@ export type Database = {
           fat?: number | null;
           fiber?: number | null;
           image_path?: string | null;
+          image_prompt?: string | null;
           halal?: boolean | null;
           is_active?: boolean | null;
           is_featured?: boolean | null;

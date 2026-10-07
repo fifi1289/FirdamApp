@@ -17,6 +17,7 @@ import type { Business, Database } from '@/types/database';
 import { BUSINESS_CATEGORIES } from '@/features/directory/directory-config';
 import { CommunityModeration } from '@/features/community/community-moderation';
 import { RecipePhotos } from '@/features/admin/recipe-photos';
+import { RecipePhotoUpload } from '@/features/admin/recipe-photo-upload';
 
 export function AdminDashboard() {
   const supabase = createSupabaseBrowserClient();
@@ -184,7 +185,8 @@ export function AdminDashboard() {
             <Row key={b.id} b={b} />
           ))}
         </TabsContent>
-        <TabsContent value="photos" className="mt-0">
+        <TabsContent value="photos" className="mt-0 space-y-5">
+          <RecipePhotoUpload />
           <RecipePhotos />
         </TabsContent>
         <TabsContent value="community" className="mt-0">

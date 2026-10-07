@@ -1,0 +1,2356 @@
+[
+ {
+  "name": "Roti Canai with Dhal",
+  "cuisine": "Malaysian",
+  "meal_type": "Breakfast",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 35,
+  "servings": 4,
+  "calories": 520,
+  "protein": 15,
+  "carbs": 70,
+  "fat": 21,
+  "description": "Flaky, buttery Malaysian flatbread torn and dipped into a mild, turmeric-scented lentil dhal.",
+  "ingredients": [
+   [
+    "plain flour",
+    400,
+    "g"
+   ],
+   [
+    "warm water",
+    200,
+    "ml"
+   ],
+   [
+    "egg",
+    1,
+    "pieces"
+   ],
+   [
+    "condensed milk",
+    1,
+    "tbsp"
+   ],
+   [
+    "ghee",
+    100,
+    "g"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "red lentils",
+    200,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "tomato",
+    1,
+    "pieces"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "curry powder",
+    1,
+    "tbsp"
+   ],
+   [
+    "curry leaves",
+    1,
+    "handful"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "water",
+    750,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Mix the plain flour, salt, egg, condensed milk and warm water into a soft sticky dough, then knead for 5 minutes until smooth.",
+   "Divide the dough into 4 balls, coat each generously with ghee, put them in a dish, cover and rest for at least 1 hour (or overnight).",
+   "For the dhal, rinse the red lentils and simmer them in the water with turmeric for 20 minutes over medium-low heat until soft, stirring occasionally.",
+   "Heat the oil in a pan over medium heat, fry the chopped onion for 5 minutes, then add the garlic, ginger, curry leaves and curry powder and cook 1 minute.",
+   "Add the chopped tomato, cook 3 minutes until soft, then stir this mixture into the lentils and season with salt; keep warm.",
+   "On an oiled surface, stretch one dough ball as thin as paper with your hands, then fold it into a square or coil it into a spiral to trap the layers.",
+   "Cook each roti on a hot greased pan over medium-high heat for 2 to 3 minutes per side until golden and crisp.",
+   "Clap the hot roti between your hands to fluff up the layers and serve at once with the dhal."
+  ],
+  "tips": [
+   "Resting the oiled dough is what makes it stretch thin without tearing."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden flaky roti canai torn open on a round plate beside a small bowl of yellow dhal topped with fried curry leaves."
+ },
+ {
+  "name": "Nasi Goreng",
+  "cuisine": "Indonesian",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 15,
+  "servings": 4,
+  "calories": 560,
+  "protein": 24,
+  "carbs": 68,
+  "fat": 21,
+  "description": "Smoky, sweet-savoury Indonesian fried rice topped with a crispy fried egg.",
+  "ingredients": [
+   [
+    "cooked jasmine rice, cold",
+    800,
+    "g"
+   ],
+   [
+    "chicken breast",
+    250,
+    "g"
+   ],
+   [
+    "shallots",
+    4,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "red chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "shrimp paste",
+    0.5,
+    "tsp"
+   ],
+   [
+    "kecap manis",
+    3,
+    "tbsp"
+   ],
+   [
+    "soy sauce",
+    1,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "cucumber",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato",
+    1,
+    "pieces"
+   ],
+   [
+    "spring onions",
+    3,
+    "pieces"
+   ],
+   [
+    "fried shallots",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Blend or pound the shallots, garlic, chillies and shrimp paste into a rough paste.",
+   "Slice the chicken thinly and season with a pinch of salt.",
+   "Heat 2 tablespoons oil in a wok over high heat, add the paste and stir-fry 1 minute until fragrant.",
+   "Add the chicken and stir-fry 4 to 5 minutes until cooked through.",
+   "Add the cold rice, breaking up clumps, and stir-fry 4 minutes; pour in the kecap manis and soy sauce and toss until evenly brown.",
+   "Stir in the sliced spring onions and taste for salt, then divide among plates.",
+   "Fry the eggs in the remaining oil in a pan over medium-high heat for 2 to 3 minutes until the edges are crisp.",
+   "Top each plate with an egg, cucumber and tomato slices and fried shallots."
+  ],
+  "tips": [
+   "Day-old cold rice fries better and will not turn mushy."
+  ],
+  "allergens": [
+   "Eggs",
+   "Soy",
+   "Gluten",
+   "Shellfish"
+  ],
+  "kid_friendly": true,
+  "photo": "A mound of dark glossy fried rice on a white plate topped with a crispy fried egg, with cucumber and tomato slices and golden fried shallots."
+ },
+ {
+  "name": "Bubur Ayam (Chicken Rice Porridge)",
+  "cuisine": "Indonesian",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 60,
+  "servings": 4,
+  "calories": 420,
+  "protein": 30,
+  "carbs": 48,
+  "fat": 11,
+  "description": "Silky rice porridge simmered in chicken broth and topped with shredded chicken, crunchy toppings and a soft egg.",
+  "ingredients": [
+   [
+    "jasmine rice",
+    200,
+    "g"
+   ],
+   [
+    "chicken thighs",
+    400,
+    "g"
+   ],
+   [
+    "water",
+    2,
+    "l"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "lemongrass",
+    1,
+    "pieces"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "spring onions",
+    3,
+    "pieces"
+   ],
+   [
+    "fried shallots",
+    3,
+    "tbsp"
+   ],
+   [
+    "celery leaves",
+    1,
+    "handful"
+   ],
+   [
+    "soy sauce",
+    2,
+    "tbsp"
+   ],
+   [
+    "white pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Put the chicken, water, sliced ginger, crushed garlic, bruised lemongrass, bay leaves and turmeric in a large pot and bring to the boil.",
+   "Reduce to a gentle simmer and cook the chicken for 25 minutes, skimming any foam, until tender.",
+   "Lift out the chicken, let it cool a little, then shred the meat with two forks.",
+   "Rinse the rice, add it to the strained broth and simmer on low for 35 minutes, stirring often, until it breaks down into a thick porridge.",
+   "Season with salt and white pepper, adding hot water if it becomes too thick.",
+   "Boil the eggs for 7 minutes, cool in cold water, then peel and halve them.",
+   "Ladle the porridge into bowls and top with shredded chicken, egg, spring onions, celery leaves and fried shallots.",
+   "Drizzle with soy sauce and serve hot."
+  ],
+  "tips": [
+   "Stir the porridge regularly toward the end so it does not stick to the bottom."
+  ],
+  "allergens": [
+   "Eggs",
+   "Soy",
+   "Gluten",
+   "Celery"
+  ],
+  "kid_friendly": true,
+  "photo": "A deep white bowl of creamy porridge topped with shredded chicken, a halved egg, green spring onion and golden fried shallots."
+ },
+ {
+  "name": "Mee Goreng Mamak",
+  "cuisine": "Malaysian",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 15,
+  "servings": 4,
+  "calories": 600,
+  "protein": 26,
+  "carbs": 78,
+  "fat": 20,
+  "description": "Spicy, sweet Indian-Malaysian stir-fried yellow noodles with chicken, tofu, egg and a squeeze of lime.",
+  "ingredients": [
+   [
+    "fresh yellow egg noodles",
+    600,
+    "g"
+   ],
+   [
+    "chicken breast",
+    250,
+    "g"
+   ],
+   [
+    "firm tofu",
+    150,
+    "g"
+   ],
+   [
+    "eggs",
+    2,
+    "pieces"
+   ],
+   [
+    "potatoes, boiled",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "shallots",
+    3,
+    "pieces"
+   ],
+   [
+    "chilli paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "tomato ketchup",
+    3,
+    "tbsp"
+   ],
+   [
+    "soy sauce",
+    2,
+    "tbsp"
+   ],
+   [
+    "kecap manis",
+    1,
+    "tbsp"
+   ],
+   [
+    "choy sum",
+    1,
+    "bunch"
+   ],
+   [
+    "bean sprouts",
+    100,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "lime",
+    2,
+    "pieces"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Rinse the noodles in hot water for 30 seconds to loosen them, then drain well.",
+   "Cut the chicken into thin slices, the tofu into cubes and the boiled potatoes into chunks.",
+   "Heat 2 tablespoons oil in a wok over high heat and fry the tofu until golden, about 3 minutes; set aside.",
+   "Add the remaining oil, fry the chopped garlic and shallots 1 minute, then the chilli paste for 1 minute.",
+   "Add the chicken and stir-fry 4 minutes until cooked through.",
+   "Push everything aside, crack in the eggs and scramble for 1 minute.",
+   "Add the noodles, potatoes, ketchup, soy sauce and kecap manis and toss over high heat for 3 minutes.",
+   "Add the choy sum and bean sprouts, toss 1 minute until just wilted, add the tofu back and serve with lime wedges."
+  ],
+  "tips": [
+   "Keep the heat high and avoid overcrowding the wok so the noodles fry rather than steam."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Soy"
+  ],
+  "kid_friendly": true,
+  "photo": "A glossy red-brown tangle of fried noodles on a plate with golden tofu cubes, greens, egg and a lime wedge on the side."
+ },
+ {
+  "name": "Curry Laksa",
+  "cuisine": "Malaysian",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 30,
+  "servings": 4,
+  "calories": 640,
+  "protein": 30,
+  "carbs": 62,
+  "fat": 31,
+  "description": "A rich, spicy coconut curry noodle soup with prawns, chicken, tofu puffs and fresh herbs.",
+  "ingredients": [
+   [
+    "laksa paste",
+    5,
+    "tbsp"
+   ],
+   [
+    "chicken stock",
+    600,
+    "ml"
+   ],
+   [
+    "coconut milk",
+    400,
+    "ml"
+   ],
+   [
+    "rice vermicelli",
+    250,
+    "g"
+   ],
+   [
+    "prawns",
+    250,
+    "g"
+   ],
+   [
+    "chicken breast",
+    200,
+    "g"
+   ],
+   [
+    "fried tofu puffs",
+    8,
+    "pieces"
+   ],
+   [
+    "bean sprouts",
+    150,
+    "g"
+   ],
+   [
+    "eggs",
+    2,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "fish sauce",
+    1,
+    "tbsp"
+   ],
+   [
+    "lime",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "fresh mint",
+    1,
+    "handful"
+   ],
+   [
+    "sugar",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Boil the eggs for 8 minutes, cool in cold water, peel and halve them.",
+   "Soak the vermicelli in hot water for 5 minutes, then drain.",
+   "Heat the oil in a large pot over medium heat and fry the laksa paste for 3 minutes until fragrant and the oil separates.",
+   "Pour in the stock and coconut milk, add the sugar and fish sauce, and simmer gently for 10 minutes.",
+   "Add the sliced chicken and cook 6 minutes, then add the prawns and tofu puffs and cook 3 minutes until the prawns turn pink.",
+   "Blanch the bean sprouts in boiling water for 20 seconds and place them with the noodles in four bowls.",
+   "Ladle the hot curry over the noodles and top with egg, coriander, mint and a squeeze of lime."
+  ],
+  "tips": [
+   "Never boil the soup hard after adding coconut milk or it may split."
+  ],
+  "allergens": [
+   "Shellfish",
+   "Fish",
+   "Eggs",
+   "Soy"
+  ],
+  "kid_friendly": false,
+  "photo": "A big bowl of orange curry broth with vermicelli, pink prawns, tofu puffs, a halved egg and a heap of green herbs."
+ },
+ {
+  "name": "Soto Ayam",
+  "cuisine": "Indonesian",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 50,
+  "servings": 4,
+  "calories": 450,
+  "protein": 34,
+  "carbs": 38,
+  "fat": 18,
+  "description": "A golden turmeric chicken soup with glass noodles, egg and a squeeze of lime, a staple across Indonesia.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    600,
+    "g"
+   ],
+   [
+    "water",
+    1.5,
+    "l"
+   ],
+   [
+    "shallots",
+    5,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "fresh turmeric",
+    1,
+    "tbsp"
+   ],
+   [
+    "candlenuts",
+    3,
+    "pieces"
+   ],
+   [
+    "lemongrass",
+    2,
+    "pieces"
+   ],
+   [
+    "lime leaves",
+    3,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "glass noodles",
+    100,
+    "g"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "bean sprouts",
+    100,
+    "g"
+   ],
+   [
+    "potatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "spring onions",
+    3,
+    "pieces"
+   ],
+   [
+    "fried shallots",
+    2,
+    "tbsp"
+   ],
+   [
+    "lime",
+    2,
+    "pieces"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "white pepper",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Blend the shallots, garlic, ginger, turmeric and candlenuts into a smooth paste with a splash of water.",
+   "Heat the oil in a large pot over medium heat and fry the paste for 4 minutes until fragrant.",
+   "Add the water, chicken, bruised lemongrass and lime leaves, bring to the boil and simmer 30 minutes until the chicken is tender.",
+   "Meanwhile boil the potatoes in a separate pot for 15 minutes, then cut into chunks; boil the eggs for 8 minutes and peel.",
+   "Remove the chicken, shred the meat and season the broth with salt and white pepper.",
+   "Soak the glass noodles in hot water for 5 minutes and drain.",
+   "Place noodles, bean sprouts, chicken, potato and egg in bowls and ladle the hot broth over.",
+   "Top with spring onions and fried shallots and serve with lime wedges."
+  ],
+  "tips": [
+   "Fry the chicken skin-side down briefly before boiling for extra flavour if you like."
+  ],
+  "allergens": [
+   "Eggs",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A bowl of bright yellow broth with shredded chicken, glass noodles, a halved egg, potato and fried shallot garnish, a lime wedge on the rim."
+ },
+ {
+  "name": "Gado-Gado",
+  "cuisine": "Indonesian",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 25,
+  "cook": 25,
+  "servings": 4,
+  "calories": 520,
+  "protein": 22,
+  "carbs": 42,
+  "fat": 30,
+  "description": "Blanched vegetables, tofu, potatoes and eggs drenched in a creamy, tangy peanut sauce.",
+  "ingredients": [
+   [
+    "potatoes",
+    400,
+    "g"
+   ],
+   [
+    "green beans",
+    200,
+    "g"
+   ],
+   [
+    "white cabbage",
+    200,
+    "g"
+   ],
+   [
+    "bean sprouts",
+    100,
+    "g"
+   ],
+   [
+    "spinach",
+    150,
+    "g"
+   ],
+   [
+    "firm tofu",
+    200,
+    "g"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "cucumber",
+    1,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "roasted peanuts",
+    150,
+    "g"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "red chillies",
+    2,
+    "pieces"
+   ],
+   [
+    "palm sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "tamarind paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "kecap manis",
+    1,
+    "tbsp"
+   ],
+   [
+    "coconut milk",
+    150,
+    "ml"
+   ],
+   [
+    "warm water",
+    100,
+    "ml"
+   ],
+   [
+    "prawn crackers",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Boil the potatoes in salted water for 15 minutes until tender, then slice; boil the eggs for 8 minutes, peel and halve.",
+   "Blanch the green beans, cabbage, spinach and bean sprouts one after another in boiling water for 1 to 2 minutes each, then refresh in cold water and drain.",
+   "Cut the tofu into cubes and fry in the oil over medium-high heat for 8 minutes until golden on all sides.",
+   "For the sauce, grind or blend the peanuts, garlic, chillies and palm sugar to a coarse paste.",
+   "Add the tamarind, kecap manis, coconut milk and warm water and blend, then simmer 3 minutes over low heat; add salt to taste.",
+   "Arrange the vegetables, potatoes, tofu, egg and cucumber slices on a platter.",
+   "Pour the warm peanut sauce over and top with prawn crackers."
+  ],
+  "tips": [
+   "Thin the sauce with warm water if it thickens as it cools."
+  ],
+  "allergens": [
+   "Peanuts",
+   "Eggs",
+   "Soy",
+   "Gluten",
+   "Shellfish"
+  ],
+  "kid_friendly": true,
+  "photo": "A colourful platter of green beans, cabbage, potato, tofu and halved eggs covered in thick peanut sauce with pink prawn crackers on top."
+ },
+ {
+  "name": "Pad Thai with Prawns",
+  "cuisine": "Thai",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 12,
+  "servings": 4,
+  "calories": 590,
+  "protein": 27,
+  "carbs": 78,
+  "fat": 20,
+  "description": "Chewy rice noodles stir-fried with prawns, egg and a tamarind sauce, finished with crushed peanuts and lime.",
+  "ingredients": [
+   [
+    "flat rice noodles",
+    300,
+    "g"
+   ],
+   [
+    "prawns",
+    300,
+    "g"
+   ],
+   [
+    "firm tofu",
+    120,
+    "g"
+   ],
+   [
+    "eggs",
+    3,
+    "pieces"
+   ],
+   [
+    "shallots",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "tamarind paste",
+    3,
+    "tbsp"
+   ],
+   [
+    "fish sauce",
+    3,
+    "tbsp"
+   ],
+   [
+    "palm sugar",
+    3,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "bean sprouts",
+    150,
+    "g"
+   ],
+   [
+    "garlic chives",
+    1,
+    "bunch"
+   ],
+   [
+    "roasted peanuts",
+    60,
+    "g"
+   ],
+   [
+    "dried chilli flakes",
+    1,
+    "tsp"
+   ],
+   [
+    "lime",
+    2,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Soak the noodles in warm water for 25 minutes until pliable but still firm, then drain.",
+   "Stir the tamarind, fish sauce and palm sugar in a small pan over low heat for 2 minutes until the sugar dissolves.",
+   "Heat 2 tablespoons oil in a wok over high heat, fry the diced tofu 3 minutes until golden, then add shallots and garlic for 30 seconds.",
+   "Add the prawns and cook 2 minutes until pink, then push to one side.",
+   "Add the remaining oil, crack in the eggs and scramble 30 seconds.",
+   "Add the noodles and sauce and toss 3 minutes until the noodles absorb the sauce and soften.",
+   "Add half the bean sprouts and the chives, toss 30 seconds, then plate and top with crushed peanuts, chilli flakes, remaining sprouts and lime wedges."
+  ],
+  "tips": [
+   "Cook in one or two batches; a crowded wok makes soggy noodles."
+  ],
+  "allergens": [
+   "Shellfish",
+   "Fish",
+   "Eggs",
+   "Peanuts",
+   "Soy"
+  ],
+  "kid_friendly": true,
+  "photo": "A nest of orange-brown noodles with pink prawns on a plate, scattered with crushed peanuts, bean sprouts, chives and a lime wedge."
+ },
+ {
+  "name": "Salmon Onigiri",
+  "cuisine": "Japanese",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 25,
+  "cook": 25,
+  "servings": 4,
+  "calories": 380,
+  "protein": 20,
+  "carbs": 58,
+  "fat": 8,
+  "description": "Hand-shaped Japanese rice triangles filled with flaky salted salmon and wrapped in crisp nori.",
+  "ingredients": [
+   [
+    "Japanese short-grain rice",
+    300,
+    "g"
+   ],
+   [
+    "water",
+    360,
+    "ml"
+   ],
+   [
+    "salmon fillet",
+    250,
+    "g"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "nori sheets",
+    4,
+    "pieces"
+   ],
+   [
+    "toasted sesame seeds",
+    1,
+    "tbsp"
+   ],
+   [
+    "rice vinegar",
+    1,
+    "tsp"
+   ],
+   [
+    "soy sauce",
+    1,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Rinse the rice in cold water until the water runs almost clear, then drain and soak it in the water for 20 minutes.",
+   "Bring to the boil in a lidded pot, then reduce to the lowest heat and cook 12 minutes; turn off the heat and rest covered for 10 minutes.",
+   "Meanwhile, season the salmon with 0.5 teaspoon salt and grill or pan-fry over medium heat for 4 minutes per side until cooked through.",
+   "Flake the salmon into small pieces, discarding the skin and bones, and mix with the soy sauce and vinegar.",
+   "Fluff the rice and let it cool until comfortable to touch.",
+   "Wet your hands and rub them with a little salt, take a quarter of the rice, press a hollow in the middle and add some salmon.",
+   "Cover with more rice and shape into a firm triangle with gentle pressure.",
+   "Sprinkle with sesame seeds and wrap the base of each onigiri with a strip of nori."
+  ],
+  "tips": [
+   "Wet hands with salted water so the rice does not stick."
+  ],
+  "allergens": [
+   "Fish",
+   "Sesame",
+   "Soy",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "Four neat white rice triangles with black nori bands and sesame seeds, arranged on a small wooden board."
+ },
+ {
+  "name": "Egg Fried Rice",
+  "cuisine": "Chinese",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 10,
+  "servings": 4,
+  "calories": 440,
+  "protein": 14,
+  "carbs": 65,
+  "fat": 14,
+  "description": "Fluffy wok-fried rice with scrambled egg, peas and spring onions, a Chinese home staple.",
+  "ingredients": [
+   [
+    "cooked jasmine rice, cold",
+    800,
+    "g"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "spring onions",
+    4,
+    "pieces"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "frozen peas",
+    100,
+    "g"
+   ],
+   [
+    "carrot",
+    1,
+    "pieces"
+   ],
+   [
+    "soy sauce",
+    2,
+    "tbsp"
+   ],
+   [
+    "sesame oil",
+    1,
+    "tsp"
+   ],
+   [
+    "white pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Beat the eggs with a pinch of salt and finely dice the carrot; slice the spring onions, keeping whites and greens separate.",
+   "Heat 1 tablespoon oil in a wok over high heat, pour in the eggs and scramble 1 minute until just set, then remove.",
+   "Add the remaining oil, fry the garlic and spring onion whites for 20 seconds, then the carrot and peas for 2 minutes.",
+   "Add the cold rice and stir-fry 3 to 4 minutes, pressing out lumps, until piping hot.",
+   "Return the egg and add the soy sauce, white pepper and sesame oil, tossing for 1 minute.",
+   "Stir in the spring onion greens and taste for salt before serving."
+  ],
+  "tips": [
+   "Use rice cooked the day before and chilled for the best texture."
+  ],
+  "allergens": [
+   "Eggs",
+   "Soy",
+   "Gluten",
+   "Sesame"
+  ],
+  "kid_friendly": true,
+  "photo": "A bowl of golden fried rice flecked with yellow egg, green peas, orange carrot and spring onion."
+ },
+ {
+  "name": "Chicken Satay with Peanut Sauce",
+  "cuisine": "Malaysian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 15,
+  "servings": 4,
+  "calories": 560,
+  "protein": 42,
+  "carbs": 20,
+  "fat": 34,
+  "description": "Turmeric and lemongrass marinated chicken skewers grilled until charred, served with a rich peanut sauce.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    700,
+    "g"
+   ],
+   [
+    "lemongrass",
+    2,
+    "pieces"
+   ],
+   [
+    "shallots",
+    4,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    2,
+    "tsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "palm sugar",
+    2,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "wooden skewers",
+    20,
+    "pieces"
+   ],
+   [
+    "roasted peanuts",
+    150,
+    "g"
+   ],
+   [
+    "dried chillies",
+    4,
+    "pieces"
+   ],
+   [
+    "tamarind paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "coconut milk",
+    150,
+    "ml"
+   ],
+   [
+    "water",
+    150,
+    "ml"
+   ],
+   [
+    "cucumber",
+    1,
+    "pieces"
+   ],
+   [
+    "red onion",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Soak the skewers in water for 30 minutes so they do not burn.",
+   "Blend the lemongrass, 3 shallots, garlic, ginger, turmeric, coriander, cumin, 1 tablespoon palm sugar, 1 tablespoon oil and salt into a paste.",
+   "Cut the chicken into 2 cm strips, coat with the paste and marinate at least 1 hour.",
+   "For the sauce, blend the remaining shallot, dried chillies (soaked in hot water 10 minutes) and peanuts into a paste.",
+   "Fry the paste in 2 tablespoons oil over medium heat for 4 minutes, add the water, coconut milk, tamarind and remaining sugar, and simmer 8 minutes until thick.",
+   "Thread the chicken onto skewers and grill over high heat or under a hot grill for 3 to 4 minutes per side, brushing with a little oil, until charred and cooked through.",
+   "Serve the satay with the warm peanut sauce, cucumber chunks and raw red onion."
+  ],
+  "tips": [
+   "Thigh meat stays juicy; avoid breast unless you shorten the cooking time."
+  ],
+  "allergens": [
+   "Peanuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A row of charred golden chicken skewers on a platter beside a bowl of glossy peanut sauce with cucumber and red onion chunks."
+ },
+ {
+  "name": "Ayam Masak Merah",
+  "cuisine": "Malaysian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 40,
+  "servings": 4,
+  "calories": 520,
+  "protein": 38,
+  "carbs": 22,
+  "fat": 31,
+  "description": "Fried chicken simmered in a sweet, tangy and mildly spicy red tomato-chilli sauce, a festive Malay favourite.",
+  "ingredients": [
+   [
+    "chicken pieces on the bone",
+    1,
+    "kg"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    150,
+    "ml"
+   ],
+   [
+    "dried chillies",
+    8,
+    "pieces"
+   ],
+   [
+    "shallots",
+    5,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "star anise",
+    2,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    3,
+    "pieces"
+   ],
+   [
+    "tomato puree",
+    3,
+    "tbsp"
+   ],
+   [
+    "tomato ketchup",
+    2,
+    "tbsp"
+   ],
+   [
+    "tamarind paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "water",
+    200,
+    "ml"
+   ],
+   [
+    "peas",
+    50,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Rub the chicken with turmeric and salt and rest for 15 minutes.",
+   "Fry the chicken in hot oil over medium-high heat for 4 minutes per side until golden; remove and drain, leaving 3 tablespoons oil in the pan.",
+   "Soak the dried chillies in hot water for 10 minutes, then blend with the shallots, garlic and ginger into a paste.",
+   "Fry the cinnamon, star anise and cardamom in the pan oil for 30 seconds, then add the paste and cook 6 minutes over medium heat until the oil separates.",
+   "Add the sliced onion, tomato puree, ketchup, tamarind, sugar and water and bring to a simmer.",
+   "Return the chicken, cover and simmer on medium-low for 20 minutes until the chicken is cooked and the sauce is thick.",
+   "Stir in the peas, cook 2 minutes and serve with steamed rice."
+  ],
+  "tips": [
+   "Deseed some chillies if you want a milder sauce."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "Glossy red-glazed chicken pieces in a shallow dish with green peas and whole spices, served beside white rice."
+ },
+ {
+  "name": "Opor Ayam",
+  "cuisine": "Indonesian",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 45,
+  "servings": 4,
+  "calories": 510,
+  "protein": 38,
+  "carbs": 10,
+  "fat": 35,
+  "description": "A mild, creamy Javanese chicken stew in coconut milk and fragrant spices, traditionally served at Eid.",
+  "ingredients": [
+   [
+    "chicken pieces on the bone",
+    1,
+    "kg"
+   ],
+   [
+    "shallots",
+    6,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "candlenuts",
+    4,
+    "pieces"
+   ],
+   [
+    "ground coriander",
+    2,
+    "tsp"
+   ],
+   [
+    "ground white pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "fresh galangal",
+    1,
+    "tbsp"
+   ],
+   [
+    "lemongrass",
+    2,
+    "pieces"
+   ],
+   [
+    "bay leaves",
+    3,
+    "pieces"
+   ],
+   [
+    "lime leaves",
+    3,
+    "pieces"
+   ],
+   [
+    "coconut milk",
+    400,
+    "ml"
+   ],
+   [
+    "water",
+    300,
+    "ml"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "palm sugar",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "fried shallots",
+    2,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Blend the shallots, garlic, candlenuts, coriander, white pepper and turmeric to a smooth paste.",
+   "Heat the oil in a large pot over medium heat and fry the paste with the galangal, bruised lemongrass, bay and lime leaves for 5 minutes until fragrant.",
+   "Add the chicken and stir to coat, cooking 5 minutes.",
+   "Pour in the water and half the coconut milk, bring to a gentle boil, then simmer covered 25 minutes.",
+   "Stir in the remaining coconut milk, palm sugar and salt, and simmer uncovered 8 minutes without boiling hard.",
+   "Scatter with fried shallots and serve with steamed rice."
+  ],
+  "tips": [
+   "Opor tastes even better the next day once the spices settle."
+  ],
+  "allergens": [
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "Pieces of chicken in a pale creamy yellow coconut sauce in a clay bowl, topped with fried shallots and herbs."
+ },
+ {
+  "name": "Murtabak",
+  "cuisine": "Singaporean",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 45,
+  "cook": 30,
+  "servings": 4,
+  "calories": 620,
+  "protein": 28,
+  "carbs": 56,
+  "fat": 31,
+  "description": "A thin, crisp pan-fried flatbread packed with spiced minced beef, onion and egg, served with a sweet pickle.",
+  "ingredients": [
+   [
+    "plain flour",
+    350,
+    "g"
+   ],
+   [
+    "warm water",
+    180,
+    "ml"
+   ],
+   [
+    "ghee",
+    60,
+    "g"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "minced beef",
+    300,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "curry powder",
+    2,
+    "tbsp"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "spring onions",
+    3,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "cucumber",
+    1,
+    "pieces"
+   ],
+   [
+    "white vinegar",
+    2,
+    "tbsp"
+   ],
+   [
+    "sugar",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Knead the flour, water, 1 teaspoon salt and 1 tablespoon ghee into a soft dough for 5 minutes, divide into 4 balls, coat with ghee and rest 1 hour.",
+   "Fry one chopped onion, the garlic and ginger in 1 tablespoon oil over medium heat for 5 minutes, add the beef and curry powder and cook 8 minutes until dry and browned; season with salt.",
+   "Cool the beef, then mix with the sliced spring onions and the second onion, finely chopped, and the beaten eggs (one egg per murtabak, keep separate).",
+   "Stretch one dough ball paper thin on an oiled surface into a large square.",
+   "Spoon a quarter of the filling and one beaten egg on the centre, then fold the sides over to make a sealed square parcel.",
+   "Fry in a little oil over medium heat for 4 minutes per side until golden and crisp and the egg is set.",
+   "Make a quick pickle by mixing sliced cucumber with vinegar, sugar and a pinch of salt.",
+   "Cut the murtabak into squares and serve hot with the pickle."
+  ],
+  "tips": [
+   "Stretch the dough gently; thin spots are fine, tears are not."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden crisp square murtabak cut into pieces showing the minced beef and egg filling, with a small bowl of cucumber pickle."
+ },
+ {
+  "name": "Beef Massaman Curry",
+  "cuisine": "Thai",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 120,
+  "servings": 4,
+  "calories": 680,
+  "protein": 38,
+  "carbs": 32,
+  "fat": 43,
+  "description": "Slow-cooked beef in a mild, aromatic coconut curry with potatoes, peanuts and warm spices.",
+  "ingredients": [
+   [
+    "beef chuck",
+    700,
+    "g"
+   ],
+   [
+    "coconut milk",
+    800,
+    "ml"
+   ],
+   [
+    "massaman curry paste",
+    4,
+    "tbsp"
+   ],
+   [
+    "potatoes",
+    400,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "roasted peanuts",
+    60,
+    "g"
+   ],
+   [
+    "fish sauce",
+    2,
+    "tbsp"
+   ],
+   [
+    "palm sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "tamarind paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    3,
+    "pieces"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "water",
+    300,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Cut the beef into 4 cm chunks and wedge the onions.",
+   "Heat the oil in a heavy pot over medium heat, add the thick top half of the coconut milk and fry the curry paste 4 minutes until the oil separates.",
+   "Add the beef and stir 5 minutes to coat and brown lightly.",
+   "Pour in the rest of the coconut milk and the water, add the cinnamon, cardamom and bay leaves, bring to a simmer and cook covered on low heat for 1 hour 15 minutes.",
+   "Add the potatoes and onions and cook 25 minutes until the beef and potatoes are tender.",
+   "Stir in the fish sauce, palm sugar, tamarind and peanuts, simmer 5 minutes and taste to balance sweet, sour and salty.",
+   "Serve with jasmine rice."
+  ],
+  "tips": [
+   "A pressure cooker cuts the beef cooking time to 35 minutes."
+  ],
+  "allergens": [
+   "Peanuts",
+   "Fish",
+   "Shellfish"
+  ],
+  "kid_friendly": false,
+  "photo": "Tender beef chunks and potatoes in a creamy orange-brown curry in a ceramic bowl, topped with roasted peanuts, rice alongside."
+ },
+ {
+  "name": "Thai Green Chicken Curry",
+  "cuisine": "Thai",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 25,
+  "servings": 4,
+  "calories": 530,
+  "protein": 34,
+  "carbs": 16,
+  "fat": 37,
+  "description": "A fragrant and creamy green curry with chicken, aubergine and Thai basil.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    600,
+    "g"
+   ],
+   [
+    "green curry paste",
+    4,
+    "tbsp"
+   ],
+   [
+    "coconut milk",
+    800,
+    "ml"
+   ],
+   [
+    "Thai aubergines",
+    200,
+    "g"
+   ],
+   [
+    "green beans",
+    100,
+    "g"
+   ],
+   [
+    "fish sauce",
+    2,
+    "tbsp"
+   ],
+   [
+    "palm sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "lime leaves",
+    4,
+    "pieces"
+   ],
+   [
+    "Thai basil",
+    1,
+    "handful"
+   ],
+   [
+    "red chilli",
+    1,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "water",
+    100,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Slice the chicken into bite-size pieces and cut the aubergines into wedges.",
+   "Heat the oil in a wok or pot over medium heat, add the curry paste and 200 ml of the thick coconut milk, and fry 4 minutes until fragrant.",
+   "Add the chicken and stir for 4 minutes until it changes colour.",
+   "Pour in the rest of the coconut milk and the water, add lime leaves, and simmer gently for 8 minutes.",
+   "Add the aubergines and beans and cook 6 minutes until tender.",
+   "Stir in the fish sauce and palm sugar, taste and adjust, then add the basil and sliced chilli.",
+   "Serve with steamed jasmine rice."
+  ],
+  "tips": [
+   "Use less paste for children and add chilli at the table."
+  ],
+  "allergens": [
+   "Fish",
+   "Shellfish"
+  ],
+  "kid_friendly": false,
+  "photo": "A bowl of pale green curry with chicken, round aubergines and green basil leaves, with a mound of white rice beside it."
+ },
+ {
+  "name": "Chicken Piaparan",
+  "cuisine": "Filipino (Maranao)",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 45,
+  "servings": 4,
+  "calories": 540,
+  "protein": 38,
+  "carbs": 10,
+  "fat": 38,
+  "description": "A Maranao chicken stew in coconut milk with toasted grated coconut and palapa, a spicy spring-onion relish.",
+  "ingredients": [
+   [
+    "chicken pieces on the bone",
+    1,
+    "kg"
+   ],
+   [
+    "coconut milk",
+    400,
+    "ml"
+   ],
+   [
+    "desiccated coconut",
+    50,
+    "g"
+   ],
+   [
+    "spring onions",
+    1,
+    "bunch"
+   ],
+   [
+    "red chillies",
+    3,
+    "pieces"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh turmeric",
+    1,
+    "tbsp"
+   ],
+   [
+    "lemongrass",
+    1,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "water",
+    300,
+    "ml"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "sugar",
+    1,
+    "pinch"
+   ]
+  ],
+  "steps": [
+   "Toast the desiccated coconut in a dry pan over medium heat for 4 minutes until deep brown, then grind it into a rough paste.",
+   "Pound or blend half the spring onions, chillies, ginger and turmeric into a coarse palapa relish.",
+   "Heat the oil in a pot over medium heat and cook the chopped onion and garlic for 4 minutes.",
+   "Add the chicken and brown on all sides for 6 minutes, then stir in the palapa and cook 2 minutes.",
+   "Add the water, lemongrass and half the coconut milk, cover and simmer 25 minutes until the chicken is tender.",
+   "Stir in the toasted coconut, remaining coconut milk, salt and sugar and cook 5 minutes uncovered.",
+   "Top with the rest of the sliced spring onions and serve with steamed rice."
+  ],
+  "tips": [
+   "Toasted coconut gives the sauce its nutty, dark colour; do not skip it."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "Chicken pieces in a thick brownish coconut sauce in a shallow bowl, topped with fresh green spring onion and red chilli slices."
+ },
+ {
+  "name": "Chicken Teriyaki",
+  "cuisine": "Japanese",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 20,
+  "servings": 4,
+  "calories": 460,
+  "protein": 36,
+  "carbs": 34,
+  "fat": 19,
+  "description": "Pan-seared chicken thighs glazed in a glossy sweet-savoury soy sauce, served over rice.",
+  "ingredients": [
+   [
+    "boneless chicken thighs",
+    700,
+    "g"
+   ],
+   [
+    "soy sauce",
+    4,
+    "tbsp"
+   ],
+   [
+    "honey",
+    2,
+    "tbsp"
+   ],
+   [
+    "sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "apple juice",
+    4,
+    "tbsp"
+   ],
+   [
+    "rice vinegar",
+    1,
+    "tbsp"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "cornflour",
+    1,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "cooked Japanese rice",
+    600,
+    "g"
+   ],
+   [
+    "broccoli",
+    200,
+    "g"
+   ],
+   [
+    "toasted sesame seeds",
+    1,
+    "tsp"
+   ],
+   [
+    "spring onions",
+    2,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Mix the soy sauce, honey, sugar, apple juice, rice vinegar, grated ginger, crushed garlic and cornflour in a bowl.",
+   "Heat the oil in a large frying pan over medium-high heat and place the chicken skin-side down.",
+   "Cook 6 minutes until the skin is golden, flip and cook 5 minutes more until almost cooked through.",
+   "Steam or boil the broccoli for 4 minutes until bright green and tender.",
+   "Pour the sauce into the pan, lower the heat to medium and simmer 3 to 4 minutes, turning the chicken, until the sauce is thick and glossy.",
+   "Slice the chicken, spoon the sauce over and serve on rice with the broccoli.",
+   "Sprinkle with sesame seeds and sliced spring onions."
+  ],
+  "tips": [
+   "Take the chicken out of the fridge 15 minutes before cooking for even browning."
+  ],
+  "allergens": [
+   "Soy",
+   "Gluten",
+   "Sesame"
+  ],
+  "kid_friendly": true,
+  "photo": "Sliced glossy dark-glazed chicken fanned over a bowl of white rice with bright green broccoli and sesame seeds."
+ },
+ {
+  "name": "Beef Bulgogi",
+  "cuisine": "Korean",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 10,
+  "servings": 4,
+  "calories": 480,
+  "protein": 36,
+  "carbs": 28,
+  "fat": 24,
+  "description": "Thinly sliced beef marinated in a sweet pear and soy sauce, quickly seared and served with rice and lettuce wraps.",
+  "ingredients": [
+   [
+    "beef sirloin, thinly sliced",
+    600,
+    "g"
+   ],
+   [
+    "Asian pear",
+    0.5,
+    "pieces"
+   ],
+   [
+    "soy sauce",
+    4,
+    "tbsp"
+   ],
+   [
+    "sugar",
+    2,
+    "tbsp"
+   ],
+   [
+    "honey",
+    1,
+    "tbsp"
+   ],
+   [
+    "rice vinegar",
+    1,
+    "tbsp"
+   ],
+   [
+    "sesame oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "spring onions",
+    3,
+    "pieces"
+   ],
+   [
+    "toasted sesame seeds",
+    1,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "cooked short-grain rice",
+    500,
+    "g"
+   ],
+   [
+    "lettuce leaves",
+    8,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Grate the pear and mix it with the soy sauce, sugar, honey, rice vinegar, sesame oil, crushed garlic, ginger and pepper.",
+   "Add the sliced beef, toss well and marinate in the fridge for at least 1 hour, up to overnight.",
+   "Slice the onion into half moons and the spring onions into 3 cm lengths.",
+   "Heat the vegetable oil in a large frying pan or cast iron skillet over high heat.",
+   "Cook the beef in two batches for 2 to 3 minutes each, with the onion, until browned and caramelised at the edges.",
+   "Stir in the spring onions and sesame seeds, cook 30 seconds.",
+   "Serve with rice and lettuce leaves for wrapping."
+  ],
+  "tips": [
+   "Freeze the beef for 30 minutes before slicing to get paper-thin pieces."
+  ],
+  "allergens": [
+   "Soy",
+   "Gluten",
+   "Sesame"
+  ],
+  "kid_friendly": true,
+  "photo": "Caramelised dark beef slices with onion and sesame seeds in a dish, with a bowl of rice and fresh green lettuce leaves beside."
+ },
+ {
+  "name": "Cumin Lamb Stir-Fry",
+  "cuisine": "Chinese (Hui)",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 10,
+  "servings": 4,
+  "calories": 490,
+  "protein": 34,
+  "carbs": 14,
+  "fat": 33,
+  "description": "Fiery Northwest Chinese stir-fry of sliced lamb with toasted cumin, chilli and fresh coriander.",
+  "ingredients": [
+   [
+    "lamb leg, thinly sliced",
+    600,
+    "g"
+   ],
+   [
+    "cumin seeds",
+    2,
+    "tbsp"
+   ],
+   [
+    "dried chilli flakes",
+    2,
+    "tsp"
+   ],
+   [
+    "soy sauce",
+    2,
+    "tbsp"
+   ],
+   [
+    "cornflour",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "spring onions",
+    3,
+    "pieces"
+   ],
+   [
+    "green chilli",
+    2,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "ground Sichuan pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Toast the cumin seeds in a dry pan over medium heat for 1 to 2 minutes until fragrant, then crush them coarsely.",
+   "Toss the lamb with the soy sauce, cornflour and half the crushed cumin and marinate 15 minutes.",
+   "Slice the onion, green chillies, garlic and spring onions.",
+   "Heat 2 tablespoons oil in a wok over very high heat until smoking and sear the lamb for 2 minutes without moving, then stir-fry 1 more minute; remove.",
+   "Add the remaining oil and fry the onion, garlic and green chillies for 2 minutes.",
+   "Return the lamb and add the chilli flakes, Sichuan pepper, salt and remaining cumin, tossing for 1 minute.",
+   "Stir in the spring onions and coriander and serve at once with rice or flatbread."
+  ],
+  "tips": [
+   "Work in small batches on high heat so the lamb sears instead of stewing."
+  ],
+  "allergens": [
+   "Soy",
+   "Gluten"
+  ],
+  "kid_friendly": false,
+  "photo": "Browned lamb slices flecked with cumin and red chilli, with green chilli, onion and coriander on a dark plate."
+ },
+ {
+  "name": "Pisang Goreng (Banana Fritters)",
+  "cuisine": "Malaysian",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 15,
+  "servings": 4,
+  "calories": 330,
+  "protein": 4,
+  "carbs": 52,
+  "fat": 13,
+  "description": "Crisp golden battered bananas fried until caramelised and soft inside, a classic street snack.",
+  "ingredients": [
+   [
+    "ripe bananas",
+    6,
+    "pieces"
+   ],
+   [
+    "plain flour",
+    120,
+    "g"
+   ],
+   [
+    "rice flour",
+    40,
+    "g"
+   ],
+   [
+    "sugar",
+    2,
+    "tbsp"
+   ],
+   [
+    "baking powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "pinch"
+   ],
+   [
+    "ground turmeric",
+    0.25,
+    "tsp"
+   ],
+   [
+    "cold water",
+    150,
+    "ml"
+   ],
+   [
+    "vegetable oil",
+    500,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Whisk the plain flour, rice flour, sugar, baking powder, salt and turmeric in a bowl.",
+   "Gradually whisk in the cold water to make a smooth batter the thickness of single cream.",
+   "Peel the bananas and cut each in half lengthways, or in thirds if small.",
+   "Heat the oil in a deep pan over medium heat to about 170 C (a drop of batter should sizzle and rise).",
+   "Dip each banana piece in the batter, let the excess drip off, and lower into the oil.",
+   "Fry in batches for 3 to 4 minutes, turning once, until deep golden and crisp.",
+   "Drain on paper towels and serve warm."
+  ],
+  "tips": [
+   "Use firm, just-ripe bananas such as plantain or pisang raja for best results."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A pile of golden crunchy banana fritters on a rustic plate lined with paper, with a few banana slices showing soft yellow inside."
+ },
+ {
+  "name": "Klepon (Palm Sugar Rice Balls)",
+  "cuisine": "Indonesian",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 15,
+  "servings": 4,
+  "calories": 260,
+  "protein": 3,
+  "carbs": 50,
+  "fat": 6,
+  "description": "Chewy pandan-green glutinous rice balls that burst with liquid palm sugar, rolled in fresh coconut.",
+  "ingredients": [
+   [
+    "glutinous rice flour",
+    200,
+    "g"
+   ],
+   [
+    "pandan juice",
+    120,
+    "ml"
+   ],
+   [
+    "warm water",
+    40,
+    "ml"
+   ],
+   [
+    "palm sugar",
+    80,
+    "g"
+   ],
+   [
+    "grated fresh coconut",
+    100,
+    "g"
+   ],
+   [
+    "salt",
+    0.5,
+    "tsp"
+   ],
+   [
+    "water",
+    1.5,
+    "l"
+   ]
+  ],
+  "steps": [
+   "Mix the glutinous rice flour with the pandan juice and warm water, kneading to a soft dough that does not crack.",
+   "Chop or grate the palm sugar into small pieces.",
+   "Pinch off walnut-sized pieces of dough, flatten each, place a piece of palm sugar in the middle and seal into a smooth ball.",
+   "Bring the water to a boil in a large pot over high heat.",
+   "Drop in the balls in batches and cook 3 to 4 minutes until they float, then 1 more minute.",
+   "Meanwhile steam the grated coconut with the salt for 10 minutes.",
+   "Lift the balls out with a slotted spoon, drain well and roll them in the coconut.",
+   "Serve at room temperature."
+  ],
+  "tips": [
+   "Seal the balls well or the sugar will leak out while boiling."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "Small bright green round balls rolled in white shredded coconut, piled on a banana leaf lined plate."
+ }
+]

@@ -113,10 +113,10 @@ export function RecipePhotos() {
             <Camera className="h-5 w-5" />
           </span>
           <div className="flex-1">
-            <p className="font-display text-lg font-semibold text-foreground">Recipe photos</p>
+            <p className="font-display text-lg font-semibold text-foreground">Or generate photos automatically</p>
             <p className="text-sm text-muted-foreground">
-              Creates a photo of each library recipe that doesn’t have one yet, in one warm, consistent style. Photos are
-              saved to your Supabase storage, so this only costs once.
+              Optional: uses your OpenAI key to create a photo for every recipe that still has none, in the same warm style.
+              Costs a few cents per photo, once.
             </p>
           </div>
           <Button variant="ghost" size="icon" onClick={load} aria-label="Refresh" disabled={running}>

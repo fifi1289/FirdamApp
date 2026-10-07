@@ -21,3 +21,24 @@ BEGIN
     ON CONFLICT (id) DO UPDATE SET public = true;
   END IF;
 END $$;
+
+-- Admins can set a recipe's photo from the admin page.
+DROP POLICY IF EXISTS "recipes_admin_update" ON public.recipes;
+CREATE POLICY "recipes_admin_update" ON public.recipes
+  FOR UPDATE TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+-- Admins can upload photos to the recipe-images bucket (everyone can view them).
+DO $$
+BEGIN
+  IF to_regclass('storage.objects') IS NOT NULL THEN
+    DROP POLICY IF EXISTS "recipe_images_admin_insert" ON storage.objects;
+    CREATE POLICY "recipe_images_admin_insert" ON storage.objects
+      FOR INSERT TO authenticated WITH CHECK (bucket_id = 'recipe-images' AND public.is_admin());
+    DROP POLICY IF EXISTS "recipe_images_admin_update" ON storage.objects;
+    CREATE POLICY "recipe_images_admin_update" ON storage.objects
+      FOR UPDATE TO authenticated USING (bucket_id = 'recipe-images' AND public.is_admin());
+    DROP POLICY IF EXISTS "recipe_images_admin_delete" ON storage.objects;
+    CREATE POLICY "recipe_images_admin_delete" ON storage.objects
+      FOR DELETE TO authenticated USING (bucket_id = 'recipe-images' AND public.is_admin());
+  END IF;
+END $$;

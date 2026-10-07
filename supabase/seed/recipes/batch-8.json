@@ -1,0 +1,2145 @@
+[
+ {
+  "name": "Fluffy Pancakes with Berries",
+  "cuisine": "American",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 15,
+  "servings": 4,
+  "calories": 380,
+  "protein": 11,
+  "carbs": 55,
+  "fat": 13,
+  "description": "Thick, golden American-style pancakes stacked high and topped with juicy fresh berries and maple syrup.",
+  "ingredients": [
+   [
+    "plain flour",
+    200,
+    "g"
+   ],
+   [
+    "baking powder",
+    2,
+    "tsp"
+   ],
+   [
+    "caster sugar",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1,
+    "pinch"
+   ],
+   [
+    "whole milk",
+    250,
+    "ml"
+   ],
+   [
+    "eggs",
+    1,
+    "pieces"
+   ],
+   [
+    "unsalted butter",
+    30,
+    "g"
+   ],
+   [
+    "vanilla powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "strawberries",
+    150,
+    "g"
+   ],
+   [
+    "blueberries",
+    100,
+    "g"
+   ],
+   [
+    "maple syrup",
+    4,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Whisk the plain flour, baking powder, caster sugar and salt together in a large bowl.",
+   "Melt the unsalted butter in a small pan or the microwave and let it cool for 2 minutes.",
+   "In a jug, beat the egg with the whole milk, melted butter and vanilla powder.",
+   "Pour the wet mixture into the dry ingredients and stir gently until just combined; a few small lumps are fine and keep the pancakes fluffy. Rest the batter for 5 minutes.",
+   "Heat a non-stick frying pan over medium heat and lightly grease it. Pour in about 60 ml (a quarter cup) of batter per pancake.",
+   "Cook for 2 to 3 minutes until bubbles appear on the surface, then flip and cook for 1 to 2 minutes until golden.",
+   "Keep the cooked pancakes warm under a clean tea towel while you finish the batter, then stack them and top with sliced strawberries, blueberries and maple syrup."
+  ],
+  "tips": [
+   "Do not overmix the batter, or the pancakes will turn out tough instead of fluffy."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A tall stack of golden pancakes on a white plate, topped with halved strawberries and blueberries and glossy maple syrup running down the sides."
+ },
+ {
+  "name": "Spinach & Feta Omelette",
+  "cuisine": "Mediterranean",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 8,
+  "servings": 2,
+  "calories": 340,
+  "protein": 22,
+  "carbs": 5,
+  "fat": 26,
+  "description": "A light, protein-packed omelette folded around wilted spinach and salty feta, ready in under 20 minutes.",
+  "ingredients": [
+   [
+    "eggs",
+    6,
+    "pieces"
+   ],
+   [
+    "fresh spinach",
+    100,
+    "g"
+   ],
+   [
+    "feta cheese",
+    80,
+    "g"
+   ],
+   [
+    "olive oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "spring onions",
+    2,
+    "pieces"
+   ],
+   [
+    "dried oregano",
+    0.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Wash the spinach and roughly chop it. Slice the spring onions and crumble the feta cheese.",
+   "Heat half of the olive oil in a non-stick frying pan over medium heat. Cook the spring onions for 1 minute, add the spinach and stir for 1 to 2 minutes until wilted. Tip it into a bowl.",
+   "Crack the eggs into a bowl, add the oregano, black pepper and a small pinch of salt (feta is already salty), and whisk well.",
+   "Wipe the pan, add the remaining olive oil and heat over medium heat. Pour in half of the egg mixture.",
+   "Cook for 2 minutes, gently pulling the set edges towards the centre, until the base is set but the top is still slightly creamy.",
+   "Scatter half of the spinach and feta over one side, fold the omelette over, and cook for 1 more minute. Slide onto a plate and repeat with the remaining mixture."
+  ],
+  "tips": [
+   "Squeeze excess water out of the cooked spinach so the omelette does not turn soggy.",
+   "Choose a feta made with microbial/vegetarian rennet or halal-certified."
+  ],
+  "allergens": [
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden folded omelette on a round plate, split open to show green spinach and white feta crumbles, finished with cracked black pepper and a sprig of oregano."
+ },
+ {
+  "name": "Greek Yogurt Parfait with Granola",
+  "cuisine": "Mediterranean",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 0,
+  "servings": 4,
+  "calories": 320,
+  "protein": 16,
+  "carbs": 42,
+  "fat": 10,
+  "description": "Creamy Greek yogurt layered with crunchy granola, fresh berries and a drizzle of honey for a no-cook breakfast.",
+  "ingredients": [
+   [
+    "Greek yogurt",
+    600,
+    "g"
+   ],
+   [
+    "granola",
+    160,
+    "g"
+   ],
+   [
+    "strawberries",
+    150,
+    "g"
+   ],
+   [
+    "blueberries",
+    100,
+    "g"
+   ],
+   [
+    "honey",
+    3,
+    "tbsp"
+   ],
+   [
+    "vanilla powder",
+    0.25,
+    "tsp"
+   ],
+   [
+    "flaked almonds",
+    2,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Wash the strawberries and blueberries, then hull and slice the strawberries.",
+   "Stir the vanilla powder and 1 tablespoon of the honey into the Greek yogurt until smooth.",
+   "Spoon a layer of yogurt into the bottom of four tall glasses, about one third of the total.",
+   "Add a layer of granola and a layer of berries to each glass.",
+   "Repeat the layers once more, finishing with a final layer of yogurt on top.",
+   "Top with the remaining berries, flaked almonds and a drizzle of the remaining honey. Serve straight away so the granola stays crunchy."
+  ],
+  "tips": [
+   "Check the granola label to make sure it contains no animal-derived or alcohol-flavoured ingredients.",
+   "Assemble just before eating, or keep the granola separate if you are preparing ahead."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "Four clear glasses showing distinct white, golden and red-purple layers of yogurt, granola and berries, topped with flaked almonds and a honey drizzle."
+ },
+ {
+  "name": "Beef & Egg Breakfast Burrito",
+  "cuisine": "Mexican",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 15,
+  "servings": 4,
+  "calories": 520,
+  "protein": 31,
+  "carbs": 40,
+  "fat": 26,
+  "description": "Large warm tortillas stuffed with spiced minced beef, fluffy scrambled eggs, melted cheese and fresh salsa.",
+  "ingredients": [
+   [
+    "minced beef",
+    300,
+    "g"
+   ],
+   [
+    "eggs",
+    6,
+    "pieces"
+   ],
+   [
+    "flour tortillas",
+    4,
+    "pieces"
+   ],
+   [
+    "cheddar cheese",
+    100,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "red pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "smoked paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "garlic powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "tomato salsa",
+    4,
+    "tbsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Finely dice the onion and red pepper, and grate the cheddar cheese.",
+   "Heat the vegetable oil in a large frying pan over medium-high heat. Fry the onion and pepper for 4 minutes until soft.",
+   "Add the minced beef and cook for 6 to 7 minutes, breaking it up with a spoon, until browned with no pink left. Stir in the cumin, smoked paprika, garlic powder, salt and pepper and cook for 1 minute.",
+   "Push the beef to one side of the pan, pour in the beaten eggs on the other side, and scramble gently for 2 minutes until just set. Stir everything together.",
+   "Warm the tortillas for 20 seconds each in a dry pan or the microwave so they are soft and will not crack.",
+   "Spoon the beef and egg mixture down the centre of each tortilla, add cheese and salsa, fold in the sides and roll up tightly. Serve warm, cut in half."
+  ],
+  "tips": [
+   "Wrap burritos in foil once rolled to keep them warm for a packed lunch.",
+   "Choose a cheese made with microbial/vegetarian rennet or halal-certified."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Two burritos cut in half on a wooden board showing a filling of browned beef, yellow scrambled egg and melted cheese, with a small bowl of red salsa and lime wedges beside them."
+ },
+ {
+  "name": "Spaghetti Bolognese",
+  "cuisine": "Italian",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 60,
+  "servings": 4,
+  "calories": 610,
+  "protein": 35,
+  "carbs": 70,
+  "fat": 21,
+  "description": "A rich, slow-simmered halal beef ragu with tomatoes and herbs, served over spaghetti and finished with parmesan.",
+  "ingredients": [
+   [
+    "minced beef",
+    500,
+    "g"
+   ],
+   [
+    "spaghetti",
+    320,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "carrot",
+    1,
+    "pieces"
+   ],
+   [
+    "celery sticks",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "beef stock",
+    250,
+    "ml"
+   ],
+   [
+    "whole milk",
+    50,
+    "ml"
+   ],
+   [
+    "dried oregano",
+    1,
+    "tsp"
+   ],
+   [
+    "dried basil",
+    1,
+    "tsp"
+   ],
+   [
+    "bay leaves",
+    1,
+    "pieces"
+   ],
+   [
+    "parmesan cheese",
+    40,
+    "g"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Finely chop the onion, carrot and celery, and crush the garlic.",
+   "Heat the olive oil in a large heavy pan over medium heat. Cook the onion, carrot and celery for 8 minutes until soft, adding the garlic for the last minute.",
+   "Turn the heat to high, add the minced beef and cook for 6 to 8 minutes, breaking it up, until well browned.",
+   "Stir in the tomato puree and cook for 1 minute, then add the chopped tomatoes, beef stock, oregano, basil, bay leaf, salt and pepper.",
+   "Reduce the heat to low and simmer, partly covered, for 40 minutes, stirring now and then. Stir in the milk for the last 5 minutes and remove the bay leaf.",
+   "Meanwhile, cook the spaghetti in a large pan of salted boiling water for 9 to 11 minutes until al dente, then drain.",
+   "Serve the sauce spooned over the spaghetti with freshly grated parmesan cheese."
+  ],
+  "tips": [
+   "Choose a cheese made with microbial/vegetarian rennet or halal-certified.",
+   "The sauce tastes even better the next day and freezes well for up to 3 months."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Celery"
+  ],
+  "kid_friendly": true,
+  "photo": "A shallow white bowl of twirled spaghetti topped with deep red meat sauce, fresh basil leaves and a snowfall of grated parmesan."
+ },
+ {
+  "name": "Chicken Alfredo Pasta",
+  "cuisine": "Italian",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 25,
+  "servings": 4,
+  "calories": 720,
+  "protein": 42,
+  "carbs": 62,
+  "fat": 35,
+  "description": "Tender pan-seared chicken and fettuccine tossed in a silky garlic, cream and parmesan sauce.",
+  "ingredients": [
+   [
+    "chicken breast",
+    500,
+    "g"
+   ],
+   [
+    "fettuccine",
+    320,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    40,
+    "g"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "double cream",
+    300,
+    "ml"
+   ],
+   [
+    "whole milk",
+    100,
+    "ml"
+   ],
+   [
+    "parmesan cheese",
+    100,
+    "g"
+   ],
+   [
+    "olive oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "dried Italian herbs",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Slice the chicken breast in half horizontally to make thinner fillets, then season both sides with salt, pepper and the dried Italian herbs.",
+   "Heat the olive oil in a large frying pan over medium-high heat and cook the chicken for 5 to 6 minutes per side until golden and cooked through (no pink inside). Rest on a board for 5 minutes, then slice.",
+   "Cook the fettuccine in salted boiling water for 9 to 11 minutes until al dente. Save a mug of pasta water, then drain.",
+   "In the same frying pan, melt the unsalted butter over medium heat and cook the crushed garlic for 30 seconds.",
+   "Pour in the double cream and milk, simmer gently for 3 to 4 minutes, then stir in the grated parmesan cheese until the sauce is smooth and thick.",
+   "Add the pasta and toss to coat, loosening with a splash of the pasta water if needed. Top with the sliced chicken, chopped parsley and extra black pepper."
+  ],
+  "tips": [
+   "Choose a cheese made with microbial/vegetarian rennet or halal-certified.",
+   "Grate the parmesan yourself; pre-grated cheese can make the sauce grainy."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A wide white bowl of fettuccine coated in creamy pale sauce, topped with sliced golden chicken, chopped green parsley and black pepper."
+ },
+ {
+  "name": "Homemade Margherita Pizza",
+  "cuisine": "Italian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 100,
+  "cook": 12,
+  "servings": 4,
+  "calories": 560,
+  "protein": 24,
+  "carbs": 78,
+  "fat": 17,
+  "description": "Classic pizza with a crisp, chewy homemade base, simple tomato sauce, creamy mozzarella and fresh basil.",
+  "ingredients": [
+   [
+    "strong white bread flour",
+    450,
+    "g"
+   ],
+   [
+    "fast-action dried yeast",
+    7,
+    "g"
+   ],
+   [
+    "caster sugar",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "warm water",
+    280,
+    "ml"
+   ],
+   [
+    "canned chopped tomatoes",
+    300,
+    "g"
+   ],
+   [
+    "garlic",
+    1,
+    "cloves"
+   ],
+   [
+    "dried oregano",
+    1,
+    "tsp"
+   ],
+   [
+    "mozzarella cheese",
+    250,
+    "g"
+   ],
+   [
+    "fresh basil",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, yeast, sugar and salt in a large bowl. Add the olive oil and warm water and stir to form a sticky dough.",
+   "Knead on a floured surface for 8 to 10 minutes until smooth and elastic. Place in an oiled bowl, cover, and leave in a warm place for 1 hour until doubled in size.",
+   "Meanwhile, make the sauce: crush the garlic and stir it into the chopped tomatoes with the oregano and a pinch of salt. No cooking is needed.",
+   "Heat your oven to 240°C (465°F) with a baking tray or pizza stone inside. Divide the dough into 4 balls and roll each out to a 25 cm round.",
+   "Place a dough round on a sheet of baking paper, spread over 3 to 4 tablespoons of sauce, leaving a 1 cm border, and top with torn mozzarella cheese.",
+   "Slide the pizza with its paper onto the hot tray and bake for 8 to 10 minutes until the crust is golden and the cheese is bubbling. Repeat with the remaining pizzas.",
+   "Top with fresh basil leaves, slice and serve hot."
+  ],
+  "tips": [
+   "Choose a mozzarella made with microbial/vegetarian rennet or halal-certified.",
+   "A very hot oven and preheated tray give a crisp base."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A round pizza on a wooden board with a blistered golden crust, melted white mozzarella pools, red tomato sauce and fresh green basil leaves."
+ },
+ {
+  "name": "Beef Lasagne",
+  "cuisine": "Italian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 90,
+  "servings": 6,
+  "calories": 640,
+  "protein": 36,
+  "carbs": 46,
+  "fat": 34,
+  "description": "Layers of pasta, rich beef ragu and creamy white sauce, baked until bubbling with a golden cheesy top.",
+  "ingredients": [
+   [
+    "minced beef",
+    500,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "carrot",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "beef stock",
+    200,
+    "ml"
+   ],
+   [
+    "dried oregano",
+    1,
+    "tsp"
+   ],
+   [
+    "lasagne sheets",
+    250,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    50,
+    "g"
+   ],
+   [
+    "plain flour",
+    50,
+    "g"
+   ],
+   [
+    "whole milk",
+    600,
+    "ml"
+   ],
+   [
+    "ground nutmeg",
+    1,
+    "pinch"
+   ],
+   [
+    "mozzarella cheese",
+    150,
+    "g"
+   ],
+   [
+    "parmesan cheese",
+    40,
+    "g"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Finely chop the onion and carrot and crush the garlic. Heat the olive oil in a large pan and cook the onion and carrot for 6 minutes until soft, adding the garlic for the last minute.",
+   "Add the minced beef and cook over high heat for 6 to 8 minutes until browned. Stir in the tomato puree, chopped tomatoes, stock, oregano, salt and pepper and simmer gently for 25 minutes until thick.",
+   "Make the white sauce: melt the unsalted butter in a saucepan, stir in the flour and cook for 1 minute. Add the milk a little at a time, whisking, then simmer for 5 minutes until thick. Season with nutmeg, salt and pepper.",
+   "Heat your oven to 180°C (350°F). Spread a thin layer of meat sauce in a 20 x 30 cm baking dish and cover with lasagne sheets.",
+   "Add a layer of meat sauce, then a layer of white sauce, then more sheets. Repeat until everything is used, finishing with white sauce.",
+   "Sprinkle over the grated mozzarella and parmesan cheeses and bake for 40 to 45 minutes until golden and bubbling.",
+   "Rest for 10 minutes before cutting so the layers hold together."
+  ],
+  "tips": [
+   "Choose cheeses made with microbial/vegetarian rennet or halal-certified.",
+   "Lasagne can be assembled a day ahead and kept covered in the fridge; add 10 minutes to the baking time."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A square slice of lasagne on a white plate showing neat layers of pasta, red beef ragu and white sauce under a browned cheese top, with a basil leaf garnish."
+ },
+ {
+  "name": "Chicken Souvlaki with Tzatziki",
+  "cuisine": "Greek",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 15,
+  "servings": 4,
+  "calories": 480,
+  "protein": 42,
+  "carbs": 36,
+  "fat": 18,
+  "description": "Lemony, herby grilled chicken skewers served in warm pita with cool cucumber tzatziki and fresh salad.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    700,
+    "g"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "lemon",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "dried oregano",
+    2,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "Greek yogurt",
+    250,
+    "g"
+   ],
+   [
+    "cucumber",
+    0.5,
+    "pieces"
+   ],
+   [
+    "fresh dill",
+    1,
+    "tbsp"
+   ],
+   [
+    "pita bread",
+    4,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "red onion",
+    1,
+    "pieces"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Cut the chicken thighs into 3 cm cubes. Mix with the olive oil, juice of 1 lemon, 3 crushed garlic cloves, oregano, paprika, salt and pepper. Marinate for at least 30 minutes (up to 8 hours in the fridge).",
+   "Make the tzatziki: grate the cucumber and squeeze out as much water as you can. Mix with the Greek yogurt, 1 crushed garlic clove, dill, juice of half a lemon and a pinch of salt. Chill until needed.",
+   "If using wooden skewers, soak them in water for 20 minutes. Thread the chicken onto the skewers.",
+   "Heat a griddle pan or grill to medium-high. Cook the skewers for 12 to 15 minutes, turning every 3 to 4 minutes, until charred in places and cooked through with no pink inside.",
+   "Slice the tomatoes and red onion. Warm the pita in a dry pan for 30 seconds on each side.",
+   "Serve the chicken in or alongside the pita with sliced tomato, onion, tzatziki and the remaining lemon cut into wedges."
+  ],
+  "tips": [
+   "Thighs stay juicier than breast, but breast works too; just reduce the cooking time slightly."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "Charred chicken skewers on a rustic plate beside warm pita, a bowl of white tzatziki with dill, tomato and red onion slices and lemon wedges."
+ },
+ {
+  "name": "Chicken & Prawn Paella",
+  "cuisine": "Spanish",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 40,
+  "servings": 4,
+  "calories": 560,
+  "protein": 40,
+  "carbs": 66,
+  "fat": 14,
+  "description": "Saffron-scented Spanish rice with chicken, prawns and peas, flavoured with smoked paprika for a deep, smoky taste.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    400,
+    "g"
+   ],
+   [
+    "raw king prawns",
+    250,
+    "g"
+   ],
+   [
+    "paella rice",
+    300,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "red pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "smoked paprika",
+    2,
+    "tsp"
+   ],
+   [
+    "saffron threads",
+    1,
+    "pinch"
+   ],
+   [
+    "canned chopped tomatoes",
+    200,
+    "g"
+   ],
+   [
+    "chicken stock",
+    900,
+    "ml"
+   ],
+   [
+    "frozen peas",
+    100,
+    "g"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Warm the chicken stock and soak the saffron threads in it for 10 minutes. Cut the chicken into bite-sized pieces and season with salt and half the smoked paprika.",
+   "Heat the olive oil in a wide, shallow pan over medium-high heat. Brown the chicken for 6 to 8 minutes, then set aside.",
+   "In the same pan cook the chopped onion and red pepper for 5 minutes. Add the crushed garlic, remaining smoked paprika and chopped tomatoes and cook for 3 minutes until thick.",
+   "Stir in the rice for 1 minute, then pour in the hot saffron stock. Return the chicken, spread everything evenly and simmer without stirring for 15 minutes.",
+   "Nestle the prawns and peas into the rice, cover with foil and cook for 8 to 10 minutes on low heat until the prawns turn pink and the rice is tender.",
+   "Turn up the heat for the last 1 to 2 minutes to crisp the bottom layer of rice slightly. Rest for 5 minutes, then scatter with parsley and serve with lemon wedges."
+  ],
+  "tips": [
+   "Do not stir the rice once the stock is added; this helps create the prized crispy base."
+  ],
+  "allergens": [
+   "Shellfish",
+   "Celery"
+  ],
+  "kid_friendly": true,
+  "photo": "A wide paella pan of golden saffron rice topped with browned chicken, pink prawns, green peas, red pepper strips, parsley and lemon wedges."
+ },
+ {
+  "name": "Minestrone Soup",
+  "cuisine": "Italian",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 35,
+  "servings": 4,
+  "calories": 290,
+  "protein": 12,
+  "carbs": 46,
+  "fat": 7,
+  "description": "A hearty Italian vegetable soup with beans and small pasta in a fragrant tomato broth.",
+  "ingredients": [
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "carrot",
+    2,
+    "pieces"
+   ],
+   [
+    "celery sticks",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "courgette",
+    1,
+    "pieces"
+   ],
+   [
+    "potato",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "vegetable stock",
+    1,
+    "l"
+   ],
+   [
+    "canned cannellini beans",
+    400,
+    "g"
+   ],
+   [
+    "small pasta shapes",
+    80,
+    "g"
+   ],
+   [
+    "fresh spinach",
+    2,
+    "handful"
+   ],
+   [
+    "dried oregano",
+    1,
+    "tsp"
+   ],
+   [
+    "parmesan cheese",
+    30,
+    "g"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Dice the onion, carrot, celery, courgette and potato into small, even pieces of about 1 cm, and crush the garlic.",
+   "Heat the olive oil in a large pot over medium heat and cook the onion, carrot and celery for 6 minutes until beginning to soften. Add the garlic and cook for 1 minute.",
+   "Stir in the tomato puree, then add the potato, chopped tomatoes, vegetable stock, oregano, salt and pepper. Bring to the boil, then simmer for 15 minutes.",
+   "Add the courgette, drained cannellini beans and pasta and simmer for 8 to 10 minutes until the pasta is tender.",
+   "Stir in the spinach for 2 minutes until wilted, then taste and adjust the seasoning.",
+   "Ladle into bowls and top with grated parmesan cheese and a drizzle of olive oil."
+  ],
+  "tips": [
+   "Choose a cheese made with microbial/vegetarian rennet or halal-certified, or leave it out to keep the soup dairy free.",
+   "Add a splash more stock when reheating, as the pasta absorbs liquid."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Celery"
+  ],
+  "kid_friendly": true,
+  "photo": "A rustic bowl of red-orange vegetable soup full of beans, pasta and green spinach, sprinkled with parmesan and a swirl of olive oil, with crusty bread beside it."
+ },
+ {
+  "name": "Ratatouille",
+  "cuisine": "French",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 50,
+  "servings": 4,
+  "calories": 210,
+  "protein": 5,
+  "carbs": 24,
+  "fat": 11,
+  "description": "A Provençal stew of aubergine, courgette, peppers and tomatoes slowly cooked in olive oil with garlic and herbs.",
+  "ingredients": [
+   [
+    "aubergine",
+    1,
+    "pieces"
+   ],
+   [
+    "courgette",
+    2,
+    "pieces"
+   ],
+   [
+    "red pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "yellow pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "tomato puree",
+    1,
+    "tbsp"
+   ],
+   [
+    "dried thyme",
+    1,
+    "tsp"
+   ],
+   [
+    "bay leaves",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh basil",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Cut the aubergine, courgettes and peppers into 2 cm cubes. Slice the onion and crush the garlic.",
+   "Heat 2 tablespoons of olive oil in a large, wide pan over medium-high heat. Fry the aubergine for 6 to 8 minutes until golden, then remove to a plate.",
+   "Add another tablespoon of oil and fry the courgettes for 4 minutes until lightly browned, then remove to the plate.",
+   "Add the remaining oil and cook the onion and peppers for 6 minutes until soft. Add the garlic and tomato puree and cook for 1 minute.",
+   "Pour in the chopped tomatoes and add the thyme, bay leaf, salt and pepper. Return the aubergine and courgettes to the pan.",
+   "Cover and simmer on low heat for 25 minutes, stirring occasionally, until the vegetables are tender and the sauce has thickened. Remove the bay leaf, stir in torn basil and serve warm or at room temperature."
+  ],
+  "tips": [
+   "Browning the vegetables separately keeps their shapes and gives a deeper flavour.",
+   "Serve with couscous, rice or crusty bread."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A shallow terracotta dish of glossy, jewel-coloured stewed vegetables in tomato sauce, topped with torn basil and a drizzle of olive oil."
+ },
+ {
+  "name": "Tuna Niçoise Salad",
+  "cuisine": "French",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 15,
+  "servings": 4,
+  "calories": 420,
+  "protein": 30,
+  "carbs": 24,
+  "fat": 22,
+  "description": "A colourful French salad of tuna, boiled eggs, green beans, potatoes, tomatoes and olives with a mustard dressing.",
+  "ingredients": [
+   [
+    "baby potatoes",
+    400,
+    "g"
+   ],
+   [
+    "green beans",
+    200,
+    "g"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "canned tuna in olive oil",
+    320,
+    "g"
+   ],
+   [
+    "cherry tomatoes",
+    250,
+    "g"
+   ],
+   [
+    "black olives",
+    60,
+    "g"
+   ],
+   [
+    "little gem lettuce",
+    2,
+    "pieces"
+   ],
+   [
+    "red onion",
+    0.5,
+    "pieces"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "english mustard",
+    1,
+    "tsp"
+   ],
+   [
+    "honey",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Boil the baby potatoes in salted water for 12 to 15 minutes until tender. Add the green beans for the last 3 minutes, then drain and cool under cold running water.",
+   "Boil the eggs in a separate pan for 8 minutes, cool in cold water, then peel and quarter them.",
+   "Make the dressing by whisking the olive oil, lemon juice, English mustard, honey, salt and pepper together in a small jar.",
+   "Halve the potatoes, halve the cherry tomatoes and thinly slice the red onion. Separate the lettuce leaves.",
+   "Arrange the lettuce on a large platter and top with the potatoes, green beans, tomatoes, onion and olives.",
+   "Flake the drained tuna over the top, add the eggs, drizzle over the dressing and serve."
+  ],
+  "tips": [],
+  "allergens": [
+   "Fish",
+   "Eggs",
+   "Mustard"
+  ],
+  "kid_friendly": false,
+  "photo": "A large white platter of salad with neat sections of flaked tuna, green beans, halved eggs with golden yolks, red tomatoes, black olives and potatoes."
+ },
+ {
+  "name": "Beef Tacos",
+  "cuisine": "Mexican",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 15,
+  "servings": 4,
+  "calories": 480,
+  "protein": 28,
+  "carbs": 38,
+  "fat": 23,
+  "description": "Soft taco shells filled with smoky spiced minced beef, crisp lettuce, tomato, cheese and a squeeze of lime.",
+  "ingredients": [
+   [
+    "minced beef",
+    450,
+    "g"
+   ],
+   [
+    "small corn tortillas",
+    8,
+    "pieces"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1.5,
+    "tsp"
+   ],
+   [
+    "smoked paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "dried oregano",
+    1,
+    "tsp"
+   ],
+   [
+    "chilli powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "tomato puree",
+    1,
+    "tbsp"
+   ],
+   [
+    "water",
+    100,
+    "ml"
+   ],
+   [
+    "iceberg lettuce",
+    0.5,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "cheddar cheese",
+    80,
+    "g"
+   ],
+   [
+    "soured cream",
+    4,
+    "tbsp"
+   ],
+   [
+    "lime",
+    1,
+    "pieces"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Finely chop the onion and crush the garlic. Shred the lettuce, dice the tomatoes and grate the cheddar cheese.",
+   "Heat the oil in a large frying pan over medium heat and cook the onion for 4 minutes until soft. Add the garlic and cook for 30 seconds.",
+   "Add the minced beef and cook over high heat for 6 to 8 minutes, breaking it up, until browned.",
+   "Stir in the cumin, smoked paprika, oregano, chilli powder, tomato puree and salt, then add the water. Simmer for 5 minutes until the sauce is thick and clings to the meat.",
+   "Warm the tortillas for 20 to 30 seconds per side in a dry pan.",
+   "Fill each tortilla with beef, lettuce, tomato, cheese and a spoonful of soured cream. Serve with lime wedges."
+  ],
+  "tips": [
+   "Leave out the chilli powder for younger children.",
+   "Choose a cheese made with microbial/vegetarian rennet or halal-certified."
+  ],
+  "allergens": [
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Four open tacos on a slate board, filled with seasoned beef, shredded lettuce, diced tomato and melted cheese, with lime wedges and a bowl of soured cream."
+ },
+ {
+  "name": "Shepherd's Pie with Lamb",
+  "cuisine": "British",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 25,
+  "cook": 60,
+  "servings": 4,
+  "calories": 590,
+  "protein": 33,
+  "carbs": 44,
+  "fat": 31,
+  "description": "A comforting British classic of rich minced lamb and vegetables under a golden, buttery mashed potato crust.",
+  "ingredients": [
+   [
+    "minced lamb",
+    500,
+    "g"
+   ],
+   [
+    "potatoes",
+    900,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "carrot",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "plain flour",
+    1,
+    "tbsp"
+   ],
+   [
+    "lamb stock",
+    300,
+    "ml"
+   ],
+   [
+    "frozen peas",
+    100,
+    "g"
+   ],
+   [
+    "dried thyme",
+    1,
+    "tsp"
+   ],
+   [
+    "bay leaves",
+    1,
+    "pieces"
+   ],
+   [
+    "unsalted butter",
+    40,
+    "g"
+   ],
+   [
+    "whole milk",
+    60,
+    "ml"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Peel and chop the potatoes into chunks and boil in salted water for 15 to 20 minutes until completely tender. Drain and mash with the unsalted butter, milk, salt and pepper until smooth.",
+   "Meanwhile, finely chop the onion and carrots and crush the garlic. Heat the olive oil in a large pan and cook the onion and carrots for 8 minutes.",
+   "Add the minced lamb and garlic and cook over high heat for 6 to 8 minutes until well browned. Stir in the tomato puree and flour and cook for 1 minute.",
+   "Pour in the lamb stock, add the thyme and bay leaf, and simmer for 15 to 20 minutes until thick. Stir in the peas and remove the bay leaf.",
+   "Heat your oven to 200°C (400°F). Spoon the lamb mixture into a 2 litre baking dish and spread the mash on top, then rough up the surface with a fork.",
+   "Bake for 25 to 30 minutes until the top is golden and the filling is bubbling at the edges. Rest for 5 minutes before serving."
+  ],
+  "tips": [
+   "Make it with minced beef and call it cottage pie if you prefer.",
+   "Check the stock cube is halal and free from alcohol."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A baking dish of shepherd's pie with a golden-brown fork-ridged mashed potato top, a portion scooped out to reveal rich lamb filling with peas and carrots."
+ },
+ {
+  "name": "Oven-Baked Fish and Chips",
+  "cuisine": "British",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 40,
+  "servings": 4,
+  "calories": 520,
+  "protein": 38,
+  "carbs": 56,
+  "fat": 15,
+  "description": "Crispy breadcrumb-coated cod fillets with golden oven chips and minty crushed peas, a lighter take on the British favourite.",
+  "ingredients": [
+   [
+    "potatoes",
+    900,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "cod fillets",
+    4,
+    "pieces"
+   ],
+   [
+    "plain flour",
+    50,
+    "g"
+   ],
+   [
+    "eggs",
+    2,
+    "pieces"
+   ],
+   [
+    "panko breadcrumbs",
+    120,
+    "g"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "frozen peas",
+    300,
+    "g"
+   ],
+   [
+    "fresh mint",
+    1,
+    "tbsp"
+   ],
+   [
+    "unsalted butter",
+    15,
+    "g"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Heat your oven to 220°C (425°F). Cut the potatoes into thick chips, dry them well with a tea towel and toss with 2 tablespoons of oil, salt and pepper on a large baking tray.",
+   "Roast the chips for 15 minutes, turn them over, then roast for another 20 to 25 minutes until golden and crisp.",
+   "Set up three shallow dishes: flour seasoned with salt and pepper, beaten eggs, and panko breadcrumbs mixed with the paprika and the remaining oil.",
+   "Pat the cod dry. Coat each fillet in flour, then egg, then breadcrumbs, pressing the crumbs on firmly.",
+   "Place the fish on a lined tray and bake for 15 to 18 minutes, until the coating is golden and the fish flakes easily and is opaque all the way through.",
+   "Boil the peas for 3 minutes, drain, then lightly crush with the butter, chopped mint, salt and pepper.",
+   "Serve the fish with the chips, minty peas and lemon wedges."
+  ],
+  "tips": [
+   "Spray or drizzle a little oil on the crumbs so they brown evenly in the oven.",
+   "Serve with tartare sauce or ketchup if you like."
+  ],
+  "allergens": [
+   "Fish",
+   "Gluten",
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden crumb-coated fish fillet on a plate with thick oven chips and a scoop of bright green crushed peas, with a lemon wedge on the side."
+ },
+ {
+  "name": "Homemade Beef Burgers",
+  "cuisine": "American",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 12,
+  "servings": 4,
+  "calories": 640,
+  "protein": 38,
+  "carbs": 42,
+  "fat": 34,
+  "description": "Thick, juicy halal beef patties with melted cheese, crisp salad and sauce in toasted burger buns.",
+  "ingredients": [
+   [
+    "minced beef",
+    600,
+    "g"
+   ],
+   [
+    "onion",
+    0.5,
+    "pieces"
+   ],
+   [
+    "garlic powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "burger buns",
+    4,
+    "pieces"
+   ],
+   [
+    "cheddar cheese",
+    4,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "lettuce",
+    4,
+    "pieces"
+   ],
+   [
+    "dill pickles",
+    8,
+    "pieces"
+   ],
+   [
+    "unsalted butter",
+    20,
+    "g"
+   ],
+   [
+    "ketchup",
+    4,
+    "tbsp"
+   ],
+   [
+    "mayonnaise",
+    4,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Grate the onion finely. Mix it gently with the minced beef, garlic powder, black pepper and salt, handling the meat as little as possible.",
+   "Divide into 4 equal portions and shape each into a patty about 2 cm thick. Press a shallow dimple into the centre of each and chill for 15 minutes.",
+   "Heat the oil in a large frying pan or griddle over medium-high heat. Cook the burgers for 4 to 5 minutes per side until deep brown and cooked through with no pink inside.",
+   "Place a slice of cheddar on each burger for the last minute of cooking and cover the pan so the cheese melts.",
+   "Split the buns, spread with the unsalted butter and toast them cut-side down in a dry pan for 1 to 2 minutes until golden.",
+   "Build each burger with lettuce, the cheese-topped patty, sliced tomato, pickles, ketchup and mayonnaise and serve straight away."
+  ],
+  "tips": [
+   "Choose a cheese made with microbial/vegetarian rennet or halal-certified.",
+   "Check that the buns are free from animal fat and the pickles and sauces contain no vinegar made from alcohol."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Eggs",
+   "Sesame"
+  ],
+  "kid_friendly": true,
+  "photo": "A tall burger on a wooden board with a toasted bun, melted yellow cheese over a juicy patty, lettuce, tomato and pickles, served with golden fries."
+ },
+ {
+  "name": "Chicken Fajitas",
+  "cuisine": "Mexican",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 15,
+  "servings": 4,
+  "calories": 450,
+  "protein": 38,
+  "carbs": 40,
+  "fat": 14,
+  "description": "Sizzling spiced chicken strips with soft peppers and onions, wrapped in warm tortillas with guacamole and soured cream.",
+  "ingredients": [
+   [
+    "chicken breast",
+    600,
+    "g"
+   ],
+   [
+    "red pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "green pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "yellow pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "red onion",
+    2,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "smoked paprika",
+    2,
+    "tsp"
+   ],
+   [
+    "garlic powder",
+    1,
+    "tsp"
+   ],
+   [
+    "dried oregano",
+    1,
+    "tsp"
+   ],
+   [
+    "chilli powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "lime",
+    2,
+    "pieces"
+   ],
+   [
+    "flour tortillas",
+    8,
+    "pieces"
+   ],
+   [
+    "ripe avocados",
+    2,
+    "pieces"
+   ],
+   [
+    "soured cream",
+    4,
+    "tbsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Slice the chicken breast into thin strips. Mix with 1 tablespoon of oil, the cumin, smoked paprika, garlic powder, oregano, chilli powder, juice of 1 lime and a good pinch of salt. Leave to marinate for 15 minutes.",
+   "Slice the peppers and red onions into thin strips.",
+   "Make quick guacamole by mashing the avocados with the juice of half a lime, a pinch of salt and chopped coriander.",
+   "Heat the remaining oil in a large frying pan over high heat. Cook the chicken for 6 to 7 minutes until browned and cooked through with no pink inside, then remove to a plate.",
+   "Add the peppers and onions to the hot pan and cook for 5 minutes until softened with charred edges. Return the chicken to the pan and toss together.",
+   "Warm the tortillas for 20 seconds per side in a dry pan. Serve the fajita mix at the table with the tortillas, guacamole, soured cream and the remaining lime in wedges."
+  ],
+  "tips": [
+   "Use a hot pan so the vegetables char rather than steam.",
+   "Leave out the chilli powder for younger children."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A hot black skillet of sizzling chicken, red, green and yellow pepper strips and onions, beside warm tortillas, green guacamole, soured cream and lime wedges."
+ },
+ {
+  "name": "Jerk Chicken with Rice and Peas",
+  "cuisine": "Caribbean",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 60,
+  "servings": 4,
+  "calories": 680,
+  "protein": 44,
+  "carbs": 68,
+  "fat": 24,
+  "description": "Fiery, fragrant Jamaican jerk chicken roasted until sticky and charred, served with coconut rice and kidney beans.",
+  "ingredients": [
+   [
+    "chicken drumsticks and thighs",
+    1.2,
+    "kg"
+   ],
+   [
+    "spring onions",
+    4,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "fresh ginger",
+    1,
+    "tbsp"
+   ],
+   [
+    "scotch bonnet chilli",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh thyme",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground allspice",
+    2,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground nutmeg",
+    0.25,
+    "tsp"
+   ],
+   [
+    "soy sauce",
+    2,
+    "tbsp"
+   ],
+   [
+    "lime",
+    2,
+    "pieces"
+   ],
+   [
+    "brown sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "long grain rice",
+    300,
+    "g"
+   ],
+   [
+    "canned coconut milk",
+    400,
+    "ml"
+   ],
+   [
+    "canned kidney beans",
+    400,
+    "g"
+   ],
+   [
+    "water",
+    250,
+    "ml"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Blend the spring onions, garlic, ginger, deseeded scotch bonnet, thyme, allspice, cinnamon, nutmeg, soy sauce, juice of 2 limes, brown sugar and 1 tablespoon of oil into a thick paste.",
+   "Score the chicken skin and rub the paste all over. Cover and marinate in the fridge for at least 2 hours, or overnight for the best flavour.",
+   "Heat your oven to 200°C (400°F). Place the chicken on a rack over a baking tray and roast for 45 to 50 minutes, turning once halfway, until charred and cooked through with clear juices.",
+   "Meanwhile, rinse the rice until the water runs clear. Put it in a pot with the coconut milk, water, salt and the drained kidney beans.",
+   "Bring to the boil, cover, reduce to the lowest heat and cook for 15 minutes without lifting the lid. Rest, covered, for 5 minutes and fluff with a fork.",
+   "Rest the chicken for 5 minutes and serve with the rice and peas."
+  ],
+  "tips": [
+   "Wear gloves when handling scotch bonnet, and use half a chilli for a milder dish.",
+   "Check the soy sauce is alcohol free."
+  ],
+  "allergens": [
+   "Soy",
+   "Gluten"
+  ],
+  "kid_friendly": false,
+  "photo": "Dark, glossy charred jerk chicken pieces on a plate beside fluffy coconut rice speckled with red kidney beans, garnished with lime wedges and fresh thyme."
+ },
+ {
+  "name": "Pão de Queijo (Cheese Bread)",
+  "cuisine": "Brazilian",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 25,
+  "servings": 20,
+  "calories": 85,
+  "protein": 3,
+  "carbs": 9,
+  "fat": 4,
+  "description": "Chewy, gluten-free Brazilian cheese puffs with a crisp shell and a soft, cheesy middle; this makes about 20 small rolls.",
+  "ingredients": [
+   [
+    "tapioca starch",
+    250,
+    "g"
+   ],
+   [
+    "whole milk",
+    120,
+    "ml"
+   ],
+   [
+    "vegetable oil",
+    60,
+    "ml"
+   ],
+   [
+    "water",
+    60,
+    "ml"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "eggs",
+    1,
+    "pieces"
+   ],
+   [
+    "mozzarella cheese",
+    100,
+    "g"
+   ],
+   [
+    "parmesan cheese",
+    60,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Heat your oven to 200°C (400°F) and line a baking tray with baking paper.",
+   "Put the milk, oil, water and salt in a saucepan and bring just to the boil.",
+   "Place the tapioca starch in a large bowl and pour the hot liquid over it. Stir with a spoon until combined, then leave to cool for 10 minutes.",
+   "Add the egg, grated mozzarella and grated parmesan cheeses and knead with oiled hands until you have a sticky, stretchy dough.",
+   "Roll the dough into 20 balls of about 3 cm and place them 4 cm apart on the tray.",
+   "Bake for 20 to 25 minutes until puffed and pale golden. Serve warm."
+  ],
+  "tips": [
+   "Choose cheeses made with microbial/vegetarian rennet or halal-certified.",
+   "Shaped balls freeze well; bake from frozen, adding 5 minutes."
+  ],
+  "allergens": [
+   "Dairy",
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A wicker basket lined with a napkin holding golden, puffed round cheese rolls, one broken open to show the soft, stretchy inside."
+ },
+ {
+  "name": "Banana Bread",
+  "cuisine": "American",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 55,
+  "servings": 10,
+  "calories": 290,
+  "protein": 4,
+  "carbs": 42,
+  "fat": 12,
+  "description": "A moist, golden banana loaf with a tender crumb and a hint of cinnamon; one loaf makes 10 slices.",
+  "ingredients": [
+   [
+    "ripe bananas",
+    3,
+    "pieces"
+   ],
+   [
+    "plain flour",
+    250,
+    "g"
+   ],
+   [
+    "baking soda",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    0.25,
+    "tsp"
+   ],
+   [
+    "unsalted butter",
+    100,
+    "g"
+   ],
+   [
+    "brown sugar",
+    150,
+    "g"
+   ],
+   [
+    "eggs",
+    2,
+    "pieces"
+   ],
+   [
+    "vanilla powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    1,
+    "tsp"
+   ],
+   [
+    "walnuts",
+    50,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Heat your oven to 175°C (350°F). Grease and line a 900 g (2 lb) loaf tin with baking paper.",
+   "Melt the unsalted butter and let it cool slightly. Mash the bananas in a large bowl until almost smooth.",
+   "Stir the melted butter, brown sugar, eggs and vanilla powder into the bananas until well mixed.",
+   "Sift the flour, baking soda, salt and cinnamon over the banana mixture and fold gently until just combined. Fold in the chopped walnuts.",
+   "Pour the batter into the tin and bake for 50 to 55 minutes, until a skewer pushed into the centre comes out clean. Cover with foil if the top browns too quickly.",
+   "Cool in the tin for 10 minutes, then lift out onto a wire rack and cool completely before slicing."
+  ],
+  "tips": [
+   "The riper and blacker the bananas, the sweeter and moister the loaf.",
+   "Leave out the walnuts for a nut-free version."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Eggs",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden-brown banana loaf with a cracked top on a wooden board, a few thick slices cut to show the moist crumb and walnut pieces."
+ }
+]

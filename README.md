@@ -12,7 +12,7 @@ Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui and Supa
 | --- | --- | --- |
 | Assistant | **Family Companion** | AI assistant that knows your family's week, pantry, budget and prayer times, and can add tasks, events, shopping items and spending for you. |
 | Halal living | **Halal Places** | Halal groceries, butchers, restaurants, cafés and mosques near you (OpenStreetMap + community). Map and list, filters, ratings, "confirmed halal" reviews, saved places, add a place. |
-| | **Recipes** | Library of halal recipes with ingredients and steps, favourites, your own recipes; add any recipe to the meal plan or shopping list. |
+| | **Recipes** | Library of halal recipes with ingredients and steps, favourites, your own recipes; **What can I cook?** finds recipes from your pantry or what you type (no AI, free); add any recipe to the meal plan or shopping list. |
 | | **Meal Planner** | AI-assisted halal meal plans built around your pantry and preferences. |
 | | **Shopping** | Lists filled from the meal plan minus what's in the pantry, sorted by aisle; move bought items to the pantry; share as text. |
 | | **Pantry** | Household food inventory with expiry tracking. |
@@ -36,12 +36,14 @@ password settings, support/FAQ page, and an admin page (`/admin`) for directory 
 
 | | Free | Premium | Family+ |
 | --- | --- | --- | --- |
-| Companion messages | 10 a day | Unlimited | Unlimited |
-| AI meal plans | 2 a month | Unlimited | Unlimited |
+| “What can I cook?” (pantry matching, no AI) | ✓ | ✓ | ✓ |
+| Companion messages | — | 50 a day | 50 a day per person |
+| Meal plans from the recipe library (no AI) | Unlimited | Unlimited | Unlimited |
+| AI chef meal plans (3, 5 or 7 days) | 2 a month | 8 a month | 8 a month per person |
 | Own recipes / trips / shopping lists | 3 / 1 / 2 | Unlimited | Unlimited |
 | Shared household (up to 8 people) | — | — | ✓ |
 
-Limits are defined in `lib/plan/plan.ts` and enforced server-side for AI features
+Paid AI caps are fair-use limits that keep OpenAI costs predictable. Limits are defined in `lib/plan/plan.ts` and enforced server-side for AI features
 (`supabase/functions/_shared/plan.ts`) and for households (`create_household` RPC).
 
 ## Getting started
@@ -77,7 +79,14 @@ supabase db push
 or paste each new file into the Supabase SQL editor. Every table has row-level security; private
 data is scoped to its owner, household items are shared with members of the same household, and
 Halal Places community places and reviews are shared with all signed-in users. The recipe library
-is seeded by `20261007101500_seed_halal_recipes.sql` (generated from `supabase/seed/recipes.py`).
+(204 halal recipes from 60 cuisines, each tagged with allergens and diets) is seeded by
+`20261008101000_seed_recipe_library.sql`. To add or change recipes, edit the JSON files in
+`supabase/seed/recipes/` and run `node --experimental-strip-types supabase/seed/build-recipes.mts`
+(Node 22+). The script rejects non-halal ingredients and bad units, works out allergens and diet
+tags from the ingredients, and rewrites the seed.
+
+Recipe photos: in **Admin → Recipe photos**, upload images named after each recipe (the page can copy
+the list of file names), or generate them with your OpenAI key (`supabase functions deploy recipe-images`).
 
 To make someone an admin (directory moderation), run in the SQL editor:
 
@@ -86,6 +95,13 @@ insert into public.app_admins (user_id) select id from auth.users where email = 
 ```
 
 ### Edge functions
+
+**From the Supabase dashboard:** each file in `supabase/dashboard-functions/` is a single-file copy of a
+function (shared code included). In Edge Functions, open (or create) the function with the same name,
+replace its code with the file's contents and click Deploy. For `stripe-webhook`, turn off
+"Enforce JWT verification". Regenerate the copies with `node supabase/build-dashboard-functions.mjs`.
+
+**With the Supabase CLI:**
 
 ```bash
 supabase functions deploy prayer-times

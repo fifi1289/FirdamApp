@@ -5,10 +5,13 @@ import { useEffect, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { PlanId, Subscription } from '@/types/database';
 
-/** What each plan allows. `Infinity` means unlimited. */
+/**
+ * What each plan allows. `Infinity` means no plan limit; paid plans still have
+ * fair-use caps enforced server-side (see FAIR_USE and supabase/functions/_shared/plan.ts).
+ */
 export const PLAN_LIMITS = {
   free: {
-    companionMessagesPerDay: 10,
+    companionMessagesPerMonth: 0,
     aiMealPlansPerMonth: 2,
     customRecipes: 3,
     trips: 1,
@@ -18,8 +21,8 @@ export const PLAN_LIMITS = {
     shoppingLists: 2,
   },
   premium: {
-    companionMessagesPerDay: Infinity,
-    aiMealPlansPerMonth: Infinity,
+    companionMessagesPerMonth: Infinity,
+    aiMealPlansPerMonth: 8,
     customRecipes: Infinity,
     trips: Infinity,
     habits: Infinity,
@@ -28,8 +31,8 @@ export const PLAN_LIMITS = {
     shoppingLists: Infinity,
   },
   family: {
-    companionMessagesPerDay: Infinity,
-    aiMealPlansPerMonth: Infinity,
+    companionMessagesPerMonth: Infinity,
+    aiMealPlansPerMonth: 8,
     customRecipes: Infinity,
     trips: Infinity,
     habits: Infinity,
@@ -39,10 +42,15 @@ export const PLAN_LIMITS = {
   },
 } as const;
 
+/** Fair-use caps on paid plans (AI costs real money per use). */
+export const FAIR_USE = {
+  companionMessagesPerDay: 50,
+} as const;
+
 export type LimitKey = keyof (typeof PLAN_LIMITS)['free'];
 
 export const LIMIT_LABELS: Record<LimitKey, string> = {
-  companionMessagesPerDay: 'Companion messages a day',
+  companionMessagesPerMonth: 'Companion messages a month',
   aiMealPlansPerMonth: 'AI meal plans per month',
   customRecipes: 'your own recipes',
   trips: 'planned trips',

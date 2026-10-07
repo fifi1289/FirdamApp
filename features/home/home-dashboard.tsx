@@ -7,6 +7,7 @@ import {
   BookOpen,
   CalendarHeart,
   CheckCircle2,
+  ChefHat,
   ListChecks,
   MapPin,
   Moon,
@@ -33,6 +34,7 @@ import {
   type PrayerDay,
 } from '@/lib/prayer/prayer';
 import { cn } from '@/lib/utils';
+import { usePlan } from '@/lib/plan/plan';
 import { MODULE_GROUPS, lifeModules } from '@/features/modules/module-config';
 import { ModuleCard } from '@/features/modules/module-card';
 import { DuaCard } from '@/features/quran/duas-view';
@@ -99,6 +101,7 @@ export function HomeDashboard() {
   const { user } = useAuth();
   const { location } = useSavedLocation();
   const { settings, ready: settingsReady } = usePrayerSettings();
+  const { isPaid } = usePlan();
   const { currency } = useCurrency();
   const [now, setNow] = useState(() => new Date());
   const [prayer, setPrayer] = useState<PrayerDay | null>(null);
@@ -383,21 +386,39 @@ export function HomeDashboard() {
         </div>
       </div>
 
-      <Link
-        href="/dashboard/companion"
-        className="bg-girih mt-5 flex items-center gap-4 rounded-2xl border border-brand-gold/40 bg-gradient-to-r from-brand-gold/15 to-transparent p-5 transition-colors hover:border-brand-gold"
-      >
-        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-dark to-brand-gold text-white">
-          <Sparkles className="h-5 w-5" />
-        </span>
-        <div className="flex-1">
-          <p className="font-semibold text-foreground">Ask your Family Companion</p>
-          <p className="text-sm text-muted-foreground">
-            “What’s on this week?” · “Add dates and milk to my list” · “Plan a quick halal dinner”
-          </p>
-        </div>
-        <ArrowRight className="h-5 w-5 text-primary" />
-      </Link>
+      {isPaid ? (
+        <Link
+          href="/dashboard/companion"
+          className="bg-girih mt-5 flex items-center gap-4 rounded-2xl border border-brand-gold/40 bg-gradient-to-r from-brand-gold/15 to-transparent p-5 transition-colors hover:border-brand-gold"
+        >
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-dark to-brand-gold text-white">
+            <Sparkles className="h-5 w-5" />
+          </span>
+          <div className="flex-1">
+            <p className="font-semibold text-foreground">Ask your Family Companion</p>
+            <p className="text-sm text-muted-foreground">
+              “What’s on this week?” · “Add dates and milk to my list” · “Plan a quick halal dinner”
+            </p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-primary" />
+        </Link>
+      ) : (
+        <Link
+          href="/dashboard/recipes?tab=cook"
+          className="bg-girih mt-5 flex items-center gap-4 rounded-2xl border border-brand-gold/40 bg-gradient-to-r from-brand-gold/15 to-transparent p-5 transition-colors hover:border-brand-gold"
+        >
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-dark to-brand-gold text-white">
+            <ChefHat className="h-5 w-5" />
+          </span>
+          <div className="flex-1">
+            <p className="font-semibold text-foreground">What can I cook tonight?</p>
+            <p className="text-sm text-muted-foreground">
+              Type what’s in your fridge — chicken, tomato, eggs — and get halal recipes you can make now.
+            </p>
+          </div>
+          <ArrowRight className="h-5 w-5 text-primary" />
+        </Link>
+      )}
 
       <Link
         href="/dashboard/halal-places"

@@ -106,22 +106,32 @@ export function MealsDashboard() {
   /** Builds a plan with the AI chef when chosen, otherwise from the recipe library. */
   const buildPlan = async (input: MealPlanGeneratorInput): Promise<GeneratedMealPlan | null> => {
     if (useAI) {
-      if (!isPaid && aiRemaining <= 0) {
-        setUpgradeOpen(true);
-        return null;
+      if (aiRemaining <= 0) {
+        // Out of AI plans: still give them a plan, from the recipe library (free).
+        toast.message(`You've used this month's ${aiLimit} AI chef plans`, {
+          description: 'This plan comes from the recipe library instead — that’s always unlimited.',
+          action: !isPaid ? { label: 'Upgrade', onClick: () => setUpgradeOpen(true) } : undefined,
+        });
+        setUseAI(false);
+        return generateMealPlanFromSupabase(input);
       }
       try {
         const plan = await requestGeneratedMealPlan(input);
         setAiUsed((n) => n + 1);
         return plan;
       } catch (err) {
-        if (err instanceof GenerateMealPlanError && err.status === 402) {
-          setUpgradeOpen(true);
-          return null;
+        if (err instanceof GenerateMealPlanError && (err.status === 402 || err.status === 429)) {
+          setAiUsed(aiLimit);
+          setUseAI(false);
+          toast.message(`You've used this month's AI chef plans`, {
+            description: 'This plan comes from the recipe library instead — that’s always unlimited.',
+            action: !isPaid ? { label: 'Upgrade', onClick: () => setUpgradeOpen(true) } : undefined,
+          });
+        } else {
+          toast.message('The AI chef is unavailable right now', {
+            description: 'Building your plan from the recipe library instead.',
+          });
         }
-        toast.message('The AI chef is unavailable right now', {
-          description: 'Building your plan from the recipe library instead.',
-        });
       }
     }
     return generateMealPlanFromSupabase(input);
@@ -404,9 +414,9 @@ export function MealsDashboard() {
                   {!isPaid && <PremiumBadge />}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Creates brand-new halal recipes tailored to your family, cuisines and pantry.
-                  {!isPaid &&
-                    ` ${aiRemaining} of ${PLAN_LIMITS.free.aiMealPlansPerMonth} free this month.`}
+                  Creates brand-new halal recipes tailored to your family, cuisines and pantry.{' '}
+                  {aiRemaining} of {aiLimit} AI plans left this month — regenerating uses one. Changing a
+                  single meal is free.
                 </p>
               </div>
             </div>
@@ -418,8 +428,9 @@ export function MealsDashboard() {
                 id="use-ai"
                 checked={useAI}
                 onCheckedChange={(v) => {
-                  if (v && !isPaid && aiRemaining <= 0) {
-                    setUpgradeOpen(true);
+                  if (v && aiRemaining <= 0) {
+                    if (!isPaid) setUpgradeOpen(true);
+                    else toast.message(`You've used this month's ${aiLimit} AI chef plans`, { description: 'They reset on the 1st.' });
                     return;
                   }
                   setUseAI(v);

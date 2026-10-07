@@ -1,0 +1,2062 @@
+[
+ {
+  "name": "Labneh with Za'atar and Olive Oil",
+  "cuisine": "Lebanese",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 0,
+  "servings": 4,
+  "calories": 230,
+  "protein": 11,
+  "carbs": 8,
+  "fat": 17,
+  "description": "Thick, tangy strained yogurt swirled onto a plate and finished with fragrant za'atar and golden olive oil, perfect scooped up with warm bread.",
+  "ingredients": [
+   [
+    "labneh",
+    400,
+    "g"
+   ],
+   [
+    "extra virgin olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "za'atar",
+    2,
+    "tbsp"
+   ],
+   [
+    "cherry tomatoes",
+    8,
+    "pieces"
+   ],
+   [
+    "cucumber",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh mint leaves",
+    1,
+    "handful"
+   ],
+   [
+    "black olives",
+    8,
+    "pieces"
+   ],
+   [
+    "pita bread",
+    4,
+    "pieces"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "If using homemade labneh, line a sieve with a clean cloth, add 600 g thick plain yogurt with a pinch of salt and let it drain in the fridge overnight until very thick; otherwise use ready-made labneh.",
+   "Spoon the labneh onto a shallow plate and use the back of a spoon to spread it into a wide, shallow bowl shape with a swirl.",
+   "Mix the za'atar with 1 tablespoon of the olive oil to make a loose paste.",
+   "Drizzle the remaining olive oil into the swirl and sprinkle the za'atar generously over the top.",
+   "Slice the cucumber and halve the cherry tomatoes, then arrange them around the plate with the olives and mint leaves.",
+   "Warm the pita in a dry pan over medium heat for 30 seconds on each side and serve straight away for scooping."
+  ],
+  "tips": [
+   "Make the labneh a day or two ahead; it keeps well in the fridge for up to a week."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten",
+   "Sesame"
+  ],
+  "kid_friendly": true,
+  "photo": "A wide white plate of creamy labneh swirled with olive oil and dusted green-brown with za'atar, ringed with cherry tomatoes, cucumber slices, olives and mint, with warm pita alongside."
+ },
+ {
+  "name": "Fatteh Hummus",
+  "cuisine": "Syrian",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 15,
+  "servings": 4,
+  "calories": 520,
+  "protein": 21,
+  "carbs": 52,
+  "fat": 26,
+  "description": "Crisp toasted pita layered with warm chickpeas and garlicky yogurt tahini sauce, finished with sizzling spiced butter and toasted pine nuts.",
+  "ingredients": [
+   [
+    "canned chickpeas",
+    800,
+    "g"
+   ],
+   [
+    "pita bread",
+    3,
+    "pieces"
+   ],
+   [
+    "plain yogurt",
+    400,
+    "g"
+   ],
+   [
+    "tahini",
+    3,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "lemon juice",
+    3,
+    "tbsp"
+   ],
+   [
+    "unsalted butter",
+    40,
+    "g"
+   ],
+   [
+    "pine nuts",
+    3,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Heat the oven to 200C. Tear the pita into bite-size pieces, spread on a tray and bake for 8 to 10 minutes until golden and crisp.",
+   "Drain the chickpeas, reserving about 100 ml of the liquid. Warm the chickpeas with the reserved liquid and the cumin in a small pan over medium heat for 5 minutes, then keep warm.",
+   "Crush the garlic with a pinch of salt and whisk it into the yogurt with the tahini and lemon juice until smooth.",
+   "Spread the crisp pita over a large shallow dish and spoon the warm chickpeas and a little of their liquid on top.",
+   "Pour the yogurt sauce evenly over the chickpeas.",
+   "Melt the butter in a small pan over medium heat, add the pine nuts and cook for 1 to 2 minutes until golden, then stir in the paprika.",
+   "Pour the sizzling butter and pine nuts over the dish, scatter with parsley and serve immediately while the pita is still crunchy."
+  ],
+  "tips": [
+   "Assemble just before serving so the pita keeps some crunch."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Sesame",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A shallow rustic bowl layered with golden pita, whole chickpeas and white yogurt sauce, topped with glistening red-orange spiced butter, toasted pine nuts and green parsley."
+ },
+ {
+  "name": "Manaqish Jibneh (Cheese Flatbread)",
+  "cuisine": "Lebanese",
+  "meal_type": "Breakfast",
+  "difficulty": "Medium",
+  "prep": 100,
+  "cook": 12,
+  "servings": 4,
+  "calories": 480,
+  "protein": 20,
+  "carbs": 56,
+  "fat": 19,
+  "description": "Soft, chewy flatbreads baked with a layer of melting white cheese, just like the bakeries of Beirut.",
+  "ingredients": [
+   [
+    "plain flour",
+    400,
+    "g"
+   ],
+   [
+    "instant dry yeast",
+    1,
+    "tsp"
+   ],
+   [
+    "sugar",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "warm water",
+    250,
+    "ml"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "akkawi cheese",
+    150,
+    "g"
+   ],
+   [
+    "mozzarella cheese",
+    150,
+    "g"
+   ],
+   [
+    "fresh mint leaves",
+    1,
+    "handful"
+   ],
+   [
+    "cherry tomatoes",
+    6,
+    "pieces"
+   ],
+   [
+    "cucumber",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Stir the yeast and sugar into the warm water and leave for 5 minutes until foamy.",
+   "Mix the flour and salt in a large bowl, add the yeast water and 2 tablespoons of the olive oil, and knead for 8 minutes until smooth and elastic.",
+   "Cover the dough with a damp cloth and leave in a warm place for 1 hour until doubled in size.",
+   "Soak the akkawi cheese in cold water for 20 minutes to remove excess salt, then grate it and mix with the grated mozzarella.",
+   "Heat the oven to 240C with a baking tray inside. Divide the dough into 4 balls and roll each into a 20 cm round.",
+   "Press your fingertips into each round to dimple it, brush with the remaining oil and pile the cheese on top, leaving a 2 cm border.",
+   "Bake on the hot tray for 10 to 12 minutes until the edges are golden and the cheese is bubbling.",
+   "Serve warm with mint, tomato wedges and sliced cucumber on the side."
+  ],
+  "tips": [
+   "No akkawi? Use all mozzarella with a pinch of salt."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Four golden round flatbreads with bubbling, lightly browned white cheese and crisp edges, served on a wooden board with fresh mint, tomatoes and cucumber."
+ },
+ {
+  "name": "Mfarakeh (Potato & Egg Scramble)",
+  "cuisine": "Lebanese",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 25,
+  "servings": 4,
+  "calories": 320,
+  "protein": 13,
+  "carbs": 28,
+  "fat": 18,
+  "description": "Golden pan-fried potatoes folded into softly scrambled eggs with sweet onion and a hint of allspice, a comforting Lebanese breakfast.",
+  "ingredients": [
+   [
+    "potatoes",
+    500,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "eggs",
+    6,
+    "pieces"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "ground allspice",
+    0.5,
+    "tsp"
+   ],
+   [
+    "sumac",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Peel the potatoes and cut them into 1.5 cm cubes. Finely slice the onion.",
+   "Heat the olive oil in a large non-stick frying pan over medium heat and fry the potatoes for 12 to 15 minutes, turning often, until golden and tender.",
+   "Add the onion and a pinch of salt and cook for another 5 minutes until soft and lightly golden.",
+   "Beat the eggs with the allspice, salt and pepper in a bowl.",
+   "Reduce the heat to low, pour the eggs over the potatoes and stir gently for 2 to 3 minutes until just set but still soft.",
+   "Sprinkle with sumac and chopped parsley and serve hot with bread."
+  ],
+  "tips": [
+   "Parboil the potatoes for 5 minutes first if you want them to cook faster."
+  ],
+  "allergens": [
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A cast-iron pan of fluffy yellow egg threaded with golden potato cubes and soft onion, scattered with red sumac and fresh green parsley."
+ },
+ {
+  "name": "Tabbouleh",
+  "cuisine": "Lebanese",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 30,
+  "cook": 0,
+  "servings": 4,
+  "calories": 190,
+  "protein": 4,
+  "carbs": 20,
+  "fat": 11,
+  "description": "A bright, parsley-heavy Lebanese salad with juicy tomato, mint and a little fine bulgur, dressed with lemon and olive oil.",
+  "ingredients": [
+   [
+    "fresh flat-leaf parsley",
+    4,
+    "bunch"
+   ],
+   [
+    "fresh mint leaves",
+    1,
+    "handful"
+   ],
+   [
+    "ripe tomatoes",
+    4,
+    "pieces"
+   ],
+   [
+    "spring onions",
+    4,
+    "pieces"
+   ],
+   [
+    "fine bulgur wheat",
+    3,
+    "tbsp"
+   ],
+   [
+    "lemon juice",
+    5,
+    "tbsp"
+   ],
+   [
+    "extra virgin olive oil",
+    5,
+    "tbsp"
+   ],
+   [
+    "ground allspice",
+    0.25,
+    "tsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "little gem lettuce",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Rinse the bulgur, drain, and soak in 2 tablespoons of the lemon juice for 20 minutes until softened.",
+   "Wash the parsley and mint well and dry them thoroughly with a clean towel or salad spinner so the salad is not watery.",
+   "Remove the thick stalks and chop the parsley very finely with a sharp knife, then finely chop the mint.",
+   "Dice the tomatoes into small cubes, discarding most of the watery seeds, and thinly slice the spring onions.",
+   "Combine the herbs, tomatoes, spring onions and bulgur in a large bowl.",
+   "Dress with the remaining lemon juice, olive oil, allspice and salt, and toss gently just before serving.",
+   "Serve in lettuce leaves for scooping."
+  ],
+  "tips": [
+   "Dress it at the last minute so the parsley stays bright green."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": false,
+  "photo": "A shallow white bowl piled with vivid green finely chopped parsley flecked with red tomato cubes, with crisp lettuce leaves and lemon wedges at the side."
+ },
+ {
+  "name": "Warak Enab (Stuffed Vine Leaves)",
+  "cuisine": "Lebanese",
+  "meal_type": "Lunch",
+  "difficulty": "Hard",
+  "prep": 60,
+  "cook": 75,
+  "servings": 6,
+  "calories": 310,
+  "protein": 13,
+  "carbs": 30,
+  "fat": 15,
+  "description": "Tender vine leaves rolled around spiced lamb and rice, simmered in lemony broth until soft and tangy.",
+  "ingredients": [
+   [
+    "vine leaves in brine",
+    250,
+    "g"
+   ],
+   [
+    "minced lamb",
+    300,
+    "g"
+   ],
+   [
+    "short-grain rice",
+    150,
+    "g"
+   ],
+   [
+    "ripe tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "bunch"
+   ],
+   [
+    "fresh mint leaves",
+    1,
+    "handful"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "ground allspice",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "lemon juice",
+    5,
+    "tbsp"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "lamb chops",
+    4,
+    "pieces"
+   ],
+   [
+    "potatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Rinse the vine leaves well in warm water, soak for 10 minutes to remove the brine, then drain and trim any hard stems.",
+   "Rinse the rice and mix in a bowl with the minced lamb, finely chopped onion, parsley, mint, diced tomato, allspice, cinnamon, 2 tablespoons olive oil and salt.",
+   "Lay a vine leaf shiny side down, put a heaped teaspoon of filling near the stem, fold in the sides and roll up tightly like a thin cigar.",
+   "Slice the potatoes thickly and line the base of a heavy pot with them and the lamb chops. Pack the rolls tightly on top in layers, with the garlic cloves scattered in.",
+   "Place an upturned plate on top to weigh the rolls down and pour in enough hot water to just cover, then add the lemon juice, remaining oil and a little salt.",
+   "Bring to a boil, cover and simmer on low heat for 1 hour 15 minutes until the rice and leaves are tender.",
+   "Let stand for 10 minutes, then invert onto a platter or serve straight from the pot with lemon wedges."
+  ],
+  "tips": [
+   "Roll them thin and tight; loose rolls fall apart while cooking."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A round platter of neatly packed dark green vine leaf rolls arranged in a spiral with lemon wedges and fresh mint, glistening with olive oil."
+ },
+ {
+  "name": "Adas bi Hamod (Lentil & Chard Soup)",
+  "cuisine": "Lebanese",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 40,
+  "servings": 4,
+  "calories": 290,
+  "protein": 15,
+  "carbs": 40,
+  "fat": 8,
+  "description": "A hearty Lebanese soup of brown lentils, silverbeet and potato brightened with plenty of lemon and garlic.",
+  "ingredients": [
+   [
+    "brown lentils",
+    250,
+    "g"
+   ],
+   [
+    "silverbeet",
+    1,
+    "bunch"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "potatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "lemon juice",
+    5,
+    "tbsp"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "water",
+    1.5,
+    "l"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Rinse the lentils and pick out any stones. Wash the silverbeet, strip the leaves from the stalks and chop both separately.",
+   "Heat 2 tablespoons of the oil in a large pot over medium heat and cook the sliced onions for 8 minutes until golden.",
+   "Add the lentils, water and cumin, bring to a boil, then cover and simmer on low for 20 minutes.",
+   "Add the diced potatoes and chopped stalks and cook for 10 minutes, then stir in the leaves and cook for 5 minutes more until everything is tender.",
+   "Crush the garlic with a pinch of salt and fry with the chopped coriander in the remaining oil for 1 minute until fragrant.",
+   "Stir the garlic and coriander mixture into the soup with the lemon juice, season with salt and simmer for 3 more minutes before serving."
+  ],
+  "tips": [
+   "Mash a few lentils against the pot side to thicken the soup naturally."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "A deep earthenware bowl of rustic brown lentil soup flecked with deep green chard, topped with a drizzle of olive oil and a lemon wedge on the rim."
+ },
+ {
+  "name": "Arayes (Grilled Meat-Stuffed Pita)",
+  "cuisine": "Lebanese",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 15,
+  "servings": 4,
+  "calories": 520,
+  "protein": 29,
+  "carbs": 40,
+  "fat": 26,
+  "description": "Pita pockets packed with spiced lamb and beef mince, grilled until crisp outside and juicy inside.",
+  "ingredients": [
+   [
+    "pita bread",
+    4,
+    "pieces"
+   ],
+   [
+    "minced lamb",
+    250,
+    "g"
+   ],
+   [
+    "minced beef",
+    250,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "ground allspice",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "plain yogurt",
+    150,
+    "g"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Grate the onion and squeeze out the excess liquid, then finely chop the tomato and parsley.",
+   "Mix the lamb, beef, onion, tomato, parsley, allspice, cumin, paprika, salt and pepper thoroughly with your hands.",
+   "Cut each pita in half and open the pockets, then press about 3 tablespoons of the meat mixture into each half in a thin even layer.",
+   "Brush the outsides of the pita with olive oil.",
+   "Heat a griddle or large frying pan over medium heat and cook the stuffed pitas for 6 to 7 minutes per side, pressing gently, until the pita is crisp and the meat is cooked through.",
+   "Cut into wedges and serve hot with yogurt for dipping."
+  ],
+  "tips": [
+   "Keep the meat layer thin so it cooks through before the bread burns."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Golden-charred pita halves cut into wedges showing a juicy spiced meat filling, on a wooden board with a bowl of yogurt and fresh parsley."
+ },
+ {
+  "name": "Sfeeha (Open Meat Pies)",
+  "cuisine": "Syrian",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 90,
+  "cook": 15,
+  "servings": 4,
+  "calories": 480,
+  "protein": 22,
+  "carbs": 46,
+  "fat": 22,
+  "description": "Little open-faced pies topped with tangy spiced minced lamb, tomato and pomegranate molasses.",
+  "ingredients": [
+   [
+    "plain flour",
+    350,
+    "g"
+   ],
+   [
+    "instant dry yeast",
+    1,
+    "tsp"
+   ],
+   [
+    "warm water",
+    200,
+    "ml"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "minced lamb",
+    350,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "ripe tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "pomegranate molasses",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground allspice",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "pine nuts",
+    2,
+    "tbsp"
+   ],
+   [
+    "lemon juice",
+    1,
+    "tbsp"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, yeast and salt, add the warm water and 2 tablespoons oil, and knead for 8 minutes until smooth. Cover and rest for 1 hour until doubled.",
+   "Finely chop the onion and dice the tomatoes, draining off excess juice.",
+   "Mix the lamb with the onion, tomato, pomegranate molasses, lemon juice, allspice, cinnamon, remaining olive oil, salt and pepper.",
+   "Heat the oven to 230C. Divide the dough into 12 balls and roll each into a 10 cm round.",
+   "Spread a heaped tablespoon of the filling over each round, leaving a small border, and press in a few pine nuts.",
+   "Bake on lined trays for 12 to 15 minutes until the edges are golden and the meat is cooked.",
+   "Serve warm with extra lemon wedges."
+  ],
+  "tips": [
+   "Freeze unbaked pies on a tray, then bake straight from frozen for 18 minutes."
+  ],
+  "allergens": [
+   "Gluten",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A tray of small round golden pies topped with rust-coloured spiced lamb, pine nuts and glossy tomato, with lemon wedges and parsley."
+ },
+ {
+  "name": "Kibbeh bil Sanieh (Baked Kibbeh)",
+  "cuisine": "Lebanese",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 60,
+  "cook": 40,
+  "servings": 6,
+  "calories": 450,
+  "protein": 28,
+  "carbs": 26,
+  "fat": 26,
+  "description": "Layers of spiced lamb and bulgur shell around a sweet, nutty minced lamb filling, scored in diamonds and baked until golden.",
+  "ingredients": [
+   [
+    "fine bulgur wheat",
+    200,
+    "g"
+   ],
+   [
+    "lean minced lamb",
+    400,
+    "g"
+   ],
+   [
+    "onion",
+    3,
+    "pieces"
+   ],
+   [
+    "ground allspice",
+    2,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    1,
+    "tsp"
+   ],
+   [
+    "pine nuts",
+    50,
+    "g"
+   ],
+   [
+    "minced lamb",
+    300,
+    "g"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "ice cubes",
+    6,
+    "pieces"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ],
+   [
+    "plain yogurt",
+    300,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Rinse the bulgur, soak it in cold water for 15 minutes, then drain and squeeze dry.",
+   "Grate one onion and, in a food processor, blend it with the lean lamb, bulgur, 1 teaspoon allspice, cinnamon, salt, pepper and the ice cubes into a smooth paste, working in batches.",
+   "For the filling, finely chop the remaining onions and fry in 1 tablespoon ghee over medium heat for 8 minutes until golden. Add the minced lamb and cook for 10 minutes until browned, then stir in the remaining allspice, salt, pepper and pine nuts. Cool slightly.",
+   "Heat the oven to 200C and grease a 28 cm baking dish. Press half the kibbeh paste into the base in an even layer using wet hands.",
+   "Spread the filling evenly on top, then flatten small pieces of the remaining paste in your palms and lay them over the filling, smoothing to seal.",
+   "Score diamonds into the top with a knife, drizzle with the melted remaining ghee and the olive oil, and press a pine nut into each diamond if you like.",
+   "Bake for 35 to 40 minutes until deep golden brown, cut along the scores and serve hot with cold yogurt."
+  ],
+  "tips": [
+   "Keep your hands wet when pressing the paste so it does not stick."
+  ],
+  "allergens": [
+   "Gluten",
+   "Tree nuts",
+   "Dairy"
+  ],
+  "kid_friendly": false,
+  "photo": "A square baking dish of golden-brown kibbeh scored into neat diamonds, with a few pieces lifted to show the spiced lamb and pine nut filling, served with a bowl of yogurt."
+ },
+ {
+  "name": "Shish Tawook",
+  "cuisine": "Lebanese",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 15,
+  "servings": 4,
+  "calories": 420,
+  "protein": 42,
+  "carbs": 8,
+  "fat": 24,
+  "description": "Juicy chicken cubes marinated overnight in lemon, garlic and yogurt, then grilled on skewers until charred at the edges.",
+  "ingredients": [
+   [
+    "chicken breast",
+    800,
+    "g"
+   ],
+   [
+    "plain yogurt",
+    150,
+    "g"
+   ],
+   [
+    "lemon juice",
+    3,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "tomato paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "paprika",
+    2,
+    "tsp"
+   ],
+   [
+    "ground allspice",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ],
+   [
+    "toum garlic sauce",
+    100,
+    "g"
+   ],
+   [
+    "red onion",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Cut the chicken into 3 cm cubes.",
+   "Mix the yogurt, lemon juice, crushed garlic, tomato paste, olive oil, paprika, allspice, salt and pepper in a large bowl.",
+   "Add the chicken, coat well, cover and marinate in the fridge for at least 4 hours, or overnight.",
+   "Soak wooden skewers in water for 20 minutes, then thread the chicken onto them with wedges of red onion.",
+   "Heat a grill or griddle pan to medium-high and cook the skewers for 12 to 15 minutes, turning every 3 to 4 minutes, until charred and cooked through with no pink inside.",
+   "Rest for 5 minutes and serve with toum and warm bread."
+  ],
+  "tips": [
+   "Thighs work well too and stay juicier if you are worried about dryness."
+  ],
+  "allergens": [
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Skewers of golden-orange charred chicken cubes alternating with red onion on a platter, with a bowl of white garlic sauce and lemon wedges."
+ },
+ {
+  "name": "Kousa Mahshi (Stuffed Courgettes)",
+  "cuisine": "Syrian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 60,
+  "cook": 50,
+  "servings": 4,
+  "calories": 390,
+  "protein": 20,
+  "carbs": 35,
+  "fat": 19,
+  "description": "Small courgettes hollowed and filled with spiced lamb and rice, simmered in a tangy tomato sauce.",
+  "ingredients": [
+   [
+    "small courgettes",
+    1,
+    "kg"
+   ],
+   [
+    "short-grain rice",
+    150,
+    "g"
+   ],
+   [
+    "minced lamb",
+    300,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "ground allspice",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "tomato paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "dried mint",
+    1,
+    "tbsp"
+   ],
+   [
+    "lemon juice",
+    3,
+    "tbsp"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "water",
+    500,
+    "ml"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Trim the courgettes and use a corer to hollow them out carefully, leaving walls about 5 mm thick. Wash well.",
+   "Rinse the rice and mix with the lamb, grated onion, allspice, cinnamon, 1 tablespoon tomato paste, 1 tablespoon olive oil and salt.",
+   "Fill each courgette about three-quarters full with the mixture, leaving room for the rice to swell.",
+   "Arrange the courgettes snugly in a wide pot in one layer.",
+   "Mix the chopped tomatoes, remaining tomato paste, crushed garlic, dried mint, lemon juice, water and salt, and pour over the courgettes.",
+   "Bring to a boil, then cover and simmer on low heat for 45 to 50 minutes until the courgettes are tender and the rice is cooked.",
+   "Serve warm with some of the sauce spooned over."
+  ],
+  "tips": [
+   "Do not overfill; the rice expands as it cooks and may split the courgettes."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "Pale green stuffed courgettes lying in a rich red tomato sauce in a wide shallow pan, sprinkled with dried mint and with a lemon wedge."
+ },
+ {
+  "name": "Shakriyeh (Lamb in Yogurt Sauce)",
+  "cuisine": "Syrian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 120,
+  "servings": 4,
+  "calories": 600,
+  "protein": 42,
+  "carbs": 40,
+  "fat": 30,
+  "description": "Tender lamb simmered slowly in a warm garlicky yogurt sauce, served over fluffy rice with toasted pine nuts.",
+  "ingredients": [
+   [
+    "lamb shoulder",
+    800,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    3,
+    "pieces"
+   ],
+   [
+    "whole milk plain yogurt",
+    800,
+    "g"
+   ],
+   [
+    "cornflour",
+    1,
+    "tbsp"
+   ],
+   [
+    "egg white",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "dried mint",
+    1,
+    "tbsp"
+   ],
+   [
+    "ghee",
+    2,
+    "tbsp"
+   ],
+   [
+    "basmati rice",
+    300,
+    "g"
+   ],
+   [
+    "pine nuts",
+    3,
+    "tbsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "water",
+    1,
+    "l"
+   ]
+  ],
+  "steps": [
+   "Place the lamb, halved onion, cinnamon stick, cardamom and 1 teaspoon salt in a pot with the water, bring to a boil and skim off any foam.",
+   "Cover and simmer on low heat for 1 hour 30 minutes until the lamb is very tender, then lift out the lamb and strain 300 ml of the stock.",
+   "In a large pot, whisk the yogurt with the cornflour and egg white until smooth, then heat over medium-low heat, stirring constantly in one direction, until it just comes to a gentle simmer.",
+   "Add the lamb and the strained stock and simmer on low for 15 minutes, stirring occasionally, without letting it boil hard.",
+   "Fry the crushed garlic and dried mint in 1 tablespoon of the ghee for 1 minute and stir into the sauce.",
+   "Meanwhile, cook the rice according to the packet. Toast the pine nuts in the remaining ghee until golden.",
+   "Serve the lamb and yogurt sauce over the rice, topped with the pine nuts."
+  ],
+  "tips": [
+   "Stirring in one direction and using cornflour stops the yogurt from curdling."
+  ],
+  "allergens": [
+   "Dairy",
+   "Eggs",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A deep bowl of creamy white yogurt sauce with chunks of tender lamb, set on fluffy white rice and topped with golden pine nuts and dried mint."
+ },
+ {
+  "name": "Musakhan (Sumac Onion Chicken)",
+  "cuisine": "Palestinian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 60,
+  "servings": 4,
+  "calories": 680,
+  "protein": 40,
+  "carbs": 52,
+  "fat": 34,
+  "description": "Roasted chicken piled on taboon-style bread soaked in olive oil and a mountain of sweet sumac-scented onions.",
+  "ingredients": [
+   [
+    "chicken thighs and drumsticks",
+    1.2,
+    "kg"
+   ],
+   [
+    "onions",
+    1,
+    "kg"
+   ],
+   [
+    "sumac",
+    4,
+    "tbsp"
+   ],
+   [
+    "extra virgin olive oil",
+    120,
+    "ml"
+   ],
+   [
+    "ground allspice",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground cardamom",
+    0.25,
+    "tsp"
+   ],
+   [
+    "taboon or flatbread",
+    4,
+    "pieces"
+   ],
+   [
+    "pine nuts",
+    3,
+    "tbsp"
+   ],
+   [
+    "plain yogurt",
+    200,
+    "g"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Rub the chicken with 1 tablespoon sumac, the allspice, cinnamon, cardamom, 2 tablespoons olive oil and salt, and leave for 20 minutes.",
+   "Heat the oven to 200C. Roast the chicken on a tray for 40 to 45 minutes until golden and cooked through.",
+   "Meanwhile, slice the onions thinly and cook with 4 tablespoons olive oil and salt in a wide pan over medium-low heat for 25 minutes until very soft and sweet.",
+   "Stir in the remaining sumac and cook for 3 minutes more.",
+   "Toast the pine nuts in a dry pan over medium heat for 2 minutes until golden.",
+   "Brush the breads with olive oil and warm them in the oven for 5 minutes, then top each with a large spoonful of the onion mixture.",
+   "Place the chicken on top, spoon over the roasting juices, scatter with pine nuts and serve with yogurt."
+  ],
+  "tips": [
+   "Cook the onions slowly; they should melt, not brown."
+  ],
+  "allergens": [
+   "Gluten",
+   "Tree nuts",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Golden roast chicken pieces on a bed of glistening purple-red sumac onions over flatbread, with pine nuts and a bowl of yogurt."
+ },
+ {
+  "name": "Freekeh with Chicken",
+  "cuisine": "Palestinian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 15,
+  "cook": 60,
+  "servings": 4,
+  "calories": 560,
+  "protein": 38,
+  "carbs": 58,
+  "fat": 20,
+  "description": "Smoky cracked green wheat cooked in chicken broth with warm spices and topped with tender chicken and toasted almonds.",
+  "ingredients": [
+   [
+    "whole chicken pieces",
+    1,
+    "kg"
+   ],
+   [
+    "cracked freekeh",
+    300,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "ground allspice",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cumin",
+    0.5,
+    "tsp"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "ghee",
+    2,
+    "tbsp"
+   ],
+   [
+    "blanched almonds",
+    40,
+    "g"
+   ],
+   [
+    "water",
+    1,
+    "l"
+   ],
+   [
+    "plain yogurt",
+    200,
+    "g"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Put the chicken, halved onion, cinnamon stick, bay leaves and salt in a pot with the water, bring to a boil and skim off the foam.",
+   "Simmer on low heat for 35 minutes until cooked through, then remove the chicken and strain the broth.",
+   "Rinse the freekeh several times and drain well.",
+   "Heat 1 tablespoon ghee in a clean pot, add the freekeh, allspice and cumin and toast for 2 minutes, then add 700 ml of the hot broth.",
+   "Bring to a boil, cover and simmer on low for 20 to 25 minutes until the liquid is absorbed and the grains are tender. Rest for 5 minutes.",
+   "Brown the chicken pieces in a hot pan with a little of the remaining ghee for 4 minutes, and fry the almonds in the rest of the ghee until golden.",
+   "Spread the freekeh on a platter, top with the chicken and almonds and serve with yogurt."
+  ],
+  "tips": [
+   "Look for cracked freekeh as whole grains need much longer cooking."
+  ],
+  "allergens": [
+   "Gluten",
+   "Tree nuts",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A large platter of brown-green fluffy freekeh topped with browned chicken pieces and golden almonds, with a bowl of yogurt on the side."
+ },
+ {
+  "name": "Mansaf (Lamb in Jameed)",
+  "cuisine": "Jordanian",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 30,
+  "cook": 150,
+  "servings": 6,
+  "calories": 720,
+  "protein": 45,
+  "carbs": 60,
+  "fat": 33,
+  "description": "Jordan's national dish of tender lamb in a tangy fermented-yogurt sauce, served over rice and thin bread with toasted nuts.",
+  "ingredients": [
+   [
+    "lamb shoulder on the bone",
+    1.5,
+    "kg"
+   ],
+   [
+    "jameed",
+    250,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    4,
+    "pieces"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "short-grain rice",
+    400,
+    "g"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "almonds",
+    60,
+    "g"
+   ],
+   [
+    "pine nuts",
+    40,
+    "g"
+   ],
+   [
+    "shrak or thin flatbread",
+    4,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "water",
+    2,
+    "l"
+   ]
+  ],
+  "steps": [
+   "Break the jameed into pieces, cover with warm water and soak overnight, then blend until smooth and strain through a sieve.",
+   "Place the lamb in a pot with the onions, cardamom, bay leaves and 1.5 litres of water, bring to a boil, skim, and simmer for 1 hour 30 minutes until tender.",
+   "Remove the lamb and strain the broth. Pour the jameed liquid and 500 ml of the broth into a pot and heat gently, stirring constantly in one direction, until it simmers; do not let it boil hard.",
+   "Return the lamb to the jameed sauce and simmer on low for 30 minutes.",
+   "Rinse the rice, cook it with the turmeric, 1 tablespoon ghee, salt and 700 ml water, covered on low heat for 18 minutes, then rest 5 minutes.",
+   "Fry the almonds and pine nuts in the remaining ghee until golden.",
+   "Layer the flatbread on a large platter, top with rice, then arrange the lamb on top, scatter with nuts and parsley, and serve the warm jameed sauce on the side."
+  ],
+  "tips": [
+   "Jameed is sold in Middle Eastern shops; do not boil the sauce hard or it will separate."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten",
+   "Tree nuts"
+  ],
+  "kid_friendly": false,
+  "photo": "A large round platter with a mound of white rice crowned with chunks of lamb, golden almonds, pine nuts and parsley, over thin flatbread, with a jug of creamy sauce."
+ },
+ {
+  "name": "Iraqi Dolma",
+  "cuisine": "Iraqi",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 75,
+  "cook": 75,
+  "servings": 6,
+  "calories": 420,
+  "protein": 20,
+  "carbs": 40,
+  "fat": 20,
+  "description": "A festive mix of onions, peppers, tomatoes, aubergines and vine leaves stuffed with spiced lamb and rice and cooked in a sweet-sour tamarind sauce.",
+  "ingredients": [
+   [
+    "minced lamb",
+    400,
+    "g"
+   ],
+   [
+    "short-grain rice",
+    200,
+    "g"
+   ],
+   [
+    "onions",
+    4,
+    "pieces"
+   ],
+   [
+    "green peppers",
+    3,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "small aubergines",
+    3,
+    "pieces"
+   ],
+   [
+    "vine leaves in brine",
+    150,
+    "g"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "bunch"
+   ],
+   [
+    "tomato paste",
+    3,
+    "tbsp"
+   ],
+   [
+    "tamarind paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    1,
+    "tsp"
+   ],
+   [
+    "ground allspice",
+    1,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "water",
+    800,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Slice the tops off the peppers, tomatoes and aubergines and scoop out the insides, keeping the tomato flesh. Peel 2 onions, cut in half, boil for 10 minutes and separate the layers.",
+   "Rinse the rice and mix with the lamb, chopped parsley, chopped tomato flesh, half the tomato paste, the spices, 2 tablespoons oil and salt.",
+   "Rinse the vine leaves, then stuff the vegetables loosely (about three-quarters full) and roll the onion layers and vine leaves around about a tablespoon of filling each.",
+   "Pack everything snugly in a wide heavy pot, with the remaining onion sliced across the base.",
+   "Mix the water, remaining tomato paste, tamarind, sugar, remaining oil and salt, and pour over to just cover. Weigh the dolma down with an upturned plate.",
+   "Bring to a boil, cover and simmer on low heat for 1 hour 15 minutes until the rice and vegetables are soft.",
+   "Rest for 10 minutes, then invert onto a large platter or serve from the pot."
+  ],
+  "tips": [
+   "Tamarind gives dolma its signature tang; add lemon juice if you cannot find it."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A big platter of assorted glossy stuffed peppers, tomatoes, aubergines, vine leaf rolls and onion rolls in rich reddish-brown colours, garnished with parsley."
+ },
+ {
+  "name": "Masgouf-Style Baked Fish",
+  "cuisine": "Iraqi",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 40,
+  "servings": 4,
+  "calories": 400,
+  "protein": 38,
+  "carbs": 12,
+  "fat": 22,
+  "description": "A whole carp or sea bream seasoned with tamarind, turmeric and garlic, oven-baked to mimic Iraq's famous open-fire masgouf.",
+  "ingredients": [
+   [
+    "whole sea bream or carp",
+    1.5,
+    "kg"
+   ],
+   [
+    "tamarind paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "lemon juice",
+    3,
+    "tbsp"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Ask the fishmonger to scale and gut the fish and butterfly it open along the belly; pat dry with paper towels.",
+   "Blend the tamarind, turmeric, crushed garlic, olive oil, lemon juice, cumin, salt and pepper into a marinade.",
+   "Rub the marinade all over and inside the fish and leave to marinate for 30 minutes.",
+   "Heat the oven to 220C. Slice the onions and tomatoes and spread them over a large roasting tray.",
+   "Lay the fish skin side up on the vegetables and bake for 35 to 40 minutes, basting once with the juices, until the skin is crisp and the flesh flakes easily.",
+   "Scatter with chopped parsley and serve with the roasted onions, tomatoes and flatbread."
+  ],
+  "tips": [
+   "Finish under the grill for the last 3 minutes for extra char."
+  ],
+  "allergens": [
+   "Fish"
+  ],
+  "kid_friendly": false,
+  "photo": "A whole butterflied fish with crisp golden-brown skin on a tray of roasted red tomatoes and onions, garnished with parsley and lemon."
+ },
+ {
+  "name": "Muhammara",
+  "cuisine": "Syrian",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 25,
+  "servings": 6,
+  "calories": 210,
+  "protein": 4,
+  "carbs": 14,
+  "fat": 16,
+  "description": "A smoky, sweet-tangy dip of roasted red peppers, walnuts and pomegranate molasses from Aleppo.",
+  "ingredients": [
+   [
+    "red peppers",
+    4,
+    "pieces"
+   ],
+   [
+    "walnuts",
+    100,
+    "g"
+   ],
+   [
+    "breadcrumbs",
+    40,
+    "g"
+   ],
+   [
+    "pomegranate molasses",
+    2,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "chilli flakes",
+    1,
+    "tsp"
+   ],
+   [
+    "lemon juice",
+    1,
+    "tbsp"
+   ],
+   [
+    "extra virgin olive oil",
+    5,
+    "tbsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "pita bread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Heat the oven to 230C. Roast the whole peppers on a tray for 25 minutes, turning once, until blistered and blackened in places.",
+   "Place the hot peppers in a bowl, cover with a plate for 10 minutes, then peel off the skins and remove the seeds.",
+   "Toast the walnuts in a dry pan over medium heat for 3 minutes until fragrant.",
+   "Blend the peppers, walnuts, breadcrumbs, pomegranate molasses, garlic, cumin, chilli flakes, lemon juice and 4 tablespoons olive oil until thick and slightly coarse.",
+   "Season with salt, spoon into a bowl and make a well in the centre.",
+   "Drizzle with the remaining oil and serve with warm pita."
+  ],
+  "tips": [
+   "It tastes even better after a few hours in the fridge."
+  ],
+  "allergens": [
+   "Tree nuts",
+   "Gluten"
+  ],
+  "kid_friendly": false,
+  "photo": "A shallow bowl of deep orange-red muhammara with a swirl and olive oil pool, topped with chopped walnuts and surrounded by warm pita triangles."
+ },
+ {
+  "name": "Baba Ghanoush",
+  "cuisine": "Lebanese",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 40,
+  "servings": 6,
+  "calories": 140,
+  "protein": 3,
+  "carbs": 10,
+  "fat": 11,
+  "description": "Silky smoked aubergine blended with tahini, lemon and garlic into a creamy dip with a deep smoky flavour.",
+  "ingredients": [
+   [
+    "large aubergines",
+    3,
+    "pieces"
+   ],
+   [
+    "tahini",
+    3,
+    "tbsp"
+   ],
+   [
+    "lemon juice",
+    3,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "extra virgin olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "plain yogurt",
+    2,
+    "tbsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "pomegranate seeds",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "pita bread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Prick the aubergines all over with a fork and char them directly over a gas flame or under a hot grill for 20 to 25 minutes, turning often, until the skin is blackened and the flesh collapses.",
+   "Transfer to a bowl, cover and cool for 10 minutes, then slit open and scoop out the soft flesh, draining off any bitter liquid.",
+   "Chop the flesh finely with a knife for a rustic texture.",
+   "Mash the garlic with a pinch of salt and mix with the tahini, lemon juice and yogurt.",
+   "Stir the tahini mixture into the aubergine and season to taste.",
+   "Spread in a bowl, drizzle with olive oil and top with parsley and pomegranate seeds, serving with pita."
+  ],
+  "tips": [
+   "Charring over open flame gives the best smoky flavour; a hot oven is the backup."
+  ],
+  "allergens": [
+   "Sesame",
+   "Dairy",
+   "Gluten"
+  ],
+  "kid_friendly": false,
+  "photo": "A shallow bowl of creamy beige-grey baba ghanoush with olive oil, topped with ruby pomegranate seeds and parsley, with warm pita on the side."
+ },
+ {
+  "name": "Knafeh Nabulsieh",
+  "cuisine": "Palestinian",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 30,
+  "servings": 8,
+  "calories": 480,
+  "protein": 13,
+  "carbs": 54,
+  "fat": 25,
+  "description": "Crunchy golden shredded pastry over stretchy, melted sweet cheese, soaked in fragrant orange blossom syrup and topped with pistachios.",
+  "ingredients": [
+   [
+    "kataifi shredded pastry",
+    400,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    200,
+    "g"
+   ],
+   [
+    "nabulsi or mozzarella cheese",
+    400,
+    "g"
+   ],
+   [
+    "sugar",
+    250,
+    "g"
+   ],
+   [
+    "water",
+    150,
+    "ml"
+   ],
+   [
+    "lemon juice",
+    1,
+    "tbsp"
+   ],
+   [
+    "orange blossom water",
+    1,
+    "tbsp"
+   ],
+   [
+    "semolina",
+    2,
+    "tbsp"
+   ],
+   [
+    "pistachios",
+    3,
+    "tbsp"
+   ],
+   [
+    "whole milk",
+    100,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Make the syrup: boil the sugar, water and lemon juice for 8 minutes until slightly thick, stir in the orange blossom water and cool.",
+   "If using nabulsi cheese, slice it and soak in cold water for 3 hours, changing the water, to remove salt; mix with mozzarella for the best melt.",
+   "Melt the butter and pull the kataifi apart into short strands by hand, then rub with the butter until every strand is coated.",
+   "Heat the oven to 200C. Press two-thirds of the pastry firmly into the base of a buttered 25 cm round tin.",
+   "Warm the milk with the semolina for 2 minutes, then spread over the pastry and cover with the sliced cheese.",
+   "Top with the remaining pastry and press down gently, then bake for 25 to 30 minutes until deep golden.",
+   "Turn out onto a plate, immediately pour over most of the cooled syrup, scatter with crushed pistachios and serve warm."
+  ],
+  "tips": [
+   "Serve at once while the cheese is still stretchy."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A round golden-orange knafeh with a glistening syrup sheen, cut to show strings of melted white cheese, scattered with bright green crushed pistachios."
+ },
+ {
+  "name": "Maamoul (Date-Filled Cookies)",
+  "cuisine": "Lebanese",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 60,
+  "cook": 20,
+  "servings": 20,
+  "calories": 160,
+  "protein": 2,
+  "carbs": 22,
+  "fat": 8,
+  "description": "Buttery semolina cookies filled with spiced date paste, made for Eid and shaped in carved wooden moulds. This recipe makes about 20 cookies.",
+  "ingredients": [
+   [
+    "fine semolina",
+    250,
+    "g"
+   ],
+   [
+    "plain flour",
+    100,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    175,
+    "g"
+   ],
+   [
+    "icing sugar",
+    2,
+    "tbsp"
+   ],
+   [
+    "milk",
+    60,
+    "ml"
+   ],
+   [
+    "orange blossom water",
+    1,
+    "tbsp"
+   ],
+   [
+    "instant dry yeast",
+    0.5,
+    "tsp"
+   ],
+   [
+    "date paste",
+    250,
+    "g"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground mahlab",
+    0.5,
+    "tsp"
+   ],
+   [
+    "icing sugar for dusting",
+    2,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Melt the butter and mix into the semolina, flour, mahlab and 2 tablespoons icing sugar. Cover and rest for at least 2 hours, or overnight.",
+   "Warm the milk, stir in the yeast and orange blossom water, then work into the dough until it holds together and is soft.",
+   "Knead the date paste with the cinnamon and roll into 20 small balls.",
+   "Heat the oven to 180C. Take a walnut-sized piece of dough, flatten it in your palm, put a date ball in the centre and seal the dough around it.",
+   "Press into a maamoul mould, or flatten gently and pinch the top with tongs for decoration, then tap out onto a lined tray.",
+   "Bake for 18 to 20 minutes until pale golden on the base; the tops should stay pale.",
+   "Cool completely on the tray and dust with icing sugar."
+  ],
+  "tips": [
+   "Resting the dough overnight gives a more tender, crumbly cookie."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Rows of pale, intricately patterned domed cookies dusted with icing sugar on a white tray, one broken open to reveal dark date filling."
+ }
+]

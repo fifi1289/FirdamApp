@@ -130,7 +130,7 @@ function PlanCard() {
         Try Premium free
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Unlimited AI meal plans, trips, habits and more — 14 days free.
+        More AI help, unlimited recipes, trips and lists — 14 days free.
       </p>
     </Link>
   );

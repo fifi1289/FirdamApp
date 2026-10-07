@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { getUser, isAdminUser } from "../_shared/plan.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,6 +16,14 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    // Admin-only health check, so it can't be used to spend AI credit.
+    const user = await getUser(req);
+    if (!user || !(await isAdminUser(user.id))) {
+      return new Response(JSON.stringify({ success: false, error: "Admins only." }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) {
       return new Response(

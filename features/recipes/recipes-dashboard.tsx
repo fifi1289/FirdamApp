@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChefHat, Clock, Flame, Heart, Loader2, Plus, Search, Users } from 'lucide-react';
+import { ChefHat, Clock, Flame, Heart, Loader2, Plus, Search, ShieldCheck, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { AppShell } from '@/components/layout/app-shell';
@@ -18,21 +18,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { MealImage } from '@/features/meals/meal-image';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { ALLERGEN_RULES, conflictsWithAllergies, fitsDiet } from '@/lib/recipes/allergens';
 import { cn } from '@/lib/utils';
 import { usePlan } from '@/lib/plan/plan';
 import { UpgradeDialog } from '@/components/plan/upgrade-prompt';
 import {
   fetchAllRecipes,
+  fetchRecipeFacts,
   formatDuration,
+  type RecipeFacts,
   totalMinutes,
   type MealTypeKey,
   type RecipeSummary,
 } from '@/features/recipes/recipe-api';
 import { useRecipeFavorites } from '@/features/recipes/use-favorites';
 import { RecipeFormDialog } from '@/features/recipes/recipe-form-dialog';
+import { CookWithWhatIHave } from '@/features/recipes/cook-with-what-i-have';
 
-type Tab = 'all' | 'favorites' | 'mine' | 'community';
+type Tab = 'all' | 'cook' | 'favorites' | 'mine' | 'community';
 
 const MEAL_FILTERS: { value: MealTypeKey | 'all'; label: string }[] = [
   { value: 'all', label: 'Any meal' },
@@ -41,6 +48,8 @@ const MEAL_FILTERS: { value: MealTypeKey | 'all'; label: string }[] = [
   { value: 'dinner', label: 'Dinner' },
   { value: 'snack', label: 'Snacks & desserts' },
 ];
+
+const DIET_FILTERS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'High-protein', 'Low-carb', 'Kid-friendly'];
 
 const TIME_FILTERS = [
   { value: 'any', label: 'Any time' },
@@ -140,14 +149,36 @@ export function RecipesDashboard() {
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('all');
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('tab') === 'cook') setTab('cook');
+  }, []);
   const [query, setQuery] = useState('');
   const [meal, setMeal] = useState<MealTypeKey | 'all'>('all');
   const [cuisine, setCuisine] = useState('all');
   const [time, setTime] = useState('any');
+  const [freeFrom, setFreeFrom] = useState<string[]>([]);
+  const [diet, setDiet] = useState('any');
+  const [facts, setFacts] = useState<Map<string, RecipeFacts> | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const { favorites, toggle } = useRecipeFavorites();
   const { atLimit } = usePlan();
+
+  useEffect(() => {
+    fetchRecipeFacts()
+      .then(setFacts)
+      .catch(() => setFacts(new Map()));
+    // Start with the allergies saved in the meal planner, so unsafe recipes are hidden by default.
+    createSupabaseBrowserClient()
+      .from('meal_preferences')
+      .select('allergies')
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        const saved = (data?.allergies ?? []) as string[];
+        if (saved.length) setFreeFrom(saved);
+      });
+  }, []);
 
   useEffect(() => {
     fetchAllRecipes()
@@ -171,9 +202,26 @@ export function RecipesDashboard() {
       if (cuisine !== 'all' && r.cuisine !== cuisine) return false;
       if (time !== 'any' && totalMinutes(r) > Number(time)) return false;
       if (q && !`${r.name} ${r.description ?? ''} ${r.cuisine ?? ''}`.toLowerCase().includes(q)) return false;
+      if (freeFrom.length > 0 || diet !== 'any') {
+        const f = facts?.get(r.key);
+        // Until ingredients load (or if a recipe has none listed), don't show it as safe.
+        if (!f || f.ingredients.length === 0) return false;
+        if (conflictsWithAllergies(f.ingredients, freeFrom, f.allergens)) return false;
+        if (diet !== 'any' && !fitsDiet(diet, f)) return false;
+      }
       return true;
     });
-  }, [recipes, tab, favorites, meal, cuisine, time, query]);
+  }, [recipes, tab, favorites, meal, cuisine, time, query, freeFrom, diet, facts]);
+
+  // For "What can I cook?": only recipes that are safe for the chosen allergies and diet.
+  const safeRecipes = useMemo(() => {
+    if (freeFrom.length === 0 && diet === 'any') return recipes;
+    return recipes.filter((r) => {
+      const f = facts?.get(r.key);
+      if (!f || f.ingredients.length === 0) return false;
+      return !conflictsWithAllergies(f.ingredients, freeFrom, f.allergens) && (diet === 'any' || fitsDiet(diet, f));
+    });
+  }, [recipes, freeFrom, diet, facts]);
 
   const onToggleFavorite = async (key: string) => {
     try {
@@ -194,6 +242,7 @@ export function RecipesDashboard() {
 
   const tabs: { value: Tab; label: string }[] = [
     { value: 'all', label: 'All recipes' },
+    { value: 'cook', label: 'What can I cook?' },
     { value: 'favorites', label: `Favourites${favorites.size ? ` (${favorites.size})` : ''}` },
     { value: 'mine', label: `My recipes${myCount ? ` (${myCount})` : ''}` },
     { value: 'community', label: 'From the community' },
@@ -230,7 +279,20 @@ export function RecipesDashboard() {
         ))}
       </div>
 
-      <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_auto_auto]">
+      {tab === 'cook' ? (
+        loading ? null : (
+          <>
+            {freeFrom.length > 0 && (
+              <p className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-brand-sage" /> Only showing recipes free from {freeFrom.join(', ')}.
+              </p>
+            )}
+            <CookWithWhatIHave recipes={safeRecipes} />
+          </>
+        )
+      ) : (
+      <>
+      <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_auto_auto] xl:grid-cols-[1fr_auto_auto_auto_auto_auto]">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -278,6 +340,51 @@ export function RecipesDashboard() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={diet} onValueChange={setDiet}>
+          <SelectTrigger className="md:w-[160px]" aria-label="Diet">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">Any diet</SelectItem>
+            {DIET_FILTERS.map((d) => (
+              <SelectItem key={d} value={d}>
+                {d}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className={cn('justify-start md:w-[170px]', freeFrom.length > 0 && 'border-primary text-primary')}>
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              {freeFrom.length > 0 ? `Free from ${freeFrom.length}` : 'Allergies'}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-64">
+            <p className="mb-2 text-sm font-medium text-foreground">Hide recipes containing</p>
+            <div className="space-y-2">
+              {[...ALLERGEN_RULES.map((r) => r.name), ...freeFrom.filter((a) => !ALLERGEN_RULES.some((r) => r.name === a))].map((a) => (
+                <label key={a} className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                  <Checkbox
+                    checked={freeFrom.includes(a)}
+                    onCheckedChange={(v) =>
+                      setFreeFrom((cur) => (v ? [...cur, a] : cur.filter((x) => x !== a)))
+                    }
+                  />
+                  {a}
+                </label>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Checked against every ingredient. Always read labels on packaged foods.
+            </p>
+            {freeFrom.length > 0 && (
+              <Button variant="ghost" size="sm" className="mt-2 px-0" onClick={() => setFreeFrom([])}>
+                Clear
+              </Button>
+            )}
+          </PopoverContent>
+        </Popover>
       </div>
 
       {loading ? (
@@ -336,6 +443,8 @@ export function RecipesDashboard() {
             ))}
           </div>
         </>
+      )}
+      </>
       )}
 
       <RecipeFormDialog

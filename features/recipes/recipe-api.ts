@@ -3,6 +3,7 @@
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getMealImage } from '@/features/meals/meal-images';
 import type { UserRecipe } from '@/types/database';
+import { detectAllergens, ruleForAllergy } from '@/lib/recipes/allergens';
 
 export type RecipeSource = 'catalog' | 'mine' | 'community';
 export type MealTypeKey = 'breakfast' | 'lunch' | 'dinner' | 'snack';
@@ -190,6 +191,14 @@ const NUTRITION: { key: keyof DetailRow; label: string; unit: string }[] = [
   { key: 'sodium', label: 'Sodium', unit: 'mg' },
 ];
 
+/** Tagged allergens plus any detected from ingredients, without duplicates (e.g. "Milk" and "Dairy"). */
+function mergeAllergens(tagged: string[], ingredients: string[]): string[] {
+  const out = new Map<string, string>();
+  for (const t of tagged) out.set(ruleForAllergy(t)?.name ?? t, t);
+  for (const d of Array.from(detectAllergens(ingredients.filter(Boolean)))) if (!out.has(d)) out.set(d, d);
+  return Array.from(out.values());
+}
+
 export async function fetchRecipe(key: string): Promise<RecipeDetail | null> {
   const supabase = createSupabaseBrowserClient();
   const id = key.slice(2);
@@ -211,7 +220,7 @@ export async function fetchRecipe(key: string): Promise<RecipeDetail | null> {
       tips: r.tips ? [r.tips] : [],
       equipment: [],
       tags: [],
-      allergens: [],
+      allergens: Array.from(detectAllergens((r.ingredients ?? []).map((i) => i.name))),
       nutrition: [],
       storage: null,
       reheating: null,
@@ -232,7 +241,7 @@ export async function fetchRecipe(key: string): Promise<RecipeDetail | null> {
       .filter((i) => i.ingredient?.name)
       .map((i) => ({
         name: i.ingredient!.name,
-        quantity: i.quantity != null ? Number(i.quantity) : null,
+        quantity: i.quantity != null && Number(i.quantity) > 0 ? Number(i.quantity) : null,
         unit: i.unit ?? '',
         optional: i.optional ?? false,
         notes: i.notes,
@@ -250,7 +259,10 @@ export async function fetchRecipe(key: string): Promise<RecipeDetail | null> {
       .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
       .map((e) => e.equipment),
     tags: r.recipe_tags.map((t) => t.tag?.name).filter(Boolean) as string[],
-    allergens: r.recipe_allergens.map((a) => a.allergen?.name).filter(Boolean) as string[],
+    allergens: mergeAllergens(
+      r.recipe_allergens.map((a) => a.allergen?.name).filter(Boolean) as string[],
+      r.recipe_ingredients.map((i) => i.ingredient?.name ?? '')
+    ),
     nutrition: NUTRITION.filter((n) => r[n.key] != null).map((n) => ({
       label: n.label,
       value: Number(r[n.key]),
@@ -291,4 +303,83 @@ export function formatDuration(mins: number): string {
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   return m ? `${h} h ${m} min` : `${h} h`;
+}
+
+/** Ingredient names for every recipe, keyed by route key — used by "Cook with what I have". */
+export async function fetchRecipeIngredientIndex(): Promise<Map<string, { name: string; optional: boolean }[]>> {
+  const supabase = createSupabaseBrowserClient();
+  const [catalog, mine] = await Promise.all([
+    supabase
+      .from('recipes')
+      .select('id, recipe_ingredients(optional, ingredient:ingredients(name))')
+      .eq('is_active', true),
+    supabase.from('user_recipes').select('id, ingredients'),
+  ]);
+  const index = new Map<string, { name: string; optional: boolean }[]>();
+  type Row = { id: string; recipe_ingredients: { optional: boolean | null; ingredient: { name: string } | null }[] };
+  for (const r of (catalog.data ?? []) as unknown as Row[]) {
+    index.set(
+      `c-${r.id}`,
+      (r.recipe_ingredients ?? [])
+        .filter((i) => i.ingredient?.name)
+        .map((i) => ({ name: i.ingredient!.name, optional: !!i.optional }))
+    );
+  }
+  for (const r of (mine.data ?? []) as { id: string; ingredients: { name: string }[] | null }[]) {
+    index.set(
+      `u-${r.id}`,
+      (r.ingredients ?? []).filter((i) => i.name?.trim()).map((i) => ({ name: i.name, optional: false }))
+    );
+  }
+  return index;
+}
+
+export interface RecipeFacts {
+  ingredients: string[];
+  allergens: string[];
+  tags: string[];
+  protein: number | null;
+  carbs: number | null;
+}
+
+/** Ingredients, allergen tags and diet info for every recipe — used by the allergy and diet filters. */
+export async function fetchRecipeFacts(): Promise<Map<string, RecipeFacts>> {
+  const supabase = createSupabaseBrowserClient();
+  const [catalog, mine] = await Promise.all([
+    supabase
+      .from('recipes')
+      .select(
+        'id, protein, carbs, recipe_ingredients(ingredient:ingredients(name)), recipe_allergens(allergen:allergens(name)), recipe_tags(tag:tags(name))'
+      )
+      .eq('is_active', true),
+    supabase.from('user_recipes').select('id, ingredients'),
+  ]);
+  type Row = {
+    id: string;
+    protein: number | null;
+    carbs: number | null;
+    recipe_ingredients: { ingredient: { name: string } | null }[] | null;
+    recipe_allergens: { allergen: { name: string } | null }[] | null;
+    recipe_tags: { tag: { name: string } | null }[] | null;
+  };
+  const facts = new Map<string, RecipeFacts>();
+  for (const r of (catalog.data ?? []) as unknown as Row[]) {
+    facts.set(`c-${r.id}`, {
+      ingredients: (r.recipe_ingredients ?? []).map((i) => i.ingredient?.name ?? '').filter(Boolean),
+      allergens: (r.recipe_allergens ?? []).map((a) => a.allergen?.name ?? '').filter(Boolean),
+      tags: (r.recipe_tags ?? []).map((t) => t.tag?.name ?? '').filter(Boolean),
+      protein: r.protein != null ? Number(r.protein) : null,
+      carbs: r.carbs != null ? Number(r.carbs) : null,
+    });
+  }
+  for (const r of (mine.data ?? []) as { id: string; ingredients: { name: string }[] | null }[]) {
+    facts.set(`u-${r.id}`, {
+      ingredients: (r.ingredients ?? []).map((i) => i.name).filter(Boolean),
+      allergens: [],
+      tags: [],
+      protein: null,
+      carbs: null,
+    });
+  }
+  return facts;
 }

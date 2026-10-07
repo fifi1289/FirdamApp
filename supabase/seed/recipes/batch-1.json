@@ -1,0 +1,2174 @@
+[
+ {
+  "name": "Msemen with Honey",
+  "cuisine": "Moroccan",
+  "meal_type": "Breakfast",
+  "difficulty": "Medium",
+  "prep": 40,
+  "cook": 25,
+  "servings": 4,
+  "calories": 520,
+  "protein": 10,
+  "carbs": 70,
+  "fat": 22,
+  "description": "Flaky, buttery layered squares of pan-fried Moroccan flatbread, drizzled with warm honey.",
+  "ingredients": [
+   [
+    "plain flour",
+    300,
+    "g"
+   ],
+   [
+    "fine semolina",
+    100,
+    "g"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "caster sugar",
+    1,
+    "tsp"
+   ],
+   [
+    "warm water",
+    250,
+    "ml"
+   ],
+   [
+    "sunflower oil",
+    60,
+    "ml"
+   ],
+   [
+    "unsalted butter",
+    60,
+    "g"
+   ],
+   [
+    "honey",
+    4,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, 50 g of the semolina, salt and sugar in a large bowl, then gradually add the warm water and knead for 10 minutes until the dough is smooth and elastic.",
+   "Divide the dough into 8 equal balls, coat them lightly with oil, cover and rest for 15 minutes.",
+   "Melt the butter and mix it with 2 tbsp of the oil to make a brushing mixture. Mix the remaining semolina into this to make a spreadable paste.",
+   "Oil your work surface and flatten one ball into a very thin, almost see-through square using oiled fingers, then brush it with the butter mixture.",
+   "Fold the square into thirds like a letter, brush again, and fold into thirds the other way to make a small square. Repeat with the remaining balls.",
+   "Gently flatten each folded square to about 12 cm wide with your palm.",
+   "Heat a non-stick frying pan over medium heat and cook each msemen for 3 to 4 minutes per side, until golden and crisp at the edges.",
+   "Warm the honey for 20 seconds in the microwave and serve the msemen hot with the honey for drizzling."
+  ],
+  "tips": [
+   "Plenty of oil on your hands and the work surface is the secret to stretching the dough thin without tearing."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A stack of golden, square layered flatbreads on a ceramic plate with honey being drizzled over the top. A small pot of honey and a glass of mint tea sit alongside."
+ },
+ {
+  "name": "Baghrir (Thousand-Hole Pancakes)",
+  "cuisine": "Moroccan",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 25,
+  "servings": 4,
+  "calories": 380,
+  "protein": 9,
+  "carbs": 62,
+  "fat": 11,
+  "description": "Spongy, one-sided semolina pancakes covered in tiny bubbles that soak up a warm honey and butter sauce.",
+  "ingredients": [
+   [
+    "fine semolina",
+    200,
+    "g"
+   ],
+   [
+    "plain flour",
+    50,
+    "g"
+   ],
+   [
+    "instant dry yeast",
+    2,
+    "tsp"
+   ],
+   [
+    "baking powder",
+    1,
+    "tsp"
+   ],
+   [
+    "caster sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "salt",
+    0.5,
+    "tsp"
+   ],
+   [
+    "warm water",
+    450,
+    "ml"
+   ],
+   [
+    "unsalted butter",
+    40,
+    "g"
+   ],
+   [
+    "honey",
+    5,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Put the semolina, flour, yeast, baking powder, sugar and salt in a blender and add the warm water.",
+   "Blend on high for 2 minutes until the batter is completely smooth and slightly frothy.",
+   "Pour into a bowl, cover and leave in a warm place for 30 minutes until bubbly on top.",
+   "Heat a non-stick frying pan over medium-low heat without any oil.",
+   "Pour in a small ladle of batter and let it spread. Cook for 2 to 3 minutes until the surface is covered with holes and looks dry; do not flip.",
+   "Slide the pancake onto a clean tea towel and repeat with the remaining batter, stirring the batter between each one.",
+   "Melt the butter with the honey in a small pan over low heat for 2 minutes.",
+   "Serve the pancakes holes-side up, generously drizzled with the warm honey butter."
+  ],
+  "tips": [
+   "If no holes appear, the batter is too thick; whisk in a splash of warm water."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A plate of pale golden pancakes with their honeycomb surface of tiny holes facing up, glistening with honey butter. Folded or stacked in a loose pile on a white plate."
+ },
+ {
+  "name": "Bissara (Fava Bean Soup)",
+  "cuisine": "Moroccan",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 60,
+  "servings": 4,
+  "calories": 340,
+  "protein": 20,
+  "carbs": 42,
+  "fat": 11,
+  "description": "A thick, silky dried fava bean soup flavoured with garlic and cumin, finished with olive oil and paprika.",
+  "ingredients": [
+   [
+    "dried split fava beans",
+    300,
+    "g"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "water",
+    1.2,
+    "l"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "crusty bread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Rinse the split fava beans and soak them in cold water for 2 hours if you have time, then drain.",
+   "Put the beans, peeled garlic cloves and water into a large pot and bring to the boil over high heat.",
+   "Reduce to a simmer, cover and cook for 45 to 60 minutes, stirring now and then, until the beans are completely soft.",
+   "Stir in the salt and half of the cumin, then blend with a stick blender until very smooth, adding hot water if too thick.",
+   "Ladle into bowls and make a small well in the centre of each.",
+   "Pour 1 tbsp olive oil into each well and sprinkle with the remaining cumin and the paprika.",
+   "Serve hot with lemon wedges and crusty bread."
+  ],
+  "tips": [
+   "Bissara thickens as it cools, so loosen it with hot water when reheating."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A deep earthenware bowl of smooth, pale green-beige soup with a golden pool of olive oil and a dusting of red paprika and cumin. Served with a lemon wedge and warm bread beside it."
+ },
+ {
+  "name": "Lamb Tagine with Prunes and Almonds",
+  "cuisine": "Moroccan",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 120,
+  "servings": 4,
+  "calories": 640,
+  "protein": 40,
+  "carbs": 42,
+  "fat": 33,
+  "description": "Tender lamb slow-cooked with onions, cinnamon and saffron, topped with sweet prunes, toasted almonds and sesame seeds.",
+  "ingredients": [
+   [
+    "lamb shoulder",
+    1,
+    "kg"
+   ],
+   [
+    "onions",
+    3,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "ground ginger",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    1.5,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "saffron",
+    1,
+    "pinch"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "water",
+    500,
+    "ml"
+   ],
+   [
+    "pitted prunes",
+    200,
+    "g"
+   ],
+   [
+    "honey",
+    2,
+    "tbsp"
+   ],
+   [
+    "blanched almonds",
+    80,
+    "g"
+   ],
+   [
+    "sesame seeds",
+    1,
+    "tbsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Cut the lamb into 5 cm chunks and grate one onion; slice the other two onions into half-moons.",
+   "In a heavy pot or tagine, combine the lamb, grated onion, crushed garlic, olive oil, ginger, half the cinnamon, turmeric, saffron, pepper and salt, and stir over medium heat for 5 minutes.",
+   "Add the water, bring to the boil, then cover and simmer on low heat for 1 hour 20 minutes until the lamb is nearly tender.",
+   "Add the sliced onions and cook for a further 15 minutes.",
+   "Add the prunes, honey and remaining cinnamon, and cook uncovered for 15 minutes until the sauce is thick and glossy.",
+   "Meanwhile, toast the almonds in a dry pan over medium heat for 3 minutes until golden, then toast the sesame seeds for 1 minute.",
+   "Top the tagine with the almonds, sesame seeds and chopped coriander, and serve with couscous or bread."
+  ],
+  "tips": [
+   "Cooking on the lowest possible heat keeps the lamb tender; add a splash of water if the sauce dries out."
+  ],
+  "allergens": [
+   "Tree nuts",
+   "Sesame"
+  ],
+  "kid_friendly": false,
+  "photo": "A terracotta tagine dish of glossy dark-brown lamb with dark prunes, scattered golden almonds, sesame seeds and green coriander. A wooden spoon and flatbread sit beside it."
+ },
+ {
+  "name": "Chicken Pastilla",
+  "cuisine": "Moroccan",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 60,
+  "cook": 70,
+  "servings": 6,
+  "calories": 610,
+  "protein": 33,
+  "carbs": 42,
+  "fat": 34,
+  "description": "Crisp golden filo pie filled with saffron-spiced shredded chicken, egg and almonds, dusted with cinnamon and icing sugar.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    800,
+    "g"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "ground ginger",
+    1,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "saffron",
+    1,
+    "pinch"
+   ],
+   [
+    "ground cinnamon",
+    2,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "water",
+    400,
+    "ml"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "eggs",
+    5,
+    "pieces"
+   ],
+   [
+    "blanched almonds",
+    150,
+    "g"
+   ],
+   [
+    "icing sugar",
+    3,
+    "tbsp"
+   ],
+   [
+    "filo pastry sheets",
+    10,
+    "pieces"
+   ],
+   [
+    "unsalted butter",
+    100,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Put the chicken, grated onions, crushed garlic, ginger, turmeric, saffron, half the cinnamon, pepper, salt and water in a wide pot and simmer, covered, for 40 minutes.",
+   "Lift out the chicken, shred the meat discarding skin and bones, and keep warm.",
+   "Boil the remaining sauce uncovered for 10 minutes until reduced to about 150 ml, add the chopped herbs, then lower the heat and pour in 4 beaten eggs, stirring gently until just set like scrambled eggs. Mix with the chicken and cool.",
+   "Toast the almonds in a dry pan over medium heat for 4 minutes, chop roughly and mix with 1 tbsp icing sugar and half the remaining cinnamon.",
+   "Heat the oven to 180C (160C fan). Melt the butter and brush a 26 cm round baking tin.",
+   "Layer 5 buttered filo sheets overlapping in the tin so they hang over the edges, add half the chicken, then the almond mix, then the rest of the chicken.",
+   "Fold the overhanging filo over the filling and cover with 5 more buttered sheets, tucking the edges under. Brush the top with the remaining beaten egg and butter.",
+   "Bake for 30 minutes until deep golden, then dust with the remaining icing sugar and cinnamon in a lattice pattern. Rest 10 minutes before slicing."
+  ],
+  "tips": [
+   "Keep unused filo covered with a damp tea towel so it does not dry out and crack."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Eggs",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A round golden-brown filo pie dusted with a lattice of white icing sugar and cinnamon on a large platter. One slice is cut out showing layers of shredded chicken and egg."
+ },
+ {
+  "name": "Couscous with Seven Vegetables",
+  "cuisine": "Moroccan",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 90,
+  "servings": 6,
+  "calories": 560,
+  "protein": 28,
+  "carbs": 78,
+  "fat": 16,
+  "description": "Fluffy steamed couscous crowned with tender beef or lamb and seven vegetables in a golden, gently spiced broth.",
+  "ingredients": [
+   [
+    "beef stewing meat",
+    700,
+    "g"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "ground ginger",
+    1,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "saffron",
+    1,
+    "pinch"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "water",
+    2,
+    "l"
+   ],
+   [
+    "carrots",
+    4,
+    "pieces"
+   ],
+   [
+    "turnips",
+    2,
+    "pieces"
+   ],
+   [
+    "courgettes",
+    3,
+    "pieces"
+   ],
+   [
+    "pumpkin",
+    400,
+    "g"
+   ],
+   [
+    "cabbage",
+    300,
+    "g"
+   ],
+   [
+    "canned chickpeas",
+    240,
+    "g"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "couscous",
+    500,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    40,
+    "g"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ]
+  ],
+  "steps": [
+   "Put the beef, sliced onions, olive oil, ginger, turmeric, pepper, saffron and half the salt in a large pot and stir over medium heat for 5 minutes.",
+   "Add the water and bring to the boil, then cover and simmer on low heat for 45 minutes.",
+   "Add the carrots, turnips and tomatoes (cut in large chunks) with the coriander tied in a bunch, and cook for 15 minutes.",
+   "Add the pumpkin, cabbage wedges, courgettes and chickpeas and cook for another 20 minutes until all the vegetables are tender.",
+   "While that cooks, put the couscous in a large bowl, sprinkle with 500 ml warm water and the remaining salt, and rub the grains with your hands for 2 minutes. Cover for 10 minutes.",
+   "Fluff the couscous with a fork, stir in the butter and steam over a pot of simmering water (or microwave covered for 3 minutes) until hot and light.",
+   "Mound the couscous on a large platter, arrange the meat and vegetables on top, and ladle over some broth. Serve the rest of the broth separately."
+  ],
+  "tips": [
+   "Add the softer vegetables last so nothing turns to mush."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A large round platter of fluffy couscous topped with a colourful arrangement of orange carrots, pumpkin, green courgette, cabbage, chickpeas and meat. A bowl of golden broth sits beside it."
+ },
+ {
+  "name": "Zaalouk (Aubergine Salad)",
+  "cuisine": "Moroccan",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 40,
+  "servings": 4,
+  "calories": 180,
+  "protein": 3,
+  "carbs": 16,
+  "fat": 12,
+  "description": "A warm, smoky Moroccan dip of cooked aubergine and tomato with garlic, cumin and paprika.",
+  "ingredients": [
+   [
+    "aubergines",
+    2,
+    "pieces"
+   ],
+   [
+    "ripe tomatoes",
+    4,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "lemon juice",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Peel the aubergines in stripes, cut into 2 cm cubes, sprinkle with salt and leave for 15 minutes, then rinse and pat dry.",
+   "Boil the aubergine cubes in water for 10 minutes until soft, then drain well and mash roughly with a fork.",
+   "Grate the tomatoes, discarding the skins, or chop them finely.",
+   "Heat the olive oil in a wide pan over medium heat and fry the crushed garlic for 30 seconds.",
+   "Add the tomatoes, cumin, paprika and salt and cook for 10 minutes until thickened.",
+   "Add the aubergine and cook for 15 minutes, stirring and mashing until thick and jammy.",
+   "Stir in the chopped coriander, parsley and lemon juice and serve warm or cold with bread."
+  ],
+  "tips": [
+   "It tastes even better the next day, once the flavours have settled."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A shallow bowl of dark, rich aubergine and tomato spread glistening with olive oil, sprinkled with paprika and fresh herbs. Served with triangles of flatbread."
+ },
+ {
+  "name": "Kefta Mkaouara (Meatball Tagine with Eggs)",
+  "cuisine": "Moroccan",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 25,
+  "cook": 35,
+  "servings": 4,
+  "calories": 480,
+  "protein": 32,
+  "carbs": 14,
+  "fat": 33,
+  "description": "Spiced beef meatballs simmered in a garlicky tomato sauce with eggs gently poached on top.",
+  "ingredients": [
+   [
+    "minced beef",
+    500,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "paprika",
+    2,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "tomato puree",
+    1,
+    "tbsp"
+   ],
+   [
+    "water",
+    100,
+    "ml"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Grate the onion and mix it with the minced beef, finely chopped parsley and coriander, 1 tsp cumin, 1 tsp paprika, pepper and 1 tsp salt until well combined.",
+   "Shape into walnut-sized meatballs, about 20 in total.",
+   "Heat the olive oil in a wide, lidded pan over medium heat and fry the crushed garlic for 30 seconds.",
+   "Add the tomatoes, tomato puree, water and remaining cumin, paprika and salt, and simmer for 8 minutes.",
+   "Add the meatballs, cover and cook on medium-low for 15 minutes, turning them once.",
+   "Make 4 small wells in the sauce and crack an egg into each. Cover and cook for 5 to 6 minutes until the whites are set but the yolks are still soft.",
+   "Sprinkle with extra herbs and serve straight from the pan with crusty bread."
+  ],
+  "tips": [
+   "Wet your hands when shaping the meatballs so the meat does not stick."
+  ],
+  "allergens": [
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A wide terracotta dish of meatballs in bright red tomato sauce with four runny-yolked eggs on top, scattered with green herbs. Torn bread alongside."
+ },
+ {
+  "name": "Chorba Frik (Lamb & Freekeh Soup)",
+  "cuisine": "Algerian",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 75,
+  "servings": 6,
+  "calories": 360,
+  "protein": 25,
+  "carbs": 34,
+  "fat": 14,
+  "description": "Algeria's Ramadan favourite: a rich tomato soup of lamb, chickpeas and cracked green wheat with fresh coriander and mint.",
+  "ingredients": [
+   [
+    "lamb shoulder",
+    400,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "water",
+    2,
+    "l"
+   ],
+   [
+    "cracked freekeh",
+    100,
+    "g"
+   ],
+   [
+    "canned chickpeas",
+    240,
+    "g"
+   ],
+   [
+    "canned chopped tomatoes",
+    200,
+    "g"
+   ],
+   [
+    "celery sticks",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "fresh mint",
+    1,
+    "handful"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Cut the lamb into 2 cm cubes and finely chop the onion and celery.",
+   "Heat the olive oil in a large pot over medium heat and brown the lamb for 5 minutes, then add the onion and celery and cook for 4 minutes.",
+   "Stir in the tomato puree, cinnamon, pepper, turmeric and salt and cook for 2 minutes.",
+   "Add the chopped tomatoes and water, bring to the boil, then cover and simmer for 40 minutes until the lamb is tender.",
+   "Rinse the freekeh and add it with the chickpeas, then simmer for 20 to 25 minutes until the grains are soft.",
+   "Stir in most of the chopped coriander and mint and cook for 3 more minutes.",
+   "Serve hot with lemon wedges and the remaining herbs on top."
+  ],
+  "tips": [
+   "The soup thickens as it stands; add a little hot water to loosen it."
+  ],
+  "allergens": [
+   "Gluten",
+   "Celery"
+  ],
+  "kid_friendly": true,
+  "photo": "A deep bowl of thick red-orange soup with tender lamb cubes, chickpeas and cracked green wheat, topped with chopped fresh coriander and mint. A lemon wedge on the rim."
+ },
+ {
+  "name": "Mhadjeb (Stuffed Semolina Flatbread)",
+  "cuisine": "Algerian",
+  "meal_type": "Breakfast",
+  "difficulty": "Medium",
+  "prep": 40,
+  "cook": 30,
+  "servings": 4,
+  "calories": 420,
+  "protein": 9,
+  "carbs": 58,
+  "fat": 17,
+  "description": "Thin, crisp semolina pockets stuffed with a slow-cooked tomato, onion and pepper filling.",
+  "ingredients": [
+   [
+    "fine semolina",
+    400,
+    "g"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "warm water",
+    200,
+    "ml"
+   ],
+   [
+    "sunflower oil",
+    5,
+    "tbsp"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    4,
+    "pieces"
+   ],
+   [
+    "green pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "tomato puree",
+    1,
+    "tbsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cumin",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Mix the semolina with 1 tsp salt and gradually add the warm water, kneading for 8 minutes into a smooth, firm dough. Cover and rest for 20 minutes.",
+   "For the filling, heat 2 tbsp oil in a pan over medium heat and soften the finely chopped onions and green pepper for 8 minutes.",
+   "Add the crushed garlic, grated tomatoes, tomato puree, paprika, cumin, pepper and the remaining salt, and cook for 15 minutes until thick and almost dry. Cool completely.",
+   "Divide the dough into 8 balls, oil your hands and surface, and stretch each into a thin 15 cm square.",
+   "Spoon 2 tbsp filling along the centre of a square, then fold the sides over to enclose it into a flat rectangle. Repeat with the rest.",
+   "Heat a lightly oiled non-stick pan over medium heat and cook each mhadjeb for 3 to 4 minutes per side until golden and crisp.",
+   "Serve hot, cut in halves, with mint tea."
+  ],
+  "tips": [
+   "Make sure the filling is dry, otherwise the dough will tear and turn soggy."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A pile of crisp golden rectangular flatbreads on a wooden board, one cut open to show a bright red tomato and onion filling. A glass of mint tea beside."
+ },
+ {
+  "name": "Chtitha Djej (Spiced Chicken Stew)",
+  "cuisine": "Algerian",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 50,
+  "servings": 4,
+  "calories": 450,
+  "protein": 36,
+  "carbs": 24,
+  "fat": 24,
+  "description": "A fiery Algerian chicken stew with chickpeas in a garlicky red pepper and tomato sauce.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    800,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "paprika",
+    2,
+    "tsp"
+   ],
+   [
+    "harissa paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "canned chickpeas",
+    240,
+    "g"
+   ],
+   [
+    "water",
+    300,
+    "ml"
+   ],
+   [
+    "green olives",
+    1,
+    "handful"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Season the chicken with half of the salt and pepper.",
+   "Heat the olive oil in a heavy pot over medium-high heat and brown the chicken for 3 to 4 minutes per side. Remove and set aside.",
+   "In the same pot soften the grated onion over medium heat for 5 minutes, then add the crushed garlic, tomato puree, paprika, harissa and cumin and cook for 2 minutes.",
+   "Add the chopped tomatoes, water and remaining salt, and return the chicken to the pot.",
+   "Cover and simmer on low heat for 30 minutes.",
+   "Add the chickpeas and olives and simmer uncovered for 10 minutes until the sauce is thick.",
+   "Scatter with chopped coriander and serve with bread or rice."
+  ],
+  "tips": [
+   "Reduce the harissa to 1 tsp for a family-friendly mild version."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A shallow dish of chicken pieces in a glossy red-orange sauce with chickpeas and green olives, topped with fresh coriander leaves. Crusty bread on the side."
+ },
+ {
+  "name": "Makrout (Date Semolina Cookies)",
+  "cuisine": "Algerian",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 45,
+  "cook": 25,
+  "servings": 24,
+  "calories": 170,
+  "protein": 2,
+  "carbs": 26,
+  "fat": 7,
+  "description": "Diamond-shaped semolina cookies filled with spiced date paste, fried until golden and dipped in honey. Makes about 24 pieces.",
+  "ingredients": [
+   [
+    "fine semolina",
+    500,
+    "g"
+   ],
+   [
+    "plain flour",
+    100,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    150,
+    "g"
+   ],
+   [
+    "salt",
+    0.5,
+    "tsp"
+   ],
+   [
+    "orange blossom water",
+    2,
+    "tbsp"
+   ],
+   [
+    "warm water",
+    150,
+    "ml"
+   ],
+   [
+    "pitted dates",
+    400,
+    "g"
+   ],
+   [
+    "ground cinnamon",
+    1,
+    "tsp"
+   ],
+   [
+    "unsalted butter",
+    20,
+    "g"
+   ],
+   [
+    "sunflower oil",
+    500,
+    "ml"
+   ],
+   [
+    "honey",
+    150,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Melt 150 g butter and rub it into the semolina, flour and salt with your fingertips for 5 minutes, then rest for 30 minutes.",
+   "Add the orange blossom water and enough warm water to bring it together into a soft, smooth dough. Do not overwork it.",
+   "Knead the dates with the cinnamon and 20 g softened butter into a smooth paste and roll into a log about 1.5 cm thick.",
+   "Roll the dough into a log about 3 cm thick, press a channel along the top with your finger, lay the date log inside and pinch the dough closed over it.",
+   "Roll gently to smooth, flatten the top slightly and cut into diamonds about 4 cm wide.",
+   "Heat the oil in a deep pan to 170C and fry the cookies in batches for 3 to 4 minutes until golden. Drain on paper towels.",
+   "Warm the honey gently and dip each hot cookie in it for 30 seconds, then place on a rack to set."
+  ],
+  "tips": [
+   "Fry in small batches so the oil temperature stays steady and the cookies do not turn greasy."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Rows of golden diamond-shaped cookies glistening with honey, one broken open to reveal dark date filling. Arranged on a patterned plate."
+ },
+ {
+  "name": "Lablabi (Chickpea Soup)",
+  "cuisine": "Tunisian",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 30,
+  "servings": 4,
+  "calories": 420,
+  "protein": 17,
+  "carbs": 52,
+  "fat": 16,
+  "description": "A warming Tunisian street-food chickpea soup, ladled over torn bread with garlic, cumin, harissa, a soft egg and olive oil.",
+  "ingredients": [
+   [
+    "canned chickpeas",
+    480,
+    "g"
+   ],
+   [
+    "water",
+    800,
+    "ml"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "harissa paste",
+    2,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "lemon juice",
+    2,
+    "tbsp"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "stale bread",
+    4,
+    "pieces"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "canned tuna",
+    160,
+    "g"
+   ],
+   [
+    "capers",
+    1,
+    "tbsp"
+   ],
+   [
+    "green olives",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Put the chickpeas with their liquid, water, 3 crushed garlic cloves, 1 tsp cumin and the salt in a pot and simmer over medium heat for 20 minutes.",
+   "Mash a few chickpeas against the side of the pot to thicken the broth slightly.",
+   "Bring a small pan of water to a gentle boil and cook the eggs for 7 minutes for soft-boiled, then cool in cold water and peel.",
+   "Tear the stale bread into bite-size pieces and divide among 4 bowls.",
+   "Mix the remaining crushed garlic, remaining cumin, harissa, lemon juice and olive oil in a small bowl.",
+   "Ladle the hot chickpeas and broth over the bread and stir in the harissa mixture.",
+   "Top each bowl with a halved egg, flaked tuna, capers and olives and serve immediately."
+  ],
+  "tips": [
+   "Use bread that is a day or two old so it soaks up the broth without disintegrating."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Fish"
+  ],
+  "kid_friendly": false,
+  "photo": "A rustic bowl of golden chickpea soup over chunks of bread, topped with a halved soft-boiled egg, flaked tuna, capers, olives and a swirl of red harissa oil."
+ },
+ {
+  "name": "Brik à l'Oeuf (Egg Brik)",
+  "cuisine": "Tunisian",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 15,
+  "servings": 4,
+  "calories": 340,
+  "protein": 17,
+  "carbs": 24,
+  "fat": 20,
+  "description": "Crisp, golden pastry triangles hiding a tuna and parsley filling and a runny egg yolk.",
+  "ingredients": [
+   [
+    "filo pastry sheets",
+    4,
+    "pieces"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "canned tuna",
+    160,
+    "g"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "spring onions",
+    2,
+    "pieces"
+   ],
+   [
+    "capers",
+    1,
+    "tbsp"
+   ],
+   [
+    "grated mozzarella",
+    40,
+    "g"
+   ],
+   [
+    "salt",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.25,
+    "tsp"
+   ],
+   [
+    "sunflower oil",
+    400,
+    "ml"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Drain the tuna and mix with finely chopped parsley, sliced spring onions, capers, mozzarella, salt and pepper.",
+   "Lay one filo sheet flat (fold it in half if it is thin) and place a quarter of the tuna mixture in the centre, shaping a small nest in the middle.",
+   "Carefully crack an egg into the nest, keeping the yolk whole.",
+   "Quickly fold the filo over the filling into a triangle and seal the edges with a little water.",
+   "Heat the oil in a wide pan over medium-high heat to about 175C.",
+   "Slide in a brik and fry for 1 to 2 minutes per side until deep golden and crisp, spooning oil over the top. Drain on paper towels.",
+   "Serve hot with lemon wedges, taking care as the egg is still runny inside."
+  ],
+  "tips": [
+   "Work quickly once the egg is added, or it will soak through the pastry."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Fish",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Two crisp golden triangular pastries on a plate, one cut open with a bright runny egg yolk and tuna filling. Garnished with parsley and a lemon wedge."
+ },
+ {
+  "name": "Tunisian Fish Couscous",
+  "cuisine": "Tunisian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 60,
+  "servings": 4,
+  "calories": 590,
+  "protein": 38,
+  "carbs": 70,
+  "fat": 17,
+  "description": "Fluffy couscous topped with fish and vegetables in a fragrant, spicy tomato and harissa broth.",
+  "ingredients": [
+   [
+    "firm white fish fillets",
+    600,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "olive oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "harissa paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground caraway",
+    1,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "water",
+    1.2,
+    "l"
+   ],
+   [
+    "carrots",
+    2,
+    "pieces"
+   ],
+   [
+    "potatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "courgettes",
+    2,
+    "pieces"
+   ],
+   [
+    "canned chickpeas",
+    240,
+    "g"
+   ],
+   [
+    "couscous",
+    300,
+    "g"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Heat the olive oil in a large pot over medium heat and soften the chopped onion for 5 minutes.",
+   "Add the crushed garlic, tomato puree, harissa, caraway and turmeric and cook for 2 minutes, stirring.",
+   "Pour in the water, add 1 tsp salt and the carrots and potatoes (in large chunks), bring to the boil and simmer for 15 minutes.",
+   "Add the courgettes and chickpeas and cook for 10 minutes.",
+   "Cut the fish into large pieces, lay them on top of the vegetables, cover and cook gently for 8 to 10 minutes until the fish flakes.",
+   "Meanwhile, put the couscous in a bowl with the remaining salt, pour over 300 ml boiling water, cover for 5 minutes, then fluff with a fork.",
+   "Pile the couscous on a platter, top with the fish and vegetables, ladle over some broth and serve with lemon wedges."
+  ],
+  "tips": [
+   "Use thick fillets such as cod, hake or monkfish so the fish holds together in the broth."
+  ],
+  "allergens": [
+   "Gluten",
+   "Fish"
+  ],
+  "kid_friendly": false,
+  "photo": "A large platter of fluffy couscous topped with chunks of white fish, orange carrots, potatoes and courgettes in a red spicy broth. A lemon wedge on the side."
+ },
+ {
+  "name": "Sharba Libiya (Lamb & Orzo Soup)",
+  "cuisine": "Libyan",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 60,
+  "servings": 6,
+  "calories": 340,
+  "protein": 22,
+  "carbs": 32,
+  "fat": 14,
+  "description": "Libya's beloved Ramadan soup: tender lamb, orzo pasta and a tangy tomato broth with mint and lemon.",
+  "ingredients": [
+   [
+    "lamb shoulder",
+    400,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    200,
+    "g"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "dried mint",
+    1,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "water",
+    1.8,
+    "l"
+   ],
+   [
+    "canned chickpeas",
+    240,
+    "g"
+   ],
+   [
+    "orzo pasta",
+    100,
+    "g"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Cut the lamb into small 2 cm cubes and finely chop the onion.",
+   "Heat the olive oil in a large pot over medium heat and brown the lamb for 5 minutes, then add the onion and cook for 4 minutes.",
+   "Stir in the tomato puree, turmeric, paprika, cinnamon, pepper, half the dried mint and salt and cook for 2 minutes.",
+   "Add the chopped tomatoes and water, bring to the boil, cover and simmer for 40 minutes until the lamb is tender.",
+   "Add the chickpeas and orzo and cook for 10 minutes, stirring now and then, until the orzo is soft.",
+   "Stir in the chopped parsley and remaining mint, and squeeze in the juice of half the lemon.",
+   "Serve hot with the remaining lemon cut into wedges."
+  ],
+  "tips": [
+   "Orzo keeps absorbing broth, so add a little hot water when reheating leftovers."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A deep bowl of red-brown soup with lamb cubes, orzo and chickpeas, sprinkled with dried mint and parsley. A lemon wedge on the rim and bread alongside."
+ },
+ {
+  "name": "Koshari",
+  "cuisine": "Egyptian",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 50,
+  "servings": 4,
+  "calories": 640,
+  "protein": 20,
+  "carbs": 108,
+  "fat": 15,
+  "description": "Egypt's national street food: rice, lentils and macaroni layered with spicy tomato sauce, chickpeas and crispy fried onions.",
+  "ingredients": [
+   [
+    "brown lentils",
+    150,
+    "g"
+   ],
+   [
+    "long grain rice",
+    150,
+    "g"
+   ],
+   [
+    "macaroni",
+    150,
+    "g"
+   ],
+   [
+    "vermicelli",
+    30,
+    "g"
+   ],
+   [
+    "canned chickpeas",
+    240,
+    "g"
+   ],
+   [
+    "onions",
+    3,
+    "pieces"
+   ],
+   [
+    "plain flour",
+    2,
+    "tbsp"
+   ],
+   [
+    "sunflower oil",
+    120,
+    "ml"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "white vinegar",
+    3,
+    "tbsp"
+   ],
+   [
+    "chilli flakes",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Slice the onions thinly, toss with the flour and a pinch of salt, and fry in the oil in batches over medium-high heat for 8 to 10 minutes until dark golden and crisp. Drain on paper towels and keep the oil.",
+   "Simmer the lentils in plenty of water for 20 minutes until just tender, then drain.",
+   "In 1 tbsp of the onion oil, toast the vermicelli until golden, add the rice, 400 ml water and 0.5 tsp salt, bring to the boil, cover and cook on low for 15 minutes. Rest 5 minutes.",
+   "Cook the macaroni in salted boiling water for 8 minutes and drain.",
+   "For the sauce, fry the crushed garlic in 2 tbsp onion oil for 30 seconds, add the tomato puree, chopped tomatoes, 1 tsp cumin, chilli flakes and salt, and simmer for 15 minutes.",
+   "For the dressing (daqqa), mix the vinegar with 3 tbsp water, 1 crushed garlic clove and the remaining cumin.",
+   "Layer the rice, lentils, macaroni and warmed chickpeas in bowls, ladle over the tomato sauce, drizzle with the garlic vinegar and top with crispy onions."
+  ],
+  "tips": [
+   "Fry the onions until properly dark; they will crisp further as they cool."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A deep bowl layered with rice, brown lentils, macaroni and chickpeas, covered in red tomato sauce and a generous heap of crispy fried onions."
+ },
+ {
+  "name": "Molokhia with Chicken",
+  "cuisine": "Egyptian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 60,
+  "servings": 4,
+  "calories": 520,
+  "protein": 38,
+  "carbs": 42,
+  "fat": 22,
+  "description": "A silky green jute leaf stew with garlic and coriander, served over rice with tender poached chicken.",
+  "ingredients": [
+   [
+    "whole chicken pieces",
+    1,
+    "kg"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    3,
+    "pieces"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "water",
+    1.5,
+    "l"
+   ],
+   [
+    "frozen molokhia leaves",
+    400,
+    "g"
+   ],
+   [
+    "garlic",
+    8,
+    "cloves"
+   ],
+   [
+    "ground coriander",
+    2,
+    "tsp"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "basmati rice",
+    300,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Put the chicken, halved onion, cardamom, bay leaves, 1 tsp salt and water in a large pot, bring to the boil and skim any foam. Simmer for 40 minutes until tender.",
+   "Lift out the chicken, strain the broth and keep 1 litre. Brown the chicken pieces under a hot grill for 5 minutes if you like.",
+   "Defrost the molokhia and bring 1 litre of broth to a gentle simmer in a clean pot.",
+   "Add the molokhia and remaining salt and cook gently for 5 to 8 minutes without boiling hard or covering, stirring occasionally.",
+   "Heat the ghee in a small pan over medium heat, fry the crushed garlic with the coriander for 1 minute until golden and fragrant.",
+   "Pour the garlic mixture into the molokhia; it will sizzle. Stir and turn off the heat, then add a squeeze of lemon.",
+   "Cook the rice according to the packet and serve with the molokhia and chicken."
+  ],
+  "tips": [
+   "Do not boil molokhia vigorously or cover it, as it can turn stringy and dull."
+  ],
+  "allergens": [
+   "Dairy"
+  ],
+  "kid_friendly": false,
+  "photo": "A bowl of vivid dark green molokhia stew next to a plate of white rice and golden browned chicken pieces, with a lemon wedge on the side."
+ },
+ {
+  "name": "Hawawshi (Spiced Beef Bread)",
+  "cuisine": "Egyptian",
+  "meal_type": "Lunch",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 25,
+  "servings": 4,
+  "calories": 560,
+  "protein": 28,
+  "carbs": 52,
+  "fat": 26,
+  "description": "Pita stuffed with juicy spiced minced beef, onion and pepper, baked until crisp outside and succulent inside.",
+  "ingredients": [
+   [
+    "minced beef",
+    500,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "green pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "unsalted butter",
+    30,
+    "g"
+   ],
+   [
+    "pita bread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Heat the oven to 220C (200C fan).",
+   "Finely chop the onion, pepper, tomato and parsley, and mix with the beef, crushed garlic, cumin, coriander, paprika, pepper and salt, kneading well with your hands.",
+   "Cut each pita open along one side to make a pocket and brush the outside with melted butter.",
+   "Stuff each pita with a quarter of the meat mixture and spread it evenly to the edges.",
+   "Place on a baking tray and bake for 20 to 25 minutes, turning halfway, until the bread is crisp and golden and the meat is cooked through.",
+   "Rest for 3 minutes, then cut into wedges and serve hot with salad and tahini or yogurt."
+  ],
+  "tips": [
+   "Spread the filling thinly and evenly so it cooks through before the bread burns."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Several crisp golden pita pockets cut into diagonal wedges showing juicy spiced beef filling, on a board with sliced tomato and parsley."
+ },
+ {
+  "name": "Om Ali (Bread Pudding)",
+  "cuisine": "Egyptian",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 25,
+  "servings": 6,
+  "calories": 520,
+  "protein": 12,
+  "carbs": 52,
+  "fat": 30,
+  "description": "Egypt's famous warm pudding of flaky pastry, nuts and raisins baked in sweet creamy milk until bubbling and golden.",
+  "ingredients": [
+   [
+    "puff pastry",
+    300,
+    "g"
+   ],
+   [
+    "whole milk",
+    500,
+    "ml"
+   ],
+   [
+    "double cream",
+    250,
+    "ml"
+   ],
+   [
+    "caster sugar",
+    100,
+    "g"
+   ],
+   [
+    "pistachios",
+    40,
+    "g"
+   ],
+   [
+    "almonds",
+    40,
+    "g"
+   ],
+   [
+    "desiccated coconut",
+    30,
+    "g"
+   ],
+   [
+    "raisins",
+    40,
+    "g"
+   ],
+   [
+    "vanilla powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Heat the oven to 200C (180C fan). Bake the puff pastry on a tray for 15 minutes until golden, puffed and crisp, then break into rough pieces.",
+   "Lower the oven to 180C (160C fan).",
+   "Heat the milk, half the cream, sugar and vanilla powder in a pan over medium heat until the sugar dissolves and it is just steaming.",
+   "Spread the pastry pieces in a baking dish and scatter over the chopped pistachios and almonds, coconut and raisins.",
+   "Pour the hot milk mixture over, pressing the pastry down gently so it soaks up the liquid.",
+   "Drizzle the rest of the cream on top and sprinkle with cinnamon.",
+   "Bake for 20 to 25 minutes until the top is golden and the edges bubble. Serve warm."
+  ],
+  "tips": [
+   "Serve it straight from the oven; the pastry on top stays crunchy while the layers underneath turn creamy."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A bubbling golden-brown bread pudding in a round baking dish with flaky pastry peaks, chopped green pistachios, raisins and a dusting of cinnamon."
+ },
+ {
+  "name": "Eggah (Herb Omelette)",
+  "cuisine": "Egyptian",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 20,
+  "servings": 4,
+  "calories": 250,
+  "protein": 15,
+  "carbs": 6,
+  "fat": 18,
+  "description": "A thick, fluffy baked omelette packed with parsley, coriander and spring onions, served in wedges.",
+  "ingredients": [
+   [
+    "eggs",
+    8,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "bunch"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ],
+   [
+    "spring onions",
+    4,
+    "pieces"
+   ],
+   [
+    "plain flour",
+    2,
+    "tbsp"
+   ],
+   [
+    "baking powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground cumin",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    0.75,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Heat the oven to 190C (170C fan).",
+   "Finely chop the parsley, coriander and spring onions.",
+   "Whisk the eggs in a large bowl with the flour, baking powder, cumin, pepper and salt until smooth.",
+   "Stir the herbs and spring onions into the eggs.",
+   "Heat the olive oil in an oven-safe non-stick pan over medium heat for 1 minute.",
+   "Pour in the egg mixture and cook for 3 minutes until the edges begin to set.",
+   "Transfer to the oven and bake for 12 to 15 minutes until puffed, golden and set in the centre.",
+   "Cut into wedges and serve warm or cold with pita and tomatoes."
+  ],
+  "tips": [
+   "Eggah keeps well in the fridge and is great cold in a sandwich."
+  ],
+  "allergens": [
+   "Eggs",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A thick, golden-green herb omelette in a round pan, cut into wedges to show the flecks of parsley and coriander. Served with pita and sliced tomato."
+ },
+ {
+  "name": "Mullah Bamia (Okra Stew)",
+  "cuisine": "Sudanese",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 70,
+  "servings": 4,
+  "calories": 460,
+  "protein": 30,
+  "carbs": 24,
+  "fat": 26,
+  "description": "A rich Sudanese stew of lamb and okra in a tomato and garlic sauce with a dry-okra and onion flavour, served with rice or kisra.",
+  "ingredients": [
+   [
+    "lamb shoulder",
+    600,
+    "g"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "sunflower oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "tomato puree",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.25,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "water",
+    500,
+    "ml"
+   ],
+   [
+    "okra",
+    400,
+    "g"
+   ],
+   [
+    "lemon juice",
+    1,
+    "tbsp"
+   ],
+   [
+    "basmati rice",
+    300,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Cut the lamb into 3 cm pieces and finely chop the onions.",
+   "Heat the oil in a heavy pot over medium heat, brown the lamb for 6 minutes, then add the onions and cook for 6 minutes until golden.",
+   "Stir in the tomato puree, cumin, coriander, cinnamon and salt and cook for 2 minutes.",
+   "Add the chopped tomatoes and water, cover and simmer on low heat for 45 minutes until the lamb is tender.",
+   "Trim the okra tops and fry the okra in a little oil in a separate pan over medium-high heat for 5 minutes to reduce stickiness.",
+   "Add the okra and crushed garlic to the stew and simmer, uncovered, for 15 minutes until the okra is tender and the sauce thick.",
+   "Stir in the lemon juice and serve hot with rice."
+  ],
+  "tips": [
+   "Do not stir the okra too much; it will become slimy if broken up."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A bowl of thick red-brown stew with lamb pieces and green okra pods, served alongside a mound of fluffy white rice on a round plate."
+ }
+]

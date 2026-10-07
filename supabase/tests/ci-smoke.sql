@@ -67,6 +67,23 @@ DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM public.recipes r WHERE r.cuisine_id IS NULL OR r.meal_type_id IS NULL) THEN
     RAISE EXCEPTION 'recipe lookups not linked';
   END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.recipes r
+    JOIN public.recipe_allergens ra ON ra.recipe_id = r.id
+    JOIN public.allergens a ON a.id = ra.allergen_id
+    WHERE r.name = 'Classic Hummus' AND a.name = 'Sesame'
+  ) THEN RAISE EXCEPTION 'recipe allergens not linked'; END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.recipes r
+    JOIN public.recipe_tags rt ON rt.recipe_id = r.id JOIN public.tags t ON t.id = rt.tag_id
+    WHERE r.name = 'Classic Hummus' AND t.name = 'Vegan'
+  ) THEN RAISE EXCEPTION 'recipe diet tags not linked'; END IF;
+  IF EXISTS (
+    SELECT 1 FROM public.recipes r
+    JOIN public.recipe_tags rt ON rt.recipe_id = r.id JOIN public.tags t ON t.id = rt.tag_id
+    WHERE r.name = 'Chicken Biryani' AND t.name IN ('Vegetarian', 'Vegan')
+  ) THEN RAISE EXCEPTION 'meat recipe tagged vegetarian'; END IF;
+  IF (SELECT count(*) FROM public.recipes WHERE image_prompt IS NULL) > 0 THEN RAISE EXCEPTION 'image prompts missing'; END IF;
 END $$;
 INSERT INTO public.user_recipes (name, is_public) VALUES ('My private stew', false), ('Shared cake', true);
 INSERT INTO public.recipe_favorites (recipe_key) VALUES ('catalog:x');

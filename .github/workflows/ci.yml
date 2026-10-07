@@ -22,6 +22,13 @@ jobs:
         run: npx tsc --noEmit
       - name: Build
         run: npx next build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Recipe library is valid and the seed is up to date
+        run: |
+          node --experimental-strip-types supabase/seed/build-recipes.mts
+          git diff --exit-code supabase/migrations/20261008101000_seed_recipe_library.sql
 
   migrations:
     runs-on: ubuntu-latest
@@ -86,9 +93,20 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Dashboard copies of the functions are up to date and type-check
+        run: |
+          node supabase/build-dashboard-functions.mjs
+          git diff --exit-code supabase/dashboard-functions
+          for f in supabase/dashboard-functions/*.ts; do
+            if ! out=$(deno check "$f" 2>&1); then
+              echo "$out"
+              echo "::error file=$f::$(echo "$out" | grep -v '^Download' | head -n 12 | tr '\n' ' ' | cut -c1-900)"
+              exit 1
+            fi
+          done
       - name: Type check edge functions
         run: |
-          for f in supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts supabase/functions/billing/index.ts supabase/functions/stripe-webhook/index.ts supabase/functions/companion/index.ts supabase/functions/generate-meal-plan/index.ts; do
+          for f in supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts supabase/functions/billing/index.ts supabase/functions/stripe-webhook/index.ts supabase/functions/companion/index.ts supabase/functions/generate-meal-plan/index.ts supabase/functions/meal-ai-planner/index.ts supabase/functions/openai-test/index.ts supabase/functions/recipe-images/index.ts; do
             if ! out=$(deno check "$f" 2>&1); then
               echo "$out"
               echo "::error file=$f::$(echo "$out" | grep -v '^Download' | head -n 12 | tr '\n' ' ' | cut -c1-900)"
@@ -98,13 +116,17 @@ jobs:
       - name: Unit tests
         run: deno test supabase/functions/stripe-webhook/signature.test.ts
       - name: Live smoke test against public APIs
+        # Uses free public services (OpenStreetMap, Aladhan); their outages shouldn't block merges.
+        continue-on-error: true
         run: |
           set -e
           deno run --allow-net --allow-env supabase/functions/halal-places/index.ts > hp.log 2>&1 &
           HP=$!
           sleep 5
           start=$(date +%s)
-          if ! body=$(curl -sf --max-time 90 "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000"); then
+          # OpenStreetMap's public Overpass API is sometimes slow; retry once before failing.
+          body=$(curl -sf --max-time 90 "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000") || { sleep 20; body=$(curl -sf --max-time 90 "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000"); } || body=""
+          if [ -z "$body" ]; then
             resp=$(curl -s --max-time 90 "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000" | head -c 300)
             echo "::error title=halal-places Ottawa::$resp | $(tail -n 5 hp.log | tr '\n' ' ')"
             exit 1

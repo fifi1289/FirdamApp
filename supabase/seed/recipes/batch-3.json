@@ -1,0 +1,2222 @@
+[
+ {
+  "name": "Balaleet (Sweet Vermicelli with Eggs)",
+  "cuisine": "Emirati",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 20,
+  "servings": 4,
+  "calories": 420,
+  "protein": 12,
+  "carbs": 56,
+  "fat": 17,
+  "description": "A beloved Emirati breakfast of saffron-and-cardamom scented sweet vermicelli topped with a soft, thin omelette.",
+  "ingredients": [
+   [
+    "vermicelli noodles",
+    200,
+    "g"
+   ],
+   [
+    "ghee",
+    2,
+    "tbsp"
+   ],
+   [
+    "caster sugar",
+    4,
+    "tbsp"
+   ],
+   [
+    "ground cardamom",
+    1,
+    "tsp"
+   ],
+   [
+    "saffron threads",
+    1,
+    "pinch"
+   ],
+   [
+    "rose water",
+    1,
+    "tbsp"
+   ],
+   [
+    "water",
+    500,
+    "ml"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    1,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1,
+    "pinch"
+   ],
+   [
+    "ground turmeric",
+    0.25,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Soak the saffron threads in 3 tablespoons of hot water for 10 minutes.",
+   "Melt the ghee in a wide pan over medium heat, break the vermicelli into short pieces and fry for 3 to 4 minutes, stirring constantly, until golden brown.",
+   "Pour in the water, add the sugar, cardamom and a pinch of salt, and bring to the boil. Reduce to low heat, cover and cook for 8 to 10 minutes until the noodles are tender and the liquid is absorbed.",
+   "Stir in the saffron liquid and rose water, then cover and leave on the lowest heat for 3 more minutes. Transfer to a serving plate.",
+   "Whisk the eggs with a pinch of salt and the turmeric. Heat the oil in a non-stick pan over medium heat and pour in the eggs.",
+   "Cook for 2 to 3 minutes until set, without folding, to make a thin flat omelette. Slide it over the vermicelli and serve warm."
+  ],
+  "tips": [
+   "Fry the noodles until evenly golden; pale noodles taste raw and go gluey."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden-orange mound of glossy vermicelli on a white plate, topped with a pale yellow omelette and a sprinkle of crushed saffron threads."
+ },
+ {
+  "name": "Chebab (Saffron Pancakes)",
+  "cuisine": "Emirati",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 20,
+  "servings": 4,
+  "calories": 380,
+  "protein": 8,
+  "carbs": 54,
+  "fat": 14,
+  "description": "Soft, lacy Emirati pancakes flavoured with saffron and cardamom, served with date syrup and cream cheese.",
+  "ingredients": [
+   [
+    "plain flour",
+    250,
+    "g"
+   ],
+   [
+    "fine semolina",
+    2,
+    "tbsp"
+   ],
+   [
+    "instant dried yeast",
+    1,
+    "tsp"
+   ],
+   [
+    "caster sugar",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground cardamom",
+    0.5,
+    "tsp"
+   ],
+   [
+    "saffron threads",
+    1,
+    "pinch"
+   ],
+   [
+    "eggs",
+    2,
+    "pieces"
+   ],
+   [
+    "whole milk",
+    250,
+    "ml"
+   ],
+   [
+    "warm water",
+    100,
+    "ml"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "date syrup",
+    4,
+    "tbsp"
+   ],
+   [
+    "cream cheese",
+    100,
+    "g"
+   ],
+   [
+    "salt",
+    0.25,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Crush the saffron and steep it in 2 tablespoons of hot water for 10 minutes.",
+   "In a large bowl mix the flour, semolina, yeast, sugar, cardamom and salt. Add the eggs, milk, warm water and saffron liquid and whisk to a smooth, thin batter.",
+   "Cover the bowl and leave in a warm place for 45 minutes until bubbly.",
+   "Heat a non-stick frying pan over medium heat and brush with a little ghee.",
+   "Pour in a ladle of batter and spread slightly. Cook for 2 minutes until bubbles form and the underside is golden, then flip and cook 1 minute more.",
+   "Repeat with the remaining batter, adding ghee as needed, and serve warm with cream cheese and a drizzle of date syrup."
+  ],
+  "tips": [
+   "Stir the batter before each pancake as the semolina settles."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A stack of golden, softly speckled saffron pancakes on a plate, drizzled with dark date syrup with a small dish of cream cheese beside."
+ },
+ {
+  "name": "Kuku Sabzi (Herb Frittata)",
+  "cuisine": "Iranian",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 30,
+  "servings": 4,
+  "calories": 290,
+  "protein": 16,
+  "carbs": 12,
+  "fat": 20,
+  "description": "A vivid green Persian frittata packed with fresh herbs, walnuts and barberries, served with flatbread and yogurt.",
+  "ingredients": [
+   [
+    "fresh parsley",
+    2,
+    "bunch"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "fresh dill",
+    1,
+    "bunch"
+   ],
+   [
+    "spring onions",
+    6,
+    "pieces"
+   ],
+   [
+    "spinach",
+    100,
+    "g"
+   ],
+   [
+    "eggs",
+    6,
+    "pieces"
+   ],
+   [
+    "plain flour",
+    1,
+    "tbsp"
+   ],
+   [
+    "baking powder",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "walnuts",
+    40,
+    "g"
+   ],
+   [
+    "dried barberries",
+    2,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "plain yogurt",
+    150,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Wash the herbs, spinach and spring onions well, dry them thoroughly and chop very finely. Chop the walnuts roughly.",
+   "Heat the oven to 180C. Whisk the eggs in a large bowl with the flour, baking powder, turmeric, salt and pepper.",
+   "Fold the chopped herbs, spinach, spring onions, walnuts and barberries into the eggs until the mixture looks mostly green.",
+   "Heat 3 tablespoons of oil in an oven-proof 24 cm non-stick pan over medium heat and pour in the mixture, pressing it flat.",
+   "Cook on the hob for 4 minutes until the edges set, then bake for 20 minutes until firm and golden on top.",
+   "Rest for 5 minutes, cut into wedges and serve warm or cold with yogurt and flatbread."
+  ],
+  "tips": [
+   "Dry the herbs fully after washing or the kuku will be watery."
+  ],
+  "allergens": [
+   "Eggs",
+   "Gluten",
+   "Tree nuts",
+   "Dairy"
+  ],
+  "kid_friendly": false,
+  "photo": "A thick round green frittata cut into wedges in a black skillet, flecked with walnuts and red barberries, with a bowl of white yogurt alongside."
+ },
+ {
+  "name": "Harees (Wheat & Chicken Porridge)",
+  "cuisine": "Emirati",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 15,
+  "cook": 180,
+  "servings": 6,
+  "calories": 410,
+  "protein": 32,
+  "carbs": 42,
+  "fat": 13,
+  "description": "A slow-cooked, silky porridge of cracked wheat and tender chicken, a Ramadan and Eid favourite across the Gulf.",
+  "ingredients": [
+   [
+    "cracked wheat",
+    300,
+    "g"
+   ],
+   [
+    "chicken thighs",
+    700,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "cinnamon sticks",
+    1,
+    "pieces"
+   ],
+   [
+    "cardamom pods",
+    4,
+    "pieces"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "water",
+    2.5,
+    "l"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground cumin",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Rinse the cracked wheat and soak it in cold water for at least 2 hours, or overnight, then drain.",
+   "Put the chicken, halved onion, cinnamon stick, cardamom pods, salt and water in a large heavy pot. Bring to the boil, skim off any foam and simmer on low for 45 minutes until the chicken is very tender.",
+   "Lift out the chicken, discard the bones and skin, and shred the meat finely. Remove the onion and spices from the stock.",
+   "Add the wheat to the stock and cook on low heat for 1 hour, stirring every 10 minutes, until the grains soften.",
+   "Return the chicken to the pot and cook for another 45 to 60 minutes, stirring often, then mash vigorously with a wooden spoon or potato masher until thick and smooth like porridge.",
+   "Melt the ghee with the cinnamon and cumin, then spoon the harees into bowls and pour the spiced ghee on top."
+  ],
+  "tips": [
+   "Add a splash of hot water if it becomes too thick while cooking."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A shallow bowl of creamy beige harees with a pool of golden ghee in the centre, dusted with cinnamon, on a rustic table."
+ },
+ {
+  "name": "Jareesh (Crushed Wheat with Chicken)",
+  "cuisine": "Saudi",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 120,
+  "servings": 6,
+  "calories": 450,
+  "protein": 30,
+  "carbs": 45,
+  "fat": 17,
+  "description": "A comforting Najdi dish of coarsely crushed wheat simmered with chicken, yogurt and warm spices, topped with caramelised onions.",
+  "ingredients": [
+   [
+    "crushed wheat",
+    300,
+    "g"
+   ],
+   [
+    "chicken thighs",
+    800,
+    "g"
+   ],
+   [
+    "onion",
+    3,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "ghee",
+    4,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cardamom",
+    0.5,
+    "tsp"
+   ],
+   [
+    "dried lime",
+    1,
+    "pieces"
+   ],
+   [
+    "plain yogurt",
+    200,
+    "g"
+   ],
+   [
+    "whole milk",
+    250,
+    "ml"
+   ],
+   [
+    "water",
+    2,
+    "l"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Rinse the crushed wheat and soak it in cold water for 2 hours, then drain.",
+   "Melt 2 tablespoons of ghee in a large pot and fry 1 chopped onion and the crushed garlic for 5 minutes over medium heat until golden.",
+   "Add the chicken, cumin, coriander, cardamom, salt, pepper and the pierced dried lime. Cook for 5 minutes, then pour in the water and simmer for 40 minutes.",
+   "Remove the chicken, shred the meat and set it aside. Add the wheat to the stock and cook on low heat for 45 minutes, stirring often, until soft.",
+   "Stir in the yogurt, milk and shredded chicken and cook for 15 minutes more, mashing lightly, until thick and creamy.",
+   "Thinly slice the remaining onions and fry in the rest of the ghee for 12 to 15 minutes until deep brown. Serve the jareesh topped with the crisp onions."
+  ],
+  "tips": [
+   "Stir in the yogurt gradually over low heat to stop it splitting."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A rustic bowl of thick creamy jareesh with shredded chicken, crowned with dark caramelised onions and a drizzle of ghee."
+ },
+ {
+  "name": "Saltah",
+  "cuisine": "Yemeni",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 60,
+  "servings": 4,
+  "calories": 520,
+  "protein": 36,
+  "carbs": 30,
+  "fat": 28,
+  "description": "Yemen's national dish: a bubbling beef and vegetable stew topped with frothy fenugreek hilbeh, eaten with fresh flatbread.",
+  "ingredients": [
+   [
+    "beef chuck",
+    500,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "potatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "green chilli",
+    2,
+    "pieces"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "fenugreek seeds",
+    2,
+    "tbsp"
+   ],
+   [
+    "tomato paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "water",
+    1,
+    "l"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "flatbread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Soak the fenugreek seeds in cold water for 4 hours or overnight, then drain and rinse well three times.",
+   "Heat the oil in a pot over medium heat, fry the chopped onion for 6 minutes, then add the diced beef and brown for 8 minutes.",
+   "Add half the garlic, cumin, coriander, turmeric, tomato paste, chopped tomatoes and salt. Cook for 5 minutes, then add the water and simmer, covered, for 40 minutes until the beef is tender.",
+   "Add the diced potatoes and cook for 15 more minutes until soft. Keep the stew at a gentle simmer.",
+   "Blend the soaked fenugreek with the remaining garlic, green chilli, fresh coriander, a pinch of salt and 100 ml of cold water for 2 minutes until very frothy.",
+   "Pour the stew into small hot stone or heavy bowls, spoon the whipped hilbeh on top and serve immediately with flatbread."
+  ],
+  "tips": [
+   "Rinse the fenugreek thoroughly after soaking to reduce bitterness."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": false,
+  "photo": "A dark clay bowl of bubbling brown stew crowned with a pale green frothy hilbeh, with warm flatbread torn alongside."
+ },
+ {
+  "name": "Ash Reshteh (Noodle & Bean Soup)",
+  "cuisine": "Iranian",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 75,
+  "servings": 6,
+  "calories": 380,
+  "protein": 16,
+  "carbs": 54,
+  "fat": 11,
+  "description": "A thick, herb-filled Persian soup of beans, lentils and noodles, finished with tangy kashk-style yogurt and fried mint.",
+  "ingredients": [
+   [
+    "dried chickpeas",
+    100,
+    "g"
+   ],
+   [
+    "dried kidney beans",
+    100,
+    "g"
+   ],
+   [
+    "brown lentils",
+    100,
+    "g"
+   ],
+   [
+    "reshteh noodles",
+    150,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "fresh parsley",
+    2,
+    "bunch"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "spinach",
+    200,
+    "g"
+   ],
+   [
+    "spring onions",
+    6,
+    "pieces"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "dried mint",
+    2,
+    "tbsp"
+   ],
+   [
+    "plain yogurt",
+    150,
+    "g"
+   ],
+   [
+    "water",
+    2,
+    "l"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Soak the chickpeas and kidney beans in cold water overnight, then drain.",
+   "Fry 1 chopped onion in 2 tablespoons of oil until golden, stir in the turmeric, then add the soaked beans, chickpeas and water. Simmer for 45 minutes until nearly tender.",
+   "Add the lentils, salt and pepper and cook for 15 minutes more.",
+   "Stir in the finely chopped parsley, coriander, spinach and spring onions and simmer for 10 minutes.",
+   "Break the noodles in half, add them and cook for 8 to 10 minutes, stirring so they do not stick, until soft.",
+   "Slice the second onion and fry in the remaining oil for 12 minutes until dark golden; remove half, then add the garlic and mint to the pan and fry for 30 seconds.",
+   "Serve the soup in bowls topped with yogurt, fried onion and the garlic mint oil."
+  ],
+  "tips": [
+   "Use canned beans (drained) to save soaking time and cut the first simmer to 15 minutes."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": false,
+  "photo": "A deep bowl of green-brown thick soup with noodles, swirled with white yogurt and topped with crispy onions and dark green mint oil."
+ },
+ {
+  "name": "Bolani (Potato Stuffed Flatbread)",
+  "cuisine": "Afghan",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 40,
+  "cook": 25,
+  "servings": 4,
+  "calories": 470,
+  "protein": 11,
+  "carbs": 68,
+  "fat": 17,
+  "description": "Thin, crisp-edged Afghan flatbreads filled with spiced mashed potato and spring onions, served with mint yogurt.",
+  "ingredients": [
+   [
+    "plain flour",
+    400,
+    "g"
+   ],
+   [
+    "warm water",
+    200,
+    "ml"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    5,
+    "tbsp"
+   ],
+   [
+    "potatoes",
+    500,
+    "g"
+   ],
+   [
+    "spring onions",
+    4,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "green chilli",
+    1,
+    "pieces"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "chilli flakes",
+    0.5,
+    "tsp"
+   ],
+   [
+    "plain yogurt",
+    200,
+    "g"
+   ],
+   [
+    "dried mint",
+    1,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, 1 teaspoon of salt, 1 tablespoon of oil and warm water to a soft dough. Knead for 5 minutes, cover and rest for 30 minutes.",
+   "Boil the peeled, chopped potatoes for 15 minutes until soft, drain and mash. Mix in the chopped spring onions, fresh coriander, finely chopped chilli, ground coriander, chilli flakes and remaining salt.",
+   "Divide the dough into 4 balls and roll each into a thin circle about 22 cm wide.",
+   "Spread a quarter of the filling over half of each circle, fold the other half over and press the edges firmly to seal.",
+   "Heat 1 tablespoon of oil in a large frying pan over medium heat and fry each bolani for 3 to 4 minutes per side until golden and blistered, adding oil as needed.",
+   "Stir the dried mint into the yogurt and serve it with the hot bolani."
+  ],
+  "tips": [
+   "Keep the potato filling fairly dry so the bread stays crisp."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Golden half-moon flatbreads with charred spots stacked on a board, one cut open to show a green-flecked potato filling, with a bowl of yogurt."
+ },
+ {
+  "name": "Chicken Mandi",
+  "cuisine": "Yemeni",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 75,
+  "servings": 4,
+  "calories": 640,
+  "protein": 42,
+  "carbs": 68,
+  "fat": 22,
+  "description": "Tender spiced chicken over fragrant long-grain rice, traditionally cooked in a pit and smoky, here made at home in the oven.",
+  "ingredients": [
+   [
+    "whole chicken pieces",
+    1.2,
+    "kg"
+   ],
+   [
+    "basmati rice",
+    400,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    2,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cardamom",
+    1,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "dried lime",
+    2,
+    "pieces"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "tomato paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "raisins",
+    2,
+    "tbsp"
+   ],
+   [
+    "flaked almonds",
+    2,
+    "tbsp"
+   ],
+   [
+    "water",
+    700,
+    "ml"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Mix the cumin, coriander, turmeric, cardamom, pepper, cinnamon, tomato paste, 1 tablespoon of ghee, crushed garlic and 1 teaspoon of salt into a paste and rub it over the chicken. Marinate for 1 hour or overnight.",
+   "Heat the oven to 200C. Place the chicken on a rack set over a deep tray, cover tightly with foil and roast for 50 minutes, then uncover for 10 minutes to brown.",
+   "Meanwhile rinse the rice until the water runs clear and soak it for 20 minutes.",
+   "Fry the sliced onion in the remaining ghee for 8 minutes, add the pierced dried limes and 1 teaspoon of salt, then add the water and bring to the boil.",
+   "Add the drained rice, cover and cook on low heat for 15 minutes, then rest for 10 minutes off the heat.",
+   "Toast the almonds in a dry pan for 2 minutes. Pile the rice onto a platter, place the chicken on top and scatter over the raisins and almonds."
+  ],
+  "tips": [
+   "Place a tray of rice beneath the chicken in the oven so the juices drip onto it for extra flavour."
+  ],
+  "allergens": [
+   "Dairy",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A large platter of golden-yellow rice topped with browned roast chicken pieces, scattered with raisins and toasted almonds."
+ },
+ {
+  "name": "Fahsa (Shredded Lamb Stew)",
+  "cuisine": "Yemeni",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 150,
+  "servings": 4,
+  "calories": 530,
+  "protein": 40,
+  "carbs": 18,
+  "fat": 33,
+  "description": "A rich Yemeni stew of fall-apart shredded lamb in a spiced tomato broth, served sizzling with flatbread and hilbeh.",
+  "ingredients": [
+   [
+    "lamb shoulder",
+    800,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "garlic",
+    5,
+    "cloves"
+   ],
+   [
+    "tomato paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1.5,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground cardamom",
+    0.5,
+    "tsp"
+   ],
+   [
+    "green chilli",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "ghee",
+    3,
+    "tbsp"
+   ],
+   [
+    "water",
+    1.2,
+    "l"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "flatbread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Melt the ghee in a heavy pot over medium heat and fry the chopped onions for 8 minutes until golden.",
+   "Add the lamb chunks and brown on all sides for 8 minutes, then stir in the garlic, tomato paste and all the spices for 2 minutes.",
+   "Pour in the water, add the salt, bring to the boil and skim. Cover and simmer on low for 2 hours until the meat falls apart.",
+   "Lift out the lamb, shred it with two forks and return it to the broth.",
+   "Add the chopped tomatoes and green chillies and simmer uncovered for 15 minutes until the broth is slightly thickened.",
+   "Stir in the chopped fresh coriander and serve very hot in bowls with flatbread for scooping."
+  ],
+  "tips": [
+   "A pressure cooker cuts the cooking time to about 45 minutes."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten"
+  ],
+  "kid_friendly": false,
+  "photo": "A black stone bowl of steaming red-brown shredded lamb stew garnished with green coriander and chilli, with flatbread alongside."
+ },
+ {
+  "name": "Machboos Samak (Spiced Fish & Rice)",
+  "cuisine": "Kuwaiti",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 50,
+  "servings": 4,
+  "calories": 560,
+  "protein": 38,
+  "carbs": 70,
+  "fat": 14,
+  "description": "A fragrant Gulf rice dish with fried white fish, tomatoes, dried lime and baharat, a Kuwaiti family staple.",
+  "ingredients": [
+   [
+    "firm white fish fillets",
+    600,
+    "g"
+   ],
+   [
+    "basmati rice",
+    350,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "tomato paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "baharat spice mix",
+    2,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "dried lime",
+    2,
+    "pieces"
+   ],
+   [
+    "green chilli",
+    1,
+    "pieces"
+   ],
+   [
+    "cinnamon sticks",
+    1,
+    "pieces"
+   ],
+   [
+    "vegetable oil",
+    5,
+    "tbsp"
+   ],
+   [
+    "fresh coriander",
+    0.5,
+    "bunch"
+   ],
+   [
+    "water",
+    650,
+    "ml"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Rub the fish with turmeric, 1 teaspoon of baharat and 1 teaspoon of salt and leave for 15 minutes. Rinse the rice and soak it for 20 minutes.",
+   "Heat 3 tablespoons of oil and fry the fish for 2 minutes per side until golden but not cooked through. Set aside.",
+   "In the same pot, fry the sliced onions in the remaining oil for 8 minutes, then add the garlic, cinnamon, remaining baharat, tomato paste, chopped tomatoes and pierced dried limes. Cook for 8 minutes into a thick sauce.",
+   "Pour in the water, add the chilli and 1 teaspoon of salt and bring to the boil. Add the drained rice and stir once.",
+   "Cover and cook on low heat for 12 minutes, then lay the fish on top, cover again and steam for 10 minutes until the rice is fluffy and the fish flakes.",
+   "Scatter with coriander and serve straight from the pot."
+  ],
+  "tips": [
+   "Use thick fillets such as hammour, kingfish or sea bass so they keep their shape."
+  ],
+  "allergens": [
+   "Fish"
+  ],
+  "kid_friendly": true,
+  "photo": "A wide dish of orange-red spiced rice with golden fish fillets resting on top, garnished with fresh coriander and a dried lime."
+ },
+ {
+  "name": "Shuwa-Style Slow-Roast Lamb",
+  "cuisine": "Omani",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 30,
+  "cook": 300,
+  "servings": 6,
+  "calories": 580,
+  "protein": 48,
+  "carbs": 12,
+  "fat": 38,
+  "description": "Omani festive lamb marinated in a deep spice paste and roasted slowly until meltingly tender, adapted for a home oven.",
+  "ingredients": [
+   [
+    "lamb leg",
+    2,
+    "kg"
+   ],
+   [
+    "garlic",
+    8,
+    "cloves"
+   ],
+   [
+    "ground cumin",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground coriander",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground cardamom",
+    1,
+    "tsp"
+   ],
+   [
+    "ground black pepper",
+    1,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    1,
+    "tsp"
+   ],
+   [
+    "chilli flakes",
+    1,
+    "tsp"
+   ],
+   [
+    "apple cider vinegar",
+    3,
+    "tbsp"
+   ],
+   [
+    "tamarind paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "banana leaves",
+    4,
+    "pieces"
+   ],
+   [
+    "basmati rice",
+    400,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Blend the garlic, all the spices, vinegar, tamarind, oil and salt into a thick paste.",
+   "Pierce the lamb all over with a knife and rub in the paste, working it deep into the cuts. Cover and marinate in the fridge for at least 12 hours.",
+   "Heat the oven to 160C. Soften the banana leaves over a flame or in hot water for 30 seconds, then wrap the lamb tightly in them and then in foil.",
+   "Place on a deep tray and roast for 4 to 5 hours until the meat falls off the bone.",
+   "While the lamb rests, rinse the rice and cook it in lightly salted boiling water for 10 minutes, drain, then steam covered for 10 minutes.",
+   "Unwrap the lamb, shred the meat into large pieces and serve on the rice with the pan juices spooned over."
+  ],
+  "tips": [
+   "If you cannot find banana leaves, wrap the lamb in parchment paper and then foil."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "Glistening dark-spiced shredded lamb piled on a platter of white rice, with a banana leaf lining the dish and a few lemon wedges."
+ },
+ {
+  "name": "Ghormeh Sabzi",
+  "cuisine": "Iranian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 150,
+  "servings": 4,
+  "calories": 540,
+  "protein": 38,
+  "carbs": 28,
+  "fat": 30,
+  "description": "Iran's famous herb stew with tender lamb, kidney beans and dried limes, served over fluffy saffron rice.",
+  "ingredients": [
+   [
+    "lamb shoulder",
+    600,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    2,
+    "bunch"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "spring onions",
+    8,
+    "pieces"
+   ],
+   [
+    "dried fenugreek leaves",
+    3,
+    "tbsp"
+   ],
+   [
+    "canned kidney beans",
+    400,
+    "g"
+   ],
+   [
+    "dried lime",
+    4,
+    "pieces"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    5,
+    "tbsp"
+   ],
+   [
+    "water",
+    900,
+    "ml"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "basmati rice",
+    300,
+    "g"
+   ],
+   [
+    "saffron threads",
+    1,
+    "pinch"
+   ]
+  ],
+  "steps": [
+   "Fry the chopped onions in 2 tablespoons of oil for 10 minutes until golden, add the turmeric and the lamb cubes and brown for 8 minutes.",
+   "Add the water, salt and pepper, cover and simmer on low heat for 1 hour.",
+   "Finely chop the parsley, coriander and spring onions. Fry them in the remaining oil over medium-low heat for 15 minutes, stirring often, until dark green and fragrant, then stir in the fenugreek leaves.",
+   "Add the fried herbs and the pierced dried limes to the lamb and simmer for 45 minutes.",
+   "Add the drained kidney beans and cook for 15 minutes more until the oil rises and the sauce is dark and thick.",
+   "Meanwhile boil the rice in salted water for 10 minutes, drain, and steam covered on low heat for 15 minutes, then stir in saffron dissolved in 2 tablespoons of hot water. Serve the stew over the rice."
+  ],
+  "tips": [
+   "Pierce the dried limes so they release their sour flavour; remove if the stew turns bitter."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A bowl of thick dark green stew with lamb and red kidney beans beside a mound of saffron-streaked white rice."
+ },
+ {
+  "name": "Fesenjan (Pomegranate Walnut Chicken)",
+  "cuisine": "Iranian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 90,
+  "servings": 4,
+  "calories": 620,
+  "protein": 38,
+  "carbs": 40,
+  "fat": 36,
+  "description": "A luxurious Persian stew of chicken in a sweet-sour sauce of ground walnuts and pomegranate molasses.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    800,
+    "g"
+   ],
+   [
+    "walnuts",
+    250,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "pomegranate molasses",
+    5,
+    "tbsp"
+   ],
+   [
+    "ground turmeric",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "caster sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "water",
+    600,
+    "ml"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "basmati rice",
+    300,
+    "g"
+   ],
+   [
+    "pomegranate seeds",
+    2,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Toast the walnuts in a dry pan over medium heat for 5 minutes, cool slightly, then grind them to a coarse paste in a food processor.",
+   "Fry the sliced onions in the oil for 10 minutes until golden, add the turmeric and chicken thighs and brown for 6 minutes.",
+   "Add the ground walnuts, water, salt, pepper and cinnamon. Bring to the boil, cover and simmer on very low heat for 45 minutes, stirring often to prevent sticking.",
+   "Stir in the pomegranate molasses and sugar and cook uncovered for 25 minutes until the sauce is thick, dark brown and the oil has risen. Adjust sweet-sour balance to taste.",
+   "Boil the rice in salted water for 10 minutes, drain, and steam covered for 15 minutes.",
+   "Serve the chicken and sauce over the rice, scattered with pomegranate seeds."
+  ],
+  "tips": [
+   "Use sour pomegranate molasses; add more sugar if yours is very tart."
+  ],
+  "allergens": [
+   "Tree nuts"
+  ],
+  "kid_friendly": false,
+  "photo": "Glossy dark brown walnut sauce coating pieces of chicken, served next to white rice and sprinkled with ruby pomegranate seeds."
+ },
+ {
+  "name": "Jeweled Rice (Javaher Polow)",
+  "cuisine": "Iranian",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 30,
+  "cook": 70,
+  "servings": 6,
+  "calories": 480,
+  "protein": 9,
+  "carbs": 76,
+  "fat": 15,
+  "description": "A festive Persian rice studded with candied orange peel, carrots, barberries, pistachios and almonds, glowing with saffron.",
+  "ingredients": [
+   [
+    "basmati rice",
+    450,
+    "g"
+   ],
+   [
+    "salt",
+    2,
+    "tbsp"
+   ],
+   [
+    "saffron threads",
+    1,
+    "tsp"
+   ],
+   [
+    "carrots",
+    2,
+    "pieces"
+   ],
+   [
+    "orange",
+    2,
+    "pieces"
+   ],
+   [
+    "caster sugar",
+    100,
+    "g"
+   ],
+   [
+    "dried barberries",
+    3,
+    "tbsp"
+   ],
+   [
+    "pistachios",
+    40,
+    "g"
+   ],
+   [
+    "flaked almonds",
+    40,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    80,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "water",
+    250,
+    "ml"
+   ],
+   [
+    "natural yogurt",
+    3,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Rinse the rice and soak it for 2 hours in water with 1 tablespoon of salt. Steep the saffron in 3 tablespoons of hot water.",
+   "Peel the orange zest into thin strips and julienne the carrots. Simmer the zest in water for 5 minutes, drain, then simmer the zest and carrot with the sugar and 250 ml water for 10 minutes until syrupy.",
+   "Fry the barberries in 1 tablespoon of butter for 30 seconds, then toast the pistachios and almonds in a dry pan for 2 minutes.",
+   "Boil plenty of water with the remaining salt, add the drained rice and cook for 7 minutes until al dente, then drain.",
+   "Melt the rest of the butter with the oil in a non-stick pot. Mix 2 tablespoons of saffron water with the yogurt and a cup of rice, and spread this at the bottom to make a tahdig.",
+   "Mound the remaining rice on top in layers with the carrots, zest, barberries and nuts, poke holes with a spoon handle, cover with a towel-wrapped lid and cook on low for 45 minutes.",
+   "Drizzle the remaining saffron water over the top and serve, breaking up the golden crust."
+  ],
+  "tips": [
+   "Wrap the lid in a clean tea towel so condensation does not drip onto the rice."
+  ],
+  "allergens": [
+   "Tree nuts",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A tall mound of yellow-white rice jewelled with orange peel, red barberries, green pistachios and almonds on a silver platter."
+ },
+ {
+  "name": "Joojeh Kabab (Saffron Chicken Kebab)",
+  "cuisine": "Iranian",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 20,
+  "servings": 4,
+  "calories": 480,
+  "protein": 46,
+  "carbs": 18,
+  "fat": 24,
+  "description": "Juicy chicken pieces marinated in yogurt, lemon, onion and saffron, then grilled until charred and golden.",
+  "ingredients": [
+   [
+    "chicken thighs",
+    900,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "plain yogurt",
+    150,
+    "g"
+   ],
+   [
+    "lemon juice",
+    3,
+    "tbsp"
+   ],
+   [
+    "saffron threads",
+    1,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground turmeric",
+    0.5,
+    "tsp"
+   ],
+   [
+    "tomatoes",
+    4,
+    "pieces"
+   ],
+   [
+    "unsalted butter",
+    20,
+    "g"
+   ],
+   [
+    "flatbread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Steep the saffron in 3 tablespoons of hot water for 10 minutes.",
+   "Grate the onion and squeeze out the juice. Mix the onion with the yogurt, lemon juice, saffron water, oil, crushed garlic, salt, pepper and turmeric.",
+   "Cut the chicken into large chunks, coat in the marinade and refrigerate for at least 4 hours or overnight.",
+   "Thread the chicken onto skewers and thread the whole tomatoes on separate skewers.",
+   "Grill over hot coals or a very hot grill pan for 12 to 15 minutes, turning every 3 minutes, until charred and cooked through, and grill the tomatoes until blistered.",
+   "Brush the chicken with melted butter and serve with the tomatoes and warm flatbread."
+  ],
+  "tips": [
+   "Do not marinate longer than 24 hours as lemon makes chicken mushy."
+  ],
+  "allergens": [
+   "Dairy",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "Golden saffron-yellow chicken skewers with charred edges on a plate alongside blistered grilled tomatoes and flatbread."
+ },
+ {
+  "name": "Kabuli Pulao",
+  "cuisine": "Afghan",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 90,
+  "servings": 6,
+  "calories": 650,
+  "protein": 34,
+  "carbs": 78,
+  "fat": 22,
+  "description": "Afghanistan's national dish: tender lamb and caramelised brown rice topped with sweet carrots, raisins and pistachios.",
+  "ingredients": [
+   [
+    "lamb shoulder",
+    800,
+    "g"
+   ],
+   [
+    "basmati rice",
+    500,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "carrots",
+    3,
+    "pieces"
+   ],
+   [
+    "raisins",
+    80,
+    "g"
+   ],
+   [
+    "pistachios",
+    40,
+    "g"
+   ],
+   [
+    "flaked almonds",
+    40,
+    "g"
+   ],
+   [
+    "caster sugar",
+    3,
+    "tbsp"
+   ],
+   [
+    "vegetable oil",
+    6,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cardamom",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "water",
+    1,
+    "l"
+   ]
+  ],
+  "steps": [
+   "Soak the rice in cold water for 30 minutes. Fry the sliced onions in 4 tablespoons of oil for 12 minutes until deep brown, then add the lamb and brown for 8 minutes.",
+   "Add the water, salt, cumin and pepper, cover and simmer for 1 hour until the lamb is tender. Remove the lamb and measure out 650 ml of stock.",
+   "Cut the carrots into matchsticks. Fry in 1 tablespoon of oil for 5 minutes, add the sugar and cook 3 minutes until caramelised, then add the raisins for 1 minute. Set aside.",
+   "In a heavy pot caramelise 1 tablespoon of sugar with the remaining oil until dark brown, stir in the stock and bring to the boil.",
+   "Add the drained rice, cardamom, cinnamon and the lamb, cover and cook on low for 15 minutes, then rest for 10 minutes.",
+   "Toast the nuts in a dry pan, then pile the rice onto a platter, top with the carrots, raisins and nuts."
+  ],
+  "tips": [
+   "The browned onions and caramelised sugar give the rice its signature brown colour."
+  ],
+  "allergens": [
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A brown glossy mound of rice topped with thin orange carrot strips, plump raisins and green pistachios, with lamb pieces on the side."
+ },
+ {
+  "name": "Mantu (Beef Dumplings)",
+  "cuisine": "Afghan",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 60,
+  "cook": 45,
+  "servings": 4,
+  "calories": 590,
+  "protein": 34,
+  "carbs": 62,
+  "fat": 22,
+  "description": "Steamed Afghan dumplings filled with spiced beef and onion, topped with garlic yogurt and a tomato-lentil sauce.",
+  "ingredients": [
+   [
+    "plain flour",
+    300,
+    "g"
+   ],
+   [
+    "water",
+    150,
+    "ml"
+   ],
+   [
+    "minced beef",
+    350,
+    "g"
+   ],
+   [
+    "onion",
+    2,
+    "pieces"
+   ],
+   [
+    "ground coriander",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "tomato paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    200,
+    "g"
+   ],
+   [
+    "cooked yellow split peas",
+    200,
+    "g"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "plain yogurt",
+    250,
+    "g"
+   ],
+   [
+    "vegetable oil",
+    3,
+    "tbsp"
+   ],
+   [
+    "dried mint",
+    1,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Knead the flour, 150 ml water and a pinch of salt into a firm dough for 8 minutes, cover and rest for 30 minutes.",
+   "Finely chop 1 onion and mix with the beef, coriander, pepper and 1 teaspoon of salt.",
+   "Roll the dough very thin, cut into 8 cm squares, put a spoonful of filling in the centre, and pinch the corners together to seal.",
+   "Fry the second chopped onion in oil for 8 minutes, add the tomato paste, chopped tomatoes and cooked split peas with 200 ml water, and simmer for 20 minutes into a sauce.",
+   "Steam the mantu in a lightly oiled steamer for 25 minutes until the dough is translucent.",
+   "Mix the yogurt with crushed garlic and a pinch of salt. Spoon yogurt on a plate, arrange the mantu on top, pour over the sauce and sprinkle with mint."
+  ],
+  "tips": [
+   "Cook the split peas in advance in lightly salted water for 30 minutes."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Plump steamed dumplings on a bed of white garlic yogurt, topped with red-brown tomato sauce and dried mint."
+ },
+ {
+  "name": "Mutabbaq (Stuffed Pan-Fried Pastry)",
+  "cuisine": "Saudi",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 45,
+  "cook": 20,
+  "servings": 6,
+  "calories": 420,
+  "protein": 18,
+  "carbs": 40,
+  "fat": 20,
+  "description": "Thin, crisp pan-fried pastry squares stuffed with spiced minced beef, egg and herbs, a favourite Ramadan street snack.",
+  "ingredients": [
+   [
+    "plain flour",
+    400,
+    "g"
+   ],
+   [
+    "warm water",
+    200,
+    "ml"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    6,
+    "tbsp"
+   ],
+   [
+    "minced beef",
+    300,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "eggs",
+    3,
+    "pieces"
+   ],
+   [
+    "spring onions",
+    3,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    0.5,
+    "bunch"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "ground coriander",
+    0.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, 1 teaspoon of salt, warm water and 2 tablespoons of oil into a soft dough, knead for 5 minutes, divide into 6 balls, coat in oil and rest for 30 minutes.",
+   "Fry the chopped onion and beef in 1 tablespoon of oil over medium-high heat for 8 minutes until browned, then add the cumin, coriander, pepper and remaining salt. Cool slightly.",
+   "Beat the eggs and stir in the beef, chopped spring onions and parsley.",
+   "Stretch one dough ball on an oiled surface into a very thin 30 cm square.",
+   "Spoon a sixth of the filling in the centre and fold the four sides over to make a sealed square parcel.",
+   "Fry the parcels in a lightly oiled pan over medium heat for 3 to 4 minutes per side until deep golden and the egg is set, then cut into pieces and serve hot with lemon."
+  ],
+  "tips": [
+   "Oil your hands and the surface well so the dough stretches paper-thin without tearing."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "Golden crispy square pastries cut open to reveal a spiced beef and egg filling, served on a plate with lemon wedges."
+ },
+ {
+  "name": "Luqaimat (Date Syrup Dumplings)",
+  "cuisine": "Emirati",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 20,
+  "servings": 6,
+  "calories": 350,
+  "protein": 5,
+  "carbs": 56,
+  "fat": 12,
+  "description": "Crisp golden fried dough balls with a light airy centre, drenched in date syrup and sprinkled with sesame seeds.",
+  "ingredients": [
+   [
+    "plain flour",
+    250,
+    "g"
+   ],
+   [
+    "cornflour",
+    2,
+    "tbsp"
+   ],
+   [
+    "instant dried yeast",
+    1,
+    "tsp"
+   ],
+   [
+    "caster sugar",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground cardamom",
+    0.5,
+    "tsp"
+   ],
+   [
+    "saffron threads",
+    1,
+    "pinch"
+   ],
+   [
+    "whole milk",
+    100,
+    "ml"
+   ],
+   [
+    "warm water",
+    200,
+    "ml"
+   ],
+   [
+    "salt",
+    0.25,
+    "tsp"
+   ],
+   [
+    "vegetable oil",
+    500,
+    "ml"
+   ],
+   [
+    "date syrup",
+    6,
+    "tbsp"
+   ],
+   [
+    "sesame seeds",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, cornflour, yeast, sugar, cardamom and salt in a bowl, then stir in the milk, warm water and saffron to make a thick, sticky batter.",
+   "Cover and let it rise in a warm place for 1 hour until doubled and bubbly.",
+   "Heat the oil in a deep pan to 170C, or until a drop of batter sizzles and floats immediately.",
+   "Scoop the batter with a wet spoon or squeeze through your fist and drop small balls into the hot oil, frying 4 to 5 balls at once.",
+   "Fry for 3 to 4 minutes, turning, until deep golden, then drain on kitchen paper.",
+   "Toss in warm date syrup, sprinkle with toasted sesame seeds and serve straight away."
+  ],
+  "tips": [
+   "Keep the oil at a steady temperature so the centres cook without burning the outside."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Sesame"
+  ],
+  "kid_friendly": true,
+  "photo": "A pile of glossy golden-brown round dumplings drizzled with dark date syrup and scattered with sesame seeds on a white plate."
+ },
+ {
+  "name": "Sholeh Zard (Saffron Rice Pudding)",
+  "cuisine": "Iranian",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 10,
+  "cook": 60,
+  "servings": 6,
+  "calories": 330,
+  "protein": 4,
+  "carbs": 58,
+  "fat": 10,
+  "description": "A silky Persian rice pudding perfumed with saffron and rose water, decorated with cinnamon and pistachios.",
+  "ingredients": [
+   [
+    "short-grain rice",
+    150,
+    "g"
+   ],
+   [
+    "water",
+    1.2,
+    "l"
+   ],
+   [
+    "caster sugar",
+    200,
+    "g"
+   ],
+   [
+    "saffron threads",
+    1.5,
+    "tsp"
+   ],
+   [
+    "rose water",
+    3,
+    "tbsp"
+   ],
+   [
+    "unsalted butter",
+    50,
+    "g"
+   ],
+   [
+    "ground cardamom",
+    0.5,
+    "tsp"
+   ],
+   [
+    "ground cinnamon",
+    1,
+    "tbsp"
+   ],
+   [
+    "pistachios",
+    30,
+    "g"
+   ],
+   [
+    "flaked almonds",
+    20,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Rinse the rice well until the water runs clear. Steep the saffron in 4 tablespoons of hot water for 15 minutes.",
+   "Put the rice and water in a heavy pot, bring to the boil, then simmer on low heat for 35 to 40 minutes, stirring occasionally, until the grains break down and it is thick.",
+   "Stir in the sugar, saffron liquid and butter and cook for 10 minutes more, stirring often, until glossy and the colour is deep yellow.",
+   "Add the rose water and cardamom and cook for 5 minutes.",
+   "Pour the pudding into a serving dish or individual bowls and smooth the top. Cool for 1 hour, then chill for 2 hours until set.",
+   "Decorate with lines of cinnamon, pistachios and almonds before serving."
+  ],
+  "tips": [
+   "Stir regularly to prevent sticking and keep the pudding smooth."
+  ],
+  "allergens": [
+   "Dairy",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden-yellow pudding in a shallow dish decorated with lines of brown cinnamon, green pistachio slivers and almond flakes."
+ },
+ {
+  "name": "Shor Nakhod (Chickpea & Potato Salad)",
+  "cuisine": "Afghan",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 15,
+  "cook": 20,
+  "servings": 4,
+  "calories": 280,
+  "protein": 9,
+  "carbs": 46,
+  "fat": 7,
+  "description": "A tangy Afghan street-food salad of chickpeas and potatoes dressed with chilli, mint, coriander and lemon.",
+  "ingredients": [
+   [
+    "canned chickpeas",
+    400,
+    "g"
+   ],
+   [
+    "potatoes",
+    400,
+    "g"
+   ],
+   [
+    "red onion",
+    1,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    0.5,
+    "bunch"
+   ],
+   [
+    "fresh mint",
+    2,
+    "tbsp"
+   ],
+   [
+    "green chilli",
+    1,
+    "pieces"
+   ],
+   [
+    "lemon juice",
+    4,
+    "tbsp"
+   ],
+   [
+    "apple cider vinegar",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "chilli flakes",
+    0.5,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Peel the potatoes, cut into 2 cm cubes and boil in salted water for 12 to 15 minutes until just tender. Drain and cool for 10 minutes.",
+   "Drain and rinse the chickpeas.",
+   "Thinly slice the red onion and finely chop the coriander, mint and chilli.",
+   "Whisk the lemon juice, vinegar, olive oil, cumin, chilli flakes, salt and pepper in a large bowl.",
+   "Add the potatoes, chickpeas, onion and herbs and gently toss until coated.",
+   "Leave for 15 minutes so the flavours soak in, then serve at room temperature."
+  ],
+  "tips": [
+   "Serve on top of flatbread or eat with a spoon as a quick snack."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "A bowl of golden chickpeas and potato cubes tossed with red onion, green herbs and chilli flakes, with a lemon wedge."
+ }
+]

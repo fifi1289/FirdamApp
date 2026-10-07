@@ -1,0 +1,1984 @@
+[
+ {
+  "name": "Çılbır (Poached Eggs with Garlic Yogurt)",
+  "cuisine": "Turkish",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 10,
+  "servings": 4,
+  "calories": 310,
+  "protein": 17,
+  "carbs": 8,
+  "fat": 23,
+  "description": "Silky poached eggs on cool garlicky yogurt, finished with sizzling paprika butter.",
+  "ingredients": [
+   [
+    "eggs",
+    8,
+    "pieces"
+   ],
+   [
+    "thick plain yogurt",
+    400,
+    "g"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "unsalted butter",
+    50,
+    "g"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "dried mint",
+    0.5,
+    "tsp"
+   ],
+   [
+    "apple cider vinegar",
+    1,
+    "tbsp"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "crusty bread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Crush the garlic with a pinch of salt and stir it into the yogurt. Spread the yogurt on a shallow serving dish and leave it at room temperature.",
+   "Bring a wide pan of water to a gentle simmer over medium heat and add the apple cider vinegar.",
+   "Crack each egg into a small cup. Swirl the water gently and slide the eggs in a few at a time.",
+   "Poach for 3 minutes until the whites are set and the yolks are still runny, then lift out with a slotted spoon and drain on kitchen paper.",
+   "Melt the butter in a small pan over medium heat until it foams, then stir in the paprika and dried mint for 15 seconds.",
+   "Place the eggs on the yogurt, drizzle with the hot paprika butter and serve straight away with warm bread."
+  ],
+  "tips": [
+   "Use the freshest eggs you can find, as they hold their shape best when poached."
+  ],
+  "allergens": [
+   "Eggs",
+   "Dairy",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "Poached eggs resting on a pool of white garlic yogurt in a shallow white dish, streaked with glossy red paprika butter and a sprinkle of dried mint. Torn bread sits alongside."
+ },
+ {
+  "name": "Sucuklu Yumurta (Beef Sucuk & Eggs)",
+  "cuisine": "Turkish",
+  "meal_type": "Breakfast",
+  "difficulty": "Easy",
+  "prep": 5,
+  "cook": 10,
+  "servings": 4,
+  "calories": 380,
+  "protein": 22,
+  "carbs": 3,
+  "fat": 31,
+  "description": "Spicy slices of beef sucuk sizzled in a pan with soft-set eggs, the classic Turkish weekend breakfast.",
+  "ingredients": [
+   [
+    "halal beef sucuk",
+    200,
+    "g"
+   ],
+   [
+    "eggs",
+    8,
+    "pieces"
+   ],
+   [
+    "unsalted butter",
+    1,
+    "tbsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "dried chilli flakes",
+    0.5,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "crusty bread",
+    4,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Slice the beef sucuk into thin rounds, about 3 mm thick.",
+   "Heat the butter in a large non-stick frying pan over medium heat and fry the sucuk for 2 to 3 minutes, turning once, until it releases its red oil and edges crisp.",
+   "Reduce the heat to medium-low and push the sucuk slices to the edges of the pan.",
+   "Crack the eggs into the pan, spacing them out, and cook for 3 to 4 minutes until the whites are set but the yolks are still soft.",
+   "Sprinkle with black pepper and chilli flakes and scatter over chopped parsley.",
+   "Bring the pan to the table and serve with bread for mopping up the spiced oil."
+  ],
+  "tips": [
+   "Sucuk is already salty, so you will not need to salt the eggs."
+  ],
+  "allergens": [
+   "Eggs",
+   "Dairy",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A black cast-iron pan of golden fried eggs with bright yolks nestled among overlapping red-brown sucuk rounds, flecked with parsley. Torn crusty bread beside it."
+ },
+ {
+  "name": "Lahmacun",
+  "cuisine": "Turkish",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 50,
+  "cook": 15,
+  "servings": 4,
+  "calories": 520,
+  "protein": 24,
+  "carbs": 62,
+  "fat": 19,
+  "description": "Paper-thin rounds of dough spread with spiced minced lamb and tomato, baked until crisp at the edges and served with lemon and parsley.",
+  "ingredients": [
+   [
+    "plain flour",
+    400,
+    "g"
+   ],
+   [
+    "instant dry yeast",
+    1,
+    "tsp"
+   ],
+   [
+    "warm water",
+    220,
+    "ml"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "minced lamb",
+    300,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "red pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "tomato paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "dried chilli flakes",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "bunch"
+   ],
+   [
+    "lemon",
+    2,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, yeast and 1 tsp salt in a bowl. Add the warm water and olive oil and knead for 8 minutes until smooth. Cover and rest for 40 minutes.",
+   "Finely chop or pulse the onion, red pepper, tomatoes, garlic and half the parsley. Squeeze out excess liquid in a sieve.",
+   "Mix the vegetables with the minced lamb, tomato paste, paprika, cumin, chilli flakes and 0.5 tsp salt into a loose paste.",
+   "Heat the oven to its highest setting (about 250C) with two baking trays inside.",
+   "Divide the dough into 8 balls and roll each into a very thin round about 20 cm across.",
+   "Spread a thin even layer of the meat mixture over each round, right to the edge.",
+   "Bake 2 or 3 at a time on the hot trays for 6 to 8 minutes until the edges are crisp and golden.",
+   "Top with the remaining chopped parsley, squeeze over lemon and roll up to eat."
+  ],
+  "tips": [
+   "Spread the topping very thinly so the lahmacun cooks quickly and stays crisp."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "Thin round flatbreads topped with a red-orange spiced lamb layer and charred edges, stacked on a wooden board with fresh parsley and lemon wedges."
+ },
+ {
+  "name": "İmam Bayıldı (Stuffed Aubergine)",
+  "cuisine": "Turkish",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 50,
+  "servings": 4,
+  "calories": 260,
+  "protein": 4,
+  "carbs": 22,
+  "fat": 18,
+  "description": "Aubergines slowly baked with a sweet filling of onions, tomatoes and garlic, served at room temperature as the Ottoman classic.",
+  "ingredients": [
+   [
+    "aubergines",
+    4,
+    "pieces"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "green pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "olive oil",
+    90,
+    "ml"
+   ],
+   [
+    "sugar",
+    1,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "bunch"
+   ],
+   [
+    "lemon juice",
+    1,
+    "tbsp"
+   ],
+   [
+    "water",
+    150,
+    "ml"
+   ],
+   [
+    "salt",
+    null,
+    "to taste"
+   ],
+   [
+    "black pepper",
+    null,
+    "to taste"
+   ]
+  ],
+  "steps": [
+   "Peel the aubergines in lengthwise stripes and soak in salted water for 15 minutes, then pat dry.",
+   "Heat 3 tbsp olive oil in a frying pan over medium heat and fry the aubergines for 8 minutes, turning, until lightly golden. Transfer to a baking dish.",
+   "In the same pan, soften the sliced onions in 3 tbsp olive oil over medium heat for 10 minutes.",
+   "Add the garlic, diced pepper and chopped tomatoes with the sugar, salt and pepper and cook for 8 minutes until thick. Stir in the parsley.",
+   "Heat the oven to 180C. Slit each aubergine lengthwise and open it out like a pocket, then stuff with the filling.",
+   "Mix the water, lemon juice and remaining oil, pour around the aubergines and cover with foil.",
+   "Bake for 35 minutes, uncovered for the last 10, until very soft. Cool to room temperature before serving."
+  ],
+  "tips": [
+   "Serve it the next day, when the flavours have had time to deepen."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "Four glossy dark-purple aubergines split open and brimming with red tomato and onion filling in a white oval dish, scattered with fresh parsley."
+ },
+ {
+  "name": "Burek (Meat Pie)",
+  "cuisine": "Bosnian",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 40,
+  "cook": 45,
+  "servings": 6,
+  "calories": 480,
+  "protein": 20,
+  "carbs": 38,
+  "fat": 27,
+  "description": "Crisp, flaky filo spirals filled with spiced minced beef and onion, the Bosnian bakery favourite.",
+  "ingredients": [
+   [
+    "filo pastry sheets",
+    400,
+    "g"
+   ],
+   [
+    "minced beef",
+    500,
+    "g"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "black pepper",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "sunflower oil",
+    120,
+    "ml"
+   ],
+   [
+    "warm water",
+    150,
+    "ml"
+   ],
+   [
+    "plain yogurt",
+    150,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Grate the onions and mix with the minced beef, garlic, salt and pepper until well combined.",
+   "Heat the oven to 200C and oil a large round baking tin.",
+   "Mix the oil with the warm water. Lay a filo sheet on the counter, brush it lightly with the mixture and spread a thin line of filling along one long edge.",
+   "Roll the sheet into a thin sausage shape, then coil it into the tin. Repeat with the remaining sheets, joining the coils end to end into a spiral.",
+   "Brush the top with the remaining oil mixture and bake for 40 minutes until deep golden and crisp.",
+   "Cover with a clean tea towel for 10 minutes to soften slightly, then cut into wedges and serve with yogurt."
+  ],
+  "tips": [
+   "Work quickly and keep unused filo covered with a damp cloth so it does not dry out."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A golden-brown coiled spiral pie cut into wedges showing flaky layers and meat filling, with a bowl of white yogurt on the side."
+ },
+ {
+  "name": "Dushbara (Dumpling Soup)",
+  "cuisine": "Azerbaijani",
+  "meal_type": "Lunch",
+  "difficulty": "Hard",
+  "prep": 60,
+  "cook": 40,
+  "servings": 4,
+  "calories": 450,
+  "protein": 28,
+  "carbs": 40,
+  "fat": 19,
+  "description": "Tiny lamb-filled dumplings floating in a clear mint-scented broth, an Azerbaijani comfort dish.",
+  "ingredients": [
+   [
+    "plain flour",
+    300,
+    "g"
+   ],
+   [
+    "eggs",
+    1,
+    "pieces"
+   ],
+   [
+    "cold water",
+    100,
+    "ml"
+   ],
+   [
+    "minced lamb",
+    250,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "lamb bones",
+    500,
+    "g"
+   ],
+   [
+    "water",
+    1.5,
+    "l"
+   ],
+   [
+    "dried mint",
+    1,
+    "tbsp"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "apple cider vinegar",
+    1,
+    "tbsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Put the lamb bones and 1.5 litres water in a pot, bring to the boil, skim, then simmer gently with 1 tsp salt for 40 minutes.",
+   "Meanwhile, knead the flour, egg, 100 ml water and a pinch of salt into a firm dough. Rest it, covered, for 30 minutes.",
+   "Grate the onion and mix with the minced lamb, pepper and 0.5 tsp salt for the filling.",
+   "Roll the dough very thin, cut into 3 cm squares and put a tiny piece of filling in the centre of each. Fold into a small triangle and pinch the corners together.",
+   "Strain the broth and return it to a gentle boil. Drop in the dumplings and cook for 8 to 10 minutes until they float and the filling is cooked.",
+   "Crush the garlic with the vinegar and stir it into the soup with the mint just before serving."
+  ],
+  "tips": [
+   "Keep the dumplings tiny, about the size of a thumbnail, as is traditional."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A deep white bowl of clear golden broth with small triangular dumplings, sprinkled with dried mint and a few drops of garlic vinegar."
+ },
+ {
+  "name": "Lanzhou-Style Beef Noodle Soup",
+  "cuisine": "Chinese (Hui)",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 150,
+  "servings": 4,
+  "calories": 520,
+  "protein": 34,
+  "carbs": 58,
+  "fat": 16,
+  "description": "A clear, aromatic beef broth with chewy noodles, tender beef, white radish, chilli oil and coriander.",
+  "ingredients": [
+   [
+    "beef shin",
+    700,
+    "g"
+   ],
+   [
+    "white radish (mooli)",
+    300,
+    "g"
+   ],
+   [
+    "ginger",
+    30,
+    "g"
+   ],
+   [
+    "star anise",
+    2,
+    "pieces"
+   ],
+   [
+    "cinnamon stick",
+    1,
+    "pieces"
+   ],
+   [
+    "black cardamom pods",
+    2,
+    "pieces"
+   ],
+   [
+    "sichuan peppercorns",
+    1,
+    "tsp"
+   ],
+   [
+    "light soy sauce",
+    2,
+    "tbsp"
+   ],
+   [
+    "water",
+    2.5,
+    "l"
+   ],
+   [
+    "wheat noodles",
+    400,
+    "g"
+   ],
+   [
+    "spring onions",
+    4,
+    "pieces"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "bunch"
+   ],
+   [
+    "chilli oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Cover the beef shin with cold water in a pot, bring to the boil for 5 minutes and drain, rinsing off the scum.",
+   "Return the beef to the pot with 2.5 litres fresh water, sliced ginger, star anise, cinnamon, black cardamom and peppercorns. Simmer very gently, partly covered, for 2 hours.",
+   "Add the soy sauce, salt and the radish cut into chunks and simmer for another 20 minutes.",
+   "Lift out the beef, let it rest 10 minutes and slice it thinly. Strain the broth and keep it hot.",
+   "Cook the noodles in a separate pot of boiling water according to packet time, usually 3 to 4 minutes, and drain.",
+   "Divide the noodles between bowls, add beef and radish and ladle over the hot broth.",
+   "Top with sliced spring onion, coriander and a spoonful of chilli oil."
+  ],
+  "tips": [
+   "Cook noodles separately so the broth stays clear."
+  ],
+  "allergens": [
+   "Gluten",
+   "Soy"
+  ],
+  "kid_friendly": false,
+  "photo": "A large bowl of clear amber broth with noodles, sliced beef and radish, topped with green spring onion, coriander and a swirl of red chilli oil."
+ },
+ {
+  "name": "Circassian Chicken (Çerkez Tavuğu)",
+  "cuisine": "Turkish",
+  "meal_type": "Lunch",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 35,
+  "servings": 4,
+  "calories": 480,
+  "protein": 34,
+  "carbs": 10,
+  "fat": 34,
+  "description": "Poached shredded chicken in a creamy walnut and garlic sauce, topped with paprika oil.",
+  "ingredients": [
+   [
+    "chicken breasts",
+    600,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "walnuts",
+    150,
+    "g"
+   ],
+   [
+    "white bread",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    2,
+    "cloves"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "water",
+    1,
+    "l"
+   ]
+  ],
+  "steps": [
+   "Put the chicken, halved onion, bay leaves and 1 tsp salt in a pot with 1 litre of water. Bring to the boil, then simmer gently for 20 minutes until cooked through.",
+   "Lift out the chicken and let it cool, keeping the stock. Shred the meat into thin strips.",
+   "Soak the bread in about 150 ml warm stock for 2 minutes and squeeze it lightly.",
+   "Blitz the walnuts (saving a few for garnish), bread, garlic and pepper in a food processor, adding stock gradually, until a thick creamy sauce forms.",
+   "Stir half the sauce into the shredded chicken and spread it on a serving plate. Pour the remaining sauce over the top.",
+   "Heat the olive oil with paprika for 20 seconds and drizzle over, then scatter with the remaining chopped walnuts. Serve at room temperature."
+  ],
+  "tips": [
+   "Use the stock to adjust the sauce thickness: it should be like thick cream."
+  ],
+  "allergens": [
+   "Tree nuts",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "Shredded chicken covered in a pale cream walnut sauce on a white oval plate, with a red paprika oil drizzle and crushed walnut garnish."
+ },
+ {
+  "name": "Iskender Kebab",
+  "cuisine": "Turkish",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 30,
+  "servings": 4,
+  "calories": 720,
+  "protein": 42,
+  "carbs": 48,
+  "fat": 38,
+  "description": "Thin slices of spiced beef on cubed pide, covered with tomato sauce, yogurt and sizzling butter.",
+  "ingredients": [
+   [
+    "beef sirloin",
+    600,
+    "g"
+   ],
+   [
+    "minced lamb",
+    100,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "canned chopped tomatoes",
+    400,
+    "g"
+   ],
+   [
+    "tomato paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "pide or flatbread",
+    4,
+    "pieces"
+   ],
+   [
+    "unsalted butter",
+    80,
+    "g"
+   ],
+   [
+    "plain yogurt",
+    300,
+    "g"
+   ],
+   [
+    "green chillies",
+    2,
+    "pieces"
+   ]
+  ],
+  "steps": [
+   "Mix the lamb mince with the grated onion, cumin, paprika, salt and pepper, then shape into 4 flat oval patties (kofte-style).",
+   "Slice the beef sirloin very thinly against the grain and season with salt and pepper.",
+   "Simmer the tomatoes and tomato paste with a pinch of salt in a small pan over medium heat for 12 minutes until thick.",
+   "Heat the oil in a large frying pan over high heat. Sear the beef in batches for 2 minutes per side and the patties for 4 minutes per side.",
+   "Cut the pide into small cubes and toast them in a dry pan for 2 minutes, then lay them in the base of 4 plates.",
+   "Top the bread with beef, add the tomato sauce, then spoon a generous amount of yogurt alongside.",
+   "Melt the butter until it foams and turns light brown, pour it sizzling over each plate and serve with grilled green chillies."
+  ],
+  "tips": [
+   "Pour the butter at the table for the best sizzle."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Layers of sliced beef over golden pide cubes, red tomato sauce, white yogurt and a pool of butter, with a charred green chilli on the side."
+ },
+ {
+  "name": "Karnıyarık (Aubergine Stuffed with Beef)",
+  "cuisine": "Turkish",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 50,
+  "servings": 4,
+  "calories": 410,
+  "protein": 22,
+  "carbs": 17,
+  "fat": 28,
+  "description": "Split fried aubergines packed with a savoury beef, onion and tomato filling and baked in a light tomato sauce.",
+  "ingredients": [
+   [
+    "aubergines",
+    4,
+    "pieces"
+   ],
+   [
+    "minced beef",
+    300,
+    "g"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "green peppers",
+    4,
+    "pieces"
+   ],
+   [
+    "tomato paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "sunflower oil",
+    100,
+    "ml"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "hot water",
+    250,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Peel the aubergines in stripes, soak in salted water for 15 minutes and pat dry.",
+   "Heat the oil in a large frying pan over medium-high heat and fry the aubergines for 8 minutes, turning, until golden and soft. Drain on kitchen paper and move to a baking dish.",
+   "Fry the chopped onions in 1 tbsp oil for 6 minutes, then add the beef and brown for 6 minutes, breaking it up.",
+   "Add the garlic, 2 chopped tomatoes, half the tomato paste, salt and pepper and cook for 8 minutes. Stir in the parsley.",
+   "Heat the oven to 190C. Cut a slit down each aubergine and press it open, then spoon in the filling.",
+   "Top each with a slice of the remaining tomato and a pepper. Stir the remaining paste into the hot water and pour into the dish.",
+   "Bake for 25 minutes until the aubergines are completely tender. Serve with rice."
+  ],
+  "tips": [
+   "Fry the aubergines in batches so they brown rather than steam."
+  ],
+  "allergens": [],
+  "kid_friendly": false,
+  "photo": "Four split aubergines filled with browned beef mince, each topped with a tomato slice and a green pepper, in a baking dish with red sauce."
+ },
+ {
+  "name": "Kıymalı Pide (Minced Beef Pide)",
+  "cuisine": "Turkish",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 60,
+  "cook": 15,
+  "servings": 4,
+  "calories": 560,
+  "protein": 28,
+  "carbs": 66,
+  "fat": 20,
+  "description": "Boat-shaped breads with pinched ends, filled with spiced minced beef and baked until golden.",
+  "ingredients": [
+   [
+    "plain flour",
+    500,
+    "g"
+   ],
+   [
+    "instant dry yeast",
+    1.5,
+    "tsp"
+   ],
+   [
+    "warm water",
+    300,
+    "ml"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "minced beef",
+    350,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    2,
+    "pieces"
+   ],
+   [
+    "green pepper",
+    1,
+    "pieces"
+   ],
+   [
+    "tomato paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "eggs",
+    1,
+    "pieces"
+   ],
+   [
+    "unsalted butter",
+    20,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, yeast, 1.5 tsp salt, water and oil, knead for 8 minutes, cover and let rise for 45 minutes until doubled.",
+   "Finely chop the onion, tomatoes, green pepper and parsley. Mix with the beef, tomato paste, paprika, pepper and 0.5 tsp salt.",
+   "Heat the oven to 240C with a tray inside.",
+   "Divide the dough into 4 and roll each into a long oval about 30 cm long. Spread the filling along the middle, leaving a 3 cm border.",
+   "Fold the long edges in over the filling and pinch the ends into points to make a boat.",
+   "Brush the dough with beaten egg and slide onto the hot tray.",
+   "Bake for 12 to 15 minutes until golden, brush the edges with butter and rest for 3 minutes before cutting."
+  ],
+  "tips": [
+   "A very hot oven gives the best blistered crust."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Four long golden boat-shaped breads with a visible spiced beef filling, edges glossy with butter, on a wooden board with parsley."
+ },
+ {
+  "name": "Turkish Mantı",
+  "cuisine": "Turkish",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 75,
+  "cook": 20,
+  "servings": 4,
+  "calories": 560,
+  "protein": 26,
+  "carbs": 55,
+  "fat": 26,
+  "description": "Tiny beef dumplings topped with garlic yogurt and sizzling paprika-mint butter.",
+  "ingredients": [
+   [
+    "plain flour",
+    300,
+    "g"
+   ],
+   [
+    "eggs",
+    1,
+    "pieces"
+   ],
+   [
+    "water",
+    120,
+    "ml"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "minced beef",
+    250,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "handful"
+   ],
+   [
+    "plain yogurt",
+    400,
+    "g"
+   ],
+   [
+    "garlic",
+    3,
+    "cloves"
+   ],
+   [
+    "unsalted butter",
+    60,
+    "g"
+   ],
+   [
+    "paprika",
+    1,
+    "tbsp"
+   ],
+   [
+    "dried mint",
+    1,
+    "tsp"
+   ],
+   [
+    "tomato paste",
+    1,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Knead the flour, egg, water and 1 tsp salt into a stiff dough. Cover and rest for 30 minutes.",
+   "Grate the onion and mix with the beef, parsley, pepper and 0.5 tsp salt.",
+   "Roll the dough very thin and cut into 3 cm squares.",
+   "Place a small pinch of filling on each square and pinch the four corners together to form little purses.",
+   "Bring a large pot of salted water to a boil and cook the mantı for 8 to 10 minutes until they float and are tender.",
+   "Mix the yogurt with crushed garlic and a pinch of salt.",
+   "Melt the butter over medium heat, add the paprika, tomato paste and mint and sizzle for 30 seconds.",
+   "Spoon the mantı into bowls, top with garlic yogurt and drizzle with the butter."
+  ],
+  "tips": [
+   "Tiny mantı take time, so let the kids help with the pinching."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A bowl of small dumplings topped with white garlic yogurt and a red paprika butter drizzle with dried mint on top."
+ },
+ {
+  "name": "Ćevapi with Lepinja",
+  "cuisine": "Bosnian",
+  "meal_type": "Dinner",
+  "difficulty": "Easy",
+  "prep": 20,
+  "cook": 12,
+  "servings": 4,
+  "calories": 640,
+  "protein": 38,
+  "carbs": 50,
+  "fat": 30,
+  "description": "Small grilled minced-beef sausages served in soft lepinja bread with raw onion and kajmak or sour cream.",
+  "ingredients": [
+   [
+    "minced beef",
+    500,
+    "g"
+   ],
+   [
+    "minced lamb",
+    250,
+    "g"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    1,
+    "tsp"
+   ],
+   [
+    "bicarbonate of soda",
+    0.5,
+    "tsp"
+   ],
+   [
+    "sparkling water",
+    3,
+    "tbsp"
+   ],
+   [
+    "lepinja or soft flatbread",
+    4,
+    "pieces"
+   ],
+   [
+    "red onion",
+    2,
+    "pieces"
+   ],
+   [
+    "sour cream",
+    100,
+    "g"
+   ],
+   [
+    "sweet paprika",
+    1,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Mix the beef, lamb, crushed garlic, salt, pepper, bicarbonate of soda and sparkling water. Knead by hand for 5 minutes until sticky and smooth.",
+   "Cover and chill in the fridge for at least 1 hour, or overnight if you can.",
+   "Wet your hands and shape the mixture into about 20 finger-sized sausages, roughly 6 cm long.",
+   "Heat a grill pan or barbecue to medium-high and cook the ćevapi for 10 to 12 minutes, turning often, until browned and cooked through.",
+   "Warm the lepinja on the grill for 1 minute each side.",
+   "Serve the ćevapi inside or alongside the bread with chopped raw onion, sour cream and a sprinkle of paprika."
+  ],
+  "tips": [
+   "Kneading well gives the ćevapi their traditional springy texture."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "A plate of golden-brown grilled ćevapi lined up beside a puffy flatbread, with raw red onion and a white dollop of sour cream."
+ },
+ {
+  "name": "Tavë Kosi (Baked Lamb & Yogurt)",
+  "cuisine": "Albanian",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 20,
+  "cook": 105,
+  "servings": 6,
+  "calories": 520,
+  "protein": 34,
+  "carbs": 25,
+  "fat": 31,
+  "description": "Tender lamb and rice baked under a golden, custardy yogurt topping.",
+  "ingredients": [
+   [
+    "lamb shoulder, cubed",
+    800,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    40,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "short-grain rice",
+    100,
+    "g"
+   ],
+   [
+    "water",
+    500,
+    "ml"
+   ],
+   [
+    "dried oregano",
+    1,
+    "tsp"
+   ],
+   [
+    "eggs",
+    4,
+    "pieces"
+   ],
+   [
+    "plain yogurt",
+    500,
+    "g"
+   ],
+   [
+    "plain flour",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Heat the oven to 180C. Season the lamb with salt, pepper and oregano.",
+   "Melt the butter in a pan over medium-high heat and brown the lamb for 8 minutes, then add the sliced onion and cook for 4 minutes.",
+   "Transfer to a baking dish, add the rice and water, cover with foil and bake for 1 hour until the lamb is tender and the rice has soaked up the liquid.",
+   "Whisk the eggs, yogurt and flour with a pinch of salt until smooth.",
+   "Pour the yogurt mixture evenly over the lamb and rice.",
+   "Bake uncovered for 30 to 35 minutes until the topping is set and golden. Rest for 10 minutes before serving."
+  ],
+  "tips": [
+   "Full-fat yogurt gives the creamiest, most stable topping."
+  ],
+  "allergens": [
+   "Eggs",
+   "Dairy",
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A rectangular baking dish with a puffed golden-brown custard top over lamb and rice, with a slice taken out showing the layers."
+ },
+ {
+  "name": "Uzbek Plov",
+  "cuisine": "Uzbek",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 25,
+  "cook": 75,
+  "servings": 6,
+  "calories": 650,
+  "protein": 30,
+  "carbs": 65,
+  "fat": 28,
+  "description": "Fragrant rice cooked with tender lamb, yellow carrots, cumin and a whole garlic bulb, the national dish of Uzbekistan.",
+  "ingredients": [
+   [
+    "long-grain rice",
+    500,
+    "g"
+   ],
+   [
+    "lamb shoulder, cubed",
+    600,
+    "g"
+   ],
+   [
+    "carrots",
+    600,
+    "g"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "sunflower oil",
+    120,
+    "ml"
+   ],
+   [
+    "whole garlic bulb",
+    1,
+    "pieces"
+   ],
+   [
+    "cumin seeds",
+    1.5,
+    "tbsp"
+   ],
+   [
+    "barberries or raisins",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "boiling water",
+    700,
+    "ml"
+   ]
+  ],
+  "steps": [
+   "Rinse the rice in several changes of water until clear, then soak in warm salted water for 30 minutes.",
+   "Heat the oil in a heavy pot over high heat until hot. Brown the lamb for 8 minutes.",
+   "Add the sliced onions and cook for 6 minutes until deep golden.",
+   "Add the carrots cut into thick matchsticks and cook for 8 minutes, stirring, until softened.",
+   "Add the cumin, pepper, salt and boiling water and simmer on low for 30 minutes to make the base (zirvak).",
+   "Drain the rice and spread it evenly over the meat without stirring. Push the garlic bulb into the centre and scatter the barberries on top.",
+   "Add hot water to cover the rice by 1 cm, cook on high until the water is absorbed, then poke a few holes, cover and cook on the lowest heat for 20 minutes.",
+   "Gently mix the plov from the bottom, then serve on a large plate topped with the lamb and garlic."
+  ],
+  "tips": [
+   "Do not stir the rice while it cooks, or it will turn mushy."
+  ],
+  "allergens": [],
+  "kid_friendly": true,
+  "photo": "A mound of golden, glossy rice and carrots on a large platter, topped with chunks of lamb and a whole roasted garlic bulb."
+ },
+ {
+  "name": "Lagman (Hand-Pulled Noodles)",
+  "cuisine": "Uyghur",
+  "meal_type": "Dinner",
+  "difficulty": "Hard",
+  "prep": 60,
+  "cook": 45,
+  "servings": 4,
+  "calories": 620,
+  "protein": 32,
+  "carbs": 70,
+  "fat": 22,
+  "description": "Chewy stretched noodles topped with a rich lamb and vegetable stir-fry sauce.",
+  "ingredients": [
+   [
+    "plain flour",
+    450,
+    "g"
+   ],
+   [
+    "water",
+    200,
+    "ml"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "sunflower oil",
+    4,
+    "tbsp"
+   ],
+   [
+    "lamb shoulder, thinly sliced",
+    400,
+    "g"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "red peppers",
+    2,
+    "pieces"
+   ],
+   [
+    "tomatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "carrot",
+    1,
+    "pieces"
+   ],
+   [
+    "garlic",
+    4,
+    "cloves"
+   ],
+   [
+    "tomato paste",
+    2,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "hot water",
+    400,
+    "ml"
+   ],
+   [
+    "fresh coriander",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Mix 450 g flour with 200 ml water and 1 tsp salt, knead for 10 minutes, rub with oil, cover and rest for 1 hour.",
+   "Heat 3 tbsp oil in a wok over high heat and sear the lamb for 4 minutes until browned.",
+   "Add the sliced onion, carrot and garlic and cook for 4 minutes.",
+   "Add the peppers and tomatoes, then tomato paste, cumin, pepper and 1 tsp salt, and cook for 5 minutes.",
+   "Pour in 400 ml water, cover and simmer for 25 minutes until the sauce is thick and the lamb tender.",
+   "Divide the dough into 8 pieces, roll into ropes, then stretch each rope and swing it to make long noodles about 1 m long.",
+   "Boil the noodles in salted water for 3 to 4 minutes until chewy and drain.",
+   "Serve the noodles in bowls topped generously with the sauce and chopped coriander."
+  ],
+  "tips": [
+   "If you struggle with stretching, roll the dough and cut it into noodles instead."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "A shallow bowl of long pale noodles piled high with red-brown lamb and colourful peppers and carrots, garnished with green coriander."
+ },
+ {
+  "name": "Beshbarmak",
+  "cuisine": "Kazakh",
+  "meal_type": "Dinner",
+  "difficulty": "Medium",
+  "prep": 40,
+  "cook": 150,
+  "servings": 6,
+  "calories": 590,
+  "protein": 38,
+  "carbs": 45,
+  "fat": 28,
+  "description": "Boiled lamb on wide hand-cut noodles with onions and a rich broth, the traditional Kazakh feast dish.",
+  "ingredients": [
+   [
+    "lamb on the bone",
+    1.2,
+    "kg"
+   ],
+   [
+    "onions",
+    3,
+    "pieces"
+   ],
+   [
+    "water",
+    2.5,
+    "l"
+   ],
+   [
+    "bay leaves",
+    2,
+    "pieces"
+   ],
+   [
+    "black peppercorns",
+    1,
+    "tsp"
+   ],
+   [
+    "salt",
+    2,
+    "tsp"
+   ],
+   [
+    "plain flour",
+    400,
+    "g"
+   ],
+   [
+    "eggs",
+    2,
+    "pieces"
+   ],
+   [
+    "warm water",
+    100,
+    "ml"
+   ],
+   [
+    "potatoes",
+    3,
+    "pieces"
+   ],
+   [
+    "fresh dill",
+    1,
+    "handful"
+   ]
+  ],
+  "steps": [
+   "Put the lamb in a large pot with 2.5 litres cold water, bring to the boil and skim off the foam.",
+   "Add 1 onion, bay leaves, peppercorns and 1 tsp salt and simmer gently for 2 to 2.5 hours until the meat falls from the bone.",
+   "Make the dough from the flour, eggs, warm water and 1 tsp salt, knead for 8 minutes and rest for 30 minutes.",
+   "Slice the remaining onions into rings and simmer them in a ladle of broth for 5 minutes.",
+   "Remove the lamb, strain the broth and cut the meat off the bone into pieces. Boil the peeled potatoes in some of the broth for 20 minutes.",
+   "Roll the dough thin, cut into 6 cm squares and boil in the strained broth for 6 to 8 minutes. Drain.",
+   "Serve the noodles topped with meat, potatoes and onions with dill, and drink the remaining broth from bowls on the side."
+  ],
+  "tips": [
+   "The broth (sorpa) is served in a cup alongside the dish."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A large platter of wide flat noodles topped with chunks of boiled lamb, soft onion rings and potatoes, sprinkled with dill."
+ },
+ {
+  "name": "Mercimek Köftesi (Lentil Patties)",
+  "cuisine": "Turkish",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 25,
+  "cook": 25,
+  "servings": 6,
+  "calories": 170,
+  "protein": 7,
+  "carbs": 28,
+  "fat": 4,
+  "description": "Cold, spiced red lentil and bulgur balls served in lettuce leaves with lemon.",
+  "ingredients": [
+   [
+    "red lentils",
+    200,
+    "g"
+   ],
+   [
+    "fine bulgur",
+    100,
+    "g"
+   ],
+   [
+    "water",
+    500,
+    "ml"
+   ],
+   [
+    "onion",
+    1,
+    "pieces"
+   ],
+   [
+    "olive oil",
+    2,
+    "tbsp"
+   ],
+   [
+    "tomato paste",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "paprika",
+    1,
+    "tsp"
+   ],
+   [
+    "spring onions",
+    4,
+    "pieces"
+   ],
+   [
+    "fresh parsley",
+    1,
+    "bunch"
+   ],
+   [
+    "lemon",
+    1,
+    "pieces"
+   ],
+   [
+    "lettuce leaves",
+    12,
+    "pieces"
+   ],
+   [
+    "salt",
+    1,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Rinse the lentils and simmer in 500 ml water for 12 to 15 minutes until mushy, stirring often.",
+   "Stir in the bulgur, switch off the heat, cover and leave for 15 minutes to absorb.",
+   "Soften the finely chopped onion in the olive oil over medium heat for 6 minutes, then stir in tomato paste, cumin and paprika for 1 minute.",
+   "Mix the onion mixture into the lentils with chopped spring onions, parsley, salt and the lemon juice.",
+   "Knead with damp hands for 3 minutes until smooth, then shape into small oval patties.",
+   "Serve cold on lettuce leaves with extra lemon wedges."
+  ],
+  "tips": [
+   "Wet your hands while shaping, as the mixture is sticky."
+  ],
+  "allergens": [
+   "Gluten"
+  ],
+  "kid_friendly": true,
+  "photo": "Oval orange lentil patties arranged in fresh green lettuce leaves on a platter, with lemon wedges and parsley."
+ },
+ {
+  "name": "Baklava",
+  "cuisine": "Turkish",
+  "meal_type": "Snack",
+  "difficulty": "Hard",
+  "prep": 45,
+  "cook": 50,
+  "servings": 24,
+  "calories": 260,
+  "protein": 4,
+  "carbs": 28,
+  "fat": 15,
+  "description": "Crisp layers of buttery filo with chopped pistachios, soaked in lemon syrup. Makes 24 pieces.",
+  "ingredients": [
+   [
+    "filo pastry sheets",
+    400,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    200,
+    "g"
+   ],
+   [
+    "pistachios",
+    300,
+    "g"
+   ],
+   [
+    "sugar",
+    300,
+    "g"
+   ],
+   [
+    "water",
+    250,
+    "ml"
+   ],
+   [
+    "lemon juice",
+    1,
+    "tbsp"
+   ],
+   [
+    "ground cinnamon",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Heat the oven to 170C and butter a 23 x 33 cm baking tin. Melt the remaining butter.",
+   "Make the syrup by boiling the sugar, water and lemon juice for 10 minutes until slightly thickened, then cool completely.",
+   "Chop the pistachios finely and mix with the cinnamon.",
+   "Layer 10 filo sheets in the tin, brushing each with melted butter. Spread half the nuts over the top.",
+   "Add 5 more buttered sheets, the rest of the nuts and finally another 10 buttered sheets, brushing the top well.",
+   "Cut into diamonds or squares with a sharp knife, going all the way through.",
+   "Bake for 45 to 50 minutes until deep golden, then pour the cool syrup evenly over the hot baklava.",
+   "Leave to soak for at least 4 hours before serving."
+  ],
+  "tips": [
+   "Hot pastry and cool syrup keeps the layers crisp."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Tree nuts"
+  ],
+  "kid_friendly": true,
+  "photo": "A tray of golden diamond-shaped baklava with glistening syrup, each piece topped with bright green crushed pistachio."
+ },
+ {
+  "name": "Sütlaç (Baked Rice Pudding)",
+  "cuisine": "Turkish",
+  "meal_type": "Snack",
+  "difficulty": "Easy",
+  "prep": 10,
+  "cook": 50,
+  "servings": 6,
+  "calories": 260,
+  "protein": 8,
+  "carbs": 42,
+  "fat": 7,
+  "description": "Creamy rice pudding baked until the top is caramelised in brown patches.",
+  "ingredients": [
+   [
+    "short-grain rice",
+    80,
+    "g"
+   ],
+   [
+    "water",
+    250,
+    "ml"
+   ],
+   [
+    "whole milk",
+    1,
+    "l"
+   ],
+   [
+    "sugar",
+    150,
+    "g"
+   ],
+   [
+    "rice flour",
+    2,
+    "tbsp"
+   ],
+   [
+    "cold milk",
+    100,
+    "ml"
+   ],
+   [
+    "vanilla powder",
+    0.5,
+    "tsp"
+   ]
+  ],
+  "steps": [
+   "Simmer the rice in the water for 12 minutes until soft and nearly all absorbed.",
+   "Add the milk and sugar and cook gently over medium-low heat for 15 minutes, stirring often.",
+   "Whisk the rice flour into the cold milk and stir it into the pot. Cook for 5 minutes until thick, then add the vanilla powder.",
+   "Pour into 6 ovenproof bowls and let them cool for 15 minutes.",
+   "Heat the grill to high and place the bowls underneath for 3 to 4 minutes until the tops are spotted dark brown.",
+   "Cool, then chill for at least 2 hours before serving."
+  ],
+  "tips": [
+   "Watch closely under the grill, as the tops colour quickly."
+  ],
+  "allergens": [
+   "Dairy"
+  ],
+  "kid_friendly": true,
+  "photo": "Individual terracotta bowls of creamy white rice pudding with dark caramelised spots on the surface."
+ },
+ {
+  "name": "Samsa (Baked Lamb Pastries)",
+  "cuisine": "Uzbek",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 50,
+  "cook": 35,
+  "servings": 8,
+  "calories": 380,
+  "protein": 14,
+  "carbs": 30,
+  "fat": 23,
+  "description": "Flaky triangular pastries filled with spiced lamb and onion, baked until golden.",
+  "ingredients": [
+   [
+    "plain flour",
+    350,
+    "g"
+   ],
+   [
+    "unsalted butter",
+    150,
+    "g"
+   ],
+   [
+    "water",
+    150,
+    "ml"
+   ],
+   [
+    "salt",
+    1.5,
+    "tsp"
+   ],
+   [
+    "minced lamb",
+    400,
+    "g"
+   ],
+   [
+    "onions",
+    2,
+    "pieces"
+   ],
+   [
+    "lamb fat or butter",
+    30,
+    "g"
+   ],
+   [
+    "ground cumin",
+    1,
+    "tsp"
+   ],
+   [
+    "black pepper",
+    0.5,
+    "tsp"
+   ],
+   [
+    "eggs",
+    1,
+    "pieces"
+   ],
+   [
+    "sesame seeds",
+    1,
+    "tbsp"
+   ]
+  ],
+  "steps": [
+   "Mix the flour, 1 tsp salt and water into a dough, knead for 5 minutes and rest for 20 minutes.",
+   "Roll the dough into a rectangle, spread with half the soft butter, fold into thirds, then repeat the butter and folding once more. Chill for 30 minutes.",
+   "Mix the lamb with finely chopped onions, fat, cumin, pepper and 0.5 tsp salt.",
+   "Heat the oven to 200C. Roll the dough out thin and cut into 10 cm squares.",
+   "Place a spoonful of filling on each square, fold into a triangle and pinch the edges tightly.",
+   "Brush with beaten egg, sprinkle with sesame seeds and bake for 30 to 35 minutes until golden and puffed."
+  ],
+  "tips": [
+   "Keep the pastry cold so the layers stay flaky."
+  ],
+  "allergens": [
+   "Gluten",
+   "Dairy",
+   "Eggs",
+   "Sesame"
+  ],
+  "kid_friendly": true,
+  "photo": "Golden triangular pastries dotted with sesame seeds, one broken open to reveal a juicy lamb filling, on a baking paper-lined tray."
+ },
+ {
+  "name": "Chak-Chak (Honey Dough Bites)",
+  "cuisine": "Tatar",
+  "meal_type": "Snack",
+  "difficulty": "Medium",
+  "prep": 30,
+  "cook": 25,
+  "servings": 12,
+  "calories": 290,
+  "protein": 4,
+  "carbs": 42,
+  "fat": 12,
+  "description": "Crunchy fried dough strands bound with warm honey syrup and shaped into a golden mound.",
+  "ingredients": [
+   [
+    "plain flour",
+    350,
+    "g"
+   ],
+   [
+    "eggs",
+    3,
+    "pieces"
+   ],
+   [
+    "caster sugar",
+    2,
+    "tbsp"
+   ],
+   [
+    "salt",
+    1,
+    "pinch"
+   ],
+   [
+    "sunflower oil",
+    500,
+    "ml"
+   ],
+   [
+    "honey",
+    200,
+    "g"
+   ],
+   [
+    "sugar",
+    100,
+    "g"
+   ]
+  ],
+  "steps": [
+   "Whisk the eggs with 2 tbsp sugar and a pinch of salt, then add the flour and knead into a stiff, smooth dough. Rest it for 20 minutes.",
+   "Roll the dough into thin sheets and cut into strips about 5 cm long and 5 mm wide.",
+   "Heat the oil in a deep pan to medium-high (about 170C) and fry the strips in batches for 1 to 2 minutes until golden. Drain on kitchen paper.",
+   "Heat the honey and 100 g sugar in a large pan over low heat for 5 minutes until bubbling and slightly thickened.",
+   "Toss the fried strips in the syrup until coated.",
+   "Tip onto a plate, shape into a mound with wet hands and let it set for 1 hour. Break into pieces to serve."
+  ],
+  "tips": [
+   "Keep your hands wet when shaping, as the syrup is very sticky."
+  ],
+  "allergens": [
+   "Gluten",
+   "Eggs"
+  ],
+  "kid_friendly": true,
+  "photo": "A glossy golden mound of honey-coated fried dough strands on a round white plate."
+ }
+]

@@ -123,6 +123,7 @@ In Stripe, create the four prices and add a webhook endpoint pointing to
 - `halal-places` — halal places and travel agencies from OpenStreetMap (Overpass) and address search (Nominatim)
 - `companion` — the AI Family Companion (OpenAI, tool calling; can update the pantry)
 - `receipt-scan` — reads a receipt photo into pantry items (OpenAI vision, paid plans)
+- `delete-account` — Settings → Delete my account (cancels Stripe, hands over a shared household, deletes the user)
 - `billing` / `stripe-webhook` — Stripe Checkout, customer portal and subscription sync
 
 Prayer and places use free public APIs; results are cached briefly in the function to stay within fair use.
@@ -135,8 +136,8 @@ also applies every migration to a clean Postgres database and runs an RLS smoke 
 
 ## Before launch
 
-- Replace `support@firdam.app` in `app/support/page.tsx` and the footer with the real inbox.
-- Add Privacy Policy and Terms pages (the footer has no legal links yet).
+- Privacy Policy (`/privacy`) and Terms (`/terms`) read their operator name, province and contact emails from `lib/site.ts`; update it when the business is registered or the email addresses change.
+
 - Add the Stripe and OpenAI secrets above; without them the Upgrade and Companion pages explain
   that setup isn't finished.
 - Reminders are browser notifications shown while the app is open; background push needs a

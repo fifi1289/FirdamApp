@@ -210,12 +210,12 @@ export default function RegisterPage() {
             onCheckedChange={(v) => setAgreed(v === true)}
           />
           <span className="text-sm text-muted-foreground">
-            I agree to the{' '}
-            <Link href="#" className="font-medium text-primary hover:underline">
-              Terms
+            I’m 18 or older and I agree to the{' '}
+            <Link href="/terms" target="_blank" className="font-medium text-primary hover:underline">
+              Terms of Use
             </Link>{' '}
             and{' '}
-            <Link href="#" className="font-medium text-primary hover:underline">
+            <Link href="/privacy" target="_blank" className="font-medium text-primary hover:underline">
               Privacy Policy
             </Link>
             .

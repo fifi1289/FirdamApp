@@ -39,6 +39,7 @@ import { useSavedLocation } from '@/lib/geo/location';
 import { CALCULATION_METHODS, usePrayerSettings } from '@/lib/prayer/prayer';
 import { useReminderSettings } from '@/lib/reminders/reminders';
 import type { Profile } from '@/types/database';
+import { DeleteAccountCard } from '@/components/settings/delete-account-card';
 
 const themeOptions = [
   { value: 'light', label: 'Light', icon: Sun },
@@ -64,7 +65,23 @@ const EXPORT_TABLES = [
   'ramadan_days',
   'quran_reading_sessions',
   'saved_halal_places',
+  'cooking_log',
+  'pantry_events',
+  'recipe_favorites',
+  'household_members',
+  'subscriptions',
 ] as const;
+
+/** Tables everyone can read: export only the rows this user created. */
+const EXPORT_OWN_ROWS: [string, string][] = [
+  ['user_recipes', 'user_id'],
+  ['trips', 'user_id'],
+  ['halal_places', 'user_id'],
+  ['halal_place_reviews', 'user_id'],
+  ['community_events', 'user_id'],
+  ['event_rsvps', 'user_id'],
+  ['businesses', 'owner_id'],
+];
 
 export function SettingsClient({ profile: _profile }: { profile?: Profile | null }) {
   const { theme, setTheme } = useTheme();
@@ -126,7 +143,9 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
     // Untyped view of the client so we can loop over table names.
     const supabase = createSupabaseBrowserClient() as unknown as {
       from: (table: string) => {
-        select: (columns: string) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+        select: (columns: string) => PromiseLike<{ data: unknown; error: { message: string } | null }> & {
+          eq: (col: string, v: string) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+        };
       };
     };
     const out: Record<string, unknown> = {
@@ -135,6 +154,11 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
     };
     for (const table of EXPORT_TABLES) {
       const { data, error } = await supabase.from(table).select('*');
+      out[table] = error ? { error: error.message } : data;
+    }
+    for (const [table, col] of EXPORT_OWN_ROWS) {
+      if (!user) break;
+      const { data, error } = await supabase.from(table).select('*').eq(col, user.id);
       out[table] = error ? { error: error.message } : data;
     }
     const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
@@ -412,6 +436,8 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
               </Button>
             </CardContent>
           </Card>
+
+          <DeleteAccountCard />
         </TabsContent>
       </Tabs>
     </>

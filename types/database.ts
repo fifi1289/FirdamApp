@@ -1315,6 +1315,131 @@ export type Database = {
         Update: { reason?: string };
         Relationships: [];
       };
+      habits: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          kind: 'health' | 'sunnah' | 'faith' | 'other';
+          icon: string;
+          days: number[];
+          archived: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          kind?: 'health' | 'sunnah' | 'faith' | 'other';
+          icon?: string;
+          days?: number[];
+          archived?: boolean;
+        };
+        Update: {
+          name?: string;
+          kind?: 'health' | 'sunnah' | 'faith' | 'other';
+          icon?: string;
+          days?: number[];
+          archived?: boolean;
+        };
+        Relationships: [];
+      };
+      habit_logs: {
+        Row: { habit_id: string; user_id: string; log_date: string; created_at: string };
+        Insert: { habit_id: string; user_id?: string; log_date: string };
+        Update: { log_date?: string };
+        Relationships: [];
+      };
+      health_records: {
+        Row: {
+          id: string;
+          user_id: string;
+          member_id: string | null;
+          kind: HealthRecordKind;
+          title: string;
+          record_date: string | null;
+          next_date: string | null;
+          details: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          member_id?: string | null;
+          kind: HealthRecordKind;
+          title: string;
+          record_date?: string | null;
+          next_date?: string | null;
+          details?: string | null;
+        };
+        Update: {
+          member_id?: string | null;
+          kind?: HealthRecordKind;
+          title?: string;
+          record_date?: string | null;
+          next_date?: string | null;
+          details?: string | null;
+        };
+        Relationships: [];
+      };
+      learning_goals: {
+        Row: {
+          id: string;
+          user_id: string;
+          member_id: string | null;
+          title: string;
+          kind: LearningKind;
+          progress: number;
+          due_date: string | null;
+          notes: string | null;
+          completed: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          member_id?: string | null;
+          title: string;
+          kind?: LearningKind;
+          progress?: number;
+          due_date?: string | null;
+          notes?: string | null;
+          completed?: boolean;
+        };
+        Update: {
+          member_id?: string | null;
+          title?: string;
+          kind?: LearningKind;
+          progress?: number;
+          due_date?: string | null;
+          notes?: string | null;
+          completed?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      learning_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          goal_id: string;
+          minutes: number;
+          note: string | null;
+          logged_on: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          goal_id: string;
+          minutes: number;
+          note?: string | null;
+          logged_on?: string;
+        };
+        Update: { minutes?: number; note?: string | null };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -1545,3 +1670,18 @@ export type CommunityEventKind =
   | 'class'
   | 'other';
 export type CommunityEvent = Database['public']['Tables']['community_events']['Row'];
+
+export type HealthRecordKind =
+  | 'appointment'
+  | 'vaccination'
+  | 'allergy'
+  | 'medication'
+  | 'condition'
+  | 'measurement'
+  | 'note';
+export type LearningKind = 'quran' | 'arabic' | 'islamic_studies' | 'school' | 'skill' | 'other';
+export type Habit = Database['public']['Tables']['habits']['Row'];
+export type HabitLog = Database['public']['Tables']['habit_logs']['Row'];
+export type HealthRecord = Database['public']['Tables']['health_records']['Row'];
+export type LearningGoal = Database['public']['Tables']['learning_goals']['Row'];
+export type LearningSession = Database['public']['Tables']['learning_sessions']['Row'];

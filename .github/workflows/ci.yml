@@ -117,7 +117,7 @@ jobs:
           sleep 3
           lonbody=$(curl -s -w ' HTTP %{http_code} in %{time_total}s' "http://localhost:8000/?lat=51.5155&lng=-0.0722&radius=2000")
           echo "::notice title=halal-places London 2km::$(echo "$lonbody" | sed 's/ HTTP.*//' | jq -r 'if .places then "\(.places|length) places" else . end' 2>/dev/null | tr '\n' ' ' | cut -c1-300) $(echo "$lonbody" | grep -o 'HTTP.*')"
-          kill $HP
+          kill $HP 2>/dev/null || true
 
           deno run --allow-net --allow-env supabase/functions/prayer-times/index.ts > pt.log 2>&1 &
           PT=$!
@@ -130,4 +130,4 @@ jobs:
           echo "$ram" | jq -e '.days | length >= 29'
           month=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&month=10&year=2026&method=2" | jq '.days | length')
           echo "::notice title=prayer-times Oct 2026::$month days"
-          kill $PT
+          kill $PT 2>/dev/null || true

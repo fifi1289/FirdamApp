@@ -13,7 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import type { Business } from '@/types/database';
+import type { Business, Database } from '@/types/database';
 import { BUSINESS_CATEGORIES } from '@/features/directory/directory-config';
 import { CommunityModeration } from '@/features/community/community-moderation';
 
@@ -43,7 +43,7 @@ export function AdminDashboard() {
     });
   }, [supabase, load]);
 
-  const update = async (b: Business, patch: Partial<Business>) => {
+  const update = async (b: Business, patch: Database['public']['Tables']['businesses']['Update']) => {
     setBusinesses((prev) => prev.map((x) => (x.id === b.id ? { ...x, ...patch } : x)));
     const { error } = await supabase.from('businesses').update(patch).eq('id', b.id);
     if (error) {

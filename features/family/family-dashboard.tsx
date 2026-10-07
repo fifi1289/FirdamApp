@@ -7,6 +7,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { FamilyMembersList } from '@/features/family/family-members-list';
+import { SharedHouseholdCard } from '@/features/family/shared-household-card';
 import {
   FamilyMemberFormDialog,
   emptyMemberValues,
@@ -38,6 +39,8 @@ export function FamilyDashboard() {
           Add Member
         </Button>
       </PageHeader>
+
+      <SharedHouseholdCard />
 
       <FamilyMembersList />
 

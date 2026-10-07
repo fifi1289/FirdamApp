@@ -1,4 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import {
+  FREE_AI_PLANS_PER_MONTH,
+  countUsageThisMonth,
+  getPlan,
+  getUser,
+  recordUsage,
+} from "../_shared/plan.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -194,6 +201,28 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Plan limits: Free users get a few AI plans a month; paid plans are unlimited.
+    const user = await getUser(req);
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: "Please sign in." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const plan = await getPlan(user.id);
+    if (plan === "free") {
+      const used = await countUsageThisMonth(user.id, "ai_meal_plan");
+      if (used >= FREE_AI_PLANS_PER_MONTH) {
+        return new Response(
+          JSON.stringify({
+            error: `You've used your ${FREE_AI_PLANS_PER_MONTH} free AI meal plans this month.`,
+            code: "limit_reached",
+          }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     const body = (await req.json()) as GenerateRequest;
 
     const planningDuration = body.planningDuration ?? 7;
@@ -272,6 +301,8 @@ Deno.serve(async (req: Request) => {
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    await recordUsage(user.id, "ai_meal_plan");
 
     return new Response(JSON.stringify(parsed as MealPlanResponse), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

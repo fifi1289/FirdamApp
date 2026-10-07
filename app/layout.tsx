@@ -1,43 +1,48 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { IBM_Plex_Sans_Arabic, Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import { ThemeProvider } from '@/components/theme/theme-provider';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { Toaster } from '@/components/ui/sonner';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
-const display = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-display',
+// Brand guide: Plus Jakarta Sans (primary), Inter (secondary), IBM Plex Sans Arabic.
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans' });
+const display = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-display' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const arabic = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic'],
+  weight: ['400', '500', '600'],
+  variable: '--font-arabic',
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://firdam.app'),
   title: {
-    default: 'Firdam — Everything that matters. One place.',
+    default: 'Firdam — One Home for Your Muslim Life',
     template: '%s · Firdam',
   },
   description:
-    'Firdam is a modern life management platform. Organize family, finance, travel, shopping, health, community, and more — everything that matters, in one place.',
+    'Firdam is the digital home for Muslim families: halal places near you, halal meal planning, prayer times, Ramadan, Quran and duas, family calendar, groceries and budget — in one calm, trusted app.',
   applicationName: 'Firdam',
   keywords: [
     'Firdam',
-    'life management',
-    'productivity',
-    'family',
-    'finance',
-    'travel',
-    'shopping',
-    'health',
-    'community',
+    'Muslim family app',
+    'halal food near me',
+    'halal meal planner',
+    'prayer times',
+    'Ramadan planner',
+    'Quran',
+    'duas',
+    'zakat calculator',
+    'family organizer',
   ],
   authors: [{ name: 'Firdam' }],
   creator: 'Firdam',
   publisher: 'Firdam',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FBF7F4' },
-    { media: '(prefers-color-scheme: dark)', color: '#14100D' },
+    { media: '(prefers-color-scheme: light)', color: '#F8F4EE' },
+    { media: '(prefers-color-scheme: dark)', color: '#18120F' },
   ],
   icons: {
     icon: [
@@ -50,23 +55,23 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Firdam',
-    title: 'Firdam — Everything that matters. One place.',
+    title: 'Firdam — One Home for Your Muslim Life',
     description:
-      'Firdam is a modern life management platform. Organize every part of your life in one calm, beautiful place.',
+      'Halal places, halal meals, prayer times, Ramadan, Quran and family life — together in one calm, trusted app for Muslim families.',
     images: [
       {
         url: '/images/logo.png',
         width: 1024,
         height: 1024,
-        alt: 'Firdam — Everything that matters. One place.',
+        alt: 'Firdam — One Home for Your Muslim Life',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Firdam — Everything that matters. One place.',
+    title: 'Firdam — One Home for Your Muslim Life',
     description:
-      'A modern life management platform. Organize everything that matters in one calm, beautiful place.',
+      'Halal places, halal meals, prayer times, Ramadan, Quran and family life — in one app for Muslim families.',
     images: ['/images/logo.png'],
   },
 };
@@ -79,7 +84,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${display.variable} font-sans antialiased`}
+        className={`${jakarta.variable} ${display.variable} ${inter.variable} ${arabic.variable} font-sans antialiased`}
       >
         <ThemeProvider
           attribute="class"

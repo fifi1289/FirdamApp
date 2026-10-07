@@ -53,7 +53,7 @@ export default function VerifyEmailPage() {
         </Card>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Firdam. Everything that matters. One place.
+          © {new Date().getFullYear()} Firdam. One home for your Muslim life.
         </p>
       </div>
     </div>

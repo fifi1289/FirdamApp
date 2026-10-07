@@ -4,25 +4,22 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  Crown,
   LayoutDashboard,
-  CalendarRange,
-  Moon,
-  Users,
-  Wallet,
-  Plane,
-  ShoppingCart,
-  HeartPulse,
-  Handshake,
-  BookOpen,
-  Archive,
-  Utensils,
   LifeBuoy,
   Settings,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/brand/logo';
+import { PLAN_NAMES, usePlan } from '@/lib/plan/plan';
+import {
+  MODULE_GROUPS,
+  lifeModules,
+  moduleIconMap,
+} from '@/features/modules/module-config';
 
 interface NavItem {
   label: string;
@@ -32,22 +29,21 @@ interface NavItem {
 }
 
 const mainNav: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Planner', href: '/dashboard/planner', icon: CalendarRange },
+  { label: 'Home', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Companion', href: '/dashboard/companion', icon: Sparkles, badge: 'AI' },
 ];
 
-const moduleNav: NavItem[] = [
-  { label: 'Family', href: '/dashboard/family', icon: Users },
-  { label: 'Pantry', href: '/dashboard/pantry', icon: Archive, badge: 'Beta' },
-  { label: 'Meals', href: '/dashboard/meals', icon: Utensils },
-  { label: 'Prayer Times', href: '/dashboard/prayer-times', icon: Moon },
-  { label: 'Finance', href: '/dashboard/finance', icon: Wallet },
-  { label: 'Travel', href: '/dashboard/travel', icon: Plane },
-  { label: 'Shopping', href: '/dashboard/shopping', icon: ShoppingCart },
-  { label: 'Health', href: '/dashboard/health', icon: HeartPulse },
-  { label: 'Community', href: '/dashboard/community', icon: Handshake, badge: 'Beta' },
-  { label: 'Learning', href: '/dashboard/learning', icon: BookOpen, badge: 'Beta' },
-];
+const groupedNav = MODULE_GROUPS.map((group) => ({
+  title: group,
+  items: lifeModules
+    .filter((m) => m.group === group)
+    .map<NavItem>((m) => ({
+      label: m.name,
+      href: m.href,
+      icon: moduleIconMap[m.icon],
+      badge: m.status === 'beta' ? 'Beta' : m.status === 'planned' ? 'Soon' : undefined,
+    })),
+}));
 
 const footerNav: NavItem[] = [
   { label: 'Settings', href: '/settings', icon: Settings },
@@ -107,6 +103,39 @@ function NavSection({
   );
 }
 
+function PlanCard() {
+  const { plan, loading } = usePlan();
+  if (loading) return <div className="h-[74px]" />;
+  if (plan !== 'free') {
+    return (
+      <Link
+        href="/dashboard/upgrade"
+        className="bg-girih flex items-center gap-3 rounded-xl bg-gradient-to-br from-brand-gold/20 to-brand-light/10 p-3"
+      >
+        <Crown className="h-5 w-5 text-[#7a5a30] dark:text-brand-gold" />
+        <div>
+          <p className="text-sm font-medium text-foreground">Firdam {PLAN_NAMES[plan]}</p>
+          <p className="text-xs text-muted-foreground">Jazakum Allahu khayran for your support</p>
+        </div>
+      </Link>
+    );
+  }
+  return (
+    <Link
+      href="/dashboard/upgrade"
+      className="bg-girih block rounded-xl bg-gradient-to-br from-primary/10 to-brand-light/10 p-3 transition-colors hover:from-primary/15"
+    >
+      <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+        <Crown className="h-4 w-4 text-primary" />
+        Try Premium free
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Unlimited AI meal plans, trips, habits and more — 14 days free.
+      </p>
+    </Link>
+  );
+}
+
 export function Sidebar() {
   return (
     <aside className="flex h-full w-64 flex-col border-r border-border bg-card/40 backdrop-blur-sm">
@@ -114,21 +143,16 @@ export function Sidebar() {
         <Logo href="/" height={56} />
       </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-5">
         <NavSection title="Overview" items={mainNav} />
-        <NavSection title="Modules" items={moduleNav} />
+        {groupedNav.map((g) => (
+          <NavSection key={g.title} title={g.title} items={g.items} />
+        ))}
         <NavSection title="Account" items={footerNav} />
       </nav>
 
       <div className="border-t border-border p-4">
-        <div className="rounded-xl bg-gradient-to-br from-primary/10 to-brand-light/10 p-3">
-          <p className="text-sm font-medium text-foreground">
-            Everything that matters
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            New modules land every month.
-          </p>
-        </div>
+        <PlanCard />
       </div>
     </aside>
   );

@@ -3,129 +3,133 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   FIRDAM BRAND COLOR SYSTEM
-   Extracted from the official Firdam logo.
+   FIRDAM BRAND COLOR SYSTEM — Brand Identity Guide v1.0
 
-   Logo palette:
-     • Brand Dark  — #7A3B1E  (sienna, dominant F top)
-     • Brand Mid   — #A05830  (warm brown, mid F stroke)
-     • Brand Light — #C8916A  (sandy tan, accent block)
-     • Ink         — #1C1C1C  (wordmark near-black)
+     • Warm Walnut   #855C49  primary
+     • Soft Linen    #F8F4EE  background
+     • Warm Sand     #D9C8BA  secondary
+     • Soft Gold     #C49A6C  accent
+     • Dark Espresso #3B2A24  primary text
+     • Slate         #6B7280  secondary text
+     • Forest Sage   #5E8B6F  success
+     • Amber         #D6A64F  warning
+     • Muted Brick   #B75A52  error
    ───────────────────────────────────────────────────────────── */
 
 @layer base {
   :root {
-    /* Surface */
-    --background: 30 20% 98%;
-    --foreground: 20 15% 10%;
+    /* Surface — Soft Linen */
+    --background: 36 42% 95%;
+    --foreground: 16 24% 19%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 20 15% 10%;
+    --card: 36 50% 99%;
+    --card-foreground: 16 24% 19%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 15% 10%;
+    --popover: 36 50% 99%;
+    --popover-foreground: 16 24% 19%;
 
-    /* Primary — Brand Mid (#A05830) */
-    --primary: 22 58% 40%;
-    --primary-foreground: 30 60% 97%;
+    /* Primary — Warm Walnut */
+    --primary: 19 29% 40%;
+    --primary-foreground: 36 42% 97%;
 
-    /* Secondary — warm sand tint */
-    --secondary: 28 35% 93%;
-    --secondary-foreground: 22 40% 20%;
+    /* Secondary — Warm Sand */
+    --secondary: 27 29% 88%;
+    --secondary-foreground: 16 24% 19%;
 
     /* Muted */
-    --muted: 28 20% 95%;
-    --muted-foreground: 22 12% 45%;
+    --muted: 30 30% 91%;
+    --muted-foreground: 220 9% 46%;
 
-    /* Accent — Brand Light (#C8916A) tint */
-    --accent: 22 50% 90%;
-    --accent-foreground: 22 50% 18%;
+    /* Accent — Soft Gold tint */
+    --accent: 31 43% 89%;
+    --accent-foreground: 16 24% 19%;
 
     /* Semantic */
-    --destructive: 0 72% 51%;
+    --destructive: 5 41% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 56% 38%;
+    --success: 143 19% 46%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 90% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 39 62% 57%;
+    --warning-foreground: 16 24% 15%;
 
-    --info: 205 78% 48%;
+    --info: 205 35% 45%;
     --info-foreground: 0 0% 100%;
 
     /* Chrome */
-    --border: 28 20% 88%;
-    --input: 28 20% 86%;
-    --ring: 22 58% 40%;
+    --border: 27 25% 85%;
+    --input: 27 25% 82%;
+    --ring: 19 29% 40%;
 
     /* Charts */
-    --chart-1: 22 58% 40%;
-    --chart-2: 15 52% 30%;
-    --chart-3: 30 65% 60%;
-    --chart-4: 38 90% 52%;
-    --chart-5: 0 60% 55%;
+    --chart-1: 19 29% 40%;
+    --chart-2: 31 43% 60%;
+    --chart-3: 143 19% 46%;
+    --chart-4: 39 62% 57%;
+    --chart-5: 5 41% 52%;
 
-    --radius: 0.625rem;
+    /* Brand guide: rounded corners 16–20px */
+    --radius: 1rem;
 
     /* Raw brand tokens (use in inline styles / arbitrary values) */
-    --brand-dark: #7a3b1e;
-    --brand-mid: #a05830;
-    --brand-light: #c8916a;
-    --brand-ink: #1c1c1c;
+    --brand-dark: #6e4a3a;
+    --brand-mid: #855c49;
+    --brand-light: #c49a6c;
+    --brand-ink: #3b2a24;
   }
 
   .dark {
-    /* Surface */
-    --background: 20 18% 7%;
-    --foreground: 28 25% 93%;
+    /* Surface — deep espresso */
+    --background: 18 22% 8%;
+    --foreground: 34 35% 92%;
 
-    --card: 20 16% 10%;
-    --card-foreground: 28 25% 93%;
+    --card: 18 20% 11%;
+    --card-foreground: 34 35% 92%;
 
-    --popover: 20 16% 10%;
-    --popover-foreground: 28 25% 93%;
+    --popover: 18 20% 11%;
+    --popover-foreground: 34 35% 92%;
 
-    /* Primary — slightly lighter for contrast on dark */
-    --primary: 22 58% 52%;
-    --primary-foreground: 20 20% 8%;
+    /* Primary — lifted walnut/gold for contrast */
+    --primary: 27 40% 62%;
+    --primary-foreground: 18 25% 9%;
 
     /* Secondary */
-    --secondary: 22 18% 16%;
-    --secondary-foreground: 28 30% 88%;
+    --secondary: 20 16% 17%;
+    --secondary-foreground: 34 30% 88%;
 
     /* Muted */
-    --muted: 22 14% 15%;
-    --muted-foreground: 26 12% 60%;
+    --muted: 20 14% 15%;
+    --muted-foreground: 25 10% 64%;
 
     /* Accent */
-    --accent: 22 28% 20%;
-    --accent-foreground: 28 40% 90%;
+    --accent: 22 22% 20%;
+    --accent-foreground: 34 40% 90%;
 
     /* Semantic */
-    --destructive: 0 62% 44%;
+    --destructive: 5 50% 58%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 152 50% 42%;
-    --success-foreground: 152 60% 8%;
+    --success: 143 25% 55%;
+    --success-foreground: 143 40% 8%;
 
-    --warning: 38 88% 56%;
-    --warning-foreground: 38 80% 10%;
+    --warning: 39 65% 60%;
+    --warning-foreground: 39 60% 10%;
 
-    --info: 205 70% 56%;
-    --info-foreground: 205 68% 10%;
+    --info: 205 40% 60%;
+    --info-foreground: 205 50% 10%;
 
     /* Chrome */
-    --border: 22 16% 20%;
-    --input: 22 16% 22%;
-    --ring: 22 58% 52%;
+    --border: 20 14% 21%;
+    --input: 20 14% 24%;
+    --ring: 27 40% 62%;
 
     /* Charts */
-    --chart-1: 22 58% 56%;
-    --chart-2: 15 52% 44%;
-    --chart-3: 30 65% 62%;
-    --chart-4: 38 88% 58%;
-    --chart-5: 0 60% 58%;
+    --chart-1: 27 40% 62%;
+    --chart-2: 31 50% 70%;
+    --chart-3: 143 25% 55%;
+    --chart-4: 39 65% 60%;
+    --chart-5: 5 50% 58%;
   }
 }
 
@@ -153,6 +157,14 @@
     background-image: radial-gradient(hsl(var(--muted-foreground) / 0.25) 1px, transparent 1px);
     background-size: 22px 22px;
   }
+  .font-arabic {
+    font-family: var(--font-arabic), 'Amiri', 'Scheherazade New', serif;
+  }
+  /* Subtle Islamic geometric pattern (eight-point star lattice) */
+  .bg-girih {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg fill='none' stroke='%23855C49' stroke-opacity='0.09' stroke-width='1'%3E%3Cpath d='M24 4l6 14 14 6-14 6-6 14-6-14-14-6 14-6z'/%3E%3Crect x='14' y='14' width='20' height='20' transform='rotate(45 24 24)'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 48px 48px;
+  }
   .mask-fade-b {
     -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
     mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
@@ -169,4 +181,60 @@
 @keyframes aurora {
   0%, 100% { background-position: 0% 50%; }
   50%       { background-position: 100% 50%; }
+}
+
+/* ── Map pins (Halal Places) ──────────────────────────────────── */
+.firdam-pin-wrap {
+  background: transparent;
+  border: 0;
+}
+.firdam-pin {
+  --pin: #855c49;
+  position: relative;
+  display: flex;
+  height: 30px;
+  width: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% 50% 50% 4px;
+  transform: rotate(-45deg);
+  background: var(--pin);
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgb(59 42 36 / 0.25);
+  transition: transform 160ms ease;
+}
+.firdam-pin > span {
+  transform: rotate(45deg);
+  color: #fff;
+  font: 600 11px/1 var(--font-sans), system-ui, sans-serif;
+}
+.firdam-pin-wrap:hover .firdam-pin,
+.firdam-pin-wrap--active .firdam-pin {
+  transform: rotate(-45deg) scale(1.18);
+}
+.firdam-pin-wrap--active .firdam-pin {
+  box-shadow: 0 0 0 4px rgb(196 154 108 / 0.45), 0 6px 14px rgb(59 42 36 / 0.3);
+}
+.firdam-pin--grocery { --pin: #5e8b6f; }
+.firdam-pin--butcher { --pin: #b75a52; }
+.firdam-pin--restaurant { --pin: #855c49; }
+.firdam-pin--cafe { --pin: #c49a6c; }
+.firdam-pin--mosque { --pin: #3b2a24; }
+.firdam-pin--other { --pin: #6b7280; }
+
+.firdam-you {
+  background: transparent;
+  border: 0;
+}
+.firdam-you__dot {
+  display: block;
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background: #3b82f6;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgb(59 130 246 / 0.2);
+}
+.leaflet-container {
+  font-family: var(--font-sans), system-ui, sans-serif;
 }

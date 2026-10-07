@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
+import { ReminderManager } from '@/components/reminders/reminder-manager';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="flex min-h-screen w-full bg-background">
       {/* Desktop sidebar */}
-      <div className="hidden border-r md:block">
+      <div className="hidden border-r md:block print:hidden">
         <div className="sticky top-0 h-screen">
           <Sidebar />
         </div>
@@ -33,6 +34,7 @@ export function AppShell({ children }: AppShellProps) {
         <Topbar onMenuClick={() => setMobileOpen(true)} />
         <main className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
       </div>
+      <ReminderManager />
     </div>
   );
 }

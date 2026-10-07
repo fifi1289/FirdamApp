@@ -38,9 +38,9 @@ export function ModuleCard({ module, className }: ModuleCardProps) {
         >
           <Icon className="h-6 w-6" strokeWidth={2} />
         </div>
-        {module.status === 'beta' && (
+        {module.status !== 'active' && (
           <Badge variant="secondary" className="text-[10px]">
-            Beta
+            {module.status === 'beta' ? 'Beta' : 'Coming soon'}
           </Badge>
         )}
       </div>

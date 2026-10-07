@@ -10,11 +10,11 @@ export function CTA() {
         <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary/10 via-brand-light/10 to-transparent px-6 py-16 text-center md:px-16 md:py-20">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-dots opacity-40" />
           <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Everything that matters. One place.
+            One home for your Muslim life.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground md:text-lg">
-            Join Firdam today and bring every part of your life into one calm,
-            modular workspace.
+            Join Firdam today — halal living, faith and family, organised in one
+            trusted place.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
@@ -24,7 +24,7 @@ export function CTA() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/dashboard">Explore the dashboard</Link>
+              <Link href="/dashboard">Open the app</Link>
             </Button>
           </div>
         </div>

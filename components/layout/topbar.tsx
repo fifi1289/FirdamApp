@@ -26,6 +26,7 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { signOut as signOutService } from '@/lib/auth/auth-service';
 import { createSupabaseBrowserClient as getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { lifeModules } from '@/features/modules/module-config';
 
 function buildDisplayName(user: { user_metadata?: Record<string, unknown>; email?: string } | null): string {
   const meta = user?.user_metadata ?? {};
@@ -44,6 +45,96 @@ function buildInitials(name: string): string {
   if (parts.length === 0) return 'U';
   if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
   return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+}
+
+const SEARCH_EXTRAS = [
+  { name: 'Settings', href: '/settings', keywords: 'preferences theme reminders notifications' },
+  { name: 'Profile', href: '/profile', keywords: 'account name' },
+  { name: 'Support', href: '/support', keywords: 'help faq contact' },
+  { name: 'Family Companion', href: '/dashboard/companion', keywords: 'ai assistant chat ask help' },
+  { name: 'Plans & billing', href: '/dashboard/upgrade', keywords: 'premium subscription upgrade pricing' },
+];
+
+function ModuleSearch() {
+  const router = useRouter();
+  const [query, setQuery] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+  const [active, setActive] = React.useState(0);
+
+  const q = query.trim().toLowerCase();
+  const results = q
+    ? [
+        ...lifeModules.map((m) => ({
+          name: m.name,
+          href: m.href,
+          keywords: `${m.description} ${m.group}`,
+        })),
+        ...SEARCH_EXTRAS,
+      ]
+        .filter((r) => `${r.name} ${r.keywords}`.toLowerCase().includes(q))
+        .slice(0, 6)
+    : [];
+
+  const go = (href: string) => {
+    setQuery('');
+    setOpen(false);
+    router.push(href);
+  };
+
+  return (
+    <form
+      className="relative hidden flex-1 md:block md:max-w-sm"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const target = results[active] ?? results[0];
+        if (target) go(target.href);
+      }}
+    >
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setActive(0);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActive((a) => Math.min(a + 1, Math.max(0, results.length - 1)));
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActive((a) => Math.max(0, a - 1));
+          } else if (e.key === 'Escape') {
+            setOpen(false);
+          }
+        }}
+        placeholder="Search Firdam — e.g. halal, zakat, duas"
+        className="pl-9"
+        aria-label="Search Firdam"
+      />
+      {open && results.length > 0 && (
+        <ul className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-popover p-1 shadow-lg">
+          {results.map((r, i) => (
+            <li key={r.href}>
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => go(r.href)}
+                className={`flex w-full items-center rounded-lg px-3 py-2 text-left text-sm ${
+                  i === active ? 'bg-accent text-foreground' : 'text-foreground hover:bg-accent/60'
+                }`}
+              >
+                {r.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </form>
+  );
 }
 
 interface TopbarProps {
@@ -82,7 +173,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 print:hidden items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md md:px-6">
       <Button
         variant="ghost"
         size="icon"
@@ -97,26 +188,17 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         <Logo href="/" height={34} />
       </div>
 
-      <form
-        className="relative hidden flex-1 md:block md:max-w-sm"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search modules, lists, people…"
-          className="pl-9"
-          aria-label="Search"
-        />
-      </form>
+      <ModuleSearch />
 
       <div className="ml-auto flex items-center gap-1.5">
         <ThemeToggle />
 
         {loading ? null : authenticated ? (
           <>
-            <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
+            <Button variant="ghost" size="icon" aria-label="Reminders" asChild>
+              <Link href="/settings?tab=notifications">
+                <Bell className="h-5 w-5" />
+              </Link>
             </Button>
 
             <DropdownMenu>
@@ -145,6 +227,9 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/settings')}>
                   Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/dashboard/upgrade')}>
+                  Plans &amp; billing
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} disabled={signingOut}>

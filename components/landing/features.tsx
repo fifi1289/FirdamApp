@@ -1,48 +1,48 @@
 import {
-  LayoutGrid,
+  BadgeCheck,
   Bell,
+  Compass,
+  HandHeart,
   ShieldCheck,
-  Moon,
-  RefreshCw,
-  BarChart3,
+  Users,
 } from 'lucide-react';
 
 const features = [
   {
-    icon: LayoutGrid,
-    title: 'Truly modular',
+    icon: BadgeCheck,
+    title: 'Halal you can trust',
     description:
-      'Each area of life is an independent module. Enable only what matters to you and keep everything else out of the way.',
+      'Halal places come from OpenStreetMap and from families like yours, with ratings, certification and “confirmed halal” checks — at home or abroad.',
+  },
+  {
+    icon: Compass,
+    title: 'Faith, woven into the day',
+    description:
+      'Accurate prayer times for your calculation method, the Qibla, Jumu’ah reminders, Ramadan timetables and duas for every moment.',
+  },
+  {
+    icon: Users,
+    title: 'Built for the whole family',
+    description:
+      'Family profiles, a shared calendar with Eid, Aqiqah and birthdays, household tasks and meal plans that feed the whole home.',
+  },
+  {
+    icon: HandHeart,
+    title: 'Money with barakah',
+    description:
+      'Budget with intention, save for Hajj and Eid, track your sadaqah and work out your zakat with a clear, simple calculator.',
   },
   {
     icon: Bell,
-    title: 'Smart reminders',
+    title: 'Gentle reminders',
     description:
-      'Set gentle, context-aware reminders across modules so you never miss a bill, a birthday, or anything that matters.',
+      'Optional reminders before each prayer and before family events — helpful, never noisy.',
   },
   {
     icon: ShieldCheck,
-    title: 'Private by default',
+    title: 'Private by design',
     description:
-      'Your data lives in your own encrypted space. Row-level security keeps every record scoped to you.',
-  },
-  {
-    icon: Moon,
-    title: 'Calm by design',
-    description:
-      'A focused, distraction-free interface with light, dark, and system themes that adapt to your day.',
-  },
-  {
-    icon: RefreshCw,
-    title: 'Always in sync',
-    description:
-      'Updates flow across devices in real time. Start on your phone, finish on your laptop — seamlessly.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Clear insights',
-    description:
-      'See your spending, habits, and goals at a glance with clean visualizations that respect your attention.',
+      'Your family’s data is protected with row-level security, never sold, and yours to export at any time.',
   },
 ];
 
@@ -55,10 +55,10 @@ export function Features() {
             Features
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Designed for a clearer life
+            Designed around Muslim family life
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
-            Thoughtful details that keep you organized without the overwhelm.
+            One trusted app instead of a dozen disconnected ones.
           </p>
         </div>
 

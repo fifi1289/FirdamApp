@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Build
+        run: npx next build
+
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply migrations to a clean database
+        run: |
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/ci-auth-stub.sql
+          for f in $(ls supabase/migrations/*.sql | sort); do
+            # Recipe tables are managed outside these migrations.
+            case "$f" in *add_recipe_read_policies*) continue;; esac
+            echo "== $f"
+            if ! out=$(psql -v ON_ERROR_STOP=1 -q -f "$f" 2>&1); then
+              echo "$out"
+              echo "::error file=$f::$(echo "$out" | tail -n 3 | tr '\n' ' ')"
+              exit 1
+            fi
+            if echo "$out" | grep -q WARNING; then
+              echo "::error file=$f::$(echo "$out" | grep WARNING | head -n 2 | tr '\n' ' ')"
+              exit 1
+            fi
+          done
+          # On a fresh database the recipe tables exist only after the later
+          # schema migration, so apply the read-policy migration last.
+          psql -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260725194112_add_recipe_read_policies.sql
+      - name: Re-apply new migrations (idempotency)
+        run: |
+          for f in $(ls supabase/migrations/2026100*.sql | sort); do
+            psql -v ON_ERROR_STOP=1 -q -f "$f"
+          done
+      - name: RLS smoke test
+        run: |
+          set +e
+          psql -v ON_ERROR_STOP=1 -f supabase/tests/ci-smoke.sql > smoke.log 2>&1
+          status=$?
+          cat smoke.log
+          if [ $status -ne 0 ]; then
+            echo "::error title=RLS smoke test::$(tail -n 4 smoke.log | tr '\n' ' ')"
+          fi
+          exit $status
+
+  edge-functions:
+    runs-on: ubuntu-latest
+    env:
+      # The repo's package.json is for Next.js; edge functions resolve their own imports.
+      DENO_NO_PACKAGE_JSON: '1'
+      NO_COLOR: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type check edge functions
+        run: |
+          for f in supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts supabase/functions/billing/index.ts supabase/functions/stripe-webhook/index.ts supabase/functions/companion/index.ts supabase/functions/generate-meal-plan/index.ts; do
+            if ! out=$(deno check "$f" 2>&1); then
+              echo "$out"
+              echo "::error file=$f::$(echo "$out" | grep -v '^Download' | head -n 12 | tr '\n' ' ' | cut -c1-900)"
+              exit 1
+            fi
+          done
+      - name: Unit tests
+        run: deno test supabase/functions/stripe-webhook/signature.test.ts
+      - name: Live smoke test against public APIs
+        run: |
+          set -e
+          deno run --allow-net --allow-env supabase/functions/halal-places/index.ts > hp.log 2>&1 &
+          HP=$!
+          sleep 5
+          start=$(date +%s)
+          if ! body=$(curl -sf --max-time 90 "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000"); then
+            resp=$(curl -s --max-time 90 "http://localhost:8000/?lat=45.4215&lng=-75.6972&radius=5000" | head -c 300)
+            echo "::error title=halal-places Ottawa::$resp | $(tail -n 5 hp.log | tr '\n' ' ')"
+            exit 1
+          fi
+          echo "::notice title=halal-places Ottawa timing::$(( $(date +%s) - start ))s"
+          count=$(echo "$body" | jq '.places | length')
+          sample=$(echo "$body" | jq -r '[.places[] | "\(.category): \(.name)"] | .[0:6] | join("; ")')
+          echo "::notice title=halal-places Ottawa 5km::$count places — $sample"
+          [ "$count" -gt 0 ]
+          geo=$(curl -sf "http://localhost:8000/?address=Parliament%20Hill%20Ottawa" | jq '.results | length')
+          echo "::notice title=halal-places address search::$geo results"
+          trav=$(curl -sf "http://localhost:8000/?kind=travel&lat=45.4215&lng=-75.6972&radius=10000" | jq -r '"\(.agencies | length) agencies — " + ([.agencies[] | .name + (if .muslimFocused then " (Muslim-focused)" else "" end)] | .[0:6] | join("; "))')
+          echo "::notice title=travel agencies Ottawa 10km::$trav"
+          sleep 3
+          lonbody=$(curl -s -w ' HTTP %{http_code} in %{time_total}s' "http://localhost:8000/?lat=51.5155&lng=-0.0722&radius=2000")
+          echo "::notice title=halal-places London 2km::$(echo "$lonbody" | sed 's/ HTTP.*//' | jq -r 'if .places then "\(.places|length) places" else . end' 2>/dev/null | tr '\n' ' ' | cut -c1-300) $(echo "$lonbody" | grep -o 'HTTP.*')"
+          kill $HP 2>/dev/null || true
+
+          deno run --allow-net --allow-env supabase/functions/prayer-times/index.ts > pt.log 2>&1 &
+          PT=$!
+          sleep 5
+          day=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&date=06-10-2026&method=2&school=0")
+          echo "::notice title=prayer-times day::$(echo "$day" | jq -c '{timings, hijri: {day: .hijri.day, month: .hijri.month, n: .hijri.monthNumber, year: .hijri.year}, method}')"
+          echo "$day" | jq -e '.timings.Fajr | test("^[0-9]{2}:[0-9]{2}$")'
+          ram=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&hijriMonth=9&hijriYear=1448&method=2")
+          echo "::notice title=prayer-times Ramadan 1448::$(echo "$ram" | jq -c '{days: (.days | length), first: .days[0].gregorian.date, firstIftar: .days[0].timings.Maghrib, firstImsak: .days[0].timings.Imsak}')"
+          echo "$ram" | jq -e '.days | length >= 29'
+          month=$(curl -sf "http://localhost:8000/?lat=45.4215&lng=-75.6972&month=10&year=2026&method=2" | jq '.days | length')
+          echo "::notice title=prayer-times Oct 2026::$month days"
+          kill $PT 2>/dev/null || true

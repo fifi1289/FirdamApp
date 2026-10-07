@@ -292,3 +292,32 @@ export function formatDuration(mins: number): string {
   const m = mins % 60;
   return m ? `${h} h ${m} min` : `${h} h`;
 }
+
+/** Ingredient names for every recipe, keyed by route key — used by "Cook with what I have". */
+export async function fetchRecipeIngredientIndex(): Promise<Map<string, { name: string; optional: boolean }[]>> {
+  const supabase = createSupabaseBrowserClient();
+  const [catalog, mine] = await Promise.all([
+    supabase
+      .from('recipes')
+      .select('id, recipe_ingredients(optional, ingredient:ingredients(name))')
+      .eq('is_active', true),
+    supabase.from('user_recipes').select('id, ingredients'),
+  ]);
+  const index = new Map<string, { name: string; optional: boolean }[]>();
+  type Row = { id: string; recipe_ingredients: { optional: boolean | null; ingredient: { name: string } | null }[] };
+  for (const r of (catalog.data ?? []) as unknown as Row[]) {
+    index.set(
+      `c-${r.id}`,
+      (r.recipe_ingredients ?? [])
+        .filter((i) => i.ingredient?.name)
+        .map((i) => ({ name: i.ingredient!.name, optional: !!i.optional }))
+    );
+  }
+  for (const r of (mine.data ?? []) as { id: string; ingredients: { name: string }[] | null }[]) {
+    index.set(
+      `u-${r.id}`,
+      (r.ingredients ?? []).filter((i) => i.name?.trim()).map((i) => ({ name: i.name, optional: false }))
+    );
+  }
+  return index;
+}

@@ -12,7 +12,7 @@ Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui and Supa
 | --- | --- | --- |
 | Assistant | **Family Companion** | AI assistant that knows your family's week, pantry, budget and prayer times, and can add tasks, events, shopping items and spending for you. |
 | Halal living | **Halal Places** | Halal groceries, butchers, restaurants, cafés and mosques near you (OpenStreetMap + community). Map and list, filters, ratings, "confirmed halal" reviews, saved places, add a place. |
-| | **Recipes** | Library of halal recipes with ingredients and steps, favourites, your own recipes; add any recipe to the meal plan or shopping list. |
+| | **Recipes** | Library of halal recipes with ingredients and steps, favourites, your own recipes; **What can I cook?** finds recipes from your pantry or what you type (no AI, free); add any recipe to the meal plan or shopping list. |
 | | **Meal Planner** | AI-assisted halal meal plans built around your pantry and preferences. |
 | | **Shopping** | Lists filled from the meal plan minus what's in the pantry, sorted by aisle; move bought items to the pantry; share as text. |
 | | **Pantry** | Household food inventory with expiry tracking. |
@@ -36,7 +36,8 @@ password settings, support/FAQ page, and an admin page (`/admin`) for directory 
 
 | | Free | Premium | Family+ |
 | --- | --- | --- | --- |
-| Companion messages | 20 a month | 50 a day | 50 a day per person |
+| “What can I cook?” (pantry matching, no AI) | ✓ | ✓ | ✓ |
+| Companion messages | — | 50 a day | 50 a day per person |
 | AI meal plans | 2 a month | 30 a month | 30 a month per person |
 | Own recipes / trips / shopping lists | 3 / 1 / 2 | Unlimited | Unlimited |
 | Shared household (up to 8 people) | — | — | ✓ |

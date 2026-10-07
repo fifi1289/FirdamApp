@@ -6,7 +6,8 @@
 // Keep in sync with lib/plan/plan.ts. Each Companion message costs roughly
 // $0.001–0.002 in OpenAI fees, an AI meal plan roughly $0.003–0.005.
 export const FREE_AI_PLANS_PER_MONTH = 2;
-export const FREE_COMPANION_MESSAGES_PER_MONTH = 20;
+// The Companion chat is a paid feature; Free users get pantry matching (no AI) instead.
+export const FREE_COMPANION_MESSAGES_PER_MONTH = 0;
 // Fair-use caps for paid plans, so one account can't run up a large bill.
 export const PAID_AI_PLANS_PER_MONTH = 30;
 export const PAID_COMPANION_MESSAGES_PER_DAY = 50;

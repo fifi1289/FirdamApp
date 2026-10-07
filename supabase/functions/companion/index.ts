@@ -424,7 +424,7 @@ Deno.serve(async (req: Request) => {
       if (used >= FREE_COMPANION_MESSAGES_PER_MONTH) {
         return json(
           {
-            error: `You've used this month's ${FREE_COMPANION_MESSAGES_PER_MONTH} free Companion messages. Upgrade to keep chatting.`,
+            error: "The Family Companion is part of Premium and Family+. Try “What can I cook?” in Recipes — it’s free.",
             code: "limit_reached",
           },
           402,

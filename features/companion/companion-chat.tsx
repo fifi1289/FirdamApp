@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowUp, CheckCircle2, Loader2, RotateCcw, Sparkles } from 'lucide-react';
+import { ArrowUp, CheckCircle2, ChefHat, Crown, Loader2, RotateCcw, Sparkles } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import { callEdgeFunction, EdgeFunctionError } from '@/lib/supabase/functions';
 import { readSavedLocation } from '@/lib/geo/location';
 import { fetchPrayerDay, format12h, PRAYER_ORDER, usePrayerSettings } from '@/lib/prayer/prayer';
 import { firstNameFor } from '@/lib/auth/display-name';
-import { PLAN_LIMITS, usePlan } from '@/lib/plan/plan';
+import { FAIR_USE, usePlan } from '@/lib/plan/plan';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -73,7 +73,7 @@ function Formatted({ text }: { text: string }) {
 export function CompanionChat() {
   const { user } = useAuth();
   const { settings, ready } = usePrayerSettings();
-  const { isPaid } = usePlan();
+  const { isPaid, loading: planLoading } = usePlan();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -158,6 +158,8 @@ export function CompanionChat() {
   };
 
   const name = user ? firstNameFor(user) : '';
+
+  if (!planLoading && !isPaid) return <CompanionLocked />;
 
   return (
     <AppShell>
@@ -268,17 +270,68 @@ export function CompanionChat() {
         </Card>
         <p className="mt-2 text-center text-[11px] text-muted-foreground">
           The Companion can make mistakes. For religious rulings, ask a qualified scholar.{' '}
-          {!isPaid && (
-            <>
-              Free plan: {PLAN_LIMITS.free.companionMessagesPerMonth} messages a month ·{' '}
-              <Link href="/dashboard/upgrade" className="text-primary hover:underline">
-                Go unlimited
-              </Link>
-            </>
-          )}
+          Up to {FAIR_USE.companionMessagesPerDay} messages a day.
         </p>
       </div>
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} limitKey="companionMessagesPerMonth" />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} title="The Companion is part of Premium" />
+    </AppShell>
+  );
+}
+
+const LOCKED_EXAMPLES = [
+  'What does our family have on this week?',
+  'Plan a simple Eid lunch for 8 people',
+  'Add dates, milk and lamb mince to my shopping list',
+  'How are we doing on our budget this month?',
+];
+
+/** Shown to Free users: what the Companion does, plus the free alternative. */
+function CompanionLocked() {
+  return (
+    <AppShell>
+      <div className="mx-auto max-w-2xl space-y-5 py-4">
+        <Card className="overflow-hidden">
+          <div className="bg-girih bg-gradient-to-br from-brand-espresso via-brand-dark to-brand-mid px-6 py-8 text-brand-linen">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-gold text-brand-espresso">
+              <Sparkles className="h-5 w-5" />
+            </span>
+            <h1 className="mt-4 font-display text-2xl font-semibold">Your Family Companion</h1>
+            <p className="mt-1 max-w-md text-sm text-brand-linen/80">
+              An AI assistant that knows your family’s week, meals, pantry and budget — and can add tasks, events and
+              shopping for you. Included with Premium and Family+.
+            </p>
+          </div>
+          <CardContent className="space-y-5 p-6">
+            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {LOCKED_EXAMPLES.map((e) => (
+                <li key={e} className="rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground">
+                  “{e}”
+                </li>
+              ))}
+            </ul>
+            <Button asChild className="w-full sm:w-auto">
+              <Link href="/dashboard/upgrade">
+                <Crown className="mr-2 h-4 w-4" /> Start 14-day free trial
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Link
+          href="/dashboard/recipes?tab=cook"
+          className="flex items-center gap-4 rounded-2xl border border-primary/20 bg-primary/5 p-5 transition-colors hover:border-primary/40"
+        >
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <ChefHat className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="font-semibold text-foreground">Free: What can I cook?</p>
+            <p className="text-sm text-muted-foreground">
+              Type what you have — chicken, tomato, eggs, potato — and get halal recipes you can make now.
+            </p>
+          </div>
+        </Link>
+      </div>
     </AppShell>
   );
 }

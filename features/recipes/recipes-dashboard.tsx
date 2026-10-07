@@ -31,8 +31,9 @@ import {
 } from '@/features/recipes/recipe-api';
 import { useRecipeFavorites } from '@/features/recipes/use-favorites';
 import { RecipeFormDialog } from '@/features/recipes/recipe-form-dialog';
+import { CookWithWhatIHave } from '@/features/recipes/cook-with-what-i-have';
 
-type Tab = 'all' | 'favorites' | 'mine' | 'community';
+type Tab = 'all' | 'cook' | 'favorites' | 'mine' | 'community';
 
 const MEAL_FILTERS: { value: MealTypeKey | 'all'; label: string }[] = [
   { value: 'all', label: 'Any meal' },
@@ -140,6 +141,9 @@ export function RecipesDashboard() {
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('all');
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('tab') === 'cook') setTab('cook');
+  }, []);
   const [query, setQuery] = useState('');
   const [meal, setMeal] = useState<MealTypeKey | 'all'>('all');
   const [cuisine, setCuisine] = useState('all');
@@ -194,6 +198,7 @@ export function RecipesDashboard() {
 
   const tabs: { value: Tab; label: string }[] = [
     { value: 'all', label: 'All recipes' },
+    { value: 'cook', label: 'What can I cook?' },
     { value: 'favorites', label: `Favourites${favorites.size ? ` (${favorites.size})` : ''}` },
     { value: 'mine', label: `My recipes${myCount ? ` (${myCount})` : ''}` },
     { value: 'community', label: 'From the community' },
@@ -230,6 +235,10 @@ export function RecipesDashboard() {
         ))}
       </div>
 
+      {tab === 'cook' ? (
+        loading ? null : <CookWithWhatIHave recipes={recipes} />
+      ) : (
+      <>
       <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_auto_auto]">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -336,6 +345,8 @@ export function RecipesDashboard() {
             ))}
           </div>
         </>
+      )}
+      </>
       )}
 
       <RecipeFormDialog

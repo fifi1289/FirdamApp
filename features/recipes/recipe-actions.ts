@@ -150,3 +150,34 @@ export async function addRecipeToShopping(recipe: RecipeDetail, servings: number
   if (error) throw error;
   return rows.length;
 }
+
+/** Adds plain ingredient names (e.g. what's missing for a recipe) to the first shopping list. */
+export async function addNamesToShopping(names: string[], note: string): Promise<number> {
+  const supabase = createSupabaseBrowserClient();
+  const { data: lists } = await supabase
+    .from('grocery_lists')
+    .select('id')
+    .order('created_at', { ascending: true })
+    .limit(1);
+  let listId = lists?.[0]?.id;
+  if (!listId) {
+    const { data: created, error } = await supabase
+      .from('grocery_lists')
+      .insert({ name: 'Weekly groceries' })
+      .select('id')
+      .single();
+    if (error) throw error;
+    listId = created.id;
+  }
+  const rows = names.map((name) => ({
+    list_id: listId!,
+    name,
+    category: guessCategory(name),
+    note,
+    from_meal_plan: false,
+  }));
+  if (rows.length === 0) return 0;
+  const { error } = await supabase.from('grocery_items').insert(rows);
+  if (error) throw error;
+  return rows.length;
+}

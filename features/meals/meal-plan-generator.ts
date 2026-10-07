@@ -2,6 +2,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getMealImage } from '@/features/meals/meal-images';
 import type { MealPreferencesState } from '@/features/meals/meals-config';
 import type { PantryItem } from '@/types/database';
+import { conflictsWithAllergies, fitsDiet } from '@/lib/recipes/allergens';
 
 export type MealDifficulty = 'Easy' | 'Medium' | 'Hard';
 
@@ -109,6 +110,10 @@ interface RecipeRow {
     ingredient: { name: string } | null;
   }[];
   recipe_steps: { step_number: number; instruction: string }[];
+  protein?: number | null;
+  carbs?: number | null;
+  recipe_allergens?: { allergen: { name: string } | null }[];
+  recipe_tags?: { tag: { name: string } | null }[];
 }
 
 const RECIPE_SELECT = `
@@ -130,8 +135,25 @@ const RECIPE_SELECT = `
   recipe_steps(
     step_number,
     instruction
-  )
+  ),
+  protein,
+  carbs,
+  recipe_allergens(allergen:allergens(name)),
+  recipe_tags(tag:tags(name))
 ` as const;
+
+function ingredientNames(r: RecipeRow): string[] {
+  return r.recipe_ingredients.map((ri) => ri.ingredient?.name ?? '').filter(Boolean);
+}
+
+/** True when a recipe is safe for the family's allergies and fits every chosen diet. */
+export function recipeSuits(r: RecipeRow, allergies: string[], diets: string[]): boolean {
+  const ingredients = ingredientNames(r);
+  const allergens = (r.recipe_allergens ?? []).map((a) => a.allergen?.name ?? '').filter(Boolean);
+  if (conflictsWithAllergies(ingredients, allergies, allergens)) return false;
+  const tags = (r.recipe_tags ?? []).map((t) => t.tag?.name ?? '').filter(Boolean);
+  return diets.every((d) => fitsDiet(d, { ingredients, tags, protein: r.protein, carbs: r.carbs }));
+}
 
 function normalizeDifficulty(name: string | null | undefined): MealDifficulty {
   if (!name) return 'Medium';
@@ -201,10 +223,20 @@ export async function generateMealPlanFromSupabase(
     throw new Error(`Failed to load recipes: ${error.message}`);
   }
 
-  const recipes = (data ?? []) as unknown as RecipeRow[];
-  if (recipes.length === 0) {
+  const all = (data ?? []) as unknown as RecipeRow[];
+  if (all.length === 0) {
     throw new Error('No recipe found.');
   }
+  // Allergies and diets are never relaxed: unsafe recipes are removed up front.
+  const recipes = all.filter((r) =>
+    recipeSuits(r, preferences.allergies ?? [], preferences.dietaryPreferences ?? [])
+  );
+  if (recipes.length === 0) {
+    throw new Error(
+      'No recipes in the library match these allergies and diets yet. Try removing a diet, or add your own recipes.'
+    );
+  }
+  const cuisinePrefs = preferences.cuisinePreferences ?? {};
 
   const start = parseDateLocal(weekStartDate);
   const days: MockDay[] = [];
@@ -229,6 +261,12 @@ export async function generateMealPlanFromSupabase(
 
     const meals: MockMeal[] = lowerTypes.map((type, idx) => {
       let pool = byType[type] ?? recipes;
+      // Prefer the chosen cuisines for this meal type, when there are enough of them.
+      const wanted = (cuisinePrefs[type] ?? []).map((c) => c.toLowerCase());
+      if (wanted.length > 0) {
+        const preferred = pool.filter((r) => wanted.includes((r.cuisine?.name ?? '').toLowerCase()));
+        if (preferred.some((r) => !usedIds.has(r.id))) pool = preferred;
+      }
       let candidate: RecipeRow | undefined;
 
       const unused = pool.filter((r) => !usedIds.has(r.id));

@@ -49,6 +49,7 @@ import {
   asPantryCategory,
 } from '@/features/groceries/grocery-utils';
 import { FromMealPlanDialog } from '@/features/groceries/from-meal-plan-dialog';
+import { RestockSuggestions } from '@/features/groceries/restock-suggestions';
 import { usePlan } from '@/lib/plan/plan';
 import { UpgradeDialog } from '@/components/plan/upgrade-prompt';
 
@@ -233,6 +234,17 @@ export function GroceriesDashboard() {
     setItems((prev) => [...prev, data]);
     setQuickAdd('');
     inputRef.current?.focus();
+  };
+
+  /** Adds suggested items (from pantry habits) to the open list. */
+  const addSuggested = async (list: { name: string; quantity: number | null; unit: string | null }[]) => {
+    if (!activeId || !list.length) return;
+    const { data, error } = await supabase
+      .from('grocery_items')
+      .insert(list.map((i) => ({ list_id: activeId, name: i.name, quantity: i.quantity, unit: i.unit, category: guessCategory(i.name) })))
+      .select();
+    if (error) throw error;
+    setItems((prev) => [...prev, ...(data ?? [])]);
   };
 
   const toggleItem = async (item: GroceryItem) => {
@@ -488,6 +500,7 @@ export function GroceriesDashboard() {
 
           {/* Active list */}
           <div className="space-y-4">
+            <RestockSuggestions onAdd={addSuggested} disabled={!activeId} />
             <Card>
               <CardContent className="p-4">
                 <form onSubmit={addItem} className="flex gap-2">

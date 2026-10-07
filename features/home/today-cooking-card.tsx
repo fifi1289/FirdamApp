@@ -52,16 +52,18 @@ export function TodayCookingCard() {
   const [meals, setMeals] = useState<TodayMeal[] | null>(null);
   const [log, setLog] = useState<CookingLog[]>([]);
   const [needsCheck, setNeedsCheck] = useState(false);
+  const [useSoon, setUseSoon] = useState<{ name: string; days: number }[]>([]);
+  const [lowStaples, setLowStaples] = useState<string[]>([]);
   const [cooking, setCooking] = useState<{ recipe: CookableRecipe; planRef: string | null; mealType: string | null } | null>(null);
   const [usedFor, setUsedFor] = useState<{ planRef: string | null; mealType: string | null } | null>(null);
 
   const today = todayISO();
 
   const load = useCallback(async () => {
-    const [plans, logs, pantryCount, lastCheck] = await Promise.all([
+    const [plans, logs, pantryRows, lastCheck] = await Promise.all([
       supabase.from('meal_plans').select('id, plan_data, updated_at').order('updated_at', { ascending: false }).limit(10),
       supabase.from('cooking_log').select('*').eq('cooked_on', today),
-      supabase.from('pantry_items').select('id', { count: 'exact', head: true }),
+      supabase.from('pantry_items').select('name, expiration_date, tracking, level'),
       supabase.from('pantry_events').select('created_at').eq('source', 'check').order('created_at', { ascending: false }).limit(1),
     ]);
     const found: TodayMeal[] = [];
@@ -76,7 +78,18 @@ export function TodayCookingCard() {
     setMeals(found);
     setLog((logs.data ?? []) as CookingLog[]);
     const last = lastCheck.data?.[0]?.created_at;
-    setNeedsCheck((pantryCount.count ?? 0) > 0 && (!last || Date.now() - new Date(last).getTime() > 7 * 24 * 3600 * 1000));
+    const rows = pantryRows.data ?? [];
+    setNeedsCheck(rows.length > 0 && (!last || Date.now() - new Date(last).getTime() > 7 * 24 * 3600 * 1000));
+    const startOfToday = new Date(`${today}T00:00:00`).getTime();
+    setUseSoon(
+      rows
+        .filter((r) => r.expiration_date)
+        .map((r) => ({ name: r.name, days: Math.round((new Date(`${r.expiration_date}T00:00:00`).getTime() - startOfToday) / 86400000) }))
+        .filter((r) => r.days >= 0 && r.days <= 3)
+        .sort((a, b) => a.days - b.days)
+        .slice(0, 5)
+    );
+    setLowStaples(rows.filter((r) => r.tracking === 'level' && (r.level === 'low' || r.level === 'out')).map((r) => r.name));
   }, [supabase, today]);
 
   useEffect(() => {
@@ -180,6 +193,24 @@ export function TodayCookingCard() {
           )}
         </CardContent>
       </Card>
+
+      {(useSoon.length > 0 || lowStaples.length > 0) && (
+        <div className="mt-3 space-y-1.5 text-sm">
+          {useSoon.length > 0 && (
+            <Link href="/dashboard/recipes?tab=cook" className="block rounded-xl bg-amber-500/10 px-4 py-2.5 text-foreground hover:bg-amber-500/15">
+              <span className="font-medium">Use soon:</span>{' '}
+              {useSoon.map((u) => `${u.name} (${u.days === 0 ? 'today' : u.days === 1 ? 'tomorrow' : `${u.days} days`})`).join(', ')}
+              <span className="text-primary"> → recipes that use them</span>
+            </Link>
+          )}
+          {lowStaples.length > 0 && (
+            <Link href="/dashboard/shopping" className="block rounded-xl bg-muted px-4 py-2.5 text-foreground hover:bg-muted/80">
+              <span className="font-medium">Running low:</span> {lowStaples.slice(0, 5).join(', ')}
+              <span className="text-primary"> → add to shopping</span>
+            </Link>
+          )}
+        </div>
+      )}
 
       {needsCheck && (
         <Link

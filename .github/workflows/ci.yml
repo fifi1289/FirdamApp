@@ -114,7 +114,7 @@ jobs:
             fi
           done
       - name: Unit tests
-        run: deno test supabase/functions/stripe-webhook/signature.test.ts
+        run: deno test supabase/functions/stripe-webhook/signature.test.ts supabase/functions/_shared/pantry-engine.test.ts
       - name: Live smoke test against public APIs
         # Uses free public services (OpenStreetMap, Aladhan); their outages shouldn't block merges.
         continue-on-error: true

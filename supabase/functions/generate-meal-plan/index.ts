@@ -216,7 +216,7 @@ Deno.serve(async (req: Request) => {
       if (plan !== "free" && used >= PAID_AI_PLANS_PER_MONTH) {
         return new Response(
           JSON.stringify({
-            error: `You've generated ${PAID_AI_PLANS_PER_MONTH} AI meal plans this month — the monthly maximum. You can still plan meals from the recipe library.`,
+            error: `You've used this month's ${PAID_AI_PLANS_PER_MONTH} AI chef plans. Plans from the recipe library are still unlimited.`,
             code: "fair_use",
           }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -238,11 +238,10 @@ Deno.serve(async (req: Request) => {
     const planningDuration = body.planningDuration ?? 7;
     if (
       typeof planningDuration !== "number" ||
-      planningDuration < 1 ||
-      planningDuration > 14
+      ![3, 5, 7].includes(planningDuration)
     ) {
       return new Response(
-        JSON.stringify({ error: "planningDuration must be a number between 1 and 14." }),
+        JSON.stringify({ error: "planningDuration must be 3, 5 or 7 days." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -262,6 +261,8 @@ Deno.serve(async (req: Request) => {
           { role: "user", content: buildUserPrompt(body) },
         ],
         temperature: 0.8,
+        // Bounds the cost of one plan (7 days × 4 meals fits comfortably).
+        max_tokens: 12000,
         response_format: { type: "json_object" },
       });
 

@@ -9,7 +9,8 @@ export const FREE_AI_PLANS_PER_MONTH = 2;
 // The Companion chat is a paid feature; Free users get pantry matching (no AI) instead.
 export const FREE_COMPANION_MESSAGES_PER_MONTH = 0;
 // Fair-use caps for paid plans, so one account can't run up a large bill.
-export const PAID_AI_PLANS_PER_MONTH = 30;
+// About two AI plans a week (a plan covers 3, 5 or 7 days); regenerating counts as a new plan.
+export const PAID_AI_PLANS_PER_MONTH = 8;
 export const PAID_COMPANION_MESSAGES_PER_DAY = 50;
 
 function env(name: string): string | undefined {

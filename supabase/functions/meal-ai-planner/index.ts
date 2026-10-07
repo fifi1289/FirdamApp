@@ -207,6 +207,7 @@ Deno.serve(async (req: Request) => {
           { role: "user", content: buildUserPrompt(body) },
         ],
         temperature: 0.8,
+        max_tokens: 12000,
         response_format: { type: "json_object" },
       });
 

@@ -22,7 +22,7 @@ export const PLAN_LIMITS = {
   },
   premium: {
     companionMessagesPerMonth: Infinity,
-    aiMealPlansPerMonth: Infinity,
+    aiMealPlansPerMonth: 8,
     customRecipes: Infinity,
     trips: Infinity,
     habits: Infinity,
@@ -32,7 +32,7 @@ export const PLAN_LIMITS = {
   },
   family: {
     companionMessagesPerMonth: Infinity,
-    aiMealPlansPerMonth: Infinity,
+    aiMealPlansPerMonth: 8,
     customRecipes: Infinity,
     trips: Infinity,
     habits: Infinity,
@@ -45,7 +45,6 @@ export const PLAN_LIMITS = {
 /** Fair-use caps on paid plans (AI costs real money per use). */
 export const FAIR_USE = {
   companionMessagesPerDay: 50,
-  aiMealPlansPerMonth: 30,
 } as const;
 
 export type LimitKey = keyof (typeof PLAN_LIMITS)['free'];

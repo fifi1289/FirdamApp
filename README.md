@@ -38,7 +38,8 @@ password settings, support/FAQ page, and an admin page (`/admin`) for directory 
 | --- | --- | --- | --- |
 | “What can I cook?” (pantry matching, no AI) | ✓ | ✓ | ✓ |
 | Companion messages | — | 50 a day | 50 a day per person |
-| AI meal plans | 2 a month | 30 a month | 30 a month per person |
+| Meal plans from the recipe library (no AI) | Unlimited | Unlimited | Unlimited |
+| AI chef meal plans (3, 5 or 7 days) | 2 a month | 8 a month | 8 a month per person |
 | Own recipes / trips / shopping lists | 3 / 1 / 2 | Unlimited | Unlimited |
 | Shared household (up to 8 people) | — | — | ✓ |
 

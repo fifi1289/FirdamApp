@@ -41,6 +41,7 @@ password settings, support/FAQ page, and an admin page (`/admin`) for directory 
 | Meal plans from the recipe library (no AI) | Unlimited | Unlimited | Unlimited |
 | AI chef meal plans (3, 5 or 7 days) | 2 a month | 8 a month | 8 a month per person |
 | Own recipes / trips / shopping lists | 3 / 1 / 2 | Unlimited | Unlimited |
+| Receipt scanning into the pantry | — | 30 a month | 30 a month per person |
 | Shared household (up to 8 people) | — | — | ✓ |
 
 Paid AI caps are fair-use limits that keep OpenAI costs predictable. Limits are defined in `lib/plan/plan.ts` and enforced server-side for AI features
@@ -120,7 +121,8 @@ In Stripe, create the four prices and add a webhook endpoint pointing to
 
 - `prayer-times` — prayer times, monthly/Hijri timetables and city search (Aladhan, Open-Meteo, Nominatim)
 - `halal-places` — halal places and travel agencies from OpenStreetMap (Overpass) and address search (Nominatim)
-- `companion` — the AI Family Companion (OpenAI, tool calling)
+- `companion` — the AI Family Companion (OpenAI, tool calling; can update the pantry)
+- `receipt-scan` — reads a receipt photo into pantry items (OpenAI vision, paid plans)
 - `billing` / `stripe-webhook` — Stripe Checkout, customer portal and subscription sync
 
 Prayer and places use free public APIs; results are cached briefly in the function to stay within fair use.

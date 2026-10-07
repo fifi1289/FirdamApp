@@ -17,6 +17,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import { Receipt } from 'lucide-react';
 import { toast } from 'sonner';
 import { applyPantryChanges, changesForAdding } from '@/lib/pantry/store';
 import { isStapleFood } from '@/lib/pantry/quick-add';
@@ -614,6 +615,12 @@ export function GroceriesDashboard() {
                             <Archive className="mr-1.5 h-3.5 w-3.5" />
                           )}
                           Put away in pantry
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
+                          <a href="/dashboard/pantry?scan=1">
+                            <Receipt className="mr-1.5 h-3.5 w-3.5" />
+                            Scan receipt
+                          </a>
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearChecked}>
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" />

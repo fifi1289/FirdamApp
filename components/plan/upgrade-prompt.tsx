@@ -17,6 +17,7 @@ import { LIMIT_LABELS, PLAN_LIMITS, type LimitKey } from '@/lib/plan/plan';
 const PREMIUM_PERKS = [
   'AI Family Companion — 50 messages a day',
   'AI chef meal plans — 8 a month',
+  'Scan receipts straight into your pantry',
   'Unlimited trips, habits, goals and recipes',
   'Ramadan, zakat and savings tools without limits',
   'Priority support',

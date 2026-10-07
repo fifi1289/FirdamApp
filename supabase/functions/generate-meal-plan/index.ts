@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import {
   FREE_AI_PLANS_PER_MONTH,
+  PAID_AI_PLANS_PER_MONTH,
   countUsageThisMonth,
   getPlan,
   getUser,
@@ -210,9 +211,18 @@ Deno.serve(async (req: Request) => {
       );
     }
     const plan = await getPlan(user.id);
-    if (plan === "free") {
+    {
       const used = await countUsageThisMonth(user.id, "ai_meal_plan");
-      if (used >= FREE_AI_PLANS_PER_MONTH) {
+      if (plan !== "free" && used >= PAID_AI_PLANS_PER_MONTH) {
+        return new Response(
+          JSON.stringify({
+            error: `You've generated ${PAID_AI_PLANS_PER_MONTH} AI meal plans this month — the monthly maximum. You can still plan meals from the recipe library.`,
+            code: "fair_use",
+          }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (plan === "free" && used >= FREE_AI_PLANS_PER_MONTH) {
         return new Response(
           JSON.stringify({
             error: `You've used your ${FREE_AI_PLANS_PER_MONTH} free AI meal plans this month.`,

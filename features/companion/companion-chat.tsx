@@ -14,7 +14,7 @@ import { callEdgeFunction, EdgeFunctionError } from '@/lib/supabase/functions';
 import { readSavedLocation } from '@/lib/geo/location';
 import { fetchPrayerDay, format12h, PRAYER_ORDER, usePrayerSettings } from '@/lib/prayer/prayer';
 import { firstNameFor } from '@/lib/auth/display-name';
-import { usePlan } from '@/lib/plan/plan';
+import { PLAN_LIMITS, usePlan } from '@/lib/plan/plan';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -270,7 +270,7 @@ export function CompanionChat() {
           The Companion can make mistakes. For religious rulings, ask a qualified scholar.{' '}
           {!isPaid && (
             <>
-              Free plan: 10 messages a day ·{' '}
+              Free plan: {PLAN_LIMITS.free.companionMessagesPerMonth} messages a month ·{' '}
               <Link href="/dashboard/upgrade" className="text-primary hover:underline">
                 Go unlimited
               </Link>
@@ -278,7 +278,7 @@ export function CompanionChat() {
           )}
         </p>
       </div>
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} limitKey="companionMessagesPerDay" />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} limitKey="companionMessagesPerMonth" />
     </AppShell>
   );
 }

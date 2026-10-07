@@ -36,12 +36,12 @@ password settings, support/FAQ page, and an admin page (`/admin`) for directory 
 
 | | Free | Premium | Family+ |
 | --- | --- | --- | --- |
-| Companion messages | 10 a day | Unlimited | Unlimited |
-| AI meal plans | 2 a month | Unlimited | Unlimited |
+| Companion messages | 20 a month | 50 a day | 50 a day per person |
+| AI meal plans | 2 a month | 30 a month | 30 a month per person |
 | Own recipes / trips / shopping lists | 3 / 1 / 2 | Unlimited | Unlimited |
 | Shared household (up to 8 people) | — | — | ✓ |
 
-Limits are defined in `lib/plan/plan.ts` and enforced server-side for AI features
+Paid AI caps are fair-use limits that keep OpenAI costs predictable. Limits are defined in `lib/plan/plan.ts` and enforced server-side for AI features
 (`supabase/functions/_shared/plan.ts`) and for households (`create_household` RPC).
 
 ## Getting started

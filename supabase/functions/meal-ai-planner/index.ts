@@ -1,5 +1,13 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
+import {
+  FREE_AI_PLANS_PER_MONTH,
+  PAID_AI_PLANS_PER_MONTH,
+  countUsageThisMonth,
+  getPlan,
+  getUser,
+  recordUsage,
+} from "../_shared/plan.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -162,6 +170,27 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Signed-in users only, and it counts toward the same AI meal plan allowance.
+    const user = await getUser(req);
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Please sign in." }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const plan = await getPlan(user.id);
+    const used = await countUsageThisMonth(user.id, "ai_meal_plan");
+    const cap = plan === "free" ? FREE_AI_PLANS_PER_MONTH : PAID_AI_PLANS_PER_MONTH;
+    if (used >= cap) {
+      return new Response(
+        JSON.stringify({
+          error: `You've used this month's ${cap} AI meal plans.`,
+          code: plan === "free" ? "limit_reached" : "fair_use",
+        }),
+        { status: plan === "free" ? 402 : 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const body = (await req.json()) as PlannerRequest;
 
     if (!body.recipes || !Array.isArray(body.recipes) || body.recipes.length === 0) {
@@ -218,6 +247,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    await recordUsage(user.id, "ai_meal_plan");
     return new Response(JSON.stringify(parsed as PlannerResponse), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

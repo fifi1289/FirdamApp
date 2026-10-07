@@ -28,7 +28,7 @@ const tiers = [
     period: 'month',
     description: 'For individuals and couples who want it all.',
     features: [
-      'Unlimited AI halal meal planning',
+      'AI Family Companion & AI halal meal plans',
       'Budget, savings goals & zakat calculator',
       'Ramadan planner & tracker',
       'Reminders for prayers and events',

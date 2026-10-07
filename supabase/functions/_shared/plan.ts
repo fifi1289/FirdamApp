@@ -3,8 +3,13 @@
  * Uses the Supabase REST API with the service role (provided by Supabase).
  */
 
+// Keep in sync with lib/plan/plan.ts. Each Companion message costs roughly
+// $0.001–0.002 in OpenAI fees, an AI meal plan roughly $0.003–0.005.
 export const FREE_AI_PLANS_PER_MONTH = 2;
-export const FREE_COMPANION_MESSAGES_PER_DAY = 10;
+export const FREE_COMPANION_MESSAGES_PER_MONTH = 20;
+// Fair-use caps for paid plans, so one account can't run up a large bill.
+export const PAID_AI_PLANS_PER_MONTH = 30;
+export const PAID_COMPANION_MESSAGES_PER_DAY = 50;
 
 function env(name: string): string | undefined {
   const v = Deno.env.get(name);
@@ -82,4 +87,16 @@ export async function recordUsage(userId: string, kind: string): Promise<void> {
     headers: { ...headers, Prefer: "return=minimal" },
     body: JSON.stringify({ user_id: userId, kind }),
   });
+}
+
+/** True when the user is listed in `app_admins`. */
+export async function isAdminUser(userId: string): Promise<boolean> {
+  const url = env("SUPABASE_URL");
+  const headers = serviceHeaders();
+  if (!url || !headers) return false;
+  const res = await fetch(`${url}/rest/v1/app_admins?user_id=eq.${encodeURIComponent(userId)}&select=user_id`, {
+    headers,
+  });
+  if (!res.ok) return false;
+  return ((await res.json()) as unknown[]).length > 0;
 }

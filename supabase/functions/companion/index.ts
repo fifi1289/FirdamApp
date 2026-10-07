@@ -1,6 +1,14 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
-import { countUsageToday, getPlan, getUser, recordUsage, FREE_COMPANION_MESSAGES_PER_DAY } from "../_shared/plan.ts";
+import {
+  countUsageThisMonth,
+  countUsageToday,
+  getPlan,
+  getUser,
+  recordUsage,
+  FREE_COMPANION_MESSAGES_PER_MONTH,
+  PAID_COMPANION_MESSAGES_PER_DAY,
+} from "../_shared/plan.ts";
 
 /**
  * Firdam AI Family Companion.
@@ -26,7 +34,7 @@ const corsHeaders = {
 };
 
 const MODEL = "gpt-4o-mini";
-const MAX_HISTORY = 16;
+const MAX_HISTORY = 10;
 const MAX_TOOL_ROUNDS = 3;
 
 function json(body: unknown, status = 200) {
@@ -412,14 +420,25 @@ Deno.serve(async (req: Request) => {
 
     const plan = await getPlan(user.id);
     if (plan === "free") {
-      const used = await countUsageToday(user.id, "companion");
-      if (used >= FREE_COMPANION_MESSAGES_PER_DAY) {
+      const used = await countUsageThisMonth(user.id, "companion");
+      if (used >= FREE_COMPANION_MESSAGES_PER_MONTH) {
         return json(
           {
-            error: `You've used today's ${FREE_COMPANION_MESSAGES_PER_DAY} free Companion messages. Upgrade for unlimited.`,
+            error: `You've used this month's ${FREE_COMPANION_MESSAGES_PER_MONTH} free Companion messages. Upgrade to keep chatting.`,
             code: "limit_reached",
           },
           402,
+        );
+      }
+    } else {
+      const used = await countUsageToday(user.id, "companion");
+      if (used >= PAID_COMPANION_MESSAGES_PER_DAY) {
+        return json(
+          {
+            error: `You've reached today's ${PAID_COMPANION_MESSAGES_PER_DAY} Companion messages. They reset in 24 hours.`,
+            code: "fair_use",
+          },
+          429,
         );
       }
     }
@@ -461,6 +480,7 @@ Deno.serve(async (req: Request) => {
         model: MODEL,
         messages,
         temperature: 0.5,
+        max_tokens: 700,
         tools: round < MAX_TOOL_ROUNDS ? TOOLS : undefined,
       });
       if (!res.ok) {

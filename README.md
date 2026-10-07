@@ -10,20 +10,39 @@ Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui and Supa
 
 | Area | Module | What it does |
 | --- | --- | --- |
+| Assistant | **Family Companion** | AI assistant that knows your family's week, pantry, budget and prayer times, and can add tasks, events, shopping items and spending for you. |
 | Halal living | **Halal Places** | Halal groceries, butchers, restaurants, cafés and mosques near you (OpenStreetMap + community). Map and list, filters, ratings, "confirmed halal" reviews, saved places, add a place. |
+| | **Recipes** | Library of halal recipes with ingredients and steps, favourites, your own recipes; add any recipe to the meal plan or shopping list. |
 | | **Meal Planner** | AI-assisted halal meal plans built around your pantry and preferences. |
-| | **Groceries** | Lists filled from the meal plan minus what's in the pantry, sorted by aisle; move bought items to the pantry; share as text. |
+| | **Shopping** | Lists filled from the meal plan minus what's in the pantry, sorted by aisle; move bought items to the pantry; share as text. |
 | | **Pantry** | Household food inventory with expiry tracking. |
 | Faith | **Prayer Times** | Daily times by calculation method and Asr school, Qibla compass, printable monthly timetable. |
 | | **Ramadan** | Countdown and prep checklist, suhoor/iftar countdown and timetable, 30-day fast/taraweeh/Quran/charity tracker. |
 | | **Quran & Duas** | Everyday duas with sources, favourites and dua of the day; Quran reading log with goal, streak and khatm progress. |
-| Family | **Family** | Household member profiles. |
-| | **Family Calendar** | Eid, Aqiqah, Nikah, birthdays, school events; Hijri dates and key Islamic days added automatically. |
+| Family | **Family** | Member profiles and the **shared household** (Family+): invite family by email to share the calendar, shopping, tasks, meals and pantry. |
+| | **Family Calendar** | Eid, Aqiqah, Nikah, Walima, birthdays, school events; Hijri dates and key Islamic days added automatically. |
 | | **Planner** | Household tasks and goals. |
-| Money | **Budget** | Category budgets, income/expenses, sadaqah and zakat records, savings goals (Hajj, Umrah, Eid…), zakat calculator. |
+| Community & travel | **Travel** | Trips with halal food, mosques and travel agencies at the destination. |
+| | **Directory** | Muslim-owned business listings (owners submit, admins approve; partner badges). |
+| | **Community** | Local events (iftars, classes, Eid prayers) with RSVPs and reporting. |
+| Money | **Finance** | Category budgets, income/expenses, sadaqah and zakat records, savings goals (Hajj, Umrah, Eid…), zakat calculator. |
+
+Health and Learning are shown as "coming soon" and will follow the MVP.
 
 Also: real-data home dashboard, prayer and family-event browser reminders, data export, profile and
-password settings, and a support/FAQ page.
+password settings, support/FAQ page, and an admin page (`/admin`) for directory moderation.
+
+### Plans
+
+| | Free | Premium | Family+ |
+| --- | --- | --- | --- |
+| Companion messages | 10 a day | Unlimited | Unlimited |
+| AI meal plans | 2 a month | Unlimited | Unlimited |
+| Own recipes / trips / shopping lists | 3 / 1 / 2 | Unlimited | Unlimited |
+| Shared household (up to 8 people) | — | — | ✓ |
+
+Limits are defined in `lib/plan/plan.ts` and enforced server-side for AI features
+(`supabase/functions/_shared/plan.ts`) and for households (`create_household` RPC).
 
 ## Getting started
 
@@ -40,7 +59,11 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_URL` | `.env.local` / hosting | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `.env.local` / hosting | Supabase anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | server only | Admin client (never expose to the browser) |
-| `OPENAI_API_KEY` | Supabase function secret | Used by `generate-meal-plan` and `meal-ai-planner` |
+| `OPENAI_API_KEY` | Supabase function secret | Companion and AI meal plans |
+| `STRIPE_SECRET_KEY` | Supabase function secret | Checkout and billing portal (`billing`) |
+| `STRIPE_WEBHOOK_SECRET` | Supabase function secret | Verifies Stripe events (`stripe-webhook`) |
+| `STRIPE_PRICE_PREMIUM_MONTHLY`, `STRIPE_PRICE_PREMIUM_YEARLY`, `STRIPE_PRICE_FAMILY_MONTHLY`, `STRIPE_PRICE_FAMILY_YEARLY` | Supabase function secrets | Stripe price IDs for each plan |
+| `SITE_URL` | Supabase function secret | Where Stripe sends people back, e.g. `https://app.firdam.app` |
 
 ### Database
 
@@ -52,11 +75,15 @@ supabase db push
 ```
 
 or paste each new file into the Supabase SQL editor. Every table has row-level security; private
-data is scoped to its owner, while Halal Places community places and reviews are shared with all
-signed-in users.
+data is scoped to its owner, household items are shared with members of the same household, and
+Halal Places community places and reviews are shared with all signed-in users. The recipe library
+is seeded by `20261007101500_seed_halal_recipes.sql` (generated from `supabase/seed/recipes.py`).
 
-> The recipe tables (`recipes`, `ingredients`, `cuisines`…) used by the Meal Planner live in the
-> Supabase project and are not created by these migrations.
+To make someone an admin (directory moderation), run in the SQL editor:
+
+```sql
+insert into public.app_admins (user_id) select id from auth.users where email = 'you@example.com';
+```
 
 ### Edge functions
 
@@ -65,13 +92,22 @@ supabase functions deploy prayer-times
 supabase functions deploy halal-places
 supabase functions deploy generate-meal-plan
 supabase functions deploy meal-ai-planner
-supabase secrets set OPENAI_API_KEY=sk-...
+supabase functions deploy companion
+supabase functions deploy billing
+supabase functions deploy stripe-webhook --no-verify-jwt
+supabase secrets set OPENAI_API_KEY=sk-... STRIPE_SECRET_KEY=sk_... STRIPE_WEBHOOK_SECRET=whsec_... SITE_URL=https://...
 ```
 
-- `prayer-times` — prayer times, monthly/Hijri timetables and city search (Aladhan, Open-Meteo, Nominatim)
-- `halal-places` — halal places from OpenStreetMap (Overpass) and address search (Nominatim)
+In Stripe, create the four prices and add a webhook endpoint pointing to
+`https://<project>.supabase.co/functions/v1/stripe-webhook` for `checkout.session.completed` and
+`customer.subscription.*` events.
 
-Both use free public APIs; results are cached briefly in the function to stay within fair use.
+- `prayer-times` — prayer times, monthly/Hijri timetables and city search (Aladhan, Open-Meteo, Nominatim)
+- `halal-places` — halal places and travel agencies from OpenStreetMap (Overpass) and address search (Nominatim)
+- `companion` — the AI Family Companion (OpenAI, tool calling)
+- `billing` / `stripe-webhook` — Stripe Checkout, customer portal and subscription sync
+
+Prayer and places use free public APIs; results are cached briefly in the function to stay within fair use.
 
 ## Checks
 
@@ -83,6 +119,7 @@ also applies every migration to a clean Postgres database and runs an RLS smoke 
 
 - Replace `support@firdam.app` in `app/support/page.tsx` and the footer with the real inbox.
 - Add Privacy Policy and Terms pages (the footer has no legal links yet).
-- Billing for the Premium / Family+ plans shown on the landing page is not implemented.
+- Add the Stripe and OpenAI secrets above; without them the Upgrade and Companion pages explain
+  that setup isn't finished.
 - Reminders are browser notifications shown while the app is open; background push needs a
   service worker and a push provider.

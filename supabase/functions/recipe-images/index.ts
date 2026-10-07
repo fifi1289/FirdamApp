@@ -87,7 +87,7 @@ function slugify(s: string) {
   return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 }
 
-async function generate(apiKey: string, prompt: string, model: string, quality: string): Promise<Uint8Array> {
+async function generate(apiKey: string, prompt: string, model: string, quality: string): Promise<ArrayBuffer> {
   const body: Record<string, unknown> = { model, prompt, size: SIZE, quality, n: 1 };
   // gpt-image models can return compressed WebP directly (much smaller files).
   body.output_format = "webp";
@@ -115,10 +115,10 @@ async function generate(apiKey: string, prompt: string, model: string, quality: 
   const data = (await res.json()) as { data?: { b64_json?: string }[] };
   const b64 = data.data?.[0]?.b64_json;
   if (!b64) throw new Error("OpenAI returned no image.");
-  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer as ArrayBuffer;
 }
 
-async function upload(path: string, bytes: Uint8Array): Promise<string> {
+async function upload(path: string, bytes: ArrayBuffer): Promise<string> {
   const url = env("SUPABASE_URL")!;
   const key = env("SUPABASE_SERVICE_ROLE_KEY")!;
   const res = await fetch(`${url}/storage/v1/object/${BUCKET}/${path}`, {

@@ -116,6 +116,8 @@ jobs:
       - name: Unit tests
         run: deno test supabase/functions/stripe-webhook/signature.test.ts
       - name: Live smoke test against public APIs
+        # Uses free public services (OpenStreetMap, Aladhan); their outages shouldn't block merges.
+        continue-on-error: true
         run: |
           set -e
           deno run --allow-net --allow-env supabase/functions/halal-places/index.ts > hp.log 2>&1 &

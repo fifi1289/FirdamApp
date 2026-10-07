@@ -79,7 +79,7 @@ export async function undoPantryBatch(batchId: string): Promise<void> {
       const before = e.before as Row;
       const { id, ...rest } = before;
       const { data: existing } = await supabase.from('pantry_items').select('id').eq('id', id as string).maybeSingle();
-      if (existing) await supabase.from('pantry_items').update(rest).eq('id', id as string);
+      if (existing) await supabase.from('pantry_items').update(rest as never).eq('id', id as string);
       else await supabase.from('pantry_items').insert(before as never);
     }
   }

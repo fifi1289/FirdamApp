@@ -219,29 +219,73 @@ existing "Milk" allergen is reused for Dairy).
 */
 
 DO $seed$
+DECLARE
+  missing_cols text;
 BEGIN
 `);
 
-// Lookups
-const lookups: [string, string[]][] = [
-  ['cuisines', [...new Set(recipes.map((r) => r.cuisine))].sort()],
-  ['meal_types', MEAL_TYPES],
-  ['difficulties', DIFFICULTIES],
-  ['tags', DIETS],
-  ['ingredients', [...new Set(recipes.flatMap((r) => r.ingredients.map((i) => i[0])))].sort()],
-];
-for (const [table, names] of lookups) {
-  out.push(`  INSERT INTO public.${table} (name${table === 'ingredients' ? ', halal' : ''})
-  SELECT v.name${table === 'ingredients' ? ', true' : ''} FROM (VALUES
-${values(names.map((n) => [n]))}
-  ) AS v(name)
-  WHERE NOT EXISTS (SELECT 1 FROM public.${table} t WHERE lower(t.name) = lower(v.name));
+// Schema check: stop with one clear message if the project's tables have
+// required columns this seed doesn't fill (instead of failing row by row).
+const FILLED: Record<string, string[]> = {
+  cuisines: ['id', 'name', 'slug'],
+  meal_types: ['id', 'name', 'slug'],
+  difficulties: ['id', 'name', 'slug'],
+  tags: ['id', 'name', 'slug'],
+  allergens: ['id', 'name', 'slug'],
+  ingredients: ['id', 'name', 'slug', 'halal'],
+  recipes: ['id', 'name', 'slug', 'short_description', 'cuisine_id', 'meal_type_id', 'difficulty_id', 'prep_time_minutes', 'cook_time_minutes', 'servings', 'calories', 'protein', 'carbs', 'fat', 'halal', 'is_active', 'is_featured'],
+  recipe_ingredients: ['id', 'recipe_id', 'ingredient_id', 'quantity', 'unit', 'display_order'],
+  recipe_steps: ['id', 'recipe_id', 'step_number', 'instruction'],
+  recipe_tips: ['id', 'recipe_id', 'tip', 'display_order'],
+  recipe_allergens: ['id', 'recipe_id', 'allergen_id'],
+  recipe_tags: ['id', 'recipe_id', 'tag_id'],
+};
+out.push(`  SELECT string_agg(c.table_name || '.' || c.column_name, ', ' ORDER BY c.table_name, c.column_name) INTO missing_cols
+  FROM information_schema.columns c
+  WHERE c.table_schema = 'public' AND c.is_nullable = 'NO' AND c.column_default IS NULL AND c.is_identity = 'NO'
+    AND c.is_generated = 'NEVER'
+    AND (${Object.entries(FILLED)
+      .map(([t, cols]) => `(c.table_name = ${q(t)} AND c.column_name <> ALL(ARRAY[${cols.map(q).join(', ')}]))`)
+      .join('\n      OR ')});
+  IF missing_cols IS NOT NULL THEN
+    RAISE EXCEPTION 'These required columns need values the recipe seed does not provide: %', missing_cols;
+  END IF;
+`);
+
+const hasSlug = (table: string) =>
+  `EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = ${q(table)} AND column_name = 'slug')`;
+
+/** Inserts names into a lookup table, filling `slug` too when the table has one. */
+function lookupInsert(table: string, rows: { name: string; match?: string[] }[], extra: { col: string; val: string }[] = []) {
+  const cols = extra.map((e) => `, ${e.col}`).join('');
+  const vals = extra.map((e) => `, ${e.val}`).join('');
+  const data = values(rows.map((r) => [r.name, slugify(r.name), `{${(r.match ?? [r.name.toLowerCase()]).map((m) => `"${m.replace(/"/g, '')}"`).join(',')}}`]));
+  const body = (withSlug: boolean) => `    INSERT INTO public.${table} (name${withSlug ? ', slug' : ''}${cols})
+    SELECT v.name${withSlug ? ', v.slug' : ''}${vals} FROM (VALUES
+${data}
+    ) AS v(name, slug, match)
+    WHERE NOT EXISTS (SELECT 1 FROM public.${table} t WHERE lower(t.name) = ANY(v.match::text[]))${
+      withSlug ? `\n      AND NOT EXISTS (SELECT 1 FROM public.${table} t WHERE t.slug = v.slug)` : ''
+    };`;
+  out.push(`  IF ${hasSlug(table)} THEN
+${body(true)}
+  ELSE
+${body(false)}
+  END IF;
 `);
 }
-for (const a of ALLERGEN_ALIASES) {
-  out.push(`  INSERT INTO public.allergens (name) SELECT ${q(a.name)} WHERE NOT EXISTS (SELECT 1 FROM public.allergens WHERE lower(name) = ANY(ARRAY[${a.names.map(q).join(', ')}]));`);
-}
-out.push('');
+
+// Lookups
+lookupInsert('cuisines', [...new Set(recipes.map((r) => r.cuisine))].sort().map((name) => ({ name })));
+lookupInsert('meal_types', MEAL_TYPES.map((name) => ({ name })));
+lookupInsert('difficulties', DIFFICULTIES.map((name) => ({ name })));
+lookupInsert('tags', DIETS.map((name) => ({ name })));
+lookupInsert('allergens', ALLERGEN_ALIASES.map((a) => ({ name: a.name, match: a.names })));
+lookupInsert(
+  'ingredients',
+  [...new Set(recipes.flatMap((r) => r.ingredients.map((i) => i[0])))].sort().map((name) => ({ name })),
+  [{ col: 'halal', val: 'true' }]
+);
 
 // Recipes
 out.push(`  INSERT INTO public.recipes (name, slug, short_description, cuisine_id, meal_type_id, difficulty_id,
@@ -254,7 +298,7 @@ out.push(`  INSERT INTO public.recipes (name, slug, short_description, cuisine_i
   FROM (VALUES
 ${values(recipes.map((r) => [r.name, slugify(r.name), r.description, r.cuisine, r.meal_type, r.difficulty, r.prep, r.cook, r.servings, r.calories ?? null, r.protein ?? null, r.carbs ?? null, r.fat ?? null]))}
   ) AS v(name, slug, description, cuisine, meal_type, difficulty, prep, cook, servings, calories, protein, carbs, fat)
-  WHERE NOT EXISTS (SELECT 1 FROM public.recipes r WHERE lower(r.name) = lower(v.name));
+  WHERE NOT EXISTS (SELECT 1 FROM public.recipes r WHERE lower(r.name) = lower(v.name) OR r.slug = v.slug);
 `);
 
 out.push(`  UPDATE public.recipes r SET image_prompt = v.prompt FROM (VALUES

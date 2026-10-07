@@ -160,7 +160,7 @@ export const lifeModules: LifeModule[] = [
     name: 'Learning',
     description:
       'Learning goals for every family member, a kids’ corner, and trusted tutors and schools.',
-    status: 'active',
+    status: 'planned',
     accent: 'from-brand-dark to-brand-mid',
     icon: 'graduation-cap',
     href: '/dashboard/learning',
@@ -170,7 +170,7 @@ export const lifeModules: LifeModule[] = [
     id: 'health',
     name: 'Health',
     description: 'Healthy and sunnah habits, plus appointments, vaccinations and allergies.',
-    status: 'active',
+    status: 'planned',
     accent: 'from-brand-mid to-brand-light',
     icon: 'heart-pulse',
     href: '/dashboard/health',

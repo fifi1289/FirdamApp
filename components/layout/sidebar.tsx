@@ -39,7 +39,7 @@ const groupedNav = MODULE_GROUPS.map((group) => ({
       label: m.name,
       href: m.href,
       icon: moduleIconMap[m.icon],
-      badge: m.status === 'beta' ? 'Beta' : undefined,
+      badge: m.status === 'beta' ? 'Beta' : m.status === 'planned' ? 'Soon' : undefined,
     })),
 }));
 

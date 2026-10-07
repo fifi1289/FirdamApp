@@ -75,7 +75,7 @@ export function CookWithWhatIHave({ recipes }: { recipes: RecipeSummary[] }) {
               <p className="font-display text-lg font-semibold text-foreground">What can I cook?</p>
               <p className="text-sm text-muted-foreground">
                 Tell us what you have and we’ll find halal recipes you can make now — or with just a few extra items.
-                Salt, oil and other basics are assumed.
+                Salt, oil, spices and other cupboard basics are assumed.
               </p>
             </div>
           </div>

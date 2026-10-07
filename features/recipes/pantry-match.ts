@@ -51,14 +51,21 @@ export function parseHaveList(text: string): string[] {
     .filter((s) => s.length > 1);
 }
 
+/** Spices, dried herbs and similar cupboard basics — assumed, never "missing". */
+const BASICS_RE =
+  /\b(salt|water|cumin|paprika|turmeric|cinnamon|cardamom|clove|nutmeg|coriander seed|chili flake|chilli flake|chili powder|chilli powder|cayenne|garam masala|curry powder|baharat|sumac|za'?atar|ras el hanout|allspice|bay lea(?:f|ve)|oregano|thyme|black pepper|white pepper|peppercorn|saffron|ginger powder|ground ginger|dried mint|mixed spice|seven spice|stock cube|bouillon|baking powder|baking soda|vanilla|vinegar|honey|tomato paste|tomato puree)\b/;
+
 function isStaple(name: string): boolean {
   const n = normalizeIngredient(name);
-  return STAPLES.some((s) => n === s || n.endsWith(` ${s}`)) || /\b(salt|water)\b/.test(n);
+  return STAPLES.some((s) => n === s || n.endsWith(` ${s}`)) || BASICS_RE.test(n) || /^ground /.test(n);
 }
+
+const MEAT_RE = /\b(beef|lamb|mutton|veal|goat|minced|steak)\b/;
 
 /** True when something you have covers a recipe ingredient (e.g. "chicken" covers "chicken thighs"). */
 function covers(have: string, need: string): boolean {
   if (have === need) return true;
+  if (have === 'meat' && MEAT_RE.test(need)) return true;
   const haveWords = have.split(' ');
   const needWords = need.split(' ');
   // Every word of what you have appears in the ingredient: "chicken" ⊂ "boneless chicken thigh".
@@ -78,7 +85,7 @@ export interface PantryMatch {
 export function matchRecipes(
   index: Map<string, { name: string; optional: boolean }[]>,
   haveRaw: string[],
-  maxMissing = 3
+  maxMissing = 5
 ): PantryMatch[] {
   const have = Array.from(new Set(haveRaw.map(normalizeIngredient).filter(Boolean)));
   if (have.length === 0) return [];

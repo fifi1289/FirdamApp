@@ -383,3 +383,51 @@ export async function fetchRecipeFacts(): Promise<Map<string, RecipeFacts>> {
   }
   return facts;
 }
+
+export interface RecipeNeeds {
+  servings: number;
+  ingredients: { name: string; quantity: number | null; unit: string; optional: boolean }[];
+}
+
+/** Ingredient amounts for every recipe — used to compare with the pantry. */
+export async function fetchRecipeNeeds(): Promise<Map<string, RecipeNeeds>> {
+  const supabase = createSupabaseBrowserClient();
+  const [catalog, mine] = await Promise.all([
+    supabase
+      .from('recipes')
+      .select('id, servings, recipe_ingredients(quantity, unit, optional, ingredient:ingredients(name))')
+      .eq('is_active', true),
+    supabase.from('user_recipes').select('id, servings, ingredients'),
+  ]);
+  type Row = {
+    id: string;
+    servings: number | null;
+    recipe_ingredients: { quantity: number | null; unit: string | null; optional: boolean | null; ingredient: { name: string } | null }[] | null;
+  };
+  const out = new Map<string, RecipeNeeds>();
+  for (const r of (catalog.data ?? []) as unknown as Row[]) {
+    out.set(`c-${r.id}`, {
+      servings: r.servings || 4,
+      ingredients: (r.recipe_ingredients ?? [])
+        .filter((i) => i.ingredient?.name)
+        .map((i) => ({
+          name: i.ingredient!.name,
+          quantity: i.quantity != null && Number(i.quantity) > 0 ? Number(i.quantity) : null,
+          unit: i.unit ?? '',
+          optional: !!i.optional,
+        })),
+    });
+  }
+  for (const r of (mine.data ?? []) as { id: string; servings: number | null; ingredients: { name: string; quantity: string; unit: string }[] | null }[]) {
+    out.set(`u-${r.id}`, {
+      servings: r.servings || 4,
+      ingredients: (r.ingredients ?? [])
+        .filter((i) => i.name?.trim())
+        .map((i) => {
+          const q = parseFloat(i.quantity);
+          return { name: i.name, quantity: Number.isFinite(q) && q > 0 ? q : null, unit: i.unit ?? '', optional: false };
+        }),
+    });
+  }
+  return out;
+}

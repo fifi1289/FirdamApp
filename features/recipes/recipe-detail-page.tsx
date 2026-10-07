@@ -60,6 +60,8 @@ import {
 import { addRecipeToPlan, addRecipeToShopping } from '@/features/recipes/recipe-actions';
 import { useRecipeFavorites } from '@/features/recipes/use-favorites';
 import { RecipeFormDialog } from '@/features/recipes/recipe-form-dialog';
+import { CookDialog } from '@/features/pantry/cook-dialog';
+import { useHousehold } from '@/lib/pantry/portions';
 
 const MEAL_LABELS: Record<MealTypeKey, string> = {
   breakfast: 'Breakfast',
@@ -189,6 +191,16 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
   const [planOpen, setPlanOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [cookOpen, setCookOpen] = useState(false);
+  const { household } = useHousehold();
+  // Show amounts for the family's portions by default (adults 1, children ¾ or ½).
+  const [usedHousehold, setUsedHousehold] = useState(false);
+  useEffect(() => {
+    if (!usedHousehold && household && recipe) {
+      setServings(Math.max(1, Math.round(household.portions)));
+      setUsedHousehold(true);
+    }
+  }, [household, recipe, usedHousehold]);
   const { favorites, toggle } = useRecipeFavorites();
 
   const load = async () => {
@@ -371,8 +383,11 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 print:hidden">
-            <Button onClick={() => setPlanOpen(true)}>
+          <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-4 print:hidden">
+            <Button onClick={() => setCookOpen(true)}>
+              <ChefHat className="mr-2 h-4 w-4" /> I cooked this
+            </Button>
+            <Button variant="outline" onClick={() => setPlanOpen(true)}>
               <CalendarPlus className="mr-2 h-4 w-4" /> Add to plan
             </Button>
             <Button variant="outline" onClick={toShopping} disabled={adding}>
@@ -554,6 +569,27 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
           onSaved={() => load()}
         />
       )}
+      <CookDialog
+        recipe={
+          recipe
+            ? {
+                key: recipe.key,
+                name: recipe.name,
+                servings: recipe.servings || 4,
+                ingredients: recipe.ingredients.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit, optional: i.optional })),
+              }
+            : null
+        }
+        open={cookOpen}
+        onOpenChange={setCookOpen}
+        initialPortions={servings}
+        onDone={() =>
+          supabase
+            .from('pantry_items')
+            .select('*')
+            .then(({ data }) => setPantry(data ?? []))
+        }
+      />
     </AppShell>
   );
 }

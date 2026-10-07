@@ -53,6 +53,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { PremiumBadge, UpgradeDialog } from '@/components/plan/upgrade-prompt';
 import { PLAN_LIMITS, usePlan } from '@/lib/plan/plan';
+import { householdFrom } from '@/lib/pantry/portions';
 import {
   GenerateMealPlanError,
   requestGeneratedMealPlan,
@@ -225,15 +226,11 @@ export function MealsDashboard() {
     setSavedPlans(data ?? []);
   }, [supabase]);
 
+  // Portions from Family profiles: adults 1, children 6–12 ¾, under 6 ½.
   const loadHouseholdSize = useCallback(async () => {
-    const { count, error } = await supabase
-      .from('family_members')
-      .select('*', { count: 'exact', head: true });
-    if (error) {
-      return;
-    }
-    const size = count ?? 0;
-    setHouseholdSize(size > 0 ? size + 1 : 4);
+    const { data, error } = await supabase.from('family_members').select('birth_date, relationship');
+    if (error) return;
+    setHouseholdSize((data ?? []).length > 0 ? householdFrom(data ?? []).portions : 2);
   }, [supabase]);
 
   const loadPantryItems = useCallback(async () => {

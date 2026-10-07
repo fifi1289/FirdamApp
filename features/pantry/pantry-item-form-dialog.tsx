@@ -16,6 +16,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { isStapleFood } from '@/lib/pantry/quick-add';
 import {
   Select,
   SelectContent,
@@ -39,6 +41,8 @@ export interface PantryItemFormValues {
   unit: PantryUnit;
   expiration_date: string;
   notes: string;
+  /** Staples (rice, flour, oil…) are tracked as Full/Half/Low/Out instead of an amount. */
+  staple: boolean;
 }
 
 export function emptyItemValues(): PantryItemFormValues {
@@ -49,6 +53,7 @@ export function emptyItemValues(): PantryItemFormValues {
     unit: 'Pieces',
     expiration_date: '',
     notes: '',
+    staple: false,
   };
 }
 
@@ -60,6 +65,7 @@ export function itemToValues(item: PantryItem): PantryItemFormValues {
     unit: item.unit,
     expiration_date: item.expiration_date ?? '',
     notes: item.notes ?? '',
+    staple: item.tracking === 'level',
   };
 }
 
@@ -106,6 +112,8 @@ export function PantryItemFormDialog({
       unit: values.unit,
       expiration_date: values.expiration_date || null,
       notes: values.notes.trim() || null,
+      tracking: values.staple ? ('level' as const) : ('count' as const),
+      level: values.staple ? (item?.level ?? 'full') : null,
     };
 
     setSubmitting(true);
@@ -153,7 +161,9 @@ export function PantryItemFormDialog({
               <Input
                 id="pantry-name"
                 value={values.name}
-                onChange={(e) => update({ name: e.target.value })}
+                onChange={(e) =>
+                  update(isEdit ? { name: e.target.value } : { name: e.target.value, staple: isStapleFood(e.target.value) })
+                }
                 placeholder="e.g. Whole wheat bread"
                 autoFocus
                 required
@@ -177,7 +187,16 @@ export function PantryItemFormDialog({
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <label className="flex items-start gap-3 rounded-xl bg-muted/60 px-3 py-2.5">
+              <Switch checked={values.staple} onCheckedChange={(v) => update({ staple: v })} className="mt-0.5" />
+              <span className="text-sm">
+                <span className="font-medium text-foreground">Cupboard staple</span>
+                <span className="block text-xs text-muted-foreground">
+                  For rice, flour, oil, spices… Just mark it Full, Half, Low or Out — no weighing.
+                </span>
+              </span>
+            </label>
+            <div className={values.staple ? 'hidden' : 'grid grid-cols-2 gap-3'}>
               <div className="space-y-2">
                 <Label htmlFor="pantry-quantity">Quantity</Label>
                 <Input

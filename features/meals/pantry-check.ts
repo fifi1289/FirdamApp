@@ -1,5 +1,12 @@
+/**
+ * Meal-planner view of the pantry engine (lib/pantry/engine.ts): per-ingredient
+ * checks for a meal, and a whole-plan summary that reserves pantry food across
+ * the week so the same potatoes aren't counted for two meals.
+ */
 import type { MealIngredient } from '@/features/meals/meal-plan-generator';
 import type { PantryItem } from '@/types/database';
+import { checkNeeds, Ledger, type Line, type Need, type PantryLike } from '@/lib/pantry/engine';
+import { formatAmount } from '@/lib/pantry/units';
 
 export type IngredientStatus = 'available' | 'low' | 'missing';
 
@@ -13,259 +20,57 @@ export interface IngredientCheck {
   remainingQuantity: number;
   remainingUnit: string;
   status: IngredientStatus;
+  /** Plain-language note, e.g. "need 4 pieces · have 1 piece" or "running low". */
+  note: string;
 }
 
-const STOP_WORDS = new Set([
-  'and',
-  'the',
-  'fresh',
-  'dried',
-  'chopped',
-  'sliced',
-  'diced',
-  'minced',
-  'drained',
-  'rinsed',
-  'ripe',
-  'ground',
-  'whole',
-  'pitted',
-  'plain',
-  'mixed',
-  'seasonal',
-  'crushed',
-  'mashed',
-]);
-
-function normalizeName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[,().]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .split(' ')
-    .filter((w) => w.length > 1 && !STOP_WORDS.has(w))
-    .join(' ');
+function toNeed(i: MealIngredient): Need {
+  const q = parseFloat(i.quantity);
+  return { name: i.name, quantity: Number.isFinite(q) && q > 0 ? q : null, unit: i.unit ?? '' };
 }
 
-function isWordBoundaryMatch(needle: string, haystack: string): boolean {
-  if (!needle || !haystack) return false;
-  const needleWords = needle.split(' ').filter(Boolean);
-  const haystackWords = haystack.split(' ').filter(Boolean);
-  if (needleWords.length === 0) return false;
-  return needleWords.every((nw) =>
-    haystackWords.some((hw) => hw === nw || hw.startsWith(nw) || nw.startsWith(hw))
-  );
+function statusOf(line: Line): IngredientStatus {
+  if (line.status === 'missing') return 'missing';
+  if (line.status === 'short' || line.status === 'staple-low') return 'low';
+  return 'available';
 }
 
-const WEIGHT_GRAMS: Record<string, number> = {
-  g: 1,
-  kg: 1000,
-};
-
-const VOLUME_ML: Record<string, number> = {
-  ml: 1,
-  l: 1000,
-  tsp: 5,
-  tbsp: 15,
-  cup: 240,
-};
-
-const PIECE_WORDS = new Set([
-  'piece',
-  'pieces',
-  'slice',
-  'slices',
-  'clove',
-  'cloves',
-  'can',
-  'cans',
-  'pinch',
-  'bunch',
-  'pack',
-  'bottle',
-  'box',
-]);
-
-const UNIT_ALIASES: Record<string, string> = {
-  pieces: 'piece',
-  piece: 'piece',
-  slice: 'piece',
-  slices: 'piece',
-  clove: 'piece',
-  cloves: 'piece',
-  can: 'can',
-  cans: 'can',
-  pinch: 'pinch',
-  bunch: 'bunch',
-  pack: 'pack',
-  bottle: 'bottle',
-  box: 'box',
-};
-
-function normalizeUnit(unit: string): string {
-  const u = unit.toLowerCase().trim();
-  if (WEIGHT_GRAMS[u] !== undefined) return u;
-  if (VOLUME_ML[u] !== undefined) return u;
-  if (UNIT_ALIASES[u]) return UNIT_ALIASES[u];
-  if (PIECE_WORDS.has(u)) return 'piece';
-  return u;
-}
-
-function getUnitCategory(unit: string): 'weight' | 'volume' | 'piece' | 'other' {
-  const u = normalizeUnit(unit);
-  if (WEIGHT_GRAMS[u] !== undefined) return 'weight';
-  if (VOLUME_ML[u] !== undefined) return 'volume';
-  if (PIECE_WORDS.has(u)) return 'piece';
-  return 'other';
-}
-
-function toBaseValue(quantity: number, unit: string): number | null {
-  const u = normalizeUnit(unit);
-  if (WEIGHT_GRAMS[u] !== undefined) return quantity * WEIGHT_GRAMS[u];
-  if (VOLUME_ML[u] !== undefined) return quantity * VOLUME_ML[u];
-  if (PIECE_WORDS.has(u)) return quantity;
-  return null;
-}
-
-function fromBaseValue(baseValue: number, unit: string): number {
-  const u = normalizeUnit(unit);
-  if (WEIGHT_GRAMS[u] !== undefined) return baseValue / WEIGHT_GRAMS[u];
-  if (VOLUME_ML[u] !== undefined) return baseValue / VOLUME_ML[u];
-  return baseValue;
-}
-
-function formatQuantity(value: number): string {
-  if (value === 0) return '0';
-  if (value >= 1000) {
-    return value % 1000 === 0 ? `${value / 1000}k` : value.toFixed(0);
-  }
-  if (value < 1 && value > 0) {
-    return value.toFixed(2).replace(/\.?0+$/, '');
-  }
-  if (value % 1 === 0) return String(value);
-  return value.toFixed(1).replace(/\.0$/, '');
-}
-
-function findPantryMatch(
-  ingredient: MealIngredient,
-  pantry: PantryItem[]
-): PantryItem | null {
-  const normalizedIng = normalizeName(ingredient.name);
-  if (!normalizedIng) return null;
-
-  let bestMatch: PantryItem | null = null;
-  let bestScore = 0;
-
-  for (const item of pantry) {
-    const normalizedItem = normalizeName(item.name);
-    if (!normalizedItem) continue;
-
-    if (normalizedItem === normalizedIng) {
-      return item;
-    }
-
-    if (isWordBoundaryMatch(normalizedIng, normalizedItem)) {
-      const score = normalizedIng.split(' ').length;
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = item;
-      }
-    }
-  }
-
-  return bestMatch;
-}
-
-export function checkIngredient(
-  ingredient: MealIngredient,
-  pantry: PantryItem[]
-): IngredientCheck {
-  const requiredQuantity = parseFloat(ingredient.quantity) || 0;
-  const requiredUnit = ingredient.unit;
-  const matchedItem = findPantryMatch(ingredient, pantry);
-
-  if (!matchedItem) {
-    return {
-      ingredient,
-      matchedItem: null,
-      requiredQuantity,
-      requiredUnit,
-      availableQuantity: 0,
-      availableUnit: requiredUnit,
-      remainingQuantity: 0,
-      remainingUnit: requiredUnit,
-      status: 'missing',
-    };
-  }
-
-  const availableUnit = matchedItem.unit;
-  const availableQuantity = matchedItem.quantity;
-
-  const reqBase = toBaseValue(requiredQuantity, requiredUnit);
-  const availBase = toBaseValue(availableQuantity, availableUnit);
-
-  if (
-    reqBase !== null &&
-    availBase !== null &&
-    getUnitCategory(requiredUnit) === getUnitCategory(availableUnit)
-  ) {
-    const remainingBase = availBase - reqBase;
-    const remaining = fromBaseValue(remainingBase, requiredUnit);
-    return {
-      ingredient,
-      matchedItem,
-      requiredQuantity,
-      requiredUnit,
-      availableQuantity,
-      availableUnit,
-      remainingQuantity: remaining,
-      remainingUnit: requiredUnit,
-      status:
-        remainingBase < 0
-          ? 'low'
-          : remainingBase / Math.max(availBase, 1) < 0.25
-            ? 'low'
-            : 'available',
-    };
-  }
-
-  if (
-    getUnitCategory(requiredUnit) !== getUnitCategory(availableUnit) &&
-    getUnitCategory(requiredUnit) !== 'other' &&
-    getUnitCategory(availableUnit) !== 'other'
-  ) {
-    return {
-      ingredient,
-      matchedItem,
-      requiredQuantity,
-      requiredUnit,
-      availableQuantity,
-      availableUnit,
-      remainingQuantity: availableQuantity,
-      remainingUnit: availableUnit,
-      status: 'low',
-    };
-  }
-
+function toCheck(ingredient: MealIngredient, line: Line): IngredientCheck {
+  const required = line.scaled ?? (parseFloat(ingredient.quantity) || 0);
+  const short = line.shortfall?.quantity ?? null;
   return {
     ingredient,
-    matchedItem,
-    requiredQuantity,
-    requiredUnit,
-    availableQuantity,
-    availableUnit,
-    remainingQuantity: availableQuantity,
-    remainingUnit: availableUnit,
-    status: 'available',
+    matchedItem: (line.item as PantryItem | null) ?? null,
+    requiredQuantity: required,
+    requiredUnit: ingredient.unit,
+    availableQuantity: line.item ? Number(line.item.quantity) || 0 : 0,
+    availableUnit: line.item?.unit ?? ingredient.unit,
+    remainingQuantity: short != null ? -short : line.item ? Number(line.item.quantity) - (line.use ?? 0) : 0,
+    remainingUnit: short != null ? line.shortfall!.unit : line.item?.unit ?? ingredient.unit,
+    status: statusOf(line),
+    note:
+      line.status === 'basic'
+        ? 'kitchen basic'
+        : line.status === 'staple' || line.status === 'staple-low'
+          ? line.haveText
+          : line.status === 'missing'
+            ? 'not in your pantry'
+            : line.status === 'short'
+              ? `need ${line.neededText} · have ${line.haveText}`
+              : line.status === 'have-some'
+                ? 'in your pantry'
+                : `have ${line.haveText}`,
   };
 }
 
-export function checkMealIngredients(
-  ingredients: MealIngredient[],
-  pantry: PantryItem[]
-): IngredientCheck[] {
-  return ingredients.map((ing) => checkIngredient(ing, pantry));
+export function checkIngredient(ingredient: MealIngredient, pantry: PantryItem[]): IngredientCheck {
+  const check = checkNeeds([toNeed(ingredient)], pantry as PantryLike[]);
+  return toCheck(ingredient, check.lines[0]!);
+}
+
+export function checkMealIngredients(ingredients: MealIngredient[], pantry: PantryItem[]): IngredientCheck[] {
+  const check = checkNeeds(ingredients.map(toNeed), pantry as PantryLike[]);
+  return ingredients.map((ing, i) => toCheck(ing, check.lines[i]!));
 }
 
 export type MealPantrySummary = {
@@ -276,25 +81,14 @@ export type MealPantrySummary = {
   total: number;
 };
 
-export function getMealPantrySummary(
-  ingredients: MealIngredient[],
-  pantry: PantryItem[]
-): MealPantrySummary {
+export function getMealPantrySummary(ingredients: MealIngredient[], pantry: PantryItem[]): MealPantrySummary {
   const checks = checkMealIngredients(ingredients, pantry);
-  let availableCount = 0;
-  let lowCount = 0;
-  let missingCount = 0;
-  for (const check of checks) {
-    if (check.status === 'available') availableCount++;
-    else if (check.status === 'low') lowCount++;
-    else missingCount++;
-  }
+  const availableCount = checks.filter((c) => c.status === 'available').length;
+  const lowCount = checks.filter((c) => c.status === 'low').length;
+  const missingCount = checks.filter((c) => c.status === 'missing').length;
   const total = checks.length;
-  let status: MealPantrySummary['status'] = 'all-available';
-  if (missingCount === total && total > 0) status = 'all-missing';
-  else if (missingCount > 0 || lowCount > 0) status = 'some-missing';
   return {
-    status,
+    status: missingCount === total && total > 0 ? 'all-missing' : missingCount > 0 || lowCount > 0 ? 'some-missing' : 'all-available',
     availableCount,
     lowCount,
     missingCount,
@@ -324,107 +118,76 @@ export interface PlanPantrySummary {
   missingIngredients: MissingIngredient[];
 }
 
-function computeMissingQuantity(check: IngredientCheck): number {
-  if (check.status === 'available') return 0;
-  if (check.status === 'missing') return check.requiredQuantity;
-
-  const reqBase = toBaseValue(check.requiredQuantity, check.requiredUnit);
-  const availBase = toBaseValue(check.availableQuantity, check.availableUnit);
-  if (reqBase !== null && availBase !== null) {
-    return fromBaseValue(reqBase - availBase, check.requiredUnit);
-  }
-  return check.requiredQuantity;
-}
-
+/**
+ * Checks a whole plan day by day, taking each meal's ingredients out of a
+ * running copy of the pantry, so later meals only count what's left.
+ */
 export function getPlanPantrySummary(
   plan: { days: { meals: { id: string; name: string; ingredients: MealIngredient[] }[] }[] },
   pantry: PantryItem[]
 ): PlanPantrySummary {
+  const ledger = new Ledger(pantry as PantryLike[]);
   let totalIngredients = 0;
   let availableCount = 0;
   let lowCount = 0;
   let missingCount = 0;
   let completableMeals = 0;
   let totalMeals = 0;
-
   const missingMap = new Map<string, MissingIngredient>();
 
   for (const day of plan.days) {
     for (const meal of day.meals) {
       totalMeals++;
-      const checks = checkMealIngredients(meal.ingredients, pantry);
-      let mealComplete = true;
-
-      for (const check of checks) {
+      const check = checkNeeds(meal.ingredients.map(toNeed), pantry as PantryLike[], { ledger, commit: true });
+      let complete = true;
+      check.lines.forEach((line, idx) => {
+        if (line.status === 'basic' || line.status === 'optional') return;
         totalIngredients++;
-        if (check.status === 'available') {
-          availableCount++;
-        } else if (check.status === 'low') {
-          lowCount++;
-          mealComplete = false;
-        } else {
-          missingCount++;
-          mealComplete = false;
-        }
-
-        if (check.status !== 'available') {
-          const key = normalizeName(check.ingredient.name);
-          const missingQty = computeMissingQuantity(check);
-          const existing = missingMap.get(key);
-          if (existing) {
-            const reqBase = toBaseValue(check.requiredQuantity, check.requiredUnit);
-            const missBase = toBaseValue(missingQty, check.requiredUnit);
-            if (reqBase !== null && missBase !== null) {
-              const newReqBase =
-                toBaseValue(existing.neededQuantity, existing.neededUnit) ?? 0;
-              const newMissBase =
-                toBaseValue(existing.missingQuantity, existing.missingUnit) ?? 0;
-              existing.neededQuantity = fromBaseValue(newReqBase + reqBase, existing.neededUnit);
-              existing.missingQuantity = fromBaseValue(newMissBase + missBase, existing.missingUnit);
-            }
-            if (!existing.meals.includes(meal.name)) {
-              existing.meals.push(meal.name);
-            }
+        const st = statusOf(line);
+        if (st === 'available') availableCount++;
+        else if (st === 'low') lowCount++;
+        else missingCount++;
+        if (line.status === 'missing' || line.status === 'short') {
+          complete = false;
+          const s = line.shortfall;
+          const ing = meal.ingredients[idx]!;
+          const key = `${ing.name.toLowerCase()}|${s?.unit ?? ''}`;
+          const prev = missingMap.get(key);
+          if (prev) {
+            prev.missingQuantity = +(prev.missingQuantity + (s?.quantity ?? 0)).toFixed(2);
+            prev.neededQuantity = +(prev.neededQuantity + (line.scaled ?? 0)).toFixed(2);
+            if (!prev.meals.includes(meal.name)) prev.meals.push(meal.name);
           } else {
             missingMap.set(key, {
-              name: check.ingredient.name,
-              neededQuantity: check.requiredQuantity,
-              neededUnit: check.requiredUnit,
-              availableQuantity: check.availableQuantity,
-              availableUnit: check.availableUnit,
-              missingQuantity: missingQty,
-              missingUnit: check.requiredUnit,
+              name: ing.name,
+              neededQuantity: line.scaled ?? 0,
+              neededUnit: ing.unit,
+              availableQuantity: line.item ? Number(line.item.quantity) || 0 : 0,
+              availableUnit: line.item?.unit ?? ing.unit,
+              missingQuantity: s?.quantity ?? 0,
+              missingUnit: s?.unit ?? '',
               meals: [meal.name],
             });
           }
         }
-      }
-
-      if (mealComplete && meal.ingredients.length > 0) {
-        completableMeals++;
-      }
+      });
+      if (complete && meal.ingredients.length > 0) completableMeals++;
     }
   }
-
-  const usagePercentage =
-    totalIngredients > 0
-      ? Math.round((availableCount / totalIngredients) * 100)
-      : 0;
-
-  const missingIngredients = Array.from(missingMap.values());
 
   return {
     totalIngredients,
     availableCount,
     lowCount,
     missingCount,
-    usagePercentage,
+    usagePercentage: totalIngredients > 0 ? Math.round((availableCount / totalIngredients) * 100) : 0,
     completableMeals,
     totalMeals,
-    missingIngredients,
+    missingIngredients: Array.from(missingMap.values()),
   };
 }
 
 export function formatQuantityWithUnit(quantity: number, unit: string): string {
-  return `${formatQuantity(quantity)} ${unit}`.trim();
+  if (!quantity && !unit) return '';
+  return formatAmount(quantity, unit);
 }

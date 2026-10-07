@@ -121,6 +121,8 @@ export type Database = {
           unit: PantryUnit;
           expiration_date: string | null;
           notes: string | null;
+          tracking: 'count' | 'level';
+          level: 'full' | 'half' | 'low' | 'out' | null;
           created_at: string;
           updated_at: string;
         };
@@ -133,6 +135,8 @@ export type Database = {
           unit?: PantryUnit;
           expiration_date?: string | null;
           notes?: string | null;
+          tracking?: 'count' | 'level';
+          level?: 'full' | 'half' | 'low' | 'out' | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -145,6 +149,8 @@ export type Database = {
           unit?: PantryUnit;
           expiration_date?: string | null;
           notes?: string | null;
+          tracking?: 'count' | 'level';
+          level?: 'full' | 'half' | 'low' | 'out' | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -1306,6 +1312,61 @@ export type Database = {
         };
         Relationships: [];
       };
+      cooking_log: {
+        Row: {
+          id: string;
+          user_id: string;
+          household_id: string | null;
+          cooked_on: string;
+          meal_type: string | null;
+          status: 'cooked' | 'other' | 'skipped';
+          recipe_key: string | null;
+          recipe_name: string | null;
+          servings: number | null;
+          plan_ref: string | null;
+          batch_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          cooked_on?: string;
+          meal_type?: string | null;
+          status?: 'cooked' | 'other' | 'skipped';
+          recipe_key?: string | null;
+          recipe_name?: string | null;
+          servings?: number | null;
+          plan_ref?: string | null;
+          batch_id?: string | null;
+        };
+        Update: { status?: 'cooked' | 'other' | 'skipped'; batch_id?: string | null };
+        Relationships: [];
+      };
+      pantry_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          household_id: string | null;
+          batch_id: string;
+          source: PantryEventSource;
+          label: string | null;
+          pantry_item_id: string | null;
+          item_name: string;
+          before: Record<string, unknown> | null;
+          after: Record<string, unknown> | null;
+          undone: boolean;
+          created_at: string;
+        };
+        Insert: {
+          batch_id: string;
+          source: PantryEventSource;
+          label?: string | null;
+          pantry_item_id?: string | null;
+          item_name: string;
+          before?: Record<string, unknown> | null;
+          after?: Record<string, unknown> | null;
+        };
+        Update: { undone?: boolean };
+        Relationships: [];
+      };
       households: {
         Row: { id: string; name: string; owner_id: string; created_at: string };
         Insert: { id?: string; name: string; owner_id: string };
@@ -1386,6 +1447,9 @@ export type Database = {
   };
 };
 
+export type PantryEventSource = 'cooked' | 'shopping' | 'quick_add' | 'setup' | 'manual' | 'check' | 'receipt' | 'companion' | 'undo';
+export type CookingLog = Database['public']['Tables']['cooking_log']['Row'];
+export type PantryEvent = Database['public']['Tables']['pantry_events']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type PlannerTask = Database['public']['Tables']['planner_tasks']['Row'];
 export type PlannerGoal = Database['public']['Tables']['planner_goals']['Row'];

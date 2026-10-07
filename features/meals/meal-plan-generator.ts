@@ -3,6 +3,7 @@ import { getMealImage } from '@/features/meals/meal-images';
 import type { MealPreferencesState } from '@/features/meals/meals-config';
 import type { PantryItem } from '@/types/database';
 import { conflictsWithAllergies, fitsDiet } from '@/lib/recipes/allergens';
+import { checkNeeds, Ledger, type PantryLike } from '@/lib/pantry/engine';
 
 export type MealDifficulty = 'Easy' | 'Medium' | 'Hard';
 
@@ -173,11 +174,20 @@ function mealTypeKey(name: string | null): string {
   return lower;
 }
 
+/** Rounds a scaled amount sensibly: 2.25 → 2.25, 412.5 → 415, 3.333 → 3.33. */
+function tidy(n: number): string {
+  if (n >= 100) return String(Math.round(n / 5) * 5);
+  if (n >= 10) return String(Math.round(n));
+  return String(+n.toFixed(2));
+}
+
 function toMockMeal(recipe: RecipeRow, type: string, householdSize: number): MockMeal {
+  // Amounts are scaled from the recipe's servings to the family's portions.
+  const factor = householdSize / (recipe.servings || householdSize);
   const ingredients: MealIngredient[] = recipe.recipe_ingredients
     .map((ri) => ({
       name: ri.ingredient?.name ?? '',
-      quantity: ri.quantity != null && Number(ri.quantity) > 0 ? String(ri.quantity) : '',
+      quantity: ri.quantity != null && Number(ri.quantity) > 0 ? tidy(Number(ri.quantity) * factor) : '',
       unit: ri.unit ?? '',
     }))
     .filter((i) => i.name);
@@ -197,7 +207,7 @@ function toMockMeal(recipe: RecipeRow, type: string, householdSize: number): Moc
     recipe: recipeSteps,
     prepTime: recipe.prep_time_minutes ?? 0,
     cookTime: recipe.cook_time_minutes ?? 0,
-    servings: recipe.servings ?? householdSize,
+    servings: householdSize,
     difficulty: normalizeDifficulty(recipe.difficulty?.name),
   };
 }
@@ -253,6 +263,16 @@ export async function generateMealPlanFromSupabase(
 
   const rotationCursors: Record<string, number> = {};
   const usedIds = new Set<string>();
+  // With "use pantry first", pick recipes the pantry can cover, keeping a running
+  // count of what earlier meals in the plan have already used.
+  const pantry = (input.pantryItems ?? []) as PantryLike[];
+  const pantryFirst = !!preferences.usePantryFirst && pantry.length > 0;
+  const ledger = new Ledger(pantry);
+  const needsOf = (r: RecipeRow) =>
+    r.recipe_ingredients
+      .filter((ri) => ri.ingredient?.name)
+      .map((ri) => ({ name: ri.ingredient!.name, quantity: ri.quantity != null && Number(ri.quantity) > 0 ? Number(ri.quantity) : null, unit: ri.unit ?? '' }));
+  const factorOf = (r: RecipeRow) => householdSize / (r.servings || householdSize);
 
   for (let i = 0; i < planningDuration; i++) {
     const dayName = DAY_NAMES[i % DAY_NAMES.length];
@@ -270,7 +290,18 @@ export async function generateMealPlanFromSupabase(
       let candidate: RecipeRow | undefined;
 
       const unused = pool.filter((r) => !usedIds.has(r.id));
-      if (unused.length > 0) {
+      if (unused.length > 0 && pantryFirst) {
+        const scored = shuffle(unused).map((r) => {
+          const c = checkNeeds(needsOf(r), pantry, { factor: factorOf(r), ledger });
+          const usesPantry = c.lines.filter((l) => l.item && (l.status === 'enough' || l.status === 'short')).length;
+          return { r, score: c.missingCount * 2 + c.shortCount - usesPantry * 0.5 };
+        });
+        scored.sort((a, b) => a.score - b.score);
+        // Keep some variety: choose among the best few.
+        const top = scored.slice(0, Math.min(3, scored.length));
+        candidate = top[Math.floor(Math.random() * top.length)]!.r;
+        checkNeeds(needsOf(candidate), pantry, { factor: factorOf(candidate), ledger, commit: true });
+      } else if (unused.length > 0) {
         const shuffled = shuffle(unused);
         candidate = shuffled[0];
       } else {

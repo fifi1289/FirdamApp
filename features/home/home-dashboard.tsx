@@ -35,6 +35,7 @@ import {
 } from '@/lib/prayer/prayer';
 import { cn } from '@/lib/utils';
 import { usePlan } from '@/lib/plan/plan';
+import { TodayCookingCard } from '@/features/home/today-cooking-card';
 import { MODULE_GROUPS, lifeModules } from '@/features/modules/module-config';
 import { ModuleCard } from '@/features/modules/module-card';
 import { DuaCard } from '@/features/quran/duas-view';
@@ -385,6 +386,8 @@ export function HomeDashboard() {
           </Link>
         </div>
       </div>
+
+      <TodayCookingCard />
 
       {isPaid ? (
         <Link

@@ -7,9 +7,12 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
+  Sparkles,
   Search,
   Trash2,
 } from 'lucide-react';
+import { LevelChips, setStapleLevel } from '@/features/pantry/pantry-tools';
+import { formatAmount } from '@/lib/pantry/units';
 
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -187,9 +190,13 @@ function PantryItemCard({
                 {STATUS_BADGE[exp.status].label}
               </Badge>
             )}
-            <span className="text-xs font-medium tabular-nums text-muted-foreground">
-              {item.quantity} {item.unit}
-            </span>
+            {item.tracking === 'level' ? (
+              <LevelChips size="xs" value={item.level ?? 'full'} onChange={(l) => setStapleLevel(item, l)} />
+            ) : (
+              <span className="text-xs font-medium tabular-nums text-muted-foreground">
+                {formatAmount(Number(item.quantity), item.unit)}
+              </span>
+            )}
           </div>
           {exp && relative && (
             <div className="mt-2">
@@ -366,12 +373,18 @@ export function PantryItemsList() {
             Your pantry is empty
           </h3>
           <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-            Add your first item to start managing your household food inventory and reduce waste.
+            Tick what you have in 2 minutes, or type it in the quick-add bar above. After that, cooking and shopping keep it up to date.
           </p>
-          <Button size="sm" className="mt-6" onClick={() => window.dispatchEvent(new Event('pantry-open-add'))}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add your first item
-          </Button>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <Button size="sm" onClick={() => window.dispatchEvent(new Event('pantry-open-setup'))}>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Quick setup (2 minutes)
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => window.dispatchEvent(new Event('pantry-open-add'))}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add one item
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );

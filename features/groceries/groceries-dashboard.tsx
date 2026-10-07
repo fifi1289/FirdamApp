@@ -18,6 +18,9 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { applyPantryChanges, changesForAdding } from '@/lib/pantry/store';
+import { isStapleFood } from '@/lib/pantry/quick-add';
+import { undoToast } from '@/features/pantry/cook-dialog';
 
 import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
@@ -35,7 +38,7 @@ import {
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { CATEGORY_ICONS } from '@/features/pantry/pantry-config';
-import type { GroceryItem, GroceryList } from '@/types/database';
+import type { GroceryItem, GroceryList, PantryItem } from '@/types/database';
 import {
   formatQty,
   groupByAisle,
@@ -43,7 +46,6 @@ import {
   listToText,
   needsHalalSource,
   parseQuickAdd,
-  toPantryUnit,
   asPantryCategory,
 } from '@/features/groceries/grocery-utils';
 import { FromMealPlanDialog } from '@/features/groceries/from-meal-plan-dialog';
@@ -266,28 +268,32 @@ export function GroceriesDashboard() {
     }
   };
 
+  /** "Put it all away": bought items go into the pantry, merging with what's already there. */
   const moveCheckedToPantry = async () => {
     if (!checked.length) return;
     setMovingToPantry(true);
-    const { error } = await supabase.from('pantry_items').insert(
-      checked.map((i) => ({
-        name: i.name,
-        category: asPantryCategory(i.category),
-        quantity: i.quantity ?? 1,
-        unit: toPantryUnit(i.unit),
-      }))
-    );
-    if (error) {
+    try {
+      const { data: pantry } = await supabase.from('pantry_items').select('*');
+      const changes = changesForAdding(
+        checked.map((i) => ({
+          name: i.name,
+          quantity: i.quantity ?? 1,
+          unit: i.unit,
+          category: asPantryCategory(i.category),
+          ...(isStapleFood(i.name) ? { tracking: 'level' as const, level: 'full' as const } : {}),
+        })),
+        (pantry ?? []) as PantryItem[]
+      );
+      const batch = await applyPantryChanges(changes, 'shopping', 'Shopping put away');
+      await supabase.from('grocery_items').delete().in('id', checked.map((i) => i.id));
+      setItems((prev) => prev.filter((i) => !i.checked));
+      window.dispatchEvent(new Event('pantry-items-changed'));
+      undoToast(`${checked.length} item${checked.length === 1 ? '' : 's'} put away in your pantry`, batch);
+    } catch (err) {
+      toast.error('Could not add to pantry', { description: err instanceof Error ? err.message : undefined });
+    } finally {
       setMovingToPantry(false);
-      toast.error('Could not add to pantry', { description: error.message });
-      return;
     }
-    await supabase.from('grocery_items').delete().in('id', checked.map((i) => i.id));
-    setMovingToPantry(false);
-    setItems((prev) => prev.filter((i) => !i.checked));
-    toast.success(`${checked.length} item${checked.length === 1 ? '' : 's'} added to your pantry`, {
-      action: { label: 'View pantry', onClick: () => (window.location.href = '/dashboard/pantry') },
-    });
   };
 
   const createList = async (e: React.FormEvent) => {
@@ -594,7 +600,7 @@ export function GroceriesDashboard() {
                           ) : (
                             <Archive className="mr-1.5 h-3.5 w-3.5" />
                           )}
-                          Move to pantry
+                          Put away in pantry
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearChecked}>
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" />

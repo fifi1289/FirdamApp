@@ -252,4 +252,24 @@ DO $$ BEGIN
 END $$;
 RESET ROLE;
 
+-- Pantry tracking: cooking log and pantry history are private to the household.
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+INSERT INTO public.pantry_items (name, category, quantity, unit, tracking, level) VALUES ('Rice', 'Pasta & Rice', 1, 'Pack', 'level', 'full');
+INSERT INTO public.cooking_log (recipe_name, status) VALUES ('Chicken Karahi', 'cooked');
+INSERT INTO public.pantry_events (batch_id, source, label, item_name, before) VALUES (gen_random_uuid(), 'cooked', 'Cooked Chicken Karahi', 'Chicken', '{"quantity": 1}');
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO public.pantry_items (name, category, quantity, unit, tracking) VALUES ('Bad', 'Other', 1, 'Pieces', 'weird');
+    RAISE EXCEPTION 'invalid tracking accepted';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+END $$;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000004';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.cooking_log) <> 0 THEN RAISE EXCEPTION 'cooking log leaked'; END IF;
+  IF (SELECT count(*) FROM public.pantry_events) <> 0 THEN RAISE EXCEPTION 'pantry history leaked'; END IF;
+END $$;
+RESET ROLE;
+
 SELECT 'RLS smoke test passed' AS result;

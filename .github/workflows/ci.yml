@@ -106,7 +106,7 @@ jobs:
           done
       - name: Type check edge functions
         run: |
-          for f in supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts supabase/functions/billing/index.ts supabase/functions/stripe-webhook/index.ts supabase/functions/companion/index.ts supabase/functions/generate-meal-plan/index.ts supabase/functions/meal-ai-planner/index.ts supabase/functions/openai-test/index.ts supabase/functions/recipe-images/index.ts; do
+          for f in supabase/functions/halal-places/index.ts supabase/functions/prayer-times/index.ts supabase/functions/billing/index.ts supabase/functions/stripe-webhook/index.ts supabase/functions/companion/index.ts supabase/functions/generate-meal-plan/index.ts supabase/functions/meal-ai-planner/index.ts supabase/functions/openai-test/index.ts supabase/functions/recipe-images/index.ts supabase/functions/receipt-scan/index.ts; do
             if ! out=$(deno check "$f" 2>&1); then
               echo "$out"
               echo "::error file=$f::$(echo "$out" | grep -v '^Download' | head -n 12 | tr '\n' ' ' | cut -c1-900)"

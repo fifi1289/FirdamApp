@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LifeBuoy,
   Settings,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -29,6 +30,7 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { label: 'Home', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Companion', href: '/dashboard/companion', icon: Sparkles, badge: 'AI' },
 ];
 
 const groupedNav = MODULE_GROUPS.map((group) => ({

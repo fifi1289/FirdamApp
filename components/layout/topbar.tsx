@@ -51,6 +51,7 @@ const SEARCH_EXTRAS = [
   { name: 'Settings', href: '/settings', keywords: 'preferences theme reminders notifications' },
   { name: 'Profile', href: '/profile', keywords: 'account name' },
   { name: 'Support', href: '/support', keywords: 'help faq contact' },
+  { name: 'Family Companion', href: '/dashboard/companion', keywords: 'ai assistant chat ask help' },
   { name: 'Plans & billing', href: '/dashboard/upgrade', keywords: 'premium subscription upgrade pricing' },
 ];
 

@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { LIMIT_LABELS, PLAN_LIMITS, type LimitKey } from '@/lib/plan/plan';
 
 const PREMIUM_PERKS = [
+  'Unlimited AI Family Companion',
   'Unlimited AI halal meal plans',
   'Unlimited trips, habits, goals and recipes',
   'Ramadan, zakat and savings tools without limits',

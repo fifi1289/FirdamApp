@@ -4,6 +4,7 @@
  */
 
 export const FREE_AI_PLANS_PER_MONTH = 2;
+export const FREE_COMPANION_MESSAGES_PER_DAY = 10;
 
 function env(name: string): string | undefined {
   const v = Deno.env.get(name);
@@ -49,12 +50,20 @@ export async function getPlan(userId: string): Promise<"free" | "premium" | "fam
   return sub.plan === "family" ? "family" : sub.plan === "premium" ? "premium" : "free";
 }
 
-export async function countUsageThisMonth(userId: string, kind: string): Promise<number> {
+export function countUsageThisMonth(userId: string, kind: string): Promise<number> {
+  const now = new Date();
+  return countUsageSince(userId, kind, new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString());
+}
+
+/** Usage in the last 24 hours (a rolling "day" that ignores time zones). */
+export function countUsageToday(userId: string, kind: string): Promise<number> {
+  return countUsageSince(userId, kind, new Date(Date.now() - 24 * 3600_000).toISOString());
+}
+
+async function countUsageSince(userId: string, kind: string, since: string): Promise<number> {
   const url = env("SUPABASE_URL");
   const headers = serviceHeaders();
   if (!url || !headers) return 0;
-  const now = new Date();
-  const since = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
   const res = await fetch(
     `${url}/rest/v1/ai_usage?user_id=eq.${encodeURIComponent(userId)}&kind=eq.${encodeURIComponent(kind)}&created_at=gte.${encodeURIComponent(since)}&select=id`,
     { headers: { ...headers, Prefer: "count=exact", Range: "0-0" } },

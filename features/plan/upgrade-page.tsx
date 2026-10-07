@@ -33,6 +33,7 @@ const FEATURES: { label: string; free: string | boolean; premium: string | boole
   { label: 'Recipe library & meal planner', free: true, premium: true, family: true },
   { label: 'Quran & duas, Ramadan planner', free: true, premium: true, family: true },
   { label: 'Family calendar, community events', free: true, premium: true, family: true },
+  { label: 'AI Family Companion', free: '10 messages a day', premium: 'Unlimited', family: 'Unlimited' },
   { label: 'AI halal meal plans', free: '2 a month', premium: 'Unlimited', family: 'Unlimited' },
   { label: 'Your own recipes', free: '3', premium: 'Unlimited', family: 'Unlimited' },
   { label: 'Trips with destination guides', free: '1', premium: 'Unlimited', family: 'Unlimited' },

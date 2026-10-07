@@ -8,6 +8,7 @@ import type { PlanId, Subscription } from '@/types/database';
 /** What each plan allows. `Infinity` means unlimited. */
 export const PLAN_LIMITS = {
   free: {
+    companionMessagesPerDay: 10,
     aiMealPlansPerMonth: 2,
     customRecipes: 3,
     trips: 1,
@@ -17,6 +18,7 @@ export const PLAN_LIMITS = {
     shoppingLists: 2,
   },
   premium: {
+    companionMessagesPerDay: Infinity,
     aiMealPlansPerMonth: Infinity,
     customRecipes: Infinity,
     trips: Infinity,
@@ -26,6 +28,7 @@ export const PLAN_LIMITS = {
     shoppingLists: Infinity,
   },
   family: {
+    companionMessagesPerDay: Infinity,
     aiMealPlansPerMonth: Infinity,
     customRecipes: Infinity,
     trips: Infinity,
@@ -39,6 +42,7 @@ export const PLAN_LIMITS = {
 export type LimitKey = keyof (typeof PLAN_LIMITS)['free'];
 
 export const LIMIT_LABELS: Record<LimitKey, string> = {
+  companionMessagesPerDay: 'Companion messages a day',
   aiMealPlansPerMonth: 'AI meal plans per month',
   customRecipes: 'your own recipes',
   trips: 'planned trips',

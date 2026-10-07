@@ -11,6 +11,7 @@ import {
   MapPin,
   Moon,
   ShoppingCart,
+  Sparkles,
   Utensils,
   Wallet,
 } from 'lucide-react';
@@ -381,6 +382,22 @@ export function HomeDashboard() {
           </Link>
         </div>
       </div>
+
+      <Link
+        href="/dashboard/companion"
+        className="bg-girih mt-5 flex items-center gap-4 rounded-2xl border border-brand-gold/40 bg-gradient-to-r from-brand-gold/15 to-transparent p-5 transition-colors hover:border-brand-gold"
+      >
+        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-dark to-brand-gold text-white">
+          <Sparkles className="h-5 w-5" />
+        </span>
+        <div className="flex-1">
+          <p className="font-semibold text-foreground">Ask your Family Companion</p>
+          <p className="text-sm text-muted-foreground">
+            “What’s on this week?” · “Add dates and milk to my list” · “Plan a quick halal dinner”
+          </p>
+        </div>
+        <ArrowRight className="h-5 w-5 text-primary" />
+      </Link>
 
       <Link
         href="/dashboard/halal-places"

@@ -21,6 +21,31 @@ import {
   STRENGTH_LABELS,
 } from '@/lib/auth/validation';
 
+/**
+ * Signs in with the link from the reset email. Works whichever device or
+ * browser asked for the reset:
+ * - `token_hash` links (the recommended email template) are verified here;
+ * - `code` links only work in the browser that asked for the reset;
+ * - older `#access_token` links are read automatically by Supabase.
+ */
+async function signInFromResetLink(supabase: ReturnType<typeof createSupabaseBrowserClient>): Promise<boolean> {
+  const params = new URLSearchParams(window.location.search);
+  const tokenHash = params.get('token_hash');
+  const code = params.get('code');
+  if (tokenHash) {
+    const { error } = await supabase.auth.verifyOtp({ type: 'recovery', token_hash: tokenHash });
+    if (error) return false;
+  } else if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) return false;
+    }
+  }
+  const { data } = await supabase.auth.getSession();
+  return !!data.session;
+}
+
 export default function ResetPasswordPage() {
   const router = useRouter();
 
@@ -29,6 +54,7 @@ export default function ResetPasswordPage() {
   const [errors, setErrors] = React.useState<{ password?: string; confirm?: string }>({});
   const [loading, setLoading] = React.useState(false);
   const [done, setDone] = React.useState(false);
+  const [linkProblem, setLinkProblem] = React.useState(false);
 
   const strength = passwordStrength(password);
 
@@ -53,15 +79,49 @@ export default function ResetPasswordPage() {
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
+      // The email link proves who you are. It is only used now, when you press
+      // Update, so email scanners that open links early can't use it up.
+      const ok = await signInFromResetLink(supabase);
+      if (!ok) {
+        setLinkProblem(true);
+        return;
+      }
       await updatePassword(supabase, password);
+      // Start fresh: sign in with the new password (and code, if two-step is on).
+      await supabase.auth.signOut();
       setDone(true);
       toast.success('Password updated. You can now sign in.');
     } catch (err) {
-      toast.error(getAuthErrorMessage(err));
+      const message = err instanceof Error ? err.message : '';
+      if (/aal2|assurance/i.test(message)) {
+        toast.error('Two-step verification is on for this account. Sign in with your code first, then change your password in Settings.');
+      } else if (/session|expired|invalid|otp|token/i.test(message)) {
+        setLinkProblem(true);
+      } else {
+        toast.error(getAuthErrorMessage(err));
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  if (linkProblem) {
+    return (
+      <AuthShell title="This link has expired" description="Reset links work once and expire after an hour.">
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Ask for a new link and use the newest email. If you have several reset emails, older links stop working.
+          </p>
+          <Button asChild className="w-full" size="lg">
+            <Link href="/auth/forgot-password">
+              Send me a new link
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </AuthShell>
+    );
+  }
 
   if (done) {
     return (

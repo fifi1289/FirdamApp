@@ -1,0 +1,28 @@
+# Temporary: finds an OpenNext adapter that supports this Next.js version,
+# writes it into the lockfile and test-builds the app for Cloudflare.
+name: cloudflare-probe
+on:
+  push:
+    branches: [feature/cloudflare]
+    paths: ['.github/workflows/cloudflare-probe.yml']
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Adapter versions and the Next.js versions they accept
+        run: |
+          node -e '
+          const {execSync}=require("child_process");
+          const all=JSON.parse(execSync("npm view @opennextjs/cloudflare versions --json"));
+          const stable=all.filter(v=>!v.includes("-")&&!v.startsWith("0."));
+          for(const v of stable){
+            const p=JSON.parse(execSync(`npm view @opennextjs/cloudflare@${v} peerDependencies --json`).toString()||"{}");
+            console.log(v.padEnd(10), JSON.stringify(p));
+          }'
+          npm view wrangler version

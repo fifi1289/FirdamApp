@@ -55,6 +55,26 @@ jobs:
             exit 1
           fi
 
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Expo health check
+        run: npx expo-doctor
+      - name: App bundles for iPhone and Android
+        run: npx expo export --platform ios --platform android --output-dir /tmp/expo-export
+
   migrations:
     runs-on: ubuntu-latest
     services:

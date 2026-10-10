@@ -69,6 +69,11 @@ jobs:
           cache-dependency-path: mobile/package-lock.json
       - name: Install
         run: npm ci > /tmp/npm-ci.log 2>&1 || { grep -v '^npm warn' /tmp/npm-ci.log | head -30 | while IFS= read -r l; do echo "::error::$l"; done; exit 1; }
+      - name: Shared code is in sync with the website
+        working-directory: .
+        run: |
+          node mobile/scripts/sync-shared.mjs
+          git diff --exit-code mobile/src/shared
       - name: Type check
         run: npx tsc --noEmit
       - name: Expo health check

@@ -59,7 +59,7 @@ DECLARE
 BEGIN
   FOREACH raw IN ARRAY coalesce(ingredients, '{}') LOOP
     n := trim(regexp_replace(regexp_replace(lower(raw), '[’`]', '''', 'g'), '\s+', ' ', 'g'));
-      IF regexp_replace(n, '\y(rice flour|glutinous rice flour|gluten-free|chickpea flour|gram flour|besan|corn ?flour|cornmeal|(white |yellow )?maize (flour|meal)|maize|almond flour|coconut flour|tapioca|cassava|teff|potato flour|buckwheat|rice noodles?|rice vermicelli|glass noodles|rice paper|corn tortillas?|tamari|coconut aminos|rice cakes?)\y', ' ', 'g') ~ '\y(flour|bread|breadcrumbs?|panko|pitta?s?|naan|chapati|roti|paratha|flatbreads?|lepinja|tortillas?|wraps?|pasta|spaghetti|penne|fusilli|macaroni|fettuccine|tagliatelle|linguine|rigatoni|ravioli|tortellini|buns?|bread rolls?|granola|muesli|lasagne|lasagna|orzo|noodles?|vermicelli|couscous|bulgur|bulgh?ur|freekeh|frik|semolina|barley|wheat|rye|spelt|seitan|filo|phyllo|puff pastry|pastry|brik|warka|pizza dough|dough|soy sauce|kecap manis|teriyaki sauce|oyster sauce|hoisin|crackers?|biscuits?|cake|rusk|kataifi|kunafa|knafeh|malt|jareesh|harees|yufka)\y' THEN found := array_append(found, 'Gluten'); END IF;
+      IF regexp_replace(n, '\y(rice flour|glutinous rice flour|gluten-free|chickpea flour|gram flour|besan|corn ?flour|cornmeal|(white |yellow )?maize (flour|meal)|maize|almond flour|coconut flour|tapioca|cassava|teff|potato flour|buckwheat|rice noodles?|rice vermicelli|glass noodles|rice paper|corn tortillas?|tamari|coconut aminos|rice cakes?)\y', ' ', 'g') ~ '\y(flour|bread|breadcrumbs?|brioche|baguettes?|croissants?|bagels?|sourdough|msemen|baghrir|pretzels?|waffles?|crumpets?|muffins?|panko|pitta?s?|naan|chapati|roti|paratha|flatbreads?|lepinja|tortillas?|wraps?|pasta|spaghetti|penne|fusilli|macaroni|fettuccine|tagliatelle|linguine|rigatoni|ravioli|tortellini|buns?|bread rolls?|granola|muesli|lasagne|lasagna|orzo|noodles?|vermicelli|couscous|bulgur|bulgh?ur|freekeh|frik|semolina|barley|wheat|rye|spelt|seitan|filo|phyllo|puff pastry|pastry|brik|warka|pizza dough|dough|soy sauce|kecap manis|teriyaki sauce|oyster sauce|hoisin|crackers?|biscuits?|cake|rusk|kataifi|kunafa|knafeh|malt|jareesh|harees|yufka)\y' THEN found := array_append(found, 'Gluten'); END IF;
       IF regexp_replace(n, '\y(coconut milk|coconut cream|almond milk|oat milk|soy milk|soya milk|rice milk|peanut butter|almond butter|cashew butter|nut butter|shea butter|cocoa butter|cream of tartar|butter beans?|butterhead|dairy-free|vegan (butter|cheese|yogh?urt)|coconut yogh?urt)\y', ' ', 'g') ~ '\y(milk|butter|ghee|cream|yogh?urt|labneh|cheese|paneer|feta|halloumi|mozzarella|parmesan|cheddar|ricotta|mascarpone|akkawi|nabulsi|jameed|kashk|kefir|buttermilk|whey|casein|custard|ice cream|khoa|khoya|condensed|evaporated|tzatziki|creme fraiche|crème fraîche|qishta|ashta)\y' THEN found := array_append(found, 'Dairy'); END IF;
       IF regexp_replace(n, '\y(eggplants?|egg-free|vegan mayo)\y', ' ', 'g') ~ '\y(eggs?|egg yolks?|egg whites?|mayonnaise|mayo|meringue|aioli)\y' THEN found := array_append(found, 'Eggs'); END IF;
       IF regexp_replace(n, '\y(nutmeg|coconut|doughnut|butternut|peanuts?|tiger nuts?|water chestnuts?)\y', ' ', 'g') ~ '\y(almonds?|walnuts?|pistachios?|cashews?|hazelnuts?|pecans?|pine nuts?|macadamias?|brazil nuts?|praline|marzipan|frangipane|nut butter|almond (flour|milk|butter|extract)|mixed nuts|nuts)\y' THEN found := array_append(found, 'Tree nuts'); END IF;
@@ -130,10 +130,48 @@ BEGIN
 END;
 $$;
 
+-- Re-checks every library recipe's ingredients against the allergen rules and
+-- adds any missing tags (run after the rules change). Returns tags added.
+CREATE OR REPLACE FUNCTION public.retag_recipe_allergens()
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE added integer;
+BEGIN
+  WITH found AS (
+    SELECT ri.recipe_id, unnest(public.recipe_allergen_names(array_agg(lower(i.name)))) AS rule
+    FROM public.recipe_ingredients ri JOIN public.ingredients i ON i.id = ri.ingredient_id
+    GROUP BY ri.recipe_id
+  ), aliases(rule, names) AS (VALUES
+    ('Gluten', ARRAY['gluten', 'gluten', 'wheat', 'coeliac', 'celiac', 'barley', 'rye']),
+    ('Dairy', ARRAY['dairy', 'dairy', 'milk', 'lactose', 'cow milk']),
+    ('Eggs', ARRAY['eggs', 'egg', 'eggs']),
+    ('Tree nuts', ARRAY['tree nuts', 'tree nuts', 'tree nut', 'nuts', 'nut']),
+    ('Peanuts', ARRAY['peanuts', 'peanut', 'peanuts', 'groundnut', 'groundnuts']),
+    ('Sesame', ARRAY['sesame', 'sesame']),
+    ('Fish', ARRAY['fish', 'fish']),
+    ('Shellfish', ARRAY['shellfish', 'shellfish', 'crustaceans', 'molluscs', 'mollusks', 'seafood']),
+    ('Soy', ARRAY['soy', 'soy', 'soya', 'soybean', 'soybeans']),
+    ('Mustard', ARRAY['mustard', 'mustard']),
+    ('Celery', ARRAY['celery', 'celery', 'celeriac'])
+  ), matched AS (
+    SELECT DISTINCT f.recipe_id,
+      (SELECT a.id FROM public.allergens a WHERE lower(a.name) = ANY (al.names) ORDER BY a.name LIMIT 1) AS allergen_id
+    FROM found f JOIN aliases al ON al.rule = f.rule
+  ), ins AS (
+    INSERT INTO public.recipe_allergens (recipe_id, allergen_id)
+    SELECT m.recipe_id, m.allergen_id FROM matched m
+    WHERE m.allergen_id IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM public.recipe_allergens ra WHERE ra.recipe_id = m.recipe_id AND ra.allergen_id = m.allergen_id)
+    RETURNING 1
+  )
+  SELECT count(*) INTO added FROM ins;
+  RETURN added;
+END;
+$$;
+
 DO $$
 DECLARE fn text;
 BEGIN
-  FOREACH fn IN ARRAY ARRAY['public.complete_recipes_batch(jsonb)'] LOOP
+  FOREACH fn IN ARRAY ARRAY['public.complete_recipes_batch(jsonb)', 'public.retag_recipe_allergens()'] LOOP
     EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', fn);
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
       EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM anon, authenticated', fn);

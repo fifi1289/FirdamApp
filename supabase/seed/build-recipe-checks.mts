@@ -124,10 +124,38 @@ ${aliasRows}
 END;
 $$;
 
+-- Re-checks every library recipe's ingredients against the allergen rules and
+-- adds any missing tags (run after the rules change). Returns tags added.
+CREATE OR REPLACE FUNCTION public.retag_recipe_allergens()
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE added integer;
+BEGIN
+  WITH found AS (
+    SELECT ri.recipe_id, unnest(public.recipe_allergen_names(array_agg(lower(i.name)))) AS rule
+    FROM public.recipe_ingredients ri JOIN public.ingredients i ON i.id = ri.ingredient_id
+    GROUP BY ri.recipe_id
+  ), aliases(rule, names) AS (VALUES
+${aliasRows}
+  ), matched AS (
+    SELECT DISTINCT f.recipe_id,
+      (SELECT a.id FROM public.allergens a WHERE lower(a.name) = ANY (al.names) ORDER BY a.name LIMIT 1) AS allergen_id
+    FROM found f JOIN aliases al ON al.rule = f.rule
+  ), ins AS (
+    INSERT INTO public.recipe_allergens (recipe_id, allergen_id)
+    SELECT m.recipe_id, m.allergen_id FROM matched m
+    WHERE m.allergen_id IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM public.recipe_allergens ra WHERE ra.recipe_id = m.recipe_id AND ra.allergen_id = m.allergen_id)
+    RETURNING 1
+  )
+  SELECT count(*) INTO added FROM ins;
+  RETURN added;
+END;
+$$;
+
 DO $$
 DECLARE fn text;
 BEGIN
-  FOREACH fn IN ARRAY ARRAY['public.complete_recipes_batch(jsonb)'] LOOP
+  FOREACH fn IN ARRAY ARRAY['public.complete_recipes_batch(jsonb)', 'public.retag_recipe_allergens()'] LOOP
     EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', fn);
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
       EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM anon, authenticated', fn);

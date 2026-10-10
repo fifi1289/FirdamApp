@@ -1,5 +1,6 @@
 'use client';
 
+import { fetchAllPages } from '@/features/meals/plan-core';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getMealImage } from '@/features/meals/meal-images';
 import type { UserRecipe } from '@/types/database';
@@ -130,14 +131,25 @@ export async function fetchAllRecipes(): Promise<{ recipes: RecipeSummary[]; use
     data: { user },
   } = await supabase.auth.getUser();
   const [catalog, mine] = await Promise.all([
-    supabase.from('recipes').select(SUMMARY_SELECT).eq('is_active', true).order('name'),
+    // Only recipes with ingredients (the rest are still being written), every page.
+    fetchAllPages<CatalogRow>((from, to) =>
+      supabase
+        .from('recipes')
+        .select(`${SUMMARY_SELECT}, has_ingredients:recipe_ingredients!inner(display_order)`)
+        .eq('is_active', true)
+        .order('name')
+        .order('id')
+        .range(from, to)
+    ).catch((e: Error) => {
+      console.error('Failed to load recipes:', e.message);
+      return [] as CatalogRow[];
+    }),
     supabase.from('user_recipes').select('*').order('created_at', { ascending: false }),
   ]);
-  if (catalog.error) console.error('Failed to load recipes:', catalog.error.message);
   if (mine.error) console.error('Failed to load user recipes:', mine.error.message);
   const recipes = [
     ...((mine.data ?? []) as UserRecipe[]).map((r) => userSummary(r, user?.id ?? null)),
-    ...((catalog.data ?? []) as unknown as CatalogRow[]).map(catalogSummary),
+    ...catalog.map(catalogSummary),
   ];
   return { recipes, userId: user?.id ?? null };
 }
@@ -309,10 +321,14 @@ export function formatDuration(mins: number): string {
 export async function fetchRecipeIngredientIndex(): Promise<Map<string, { name: string; optional: boolean }[]>> {
   const supabase = createSupabaseBrowserClient();
   const [catalog, mine] = await Promise.all([
-    supabase
-      .from('recipes')
-      .select('id, recipe_ingredients(optional, ingredient:ingredients(name))')
-      .eq('is_active', true),
+    fetchAllPages((from, to) =>
+      supabase
+        .from('recipes')
+        .select('id, recipe_ingredients(optional, ingredient:ingredients(name))')
+        .eq('is_active', true)
+        .order('id')
+        .range(from, to)
+    ).then((data) => ({ data })),
     supabase.from('user_recipes').select('id, ingredients'),
   ]);
   const index = new Map<string, { name: string; optional: boolean }[]>();
@@ -346,12 +362,14 @@ export interface RecipeFacts {
 export async function fetchRecipeFacts(): Promise<Map<string, RecipeFacts>> {
   const supabase = createSupabaseBrowserClient();
   const [catalog, mine] = await Promise.all([
-    supabase
-      .from('recipes')
-      .select(
-        'id, protein, carbs, recipe_ingredients(ingredient:ingredients(name)), recipe_allergens(allergen:allergens(name)), recipe_tags(tag:tags(name))'
-      )
-      .eq('is_active', true),
+    fetchAllPages((from, to) =>
+      supabase
+        .from('recipes')
+        .select('id, protein, carbs, recipe_ingredients(ingredient:ingredients(name)), recipe_allergens(allergen:allergens(name)), recipe_tags(tag:tags(name))')
+        .eq('is_active', true)
+        .order('id')
+        .range(from, to)
+    ).then((data) => ({ data })),
     supabase.from('user_recipes').select('id, ingredients'),
   ]);
   type Row = {
@@ -393,10 +411,14 @@ export interface RecipeNeeds {
 export async function fetchRecipeNeeds(): Promise<Map<string, RecipeNeeds>> {
   const supabase = createSupabaseBrowserClient();
   const [catalog, mine] = await Promise.all([
-    supabase
-      .from('recipes')
-      .select('id, servings, recipe_ingredients(quantity, unit, optional, ingredient:ingredients(name))')
-      .eq('is_active', true),
+    fetchAllPages((from, to) =>
+      supabase
+        .from('recipes')
+        .select('id, servings, recipe_ingredients(quantity, unit, optional, ingredient:ingredients(name))')
+        .eq('is_active', true)
+        .order('id')
+        .range(from, to)
+    ).then((data) => ({ data })),
     supabase.from('user_recipes').select('id, servings, ingredients'),
   ]);
   type Row = {

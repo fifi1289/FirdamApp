@@ -16,6 +16,7 @@ import { addAmounts, convertBase, ingredientKey, toBase } from '@/shared/pantry-
 import {
   RECIPE_SELECT,
   buildPlanFromRecipes,
+  fetchAllPages,
   formatDateISO,
   formatWeekRange,
   getStartOfWeek,
@@ -144,13 +145,18 @@ let recipeCache: RecipeRow[] | null = null;
 
 export async function loadRecipes(force = false): Promise<RecipeRow[]> {
   if (recipeCache && !force) return recipeCache;
-  const { data, error } = await supabase
-    .from('recipes')
-    .select(RECIPE_SELECT)
-    .eq('is_active', true)
-    .order('name', { ascending: true });
-  if (error) throw error;
-  recipeCache = (data ?? []) as unknown as RecipeRow[];
+  // Every page (Supabase sends 1,000 rows at most), and only recipes that
+  // have ingredients — the rest are still being written.
+  const data = await fetchAllPages<RecipeRow>((from, to) =>
+    supabase
+      .from('recipes')
+      .select(RECIPE_SELECT.replace('recipe_ingredients(', 'recipe_ingredients!inner('))
+      .eq('is_active', true)
+      .order('name', { ascending: true })
+      .order('id')
+      .range(from, to)
+  );
+  recipeCache = data;
   return recipeCache;
 }
 

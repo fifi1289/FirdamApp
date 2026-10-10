@@ -144,6 +144,9 @@ export function RecipeCard({
   );
 }
 
+/** Recipes shown per page; "Show more" adds the next page. */
+const PAGE_SIZE = 48;
+
 export function RecipesDashboard() {
   const router = useRouter();
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
@@ -191,6 +194,10 @@ export function RecipesDashboard() {
     [recipes]
   );
   const myCount = recipes.filter((r) => r.source === 'mine').length;
+
+  // Show the list a page at a time; changing a filter starts again from the top.
+  const [shown, setShown] = useState(PAGE_SIZE);
+  useEffect(() => setShown(PAGE_SIZE), [tab, meal, cuisine, time, query, freeFrom, diet]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -430,10 +437,10 @@ export function RecipesDashboard() {
       ) : (
         <>
           <p className="mb-3 text-xs text-muted-foreground">
-            {visible.length} recipe{visible.length === 1 ? '' : 's'}
+            {visible.length > shown ? `Showing ${shown} of ${visible.length} recipes` : `${visible.length} recipe${visible.length === 1 ? '' : 's'}`}
           </p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {visible.map((r) => (
+            {visible.slice(0, shown).map((r) => (
               <RecipeCard
                 key={r.key}
                 recipe={r}
@@ -442,6 +449,13 @@ export function RecipesDashboard() {
               />
             ))}
           </div>
+          {visible.length > shown && (
+            <div className="mt-6 flex justify-center">
+              <Button variant="outline" onClick={() => setShown((n) => n + PAGE_SIZE)}>
+                Show {Math.min(PAGE_SIZE, visible.length - shown)} more
+              </Button>
+            </div>
+          )}
         </>
       )}
       </>

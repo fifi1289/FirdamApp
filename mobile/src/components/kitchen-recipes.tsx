@@ -3,12 +3,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge, Chip, Photo } from '@/components/kitchen-ui';
-import { T } from '@/components/ui';
+import { Button, T } from '@/components/ui';
 import { checkRecipe, fitsDiets, isSafeFor, loadRecipes, recipeImage, totalMinutes, type RecipeRow } from '@/lib/kitchen';
 import { useKitchen } from '@/lib/kitchen-store';
 import { colors, fonts } from '@/theme';
 
 type Filter = 'safe' | 'quick' | 'cook';
+
+/** Recipes shown per page; "Show more" adds the next page. */
+const PAGE_SIZE = 40;
 
 export function RecipesView() {
   const k = useKitchen();
@@ -16,6 +19,9 @@ export function RecipesView() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<Set<Filter>>(new Set(['safe']));
+  const [limit, setLimit] = useState(PAGE_SIZE);
+  // A new search or filter starts again from the top.
+  useEffect(() => setLimit(PAGE_SIZE), [query, filters]);
 
   useEffect(() => {
     loadRecipes()
@@ -67,11 +73,11 @@ export function RecipesView() {
         {k.pantry.length ? <Chip label="Cook with what I have" selected={filters.has('cook')} onPress={() => toggle('cook')} /> : null}
       </View>
       <T size={12.5} color={colors.muted}>
-        {`${shown.length} recipe${shown.length === 1 ? '' : 's'}`}
+        {shown.length > limit ? `Showing ${limit} of ${shown.length} recipes` : `${shown.length} recipe${shown.length === 1 ? '' : 's'}`}
         {filters.has('safe') && allergies.length ? ` · without ${allergies.join(', ').toLowerCase()}` : ''}
       </T>
 
-      {shown.slice(0, 80).map(({ r, check }) => (
+      {shown.slice(0, limit).map(({ r, check }) => (
         <Pressable key={r.id} accessibilityRole="button" onPress={() => router.push({ pathname: '/recipe/[id]', params: { id: r.id } })} style={styles.card}>
           <Photo uri={recipeImage(r)} size={76} />
           <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
@@ -90,10 +96,12 @@ export function RecipesView() {
           </View>
         </Pressable>
       ))}
-      {shown.length > 80 ? (
-        <T size={13} color={colors.muted} style={{ textAlign: 'center' }}>
-          Search to see more recipes.
-        </T>
+      {shown.length > limit ? (
+        <Button
+          label={`Show ${Math.min(PAGE_SIZE, shown.length - limit)} more`}
+          variant="secondary"
+          onPress={() => setLimit((n) => n + PAGE_SIZE)}
+        />
       ) : null}
       {shown.length === 0 ? (
         <T size={14} color={colors.muted}>

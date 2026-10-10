@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { callEdgeFunction, EdgeFunctionError } from '@/lib/supabase/functions';
 
 interface RoundResult {
-  done: { id: string; name: string; ingredients: number; steps: number }[];
+  done: { id: string; name: string; ingredients: number; steps: number; allergens?: string[] }[];
   failed: { id: string; name: string; reason: string }[];
   remaining: number;
 }
@@ -93,7 +93,7 @@ export function RecipeFill() {
             <p className="font-display text-lg font-semibold text-foreground">Complete recipes</p>
             <p className="text-sm text-muted-foreground">
               Some library recipes have a name, description and times but no ingredients or method, so the app hides them.
-              This writes both with your OpenAI key, checks every result is halal, and adds the recipe back to the library.
+              This writes both with your OpenAI key, checks every result is halal, tags its allergens so “Safe for my family” hides it from families who can’t eat it, and adds the recipe back to the library.
               About $1–3 for all of them, once.
             </p>
           </div>
@@ -149,6 +149,7 @@ export function RecipeFill() {
                   </Link>
                   <span className="shrink-0 text-xs text-muted-foreground">
                     {r.ingredients} ingredients · {r.steps} steps
+                    {r.allergens?.length ? ` · contains ${r.allergens.join(', ').toLowerCase()}` : ''}
                   </span>
                 </li>
               ))}

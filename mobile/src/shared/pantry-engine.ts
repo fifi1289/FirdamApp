@@ -5,9 +5,11 @@
  * pantry after cooking.
  */
 import {
+  addAmounts,
   convertBase,
   formatAmount,
   friendly,
+  ingredientKey,
   isBasic,
   isPresenceOnly,
   matchScore,
@@ -204,14 +206,23 @@ export function deductionsFor(check: RecipeCheck): Deduction[] {
 
 /** Merges shortfalls of the same food across several recipes. */
 export function mergeShortfalls(lists: { name: string; quantity: number | null; unit: string }[][]) {
-  const out = new Map<string, { name: string; quantity: number | null; unit: string }>();
+  // Same food under different names or units ("potato", 2 kg + "potatoes", 3 pieces) becomes one line.
+  const out = new Map<string, { name: string; quantity: number | null; unit: string }[]>();
   for (const list of lists) {
     for (const s of list) {
-      const key = `${s.name.toLowerCase()}|${s.unit}`;
-      const prev = out.get(key);
-      if (prev && prev.quantity != null && s.quantity != null) prev.quantity = +(prev.quantity + s.quantity).toFixed(2);
-      else if (!prev) out.set(key, { ...s });
+      const key = ingredientKey(s.name) || s.name.toLowerCase();
+      const group = out.get(key) ?? [];
+      let merged = false;
+      for (let i = 0; i < group.length && !merged; i++) {
+        const sum = addAmounts(group[i]!, s, s.name);
+        if (sum) {
+          group[i] = { name: group[i]!.name, quantity: sum.quantity, unit: sum.unit ?? '' };
+          merged = true;
+        }
+      }
+      if (!merged) group.push({ ...s });
+      out.set(key, group);
     }
   }
-  return Array.from(out.values());
+  return Array.from(out.values()).flat();
 }

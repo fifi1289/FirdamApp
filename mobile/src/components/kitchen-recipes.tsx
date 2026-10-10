@@ -55,7 +55,7 @@ export function RecipesView() {
       <TextInput
         value={query}
         onChangeText={setQuery}
-        placeholder="Search 204 halal recipes or a cuisine"
+        placeholder={`Search ${recipes.length} halal recipes or a cuisine`}
         placeholderTextColor="#9C8D84"
         accessibilityLabel="Search recipes"
         style={styles.search}

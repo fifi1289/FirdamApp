@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { ALLERGEN_RULES, detectAllergens } from "../_shared/allergens.ts";
 import { haramReason } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import { getUser, isAdminUser } from "../_shared/plan.ts";
@@ -6,7 +7,8 @@ import { getUser, isAdminUser } from "../_shared/plan.ts";
 /**
  * Admin tool: writes the ingredients and method for recipes that have a name,
  * description, cuisine, servings and times but nothing to cook from yet.
- * Every result passes the same halal check as the recipe library.
+ * Every result passes the same halal check as the recipe library, and is
+ * tagged with its allergens so "Safe for my family" can hide it.
  *
  *   GET  → { remaining }
  *   POST { limit?: 1–8, skip?: string[] } → { done, failed, remaining }
@@ -58,6 +60,7 @@ interface MissingRecipe {
 interface Written {
   ingredients: { name: string; quantity: number | null; unit: string; optional?: boolean; notes?: string | null }[];
   steps: { instruction: string; minutes?: number | null }[];
+  allergens: string[];
 }
 
 const UNITS: Record<string, string> = {
@@ -75,9 +78,13 @@ const SYSTEM = [
   "Ingredients: 5 to 15 items, amounts for the stated servings, metric. Units only from: g, kg, ml, l, tsp, tbsp, cup, pieces, cloves, pinch, handful, bunch, to taste.",
   "Ingredient names: lower case, plain and shoppable ('basmati rice', 'red onion', 'ground cumin'); preparation goes in notes ('finely chopped').",
   "Use 'to taste' with quantity null only for salt, pepper and similar seasonings.",
+  "Allergies matter: name every ingredient so its allergens are obvious. Don't use ready-made mixes or sauces that hide them",
+  "(write 'pine nuts' and 'parmesan' instead of 'pesto'; 'shrimp paste' not 'curry paste'; 'wheat flour' not 'flour mix').",
+  "Use only what the dish really needs: no optional nuts, eggs or dairy added for garnish.",
+  `List the allergens the recipe contains, using only these names: ${ALLERGEN_RULES.map((r) => r.name).join(", ")}.`,
   "Method: 4 to 9 clear steps in plain English, each one or two sentences, with times and heat where useful.",
   "Total time should roughly match the prep and cook minutes given.",
-  'Reply with JSON only: {"ingredients":[{"name":"","quantity":0,"unit":"","optional":false,"notes":""}],"steps":[{"instruction":"","minutes":0}]}',
+  'Reply with JSON only: {"ingredients":[{"name":"","quantity":0,"unit":"","optional":false,"notes":""}],"steps":[{"instruction":"","minutes":0}],"allergens":[""]}',
 ].join(" ");
 
 function describe(r: MissingRecipe): string {
@@ -114,7 +121,11 @@ function clean(raw: unknown): Written | string {
     .filter((s) => s.instruction.length >= 10);
   if (ingredients.length < 3) return "too few ingredients";
   if (steps.length < 3) return "too few steps";
-  return { ingredients: ingredients.slice(0, 18), steps: steps.slice(0, 12) };
+  const known = new Map(ALLERGEN_RULES.map((r) => [r.name.toLowerCase(), r.name]));
+  const declared = (Array.isArray(w.allergens) ? w.allergens : [])
+    .map((a) => known.get(String(a ?? "").trim().toLowerCase()))
+    .filter((a): a is string => !!a);
+  return { ingredients: ingredients.slice(0, 18), steps: steps.slice(0, 12), allergens: declared };
 }
 
 async function write(r: MissingRecipe, apiKey: string, model: string, note?: string): Promise<Written | string> {
@@ -141,7 +152,7 @@ async function write(r: MissingRecipe, apiKey: string, model: string, note?: str
   }
 }
 
-async function complete(r: MissingRecipe, apiKey: string, model: string): Promise<{ ok: true; ingredients: number; steps: number } | { ok: false; reason: string }> {
+async function complete(r: MissingRecipe, apiKey: string, model: string): Promise<{ ok: true; ingredients: number; steps: number; allergens: string[] } | { ok: false; reason: string }> {
   let result = await write(r, apiKey, model);
   for (let attempt = 0; attempt < 2; attempt++) {
     if (typeof result === "string") {
@@ -156,8 +167,11 @@ async function complete(r: MissingRecipe, apiKey: string, model: string): Promis
   const stillHaram = haramReason(result.ingredients.map((i) => i.name), result.steps.map((s) => s.instruction));
   if (stillHaram) return { ok: false, reason: `not halal: ${stillHaram}` };
 
-  const added = await rpc<number>("complete_recipe", { target: r.id, items: result.ingredients, steps: result.steps });
-  return { ok: true, ingredients: added, steps: result.steps.length };
+  // Tag what the chef declared and what our own rules find in the ingredient names.
+  const found = new Set([...result.allergens, ...detectAllergens(result.ingredients.map((i) => i.name))]);
+  const allergens = ALLERGEN_RULES.filter((rule) => found.has(rule.name)).map((rule) => [rule.name.toLowerCase(), ...rule.aliases]);
+  const added = await rpc<number>("complete_recipe", { target: r.id, items: result.ingredients, steps: result.steps, allergens });
+  return { ok: true, ingredients: added, steps: result.steps.length, allergens: [...found] };
 }
 
 Deno.serve(async (req: Request) => {

@@ -28,16 +28,21 @@ RETURNS integer LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS
     AND NOT EXISTS (SELECT 1 FROM public.recipe_ingredients ri WHERE ri.recipe_id = r.id);
 $$;
 
--- Saves one recipe's ingredients and method in a single step.
+-- Saves one recipe's ingredients, method and allergen tags in a single step.
 --   items: [{ "name": "basmati rice", "quantity": 300, "unit": "g", "optional": false, "notes": null }]
 --   steps: [{ "instruction": "Rinse the rice…", "minutes": 5 }]
+--   allergens: [["dairy", "milk", "lactose"], ["eggs", "egg"]] — each entry lists
+--     the names one allergen may have in the allergens table (Milk vs Dairy).
 -- Reuses existing ingredients by name (ignoring capitals). Does nothing if the
 -- recipe already has ingredients, so it is safe to call twice.
-CREATE OR REPLACE FUNCTION public.complete_recipe(target uuid, items jsonb, steps jsonb)
+DROP FUNCTION IF EXISTS public.complete_recipe(uuid, jsonb, jsonb);
+CREATE OR REPLACE FUNCTION public.complete_recipe(target uuid, items jsonb, steps jsonb, allergens jsonb DEFAULT '[]')
 RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
   it jsonb;
   st jsonb;
+  al jsonb;
+  al_id uuid;
   ing_id uuid;
   clean_name text;
   pos integer := 0;
@@ -92,6 +97,18 @@ BEGIN
       VALUES (target, pos, trim(st ->> 'instruction'), nullif(st ->> 'minutes', '')::integer);
   END LOOP;
 
+  -- Tag allergens so "Safe for my family" can rely on tags as well as names.
+  FOR al IN SELECT * FROM jsonb_array_elements(coalesce(allergens, '[]')) LOOP
+    CONTINUE WHEN jsonb_typeof(al) <> 'array';
+    SELECT a.id INTO al_id FROM public.allergens a
+      WHERE lower(a.name) IN (SELECT lower(x) FROM jsonb_array_elements_text(al) x)
+      ORDER BY a.name LIMIT 1;
+    CONTINUE WHEN al_id IS NULL;
+    INSERT INTO public.recipe_allergens (recipe_id, allergen_id)
+      SELECT target, al_id
+      WHERE NOT EXISTS (SELECT 1 FROM public.recipe_allergens WHERE recipe_id = target AND allergen_id = al_id);
+  END LOOP;
+
   RETURN added;
 END;
 $$;
@@ -102,7 +119,7 @@ BEGIN
   FOREACH fn IN ARRAY ARRAY[
     'public.recipes_missing_ingredients(integer, uuid[])',
     'public.count_recipes_missing_ingredients()',
-    'public.complete_recipe(uuid, jsonb, jsonb)'
+    'public.complete_recipe(uuid, jsonb, jsonb, jsonb)'
   ] LOOP
     EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', fn);
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN

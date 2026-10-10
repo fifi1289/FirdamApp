@@ -96,10 +96,10 @@ export function PlanView() {
     if (!plan || !k.listId) return;
     setBusy('shop');
     try {
-      const needs = shoppingForPlan(plan, k.pantry, today);
+      const needs = shoppingForPlan(plan, k.pantry, today, k.items);
       const added = await addShoppingItems(k.listId, needs.map((n) => ({ ...n, fromMealPlan: true })), k.items);
       await refreshShopping();
-      Alert.alert(added ? `Added ${added} item${added === 1 ? '' : 's'}` : 'Nothing to add', added ? 'Find them in Shopping.' : 'Your pantry and list already cover the rest of this week.');
+      Alert.alert(added ? `Updated ${added} item${added === 1 ? '' : 's'}` : 'Nothing to add', added ? 'Amounts for the same food are added together. Find them in Shopping.' : 'Your pantry and list already cover the rest of this week.');
     } catch (e) {
       Alert.alert('Could not update the list', e instanceof Error ? e.message : 'Please try again.');
     } finally {

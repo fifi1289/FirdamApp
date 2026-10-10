@@ -6,7 +6,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from '@/components/art';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
-import { addShoppingItems, mealNeeds } from '@/lib/kitchen';
+import { addShoppingItems, mealConflicts, mealNeeds } from '@/lib/kitchen';
 import { refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { checkNeeds } from '@/shared/pantry-engine';
 import { formatPortions } from '@/shared/pantry-portions';
@@ -18,6 +18,8 @@ export default function MealScreen() {
   const insets = useSafeAreaInsets();
   const k = useKitchen();
   const [adding, setAdding] = useState(false);
+  // Once added, the button rests so a second tap doesn't add the amounts again.
+  const [added, setAdded] = useState(false);
   const meal = k.week?.plan.days.find((d) => d.date === date)?.meals.find((m) => m.type === type) ?? null;
   const check = useMemo(() => (meal ? checkNeeds(mealNeeds(meal), k.pantry) : null), [meal, k.pantry]);
 
@@ -37,7 +39,8 @@ export default function MealScreen() {
     try {
       const added = await addShoppingItems(k.listId, toBuy.map((l) => l.shortfall ?? { name: l.need.name, quantity: l.scaled, unit: l.need.unit }), k.items);
       await refreshShopping();
-      Alert.alert(added ? `Added ${added} to Shopping` : 'Already on your list');
+      setAdded(true);
+      Alert.alert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
     } finally {
       setAdding(false);
     }
@@ -63,7 +66,11 @@ export default function MealScreen() {
             </T>
           ) : null}
           <View style={{ marginTop: 10 }}>
-            <Badge label="Written by the AI chef — check labels for allergens" tone="amber" />
+            {k.prefs?.allergies.length && mealConflicts(meal, k.prefs.allergies) ? (
+              <Badge label="Contains a family allergy — make a new plan or skip this meal" tone="brick" />
+            ) : (
+              <Badge label="Written by the AI chef — check labels for allergens" tone="amber" />
+            )}
           </View>
           <T weight="bold" size={17} style={{ marginTop: 20, marginBottom: 8 }}>
             Ingredients
@@ -99,7 +106,7 @@ export default function MealScreen() {
       </ScrollView>
       {toBuy.length ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-          <Button label={`Add ${toBuy.length} to Shopping`} onPress={addMissing} busy={adding} />
+          <Button label={added ? 'Added to Shopping' : `Add ${toBuy.length} to Shopping`} onPress={addMissing} busy={adding} disabled={added} />
         </View>
       ) : null}
     </View>

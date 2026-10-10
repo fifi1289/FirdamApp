@@ -3,6 +3,214 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
+// ── inlined from supabase/functions/_shared/allergens.ts ──
+/**
+ * Allergen and diet detection from ingredient names.
+ *
+ * Used by the Recipes filters and the meal planner so allergies are respected
+ * even for recipes that have no allergen tags (e.g. family recipes users add).
+ * Keep in sync with supabase/seed/recipe_tags.py, which tags the library.
+ * Also used by the recipe-complete edge function to tag recipes it writes.
+ */
+
+interface AllergenRule {
+  /** Name shown in the app. */
+  name: string;
+  /** Other words people use for the same allergy (matched case-insensitively). */
+  aliases: string[];
+  include: RegExp;
+  /** Ingredients that look like a match but aren't (e.g. coconut milk for Dairy). */
+  exclude?: RegExp;
+}
+
+const ALLERGEN_RULES: AllergenRule[] = [
+  {
+    name: 'Gluten',
+    aliases: ['gluten', 'wheat', 'coeliac', 'celiac', 'barley', 'rye'],
+    include:
+      /\b(flour|bread|breadcrumbs?|panko|pitta?s?|naan|chapati|roti|paratha|flatbreads?|lepinja|tortillas?|wraps?|pasta|spaghetti|penne|fusilli|macaroni|fettuccine|tagliatelle|linguine|rigatoni|ravioli|tortellini|buns?|bread rolls?|granola|muesli|lasagne|lasagna|orzo|noodles?|vermicelli|couscous|bulgur|bulgh?ur|freekeh|frik|semolina|barley|wheat|rye|spelt|seitan|filo|phyllo|puff pastry|pastry|brik|warka|pizza dough|dough|soy sauce|kecap manis|teriyaki sauce|oyster sauce|hoisin|crackers?|biscuits?|cake|rusk|kataifi|kunafa|knafeh|malt|jareesh|harees|yufka)\b/,
+    exclude:
+      /\b(rice flour|glutinous rice flour|gluten-free|chickpea flour|gram flour|besan|corn ?flour|cornmeal|(white |yellow )?maize (flour|meal)|maize|almond flour|coconut flour|tapioca|cassava|teff|potato flour|buckwheat|rice noodles?|rice vermicelli|glass noodles|rice paper|corn tortillas?|tamari|coconut aminos|rice cakes?)\b/,
+  },
+  {
+    name: 'Dairy',
+    aliases: ['dairy', 'milk', 'lactose', 'cow milk'],
+    include:
+      /\b(milk|butter|ghee|cream|yogh?urt|labneh|cheese|paneer|feta|halloumi|mozzarella|parmesan|cheddar|ricotta|mascarpone|akkawi|nabulsi|jameed|kashk|kefir|buttermilk|whey|casein|custard|ice cream|khoa|khoya|condensed|evaporated|tzatziki|creme fraiche|crème fraîche|qishta|ashta)\b/,
+    exclude:
+      /\b(coconut milk|coconut cream|almond milk|oat milk|soy milk|soya milk|rice milk|peanut butter|almond butter|cashew butter|nut butter|shea butter|cocoa butter|cream of tartar|butter beans?|butterhead|dairy-free|vegan (butter|cheese|yogh?urt)|coconut yogh?urt)\b/,
+  },
+  {
+    name: 'Eggs',
+    aliases: ['egg', 'eggs'],
+    include: /\b(eggs?|egg yolks?|egg whites?|mayonnaise|mayo|meringue|aioli)\b/,
+    exclude: /\b(eggplants?|egg-free|vegan mayo)\b/,
+  },
+  {
+    name: 'Tree nuts',
+    aliases: ['tree nuts', 'tree nut', 'nuts', 'nut'],
+    include:
+      /\b(almonds?|walnuts?|pistachios?|cashews?|hazelnuts?|pecans?|pine nuts?|macadamias?|brazil nuts?|praline|marzipan|frangipane|nut butter|almond (flour|milk|butter|extract)|mixed nuts|nuts)\b/,
+    exclude: /\b(nutmeg|coconut|doughnut|butternut|peanuts?|tiger nuts?|water chestnuts?)\b/,
+  },
+  {
+    name: 'Peanuts',
+    aliases: ['peanut', 'peanuts', 'groundnut', 'groundnuts'],
+    include: /\b(peanuts?|groundnuts?|peanut butter|peanut oil|satay sauce)\b/,
+  },
+  {
+    name: 'Sesame',
+    aliases: ['sesame'],
+    include: /\b(sesame|tahini|tahina|za'?atar|halva|halwa tahini|dukkah|gomasio)\b/,
+  },
+  {
+    name: 'Fish',
+    aliases: ['fish'],
+    include:
+      /\b(fish|salmon|tuna|cod|haddock|hake|pollock|tilapia|sea ?bass|branzino|bream|snapper|mackerel|sardines?|anchov(y|ies)|herring|trout|halibut|kingfish|grouper|carp|catfish|swordfish|whitebait|fish sauce|worcestershire|shito|bonito|dashi|maldive fish|dried fish)\b/,
+    exclude: /\b(fish-free|vegan fish sauce)\b/,
+  },
+  {
+    name: 'Shellfish',
+    aliases: ['shellfish', 'crustaceans', 'molluscs', 'mollusks', 'seafood'],
+    include:
+      /\b(prawns?|shrimps?|crabs?|lobsters?|crayfish|langoustines?|mussels?|clams?|oysters?|scallops?|squid|calamari|octopus|cuttlefish|shrimp paste|belacan|laksa paste|shito|terasi|oyster sauce|dried shrimp)\b/,
+  },
+  {
+    name: 'Soy',
+    aliases: ['soy', 'soya', 'soybean', 'soybeans'],
+    include: /\b(soy|soya|tofu|tempeh|edamame|miso|kecap manis|tamari|teriyaki sauce|soybeans?|hoisin)\b/,
+  },
+  {
+    name: 'Mustard',
+    aliases: ['mustard'],
+    include: /\b(mustard)\b/,
+  },
+  {
+    name: 'Celery',
+    aliases: ['celery', 'celeriac'],
+    include: /\b(celery|celeriac|stock cubes?|bouillon)\b/,
+  },
+];
+
+const MEAT_RE =
+  /\b(chicken|beef|lamb|mutton|goat|veal|turkey|duck|quail|camel|mince|minced meat|meat|sucuk|sujuk|beef chorizo|beef bacon|pastirma|basturma|liver|kidneys?|oxtail|bone broth|gelatin|gelatine|chicken stock|beef stock|lamb stock|stock cube|bouillon)\b/;
+const MEAT_EXCLUDE = /\b(vegetable stock|vegetable bouillon|meat-free|plant-based|coconut meat)\b/;
+const SEAFOOD_RULES = ALLERGEN_RULES.filter((r) => r.name === 'Fish' || r.name === 'Shellfish');
+
+function normalize(s: string) {
+  return s.toLowerCase().replace(/[’`]/g, "'").replace(/\s+/g, ' ').trim();
+}
+
+function matchesRule(rule: AllergenRule, ingredient: string): boolean {
+  const n = normalize(ingredient);
+  if (!rule.include.test(n)) return false;
+  if (!rule.exclude) return true;
+  // Excluded phrase only cancels the match if nothing else in the name matches.
+  const stripped = n.replace(new RegExp(rule.exclude.source, 'g'), ' ');
+  return rule.include.test(stripped);
+}
+
+/** Allergen names (from ALLERGEN_RULES) found in a list of ingredient names. */
+function detectAllergens(ingredients: string[]): Set<string> {
+  const found = new Set<string>();
+  for (const rule of ALLERGEN_RULES) {
+    if (ingredients.some((i) => matchesRule(rule, i))) found.add(rule.name);
+  }
+  return found;
+}
+
+/** Finds the rule for something a user typed or picked, e.g. "Milk" → Dairy, "Nuts" → Tree nuts. */
+function ruleForAllergy(allergy: string): AllergenRule | undefined {
+  const a = normalize(allergy);
+  return ALLERGEN_RULES.find((r) => normalize(r.name) === a || r.aliases.includes(a));
+}
+
+function singular(word: string) {
+  if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
+  if (word.endsWith('oes')) return word.slice(0, -2);
+  if (word.length > 3 && word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
+  return word;
+}
+
+/**
+ * True when a recipe is unsafe for someone with any of `allergies`.
+ * Known allergens use the rules (plus the recipe's own tags); anything else the
+ * user typed ("mushroom", "coriander") is matched against ingredient names.
+ */
+function conflictsWithAllergies(
+  ingredients: string[],
+  allergies: string[],
+  taggedAllergens: string[] = []
+): boolean {
+  if (allergies.length === 0) return false;
+  const detected = detectAllergens(ingredients);
+  const tagged = new Set(taggedAllergens.map((t) => ruleForAllergy(t)?.name ?? normalize(t)));
+  const names = ingredients.map(normalize);
+  return allergies.some((allergy) => {
+    const rule = ruleForAllergy(allergy);
+    if (rule) return detected.has(rule.name) || tagged.has(rule.name);
+    const word = singular(normalize(allergy));
+    if (!word) return false;
+    return tagged.has(normalize(allergy)) || names.some((n) => n.split(/[^a-z']+/).map(singular).join(' ').includes(word));
+  });
+}
+
+type Diet = 'Vegetarian' | 'Vegan' | 'Pescatarian' | 'Gluten-free' | 'Dairy-free' | 'Low-carb' | 'High-protein' | 'Kid-friendly';
+
+function hasMeat(ingredients: string[]): boolean {
+  return ingredients.some((i) => {
+    const n = normalize(i);
+    return MEAT_RE.test(n) && !MEAT_EXCLUDE.test(n);
+  });
+}
+
+function hasSeafood(ingredients: string[]): boolean {
+  return ingredients.some((i) => SEAFOOD_RULES.some((r) => matchesRule(r, i)));
+}
+
+/**
+ * True when a recipe suits a dietary preference. Nutrition-based diets use the
+ * recipe's numbers; "Kid-friendly" relies on the recipe's tag.
+ */
+function fitsDiet(
+  diet: string,
+  recipe: { ingredients: string[]; tags?: string[]; protein?: number | null; carbs?: number | null }
+): boolean {
+  const tags = new Set((recipe.tags ?? []).map(normalize));
+  const allergens = detectAllergens(recipe.ingredients);
+  switch (normalize(diet)) {
+    case 'vegetarian':
+      return !hasMeat(recipe.ingredients) && !hasSeafood(recipe.ingredients);
+    case 'vegan':
+      return (
+        !hasMeat(recipe.ingredients) &&
+        !hasSeafood(recipe.ingredients) &&
+        !allergens.has('Dairy') &&
+        !allergens.has('Eggs') &&
+        !recipe.ingredients.some((i) => /\bhoney\b/.test(normalize(i)))
+      );
+    case 'pescatarian':
+      return !hasMeat(recipe.ingredients);
+    case 'gluten-free':
+      return !allergens.has('Gluten');
+    case 'dairy-free':
+      return !allergens.has('Dairy');
+    case 'low-carb':
+      return recipe.carbs != null ? recipe.carbs <= 25 : tags.has('low-carb');
+    case 'high-protein':
+      return recipe.protein != null ? recipe.protein >= 25 : tags.has('high-protein');
+    case 'kid-friendly':
+      return tags.has('kid-friendly');
+    default:
+      // Unknown preference from the database: trust a matching tag if there is one.
+      return tags.size === 0 || tags.has(normalize(diet));
+  }
+}
+
+/** Allergens offered in filters when the database list is empty. */
+const DEFAULT_ALLERGENS = ALLERGEN_RULES.map((r) => r.name);
+
 // ── inlined from supabase/functions/_shared/halal.ts ──
 /**
  * Words that make a recipe not halal. Checked in ingredient names and method
@@ -217,7 +425,8 @@ async function isAdminUser(userId: string): Promise<boolean> {
 /**
  * Admin tool: writes the ingredients and method for recipes that have a name,
  * description, cuisine, servings and times but nothing to cook from yet.
- * Every result passes the same halal check as the recipe library.
+ * Every result passes the same halal check as the recipe library, and is
+ * tagged with its allergens so "Safe for my family" can hide it.
  *
  *   GET  → { remaining }
  *   POST { limit?: 1–8, skip?: string[] } → { done, failed, remaining }
@@ -269,6 +478,7 @@ interface MissingRecipe {
 interface Written {
   ingredients: { name: string; quantity: number | null; unit: string; optional?: boolean; notes?: string | null }[];
   steps: { instruction: string; minutes?: number | null }[];
+  allergens: string[];
 }
 
 const UNITS: Record<string, string> = {
@@ -286,9 +496,13 @@ const SYSTEM = [
   "Ingredients: 5 to 15 items, amounts for the stated servings, metric. Units only from: g, kg, ml, l, tsp, tbsp, cup, pieces, cloves, pinch, handful, bunch, to taste.",
   "Ingredient names: lower case, plain and shoppable ('basmati rice', 'red onion', 'ground cumin'); preparation goes in notes ('finely chopped').",
   "Use 'to taste' with quantity null only for salt, pepper and similar seasonings.",
+  "Allergies matter: name every ingredient so its allergens are obvious. Don't use ready-made mixes or sauces that hide them",
+  "(write 'pine nuts' and 'parmesan' instead of 'pesto'; 'shrimp paste' not 'curry paste'; 'wheat flour' not 'flour mix').",
+  "Use only what the dish really needs: no optional nuts, eggs or dairy added for garnish.",
+  `List the allergens the recipe contains, using only these names: ${ALLERGEN_RULES.map((r) => r.name).join(", ")}.`,
   "Method: 4 to 9 clear steps in plain English, each one or two sentences, with times and heat where useful.",
   "Total time should roughly match the prep and cook minutes given.",
-  'Reply with JSON only: {"ingredients":[{"name":"","quantity":0,"unit":"","optional":false,"notes":""}],"steps":[{"instruction":"","minutes":0}]}',
+  'Reply with JSON only: {"ingredients":[{"name":"","quantity":0,"unit":"","optional":false,"notes":""}],"steps":[{"instruction":"","minutes":0}],"allergens":[""]}',
 ].join(" ");
 
 function describe(r: MissingRecipe): string {
@@ -325,7 +539,11 @@ function clean(raw: unknown): Written | string {
     .filter((s) => s.instruction.length >= 10);
   if (ingredients.length < 3) return "too few ingredients";
   if (steps.length < 3) return "too few steps";
-  return { ingredients: ingredients.slice(0, 18), steps: steps.slice(0, 12) };
+  const known = new Map(ALLERGEN_RULES.map((r) => [r.name.toLowerCase(), r.name]));
+  const declared = (Array.isArray(w.allergens) ? w.allergens : [])
+    .map((a) => known.get(String(a ?? "").trim().toLowerCase()))
+    .filter((a): a is string => !!a);
+  return { ingredients: ingredients.slice(0, 18), steps: steps.slice(0, 12), allergens: declared };
 }
 
 async function write(r: MissingRecipe, apiKey: string, model: string, note?: string): Promise<Written | string> {
@@ -352,7 +570,7 @@ async function write(r: MissingRecipe, apiKey: string, model: string, note?: str
   }
 }
 
-async function complete(r: MissingRecipe, apiKey: string, model: string): Promise<{ ok: true; ingredients: number; steps: number } | { ok: false; reason: string }> {
+async function complete(r: MissingRecipe, apiKey: string, model: string): Promise<{ ok: true; ingredients: number; steps: number; allergens: string[] } | { ok: false; reason: string }> {
   let result = await write(r, apiKey, model);
   for (let attempt = 0; attempt < 2; attempt++) {
     if (typeof result === "string") {
@@ -367,8 +585,11 @@ async function complete(r: MissingRecipe, apiKey: string, model: string): Promis
   const stillHaram = haramReason(result.ingredients.map((i) => i.name), result.steps.map((s) => s.instruction));
   if (stillHaram) return { ok: false, reason: `not halal: ${stillHaram}` };
 
-  const added = await rpc<number>("complete_recipe", { target: r.id, items: result.ingredients, steps: result.steps });
-  return { ok: true, ingredients: added, steps: result.steps.length };
+  // Tag what the chef declared and what our own rules find in the ingredient names.
+  const found = new Set([...result.allergens, ...detectAllergens(result.ingredients.map((i) => i.name))]);
+  const allergens = ALLERGEN_RULES.filter((rule) => found.has(rule.name)).map((rule) => [rule.name.toLowerCase(), ...rule.aliases]);
+  const added = await rpc<number>("complete_recipe", { target: r.id, items: result.ingredients, steps: result.steps, allergens });
+  return { ok: true, ingredients: added, steps: result.steps.length, allergens: [...found] };
 }
 
 Deno.serve(async (req: Request) => {

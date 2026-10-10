@@ -1,4 +1,3 @@
-// GENERATED from supabase/functions/_shared/allergens.ts by mobile/scripts/sync-shared.mjs — do not edit here.
 /**
  * Allergen and diet detection from ingredient names.
  *

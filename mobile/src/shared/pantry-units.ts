@@ -204,3 +204,45 @@ export function friendly(amount: number, base: Base, name: string): { quantity: 
   if (base === 'g') return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'kg' } : { quantity: Math.ceil(amount / 10) * 10 || amount, unit: 'g' };
   return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'L' } : { quantity: Math.ceil(amount / 10) * 10 || amount, unit: 'ml' };
 }
+
+// ── Adding amounts ───────────────────────────────────────────────────
+
+export interface Amount {
+  quantity: number | null;
+  unit: string | null;
+}
+
+/** A number with no unit ("6 eggs") counts pieces. */
+function measured(a: Amount): Amount {
+  const u = normUnit(a.unit);
+  return a.quantity != null && a.quantity > 0 && !u ? { quantity: a.quantity, unit: 'pieces' } : a;
+}
+
+/**
+ * Adds two amounts of the same food, keeping the first one's unit when it can:
+ *   2 pieces + 3 pcs potato → 5 pieces;  2 kg + 3 pieces potato → 2.6 kg;  200 g + 1 cup rice → 392 g.
+ * An unmeasured amount ("to taste", "a bunch") adds nothing to a measured one.
+ * Returns null when the two can't be added (e.g. 2 cups + 3 pieces of something we can't weigh).
+ */
+export function addAmounts(first: Amount, second: Amount, name: string): Amount | null {
+  const a = measured(first);
+  const b = measured(second);
+  const ba = toBase(a.quantity, a.unit, name);
+  const bb = toBase(b.quantity, b.unit, name);
+  if (!ba && !bb) return normUnit(a.unit) === normUnit(b.unit) || !b.unit || normUnit(b.unit) === 'to taste' ? first : !a.unit || normUnit(a.unit) === 'to taste' ? second : null;
+  if (!bb) return first;
+  if (!ba) return second;
+  if (normUnit(a.unit) === normUnit(b.unit)) return { quantity: +(a.quantity! + b.quantity!).toFixed(2), unit: first.unit };
+  const extra = convertBase(bb.amount, bb.base, ba.base, name);
+  if (extra != null) {
+    const inFirstUnit = toUnit(ba.amount + extra, ba.base, a.unit!, name);
+    if (inFirstUnit != null) return { quantity: +inFirstUnit.toFixed(2), unit: first.unit };
+  }
+  // The first unit can't hold it (e.g. pieces of something we can't weigh): try the second's.
+  const back = convertBase(ba.amount, ba.base, bb.base, name);
+  if (back != null) {
+    const inSecondUnit = toUnit(bb.amount + back, bb.base, b.unit!, name);
+    if (inSecondUnit != null) return { quantity: +inSecondUnit.toFixed(2), unit: second.unit };
+  }
+  return null;
+}

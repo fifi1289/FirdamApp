@@ -326,9 +326,11 @@ DO $$ DECLARE n integer; BEGIN
   END IF;
   n := public.complete_recipe('00000000-0000-0000-0000-0000000000c1',
     '[{"name":"Red Lentils","quantity":250,"unit":"g"},{"name":"onion","quantity":1,"unit":"pieces"},{"name":"onion","quantity":2,"unit":"pieces"},{"name":"salt","quantity":null,"unit":"to taste"}]',
-    '[{"instruction":"Rinse the lentils well.","minutes":2},{"instruction":"Simmer everything for 25 minutes.","minutes":25}]');
+    '[{"instruction":"Rinse the lentils well.","minutes":2},{"instruction":"Simmer everything for 25 minutes.","minutes":25}]',
+    '[["celery","celeriac"],["dairy","milk","lactose"],["not a real allergen"]]');
   IF n <> 3 THEN RAISE EXCEPTION 'complete_recipe added % ingredients, expected 3', n; END IF;
   IF (SELECT count(*) FROM public.recipe_steps WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1') <> 2 THEN RAISE EXCEPTION 'steps not saved'; END IF;
+  IF (SELECT count(*) FROM public.recipe_allergens WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1') <> 2 THEN RAISE EXCEPTION 'allergens not tagged'; END IF;
   IF public.complete_recipe('00000000-0000-0000-0000-0000000000c1', '[{"name":"rice"}]', '[{"instruction":"x"}]') <> 0 THEN
     RAISE EXCEPTION 'complete_recipe overwrote a finished recipe';
   END IF;
@@ -342,6 +344,7 @@ END $$;
 RESET ROLE;
 DELETE FROM public.recipe_ingredients WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1';
 DELETE FROM public.recipe_steps WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1';
+DELETE FROM public.recipe_allergens WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1';
 DELETE FROM public.recipes WHERE id = '00000000-0000-0000-0000-0000000000c1';
 
 SELECT 'RLS smoke test passed' AS result;

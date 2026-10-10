@@ -5,7 +5,7 @@ name: Mobile preview
 
 on:
   push:
-    branches: [main, feature/mobile-app]
+    branches: [main, 'feature/mobile-*']
     paths: ['mobile/**', '.github/workflows/mobile-preview.yml']
   workflow_dispatch:
 

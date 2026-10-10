@@ -37,6 +37,18 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 120
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Firdam uses your location to work out prayer times, the Qibla and halal places near you. It stays on your phone."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#855C49"
+        }
       ]
     ],
     "scheme": "firdam",

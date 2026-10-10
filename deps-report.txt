@@ -1,7 +1,0 @@
-== install
-
-added 1 package in 1s
-== expo check
-Dependencies are up to date
-== adhan
-^4.4.6

@@ -74,7 +74,7 @@ BEGIN
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON public.%I (household_id)', 'idx_' || t || '_household', t);
     EXECUTE format('DROP TRIGGER IF EXISTS %I ON public.%I', t || '_set_household', t);
     EXECUTE format('CREATE TRIGGER %I BEFORE INSERT OR UPDATE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.set_household_id()', t || '_set_household', t);
-    FOR pol IN SELECT policyname FROM pg_policies WHERE schemaname = 'public' AND tablename = t LOOP
+    FOR pol IN SELECT policyname FROM pg_policies WHERE schemaname = 'public' AND tablename = t AND policyname <> 'require_2fa_when_enabled' LOOP
       EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', pol.policyname, t);
     END LOOP;
     EXECUTE format('CREATE POLICY %I ON public.%I FOR SELECT TO authenticated USING %s', t || '_select_shared', t, shared_check);

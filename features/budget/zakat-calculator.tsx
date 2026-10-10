@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Info, Scale } from 'lucide-react';
+import { Info, Lock, Scale } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -104,6 +104,14 @@ export function ZakatCalculator({
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
       <Card>
         <CardContent className="space-y-6 p-5">
+          <p className="flex items-start gap-2 rounded-xl bg-brand-sage/10 px-3 py-2.5 text-xs text-foreground">
+            <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-sage" />
+            <span>
+              <strong>Private to this device.</strong> Your gold, savings and other amounts here are calculated and saved
+              only in this browser — they are never sent to Firdam’s servers. Only a zakat payment you choose to record
+              is saved to your account.
+            </span>
+          </p>
           <section>
             <h3 className="text-sm font-semibold text-foreground">1. Today&apos;s metal prices</h3>
             <p className="mt-1 text-xs text-muted-foreground">

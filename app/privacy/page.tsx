@@ -210,8 +210,10 @@ const sections: LegalSection[] = [
     title: 'How we protect it',
     body: (
       <p>
-        Your information is sent over encrypted connections (HTTPS) and stored with access controls so that only you and
-        your household can read your private data. Our team’s access is limited to what’s needed to run and support the
+        Your information is sent over encrypted connections (HTTPS), stored encrypted by our database provider, and
+        protected by access rules so that only you and your household can read your private data. You can turn on
+        two-step verification in Settings, and the zakat calculator keeps your gold and savings figures on your device
+        only. See our <Link href="/security">Security page</Link> for details. Our team’s access is limited to what’s needed to run and support the
         app. No system is perfectly secure; if a breach ever puts you at real risk of significant harm, we will notify
         you and the Privacy Commissioner of Canada as the law requires.
       </p>

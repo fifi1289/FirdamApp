@@ -134,6 +134,17 @@ Prayer and places use free public APIs; results are cached briefly in the functi
 also applies every migration to a clean Postgres database and runs an RLS smoke test
 (`supabase/tests/ci-smoke.sql`).
 
+## Security
+
+- Security headers and a Content Security Policy are set in `next.config.js` — add any new third-party script or API host there.
+- Row-level security on every table; `supabase/tests/ci-smoke.sql` checks isolation on every push.
+- Two-step verification (TOTP): Settings → Account. Enforced by the middleware and by a restrictive policy on every table
+  (`20261010100000_require_2fa_when_enabled.sql`). **Re-run that migration after creating new tables** so they get the policy too.
+- Bot protection with Cloudflare Turnstile (free): create a widget at dash.cloudflare.com → Turnstile, set
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in Vercel and redeploy, **then** paste the secret key in Supabase → Authentication →
+  Attack Protection → Enable CAPTCHA (Turnstile). Doing it in the other order blocks every sign-in.
+- The zakat calculator stores its inputs only in the browser.
+
 ## Before launch
 
 - Privacy Policy (`/privacy`) and Terms (`/terms`) read their operator name, province and contact emails from `lib/site.ts`; update it when the business is registered or the email addresses change.

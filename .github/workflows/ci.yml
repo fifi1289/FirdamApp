@@ -68,7 +68,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260725194112_add_recipe_read_policies.sql
       - name: Re-apply new migrations (idempotency)
         run: |
-          for f in $(ls supabase/migrations/2026100*.sql | sort); do
+          for f in $(ls supabase/migrations/202610*.sql | sort); do
             psql -v ON_ERROR_STOP=1 -q -f "$f"
           done
       - name: RLS smoke test

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, User, ArrowRight, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Turnstile, TURNSTILE_SITE_KEY } from '@/components/auth/turnstile';
 
 import { AuthShell } from '@/components/auth/auth-shell';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,8 @@ export default function RegisterPage() {
   const [agreed, setAgreed] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [loading, setLoading] = React.useState(false);
+  const [captcha, setCaptcha] = React.useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = React.useState(0);
 
   const strength = passwordStrength(password);
 
@@ -59,13 +62,19 @@ export default function RegisterPage() {
       return;
     }
 
+    if (TURNSTILE_SITE_KEY && !captcha) {
+      toast.message('One moment — we’re checking you’re not a bot.');
+      return;
+    }
+
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      await signUp(supabase, { email, password, firstName, lastName });
+      await signUp(supabase, { email, password, firstName, lastName, captchaToken: captcha });
       router.push('/auth/verify-email');
     } catch (error) {
       toast.error(getAuthErrorMessage(error));
+      setCaptchaReset((n) => n + 1);
     } finally {
       setLoading(false);
     }
@@ -224,6 +233,8 @@ export default function RegisterPage() {
         {errors.terms && (
           <p className="text-xs text-destructive">{errors.terms}</p>
         )}
+
+        <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
 
         <Button type="submit" className="w-full" size="lg" disabled={loading}>
           {loading ? (

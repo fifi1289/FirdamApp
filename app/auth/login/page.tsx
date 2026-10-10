@@ -14,6 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { signIn, getAuthErrorMessage } from '@/lib/auth/auth-service';
 import { emailSchema } from '@/lib/auth/validation';
+import { Turnstile, TURNSTILE_SITE_KEY } from '@/components/auth/turnstile';
 
 export default function LoginPage() {
   return (
@@ -31,6 +32,8 @@ function LoginForm() {
   const [password, setPassword] = React.useState('');
   const [errors, setErrors] = React.useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = React.useState(false);
+  const [captcha, setCaptcha] = React.useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = React.useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,10 +49,15 @@ function LoginForm() {
       return;
     }
 
+    if (TURNSTILE_SITE_KEY && !captcha) {
+      toast.message('One moment — we’re checking you’re not a bot.');
+      return;
+    }
+
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      await signIn(supabase, email, password);
+      await signIn(supabase, email, password, captcha);
 
       // Force a session read so @supabase/ssr commits the auth cookies to the
       // browser before we navigate. Without this, the middleware on /dashboard
@@ -57,9 +65,16 @@ function LoginForm() {
       await supabase.auth.getSession();
 
       const redirect = searchParams.get('redirect') ?? '/dashboard';
+      // Two-step verification: ask for the code from the authenticator app.
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
+        router.push(`/verify-2fa?redirect=${encodeURIComponent(redirect)}`);
+        return;
+      }
       router.push(redirect);
     } catch (error) {
       toast.error(getAuthErrorMessage(error));
+      setCaptchaReset((n) => n + 1);
     } finally {
       setLoading(false);
     }
@@ -120,6 +135,8 @@ function LoginForm() {
             <p className="text-xs text-destructive">{errors.password}</p>
           )}
         </div>
+
+        <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
 
         <Button type="submit" className="w-full" size="lg" disabled={loading}>
           {loading ? (

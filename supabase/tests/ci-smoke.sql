@@ -272,4 +272,32 @@ DO $$ BEGIN
 END $$;
 RESET ROLE;
 
+-- Two-step verification: users without it are unaffected; with a verified
+-- factor, an aal1 session sees nothing until the code is verified.
+DO $$ BEGIN
+  IF to_regclass('auth.mfa_factors') IS NULL THEN
+    CREATE TABLE auth.mfa_factors (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid, status text);
+  END IF;
+END $$;
+GRANT SELECT ON ALL TABLES IN SCHEMA auth TO authenticated;
+INSERT INTO auth.mfa_factors (user_id, status) VALUES ('00000000-0000-0000-0000-000000000001', 'verified');
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
+SET request.jwt.claims = '{"aal": "aal1"}';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.pantry_items) <> 0 THEN RAISE EXCEPTION 'aal1 session could read data with 2FA on'; END IF;
+  IF (SELECT count(*) FROM public.budget_transactions) <> 0 THEN RAISE EXCEPTION 'aal1 session could read budget with 2FA on'; END IF;
+END $$;
+SET request.jwt.claims = '{"aal": "aal2"}';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.pantry_items) = 0 THEN RAISE EXCEPTION 'aal2 session lost access'; END IF;
+END $$;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000004';
+SET request.jwt.claims = '{"aal": "aal1"}';
+DO $$ BEGIN
+  IF (SELECT count(*) FROM public.recipes) = 0 THEN RAISE EXCEPTION 'users without 2FA were affected'; END IF;
+END $$;
+RESET request.jwt.claims;
+RESET ROLE;
+
 SELECT 'RLS smoke test passed' AS result;

@@ -17,7 +17,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const USER_AGENT = "Firdam/1.0 (https://firdam.app)";
+const USER_AGENT = "Firdam/1.0 (https://firdam.com)";
 
 const OVERPASS_ENDPOINTS = [
   "https://overpass-api.de/api/interpreter",

@@ -66,7 +66,7 @@ npm run dev
 | `STRIPE_SECRET_KEY` | Supabase function secret | Checkout and billing portal (`billing`) |
 | `STRIPE_WEBHOOK_SECRET` | Supabase function secret | Verifies Stripe events (`stripe-webhook`) |
 | `STRIPE_PRICE_PREMIUM_MONTHLY`, `STRIPE_PRICE_PREMIUM_YEARLY`, `STRIPE_PRICE_FAMILY_MONTHLY`, `STRIPE_PRICE_FAMILY_YEARLY` | Supabase function secrets | Stripe price IDs for each plan |
-| `SITE_URL` | Supabase function secret | Where Stripe sends people back, e.g. `https://app.firdam.app` |
+| `SITE_URL` | Supabase function secret | Where Stripe sends people back, e.g. `https://firdam.com` |
 
 ### Database
 

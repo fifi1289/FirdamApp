@@ -6,7 +6,7 @@
 export const SITE = {
   name: 'Firdam',
   /** Public address of the app. Change it when your own domain is connected. */
-  url: 'https://firdamapp.vercel.app',
+  url: 'https://firdam.com',
   /**
    * Who is legally responsible. Firdam isn't incorporated yet, so it's run by
    * its founder as an individual. After registering, change this to the
@@ -16,8 +16,8 @@ export const SITE = {
   operatorShort: 'Firdam',
   province: 'Ontario',
   country: 'Canada',
-  supportEmail: 'support@firdam.app',
-  privacyEmail: 'privacy@firdam.app',
+  supportEmail: 'support@firdam.com',
+  privacyEmail: 'privacy@firdam.com',
   /** Last time the Privacy Policy or Terms changed (shown on the pages). */
   legalUpdated: 'October 10, 2026',
 } as const;

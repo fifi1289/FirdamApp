@@ -19,7 +19,7 @@ interface Place {
   address: string | null;
   phone: string | null;
   openingHours: string | null;
-  halalStatus: 'halal' | 'halal_only' | 'halal_options' | 'mosque';
+  halalStatus: 'halal' | 'halal_only' | 'halal_options' | 'mosque' | 'may_sell';
   cuisine: string | null;
 }
 
@@ -36,7 +36,10 @@ const STATUS: Record<Place['halalStatus'], { label: string; tone: 'sage' | 'ambe
   halal: { label: 'Halal', tone: 'sage' },
   halal_options: { label: 'Halal options', tone: 'amber' },
   mosque: { label: 'Mosque', tone: 'walnut' },
+  may_sell: { label: 'May stock halal · ask', tone: 'walnut' },
 };
+
+const DISTANCES = [2, 5, 10, 20, 30];
 
 function distanceKm(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }) {
   const rad = (d: number) => (d * Math.PI) / 180;
@@ -62,18 +65,25 @@ export default function Halal() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | Category>('all');
   const [locating, setLocating] = useState(false);
+  const [km, setKm] = useState(10);
+  const [stores, setStores] = useState(true);
 
   const load = useCallback(async () => {
     if (!place) return;
     setPlaces(null);
     setError(null);
     try {
-      const res = await callFunction<{ places: Place[] }>('halal-places', { lat: place.latitude, lng: place.longitude, radius: 8000 });
+      const res = await callFunction<{ places: Place[] }>('halal-places', {
+        lat: place.latitude,
+        lng: place.longitude,
+        radius: km * 1000,
+        ...(stores ? { stores: 1 } : {}),
+      });
       setPlaces(res.places ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load places near you.');
     }
-  }, [place]);
+  }, [place, km, stores]);
 
   useEffect(() => {
     load();
@@ -95,9 +105,11 @@ export default function Halal() {
     return places
       .filter((p) => filter === 'all' || p.category === filter)
       .map((p) => ({ p, km: distanceKm(place, p) }))
-      .sort((a, b) => a.km - b.km)
-      .slice(0, 60);
-  }, [places, place, filter]);
+      .filter((x) => x.km <= km)
+      // Places marked halal first, then shops that may stock it; nearest first.
+      .sort((a, b) => Number(a.p.halalStatus === 'may_sell') - Number(b.p.halalStatus === 'may_sell') || a.km - b.km)
+      .slice(0, 100);
+  }, [places, place, filter, km]);
 
   return (
     <TabScreen title="Halal near me" subtitle={place ? `Around ${place.label}` : 'Restaurants, butchers, groceries and mosques'}>
@@ -113,6 +125,15 @@ export default function Halal() {
               <Chip key={f.key} label={f.label} selected={filter === f.key} onPress={() => setFilter(f.key)} />
             ))}
           </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+            <T size={13} weight="semibold" color={colors.muted}>
+              Within
+            </T>
+            {DISTANCES.map((d) => (
+              <Chip key={d} label={`${d} km`} selected={km === d} onPress={() => setKm(d)} />
+            ))}
+          </View>
+          <Chip label="Also show shops that may stock halal food" selected={stores} onPress={() => setStores(!stores)} />
 
           {error ? (
             <Card style={{ gap: 10 }}>
@@ -124,7 +145,7 @@ export default function Halal() {
           ) : shown.length === 0 ? (
             <Card>
               <T size={14.5} color={colors.muted}>
-                Nothing listed here yet within 8 km. Try another filter, or update your location.
+                {`Nothing listed within ${km} km yet. Try a wider distance or another filter.`}
               </T>
             </Card>
           ) : (

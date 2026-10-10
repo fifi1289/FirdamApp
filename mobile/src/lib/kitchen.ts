@@ -18,6 +18,8 @@ import {
   RECIPE_SELECT,
   buildPlanFromRecipes,
   fetchAllPages,
+  fillMissingIngredients,
+  mealsMissingIngredients,
   formatDateISO,
   formatWeekRange,
   getStartOfWeek,
@@ -120,7 +122,17 @@ export async function loadWeekPlan(weekStart = formatDateISO(getStartOfWeek())):
   const { data } = await supabase.from('meal_plans').select('id, plan_data, created_at').order('created_at', { ascending: false }).limit(50);
   const rows = (data ?? []) as { id: string; plan_data: Record<string, unknown> }[];
   const row = rows.find((r) => (r.plan_data as { weekStartDate?: string })?.weekStartDate === weekStart);
-  return row ? { id: row.id, plan: normalizePlan(row.plan_data) } : null;
+  if (!row) return null;
+  const plan = normalizePlan(row.plan_data);
+  // Plans saved before their recipes had ingredients: fill them in and save.
+  const ids = mealsMissingIngredients(plan);
+  if (ids.length) {
+    const { data: recipes } = await supabase.from('recipes').select(RECIPE_SELECT).in('id', ids);
+    if (recipes?.length && fillMissingIngredients(plan, recipes as unknown as RecipeRow[])) {
+      await supabase.from('meal_plans').update({ plan_data: plan as unknown as Record<string, unknown> }).eq('id', row.id);
+    }
+  }
+  return { id: row.id, plan };
 }
 
 export async function saveWeekPlan(plan: GeneratedMealPlan, prefs: MealPreferencesState, existingId: string | null): Promise<string> {

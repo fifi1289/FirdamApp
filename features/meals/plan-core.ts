@@ -393,6 +393,31 @@ export function normalizePlan(data: Record<string, unknown>): GeneratedMealPlan 
   };
 }
 
+/** Ids of library meals saved before their recipe had ingredients. */
+export function mealsMissingIngredients(plan: GeneratedMealPlan): string[] {
+  const ids = plan.days.flatMap((d) => d.meals).filter((m) => !m.ingredients.length && m.id).map((m) => m.id);
+  return Array.from(new Set(ids));
+}
+
+/**
+ * Fills those meals from the recipe library (scaled to the meal's servings).
+ * Returns true when something changed, so the caller can save the plan.
+ */
+export function fillMissingIngredients(plan: GeneratedMealPlan, recipes: RecipeRow[]): boolean {
+  const byId = new Map(recipes.map((r) => [r.id, r]));
+  let changed = false;
+  for (const day of plan.days) {
+    day.meals = day.meals.map((m) => {
+      const r = byId.get(m.id);
+      if (m.ingredients.length || !r || !r.recipe_ingredients.length) return m;
+      changed = true;
+      const fresh = toMockMeal(r, m.type, m.servings || r.servings || 2);
+      return { ...m, ingredients: fresh.ingredients, recipe: m.recipe.length ? m.recipe : fresh.recipe };
+    });
+  }
+  return changed;
+}
+
 /**
  * Supabase returns at most 1,000 rows per request. This keeps asking for the
  * next page until it has everything. `page(from, to)` must use a stable order.

@@ -42,6 +42,7 @@ import { getPlanPantrySummary } from '@/features/meals/pantry-check';
 import {
   generateMealPlanFromSupabase,
   normalizePlan,
+  repairPlanIngredients,
   formatWeekRange,
   getStartOfWeek,
   formatDateISO,
@@ -346,8 +347,8 @@ export function MealsDashboard() {
     setView('home');
   };
 
-  const openSavedPlan = (record: MealPlanRecord) => {
-    const plan = normalizePlan(record.plan_data as Record<string, unknown>);
+  const openSavedPlan = async (record: MealPlanRecord) => {
+    const plan = await repairPlanIngredients(record.id, normalizePlan(record.plan_data as Record<string, unknown>));
     if (!plan || !Array.isArray(plan.days) || plan.days.length === 0) {
       toast.error('This meal plan could not be opened.');
       return;

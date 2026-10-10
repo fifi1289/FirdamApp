@@ -1,7 +1,25 @@
 import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
+import { AppState } from 'react-native';
 
 import { Icon, type IconName } from '@/components/art';
+import { scheduleAdhanAlerts } from '@/lib/adhan-alerts';
+import { loadPrayerSettings, usePrayerSettings } from '@/lib/prayer';
 import { colors, fonts } from '@/theme';
+
+/** Keeps a week of adhan alerts scheduled: on open, on return to the app, and when settings change. */
+function useAdhanAlerts() {
+  const { settings } = usePrayerSettings();
+  useEffect(() => {
+    if (settings) scheduleAdhanAlerts(settings).catch(() => {});
+  }, [settings]);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') loadPrayerSettings().then((s) => scheduleAdhanAlerts(s)).catch(() => {});
+    });
+    return () => sub.remove();
+  }, []);
+}
 
 const tabs: { name: string; title: string; icon: IconName }[] = [
   { name: 'index', title: 'Today', icon: 'today' },
@@ -12,6 +30,7 @@ const tabs: { name: string; title: string; icon: IconName }[] = [
 ];
 
 export default function TabsLayout() {
+  useAdhanAlerts();
   return (
     <Tabs
       screenOptions={{

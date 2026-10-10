@@ -1,9 +1,9 @@
-# Temporary helper (run 3): runs package commands for mobile/ (npm isn't reachable from
+# Temporary helper (run 4: adhan): runs package commands for mobile/ (npm isn't reachable from
 # the coding session) and commits the updated package files back.
 name: mobile-deps
 on:
   push:
-    branches: [feature/mobile-app]
+    branches: ['feature/mobile-*']
     paths: ['.github/workflows/mobile-deps.yml']
 permissions:
   contents: write
@@ -21,10 +21,10 @@ jobs:
       - name: Update packages
         run: |
           {
-            echo "== pin react-dom"; npm install react-dom@19.2.3 --save-exact --no-audit --no-fund 2>&1 | grep -v "^npm warn" | tail -15
-            echo "== expo check"; npx expo install --check 2>&1 | tail -15
-            echo "== clean install test"; rm -rf node_modules; npm ci --no-audit --no-fund 2>&1 | grep -v "^npm warn" | tail -8
-            echo "== deps"; node -p 'JSON.stringify(require("./package.json").dependencies)'
+            npm ci --no-audit --no-fund > /dev/null 2>&1
+            echo "== install"; npm install adhan --save --no-audit --no-fund 2>&1 | grep -v "^npm warn" | tail -8
+            echo "== expo check"; npx expo install --check 2>&1 | tail -10
+            echo "== adhan"; node -p 'require("./package.json").dependencies.adhan'
           } > ../deps-report.txt
       - name: Save
         if: always()

@@ -5,7 +5,7 @@ name: Mobile preview
 
 on:
   push:
-    branches: [main, feature/mobile-app]
+    branches: [main, 'feature/mobile-*']
     paths: ['mobile/**', '.github/workflows/mobile-preview.yml']
   workflow_dispatch:
 
@@ -72,7 +72,12 @@ jobs:
       - name: Publish to the preview channel
         run: |
           MESSAGE="$(git log -1 --pretty=%s)"
-          eas update --channel preview --message "$MESSAGE" --non-interactive
+          if ! eas update --channel preview --message "$MESSAGE" --non-interactive > /tmp/eas.log 2>&1; then
+            cat /tmp/eas.log
+            grep -iv "^\s*$" /tmp/eas.log | tail -15 | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          fi
+          tail -20 /tmp/eas.log
           PROJECT_ID=$(node -p 'require("./app.json").expo.extra.eas.projectId')
           {
             echo "### Open the app on your iPhone"

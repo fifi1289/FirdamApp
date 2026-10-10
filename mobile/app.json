@@ -21,10 +21,13 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.firdam.app"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
+      "package": "com.firdam.app",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -37,9 +40,38 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 120
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Firdam uses your location to work out prayer times, the Qibla and halal places near you. It stays on your phone."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#855C49"
+        }
       ]
     ],
     "scheme": "firdam",
-    "backgroundColor": "#F8F4EE"
+    "backgroundColor": "#F8F4EE",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2f82ff99-c2a3-46cf-b494-191650d1efde"
+      }
+    },
+    "owner": "firdam-app",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2f82ff99-c2a3-46cf-b494-191650d1efde"
+    },
+    "platforms": [
+      "ios",
+      "android"
+    ]
   }
 }

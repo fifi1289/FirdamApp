@@ -151,6 +151,14 @@ function ingredientNames(r: RecipeRow): string[] {
   return r.recipe_ingredients.map((ri) => ri.ingredient?.name ?? '').filter(Boolean);
 }
 
+/**
+ * True when a recipe can actually be cooked: it has ingredients and a method.
+ * Older imported recipes are names only and are never planned or listed.
+ */
+export function isCompleteRecipe(r: RecipeRow): boolean {
+  return r.recipe_ingredients.some((ri) => ri.ingredient?.name) && r.recipe_steps.length > 0;
+}
+
 /** True when a recipe is safe for the family's allergies and fits every chosen diet. */
 export function recipeSuits(r: RecipeRow, allergies: string[], diets: string[]): boolean {
   const ingredients = ingredientNames(r);
@@ -232,8 +240,8 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
     throw new Error('No recipe found.');
   }
   // Allergies and diets are never relaxed: unsafe recipes are removed up front.
-  const recipes = all.filter((r) =>
-    recipeSuits(r, preferences.allergies ?? [], preferences.dietaryPreferences ?? [])
+  const recipes = all.filter(
+    (r) => isCompleteRecipe(r) && recipeSuits(r, preferences.allergies ?? [], preferences.dietaryPreferences ?? [])
   );
   if (recipes.length === 0) {
     throw new Error(

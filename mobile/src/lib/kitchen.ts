@@ -16,6 +16,7 @@ import {
   RECIPE_SELECT,
   buildPlanFromRecipes,
   formatDateISO,
+  isCompleteRecipe,
   formatWeekRange,
   getStartOfWeek,
   newPlanId,
@@ -149,7 +150,8 @@ export async function loadRecipes(force = false): Promise<RecipeRow[]> {
     .eq('is_active', true)
     .order('name', { ascending: true });
   if (error) throw error;
-  recipeCache = (data ?? []) as unknown as RecipeRow[];
+  // Only recipes with ingredients and a method (older imports are names only).
+  recipeCache = ((data ?? []) as unknown as RecipeRow[]).filter(isCompleteRecipe);
   return recipeCache;
 }
 

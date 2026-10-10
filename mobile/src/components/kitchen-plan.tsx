@@ -144,7 +144,7 @@ export function PlanView() {
                   <T size={15} weight="bold" numberOfLines={1}>
                     {m.name}
                   </T>
-                  {k.pantry.length ? (
+                  {k.pantry.length && total ? (
                     <T size={12.5} weight="semibold" color={missing ? '#8A5A16' : colors.sage}>
                       {missing ? `${total - missing} of ${total} at home · ${missing} to buy` : `All ${total} ingredients at home`}
                     </T>

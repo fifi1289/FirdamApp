@@ -49,7 +49,7 @@ export async function describeOpenAIFailure(res: Response): Promise<OpenAIFailur
   // Visible in Supabase → Edge Functions → Logs.
   console.error(`OpenAI ${res.status} ${type}: ${detail}`);
 
-  if (res.status === 429 && /insufficient_quota/.test(type + detail)) {
+  if (res.status === 429 && /insufficient_quota|credit_balance|no credits|billing/i.test(type + detail)) {
     return {
       status: 503,
       code: "ai_quota",

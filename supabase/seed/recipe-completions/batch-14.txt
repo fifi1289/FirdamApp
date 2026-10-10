@@ -84,7 +84,7 @@ s: Blend the beef with tapioca starch, egg white, three garlic cloves, pepper, s
 i: 700 g halal beef brisket; cubed | 6 pieces kluwek (keluak) nuts; flesh scooped out | 8 pieces shallots | 4 cloves garlic | 3 pieces candlenuts | 3 cm galangal | 2 cm turmeric root | 1 tsp ground coriander | 2 pieces lemongrass stalks | 5 pieces kaffir lime leaves | 2 l water | 2 tbsp vegetable oil | 150 g bean sprouts | 4 pieces salted eggs; optional | 300 g jasmine rice | salt to taste
 s: Simmer the beef in the water for 60 minutes, skimming. | Blend the kluwek, shallots, garlic, candlenuts, galangal, turmeric and coriander and fry in the oil with lemongrass and lime leaves for 8 minutes. | Add the paste to the beef and simmer for 40 minutes until the broth is black and the beef tender. | Season with salt. | Serve with rice, bean sprouts and salted egg.
 
-@ 7938eb86-b76f-416a-8cdf-0686b7fdaaf7 | Indonesian Halal Nasi Goreng Special Fried Rice Dinner
+@ 7938eb86-b76f-416a-8cb6-b6c0a27a1ef7 | Indonesian Halal Nasi Goreng Special Fried Rice Dinner
 i: 600 g cooked jasmine rice; day-old | 200 g halal chicken; diced | 100 g prawns | 4 pieces shallots | 3 cloves garlic | 2 pieces red chillies | 1 tsp shrimp paste (terasi) | 3 tbsp kecap manis (sweet soy sauce) | 3 pieces eggs | 1 pieces cucumber; sliced | 2 pieces tomatoes; sliced | 3 tbsp fried shallots | 4 tbsp vegetable oil | 6 pieces prawn crackers | salt to taste
 s: Pound the shallots, garlic, chillies and shrimp paste and fry in 2 tbsp oil for 2 minutes. | Add the chicken and prawns for 4 minutes. | Add the rice and kecap manis and toss over high heat for 4 minutes. | Fry the eggs sunny side up in the remaining oil. | Serve the rice topped with an egg and fried shallots, with cucumber, tomato and prawn crackers.
 

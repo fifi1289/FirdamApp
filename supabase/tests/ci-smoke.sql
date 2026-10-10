@@ -350,4 +350,14 @@ DELETE FROM public.recipe_steps WHERE recipe_id = '00000000-0000-0000-0000-00000
 DELETE FROM public.recipe_allergens WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1';
 DELETE FROM public.recipes WHERE id = '00000000-0000-0000-0000-0000000000c1';
 
+-- The database's halal and allergen checks behave like the app's.
+DO $$ BEGIN
+  IF public.recipe_haram_reason(ARRAY['rice'], ARRAY['Add the white wine.']) IS NULL THEN RAISE EXCEPTION 'wine not caught'; END IF;
+  IF public.recipe_haram_reason(ARRAY['sausages'], '{}') IS NULL THEN RAISE EXCEPTION 'plain sausages not caught'; END IF;
+  IF public.recipe_haram_reason(ARRAY['halal beef sausages', 'apple cider vinegar'], ARRAY['Fry the sausages.']) IS NOT NULL THEN RAISE EXCEPTION 'halal recipe rejected'; END IF;
+  IF public.recipe_allergen_names(ARRAY['coconut milk', 'pine nuts', 'parmesan', 'peanut butter']) <> ARRAY['Dairy', 'Peanuts', 'Tree nuts'] THEN
+    RAISE EXCEPTION 'allergens: %', public.recipe_allergen_names(ARRAY['coconut milk', 'pine nuts', 'parmesan', 'peanut butter']);
+  END IF;
+END $$;
+
 SELECT 'RLS smoke test passed' AS result;

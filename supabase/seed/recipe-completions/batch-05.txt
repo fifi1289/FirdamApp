@@ -1,0 +1,201 @@
+# Batch 05 — Japanese, Moroccan, Ethiopian
+# Mirin and sake are replaced with sugar and a little rice vinegar; dashi is made from kombu and shiitake.
+@ 21a58fde-bd68-4fd9-900d-82523b422a5e | Japanese Halal Beef Curry Rice
+i: 600 g halal beef chuck; cubed | 2 pieces onions; sliced | 2 pieces carrots; chunked | 3 pieces potatoes; chunked | 1 pieces apple; grated | 40 g butter | 40 g plain flour | 2 tbsp mild curry powder | 1 tbsp garam masala | 1 tbsp tomato ketchup | 1 tbsp soy sauce | 1 tbsp honey | 900 ml halal beef stock | 2 tbsp vegetable oil | 400 g japanese short-grain rice
+s: Brown the beef in the oil, add the onions and cook for 10 minutes until golden. | Add the stock and apple and simmer for 60 minutes, then add the carrots and potatoes for 20 minutes. | Make a roux: melt the butter, stir in the flour for 5 minutes until light brown, then the curry powder and garam masala for 1 minute. | Whisk a ladle of hot stock into the roux, then stir it into the stew with the ketchup, soy and honey and simmer 10 minutes until thick. | Cook the rice and serve the curry alongside.
+
+@ 281de7b9-f0ba-4004-8851-d1149f184c99 | Japanese Halal Beef Udon Noodle Soup
+i: 3 pieces frozen udon noodle portions | 250 g halal beef sirloin; very thinly sliced | 1 pieces onion; thinly sliced | 1 l water | 10 g kombu | 4 pieces dried shiitake mushrooms | 3 tbsp soy sauce | 1.5 tbsp sugar | 3 pieces spring onions; sliced | 1 tsp shichimi togarashi
+s: Soak the kombu and shiitake in the water for 20 minutes, then heat until just below a simmer and remove for a clear dashi. | Season the broth with 2 tbsp soy and 1 tbsp sugar. | Simmer the beef and onion with the remaining soy and sugar and 3 tbsp broth for 4 minutes until glossy. | Boil the udon for 1 minute, drain and divide into bowls. | Pour over the hot broth, top with the beef, spring onions and shichimi.
+
+@ 332f306c-635a-436b-8ba1-2514da3206ac | Japanese Halal Beef Yakiniku Donburi
+i: 400 g halal beef sirloin; thinly sliced | 3 tbsp soy sauce | 1 tbsp sugar | 1 tbsp honey | 2 cloves garlic; grated | 1 tsp grated ginger | 1 tbsp sesame oil | 1 tbsp sesame seeds | 1 pieces onion; sliced | 150 g cabbage; finely shredded | 3 pieces spring onions | 1 tbsp vegetable oil | 400 g japanese short-grain rice
+s: Mix the soy, sugar, honey, garlic, ginger, sesame oil and seeds and marinate the beef for 15 minutes. | Cook the rice. | Sear the beef and onion in a very hot pan with the oil for 3 minutes until charred. | Pour in any leftover marinade and toss until sticky. | Serve over rice with shredded cabbage and spring onions.
+
+@ 3bc30ddf-b6da-4087-94c7-4f7e9fd81989 | Japanese Halal Karaage (Japanese Fried Chicken) Lunch Box
+i: 600 g halal chicken thighs; boneless, cut into chunks | 3 tbsp soy sauce | 1 tbsp grated ginger | 2 cloves garlic; grated | 1 tsp sugar | 80 g potato starch | 200 g cabbage; finely shredded | 1 pieces lemon; cut into wedges | 3 tbsp mayonnaise | 400 g japanese short-grain rice | 500 ml vegetable oil; for frying
+s: Marinate the chicken in soy, ginger, garlic and sugar for 30 minutes. | Toss in potato starch until coated. | Fry at 170°C for 4 minutes, rest 3 minutes, then fry again at 190°C for 1 minute until very crisp. | Cook the rice. | Pack the rice, chicken, cabbage, lemon and mayonnaise into lunch boxes.
+
+@ 4548eef1-312a-43d6-a768-89a67edb6740 | Japanese Halal Cold Kitsune Udon with Seasoned Tofu
+i: 3 pieces frozen udon noodle portions | 6 pieces aburaage (fried tofu pouches) | 500 ml water | 10 g kombu | 4 pieces dried shiitake mushrooms | 5 tbsp soy sauce | 3 tbsp sugar | 3 pieces spring onions; sliced | 1 tsp grated ginger
+s: Make dashi by soaking the kombu and shiitake in the water for 30 minutes and warming gently, then remove. | Pour boiling water over the aburaage to remove oil, then simmer in 200 ml dashi with 2 tbsp soy and 2 tbsp sugar for 10 minutes. | Mix the remaining dashi, soy and sugar, bring to the boil and chill as the dipping sauce. | Boil the udon for 1 minute and rinse under cold water. | Serve the cold noodles topped with the tofu, spring onion and ginger, with the sauce.
+
+@ 46f0e384-9871-4fa2-93e5-3a542c58e0d0 | Japanese Halal Chicken Tendon (Tempura Rice Bowl)
+i: 400 g halal chicken breast; cut into strips | 1 pieces sweet potato; sliced | 1 pieces eggplant; sliced | 6 pieces shiitake mushrooms | 100 g plain flour | 1 pieces egg | 180 ml ice-cold water | 4 tbsp soy sauce | 3 tbsp sugar | 100 ml kombu dashi | 400 g japanese short-grain rice | 1 l vegetable oil; for frying
+s: Simmer the soy, sugar and dashi for 2 minutes for the tendon sauce. | Cook the rice. | Whisk the egg and ice water, then lightly stir in the flour, leaving lumps. | Dip the chicken and vegetables in batter and fry at 175°C for 2 to 3 minutes until crisp. | Pile on the rice and drizzle with the sauce.
+
+@ 5587250d-ddf6-41a9-9cc4-4bc882232c0d | Traditional Japanese Halal Chicken Teriyaki Bento
+i: 600 g halal chicken thighs; boneless | 4 tbsp soy sauce | 2 tbsp sugar | 1 tbsp honey | 1 tsp rice vinegar | 1 tsp grated ginger | 1 tbsp vegetable oil | 200 g frozen edamame | 400 g japanese short-grain rice | 1 tsp sesame seeds
+s: Mix the soy, sugar, honey, vinegar and ginger as an alcohol-free teriyaki sauce. | Cook the rice and boil the edamame for 4 minutes with salt. | Fry the chicken skin-side down in the oil for 7 minutes, turn and cook 5 minutes. | Pour in the sauce and simmer, turning, until thick and glossy. | Slice and pack with rice and edamame, sprinkling with sesame seeds.
+
+@ 6e635414-ba8c-4103-8323-d53534c986ec | Japanese Halal Miso Ramen with Chicken
+i: 3 pieces fresh ramen noodle portions | 2 pieces halal chicken breasts | 1.2 l halal chicken stock | 4 tbsp miso paste | 1 tbsp soy sauce | 2 cloves garlic; grated | 1 tsp grated ginger | 1 tbsp sesame oil | 150 g sweetcorn | 150 g bean sprouts | 30 g butter | 3 pieces eggs; soft-boiled | 3 pieces spring onions
+s: Poach the chicken in the stock for 15 minutes, lift out and slice. | Fry the garlic and ginger in the sesame oil, add to the stock and whisk in the miso and soy without boiling. | Blanch the bean sprouts and cook the noodles for 2 minutes. | Divide the noodles into bowls and pour over the hot broth. | Top with chicken, corn, bean sprouts, a knob of butter, halved eggs and spring onions.
+
+@ 93a28a1f-55db-4896-92a6-58fe19d7a029 | Japanese Halal Chicken Oyakodon (Egg and Chicken Bowl)
+i: 400 g halal chicken thighs; boneless, sliced | 1 pieces onion; thinly sliced | 4 pieces eggs; lightly beaten | 250 ml kombu dashi | 3 tbsp soy sauce | 1.5 tbsp sugar | 2 pieces spring onions | 400 g japanese short-grain rice
+s: Cook the rice. | Simmer the dashi, soy and sugar in a small pan, add the onion for 3 minutes. | Add the chicken and simmer for 6 minutes until cooked. | Pour over the eggs, cover and cook for 1 minute until just set but still soft. | Slide over bowls of rice and top with spring onions.
+
+@ 9d84b5c1-3aeb-41ca-8dc8-29e891c09ed1 | Japanese Halal Chicken Yakisoba (Stir-Fried Noodles)
+i: 3 pieces yakisoba or ramen noodle portions | 300 g halal chicken thigh; thinly sliced | 200 g cabbage; chopped | 1 pieces carrot; julienned | 1 pieces onion; sliced | 3 tbsp worcestershire sauce | 2 tbsp tomato ketchup | 1 tbsp soy sauce | 1 tsp sugar | 2 tbsp vegetable oil | 1 tbsp pickled red ginger
+s: Mix the worcestershire sauce, ketchup, soy and sugar. | Stir-fry the chicken in the oil for 4 minutes. | Add the onion, carrot and cabbage and cook for 3 minutes. | Add the noodles with a splash of water to loosen, then the sauce, and toss for 2 minutes. | Serve topped with pickled ginger.
+
+@ a4d6d088-42a9-49c0-9a20-495e683e4566 | Japanese Halal Beef Gyudon (Beef and Onion Rice Bowl)
+i: 400 g halal beef ribeye; shaved very thin | 1 pieces onion; sliced | 200 ml kombu dashi | 3 tbsp soy sauce | 1.5 tbsp sugar | 1 tsp grated ginger | 3 pieces egg yolks; optional | 400 g japanese short-grain rice | 1 tbsp pickled red ginger
+s: Cook the rice. | Simmer the dashi, soy, sugar and ginger, add the onion and cook for 5 minutes until soft. | Add the beef, separating the slices, and simmer for 2 minutes until just cooked. | Spoon the beef, onion and some broth over the rice. | Top with an egg yolk if using and pickled ginger.
+
+@ b7ea744e-093f-4d65-9e98-7044d80a2926 | Japanese Halal Beef Ginger Stir-Fry (Shogayaki)
+i: 400 g halal beef sirloin; thinly sliced | 2 tbsp grated ginger | 3 tbsp soy sauce | 1 tbsp sugar | 1 tbsp honey | 1 pieces onion; sliced | 1 tbsp vegetable oil | 200 g cabbage; finely shredded | 400 g japanese short-grain rice
+s: Mix the ginger, soy, sugar and honey and marinate the beef for 10 minutes. | Cook the rice. | Fry the onion in the oil for 3 minutes. | Add the beef and sear for 2 minutes, then pour in the marinade and toss until glossy. | Serve with shredded cabbage and rice.
+
+@ c186a057-1c25-4719-97bc-0dac66875c02 | Japanese Halal Zaru Soba (Cold Buckwheat Noodles)
+i: 200 g soba noodles | 300 ml kombu dashi | 4 tbsp soy sauce | 2 tbsp sugar | 1 pieces nori sheet; cut into thin strips | 2 pieces spring onions; finely sliced | 1 tsp wasabi | 1 tsp grated ginger
+s: Bring the dashi, soy and sugar to the boil, then chill as the dipping sauce. | Cook the soba for 4 minutes. | Rinse well under cold water and drain. | Arrange on plates or a bamboo tray and top with nori. | Serve with the cold sauce, spring onion, wasabi and ginger for dipping.
+
+@ ccbba055-dccd-434b-9fd0-ee4eafad3486 | Japanese Halal Shoyu Ramen with Chicken
+i: 3 pieces fresh ramen noodle portions | 2 pieces halal chicken thighs | 1.2 l halal chicken stock | 10 g kombu | 4 tbsp soy sauce | 1 tsp sugar | 2 cloves garlic | 2 cm ginger | 60 g menma (bamboo shoots) | 3 pieces eggs; soft-boiled | 1 pieces nori sheet | 3 pieces spring onions
+s: Simmer the stock with kombu, garlic and ginger for 15 minutes, removing the kombu early. | Poach the chicken in the stock for 15 minutes and slice. | Season the broth with the soy and sugar. | Cook the noodles for 2 minutes and divide into bowls. | Pour over the broth and top with chicken, menma, halved eggs, nori and spring onions.
+
+@ d4fc5707-2a1f-4c45-9e84-486f5eaaba32 | Japanese Halal Chicken Katsu Curry with Rice
+i: 3 pieces halal chicken breasts; flattened | 80 g plain flour; 30 g for the sauce, the rest for coating | 2 pieces eggs | 100 g panko breadcrumbs | 1 pieces onion; sliced | 1 pieces carrot; diced | 30 g butter | 2 tbsp mild curry powder | 600 ml halal chicken stock | 1 tbsp honey | 1 tbsp soy sauce | 400 g japanese short-grain rice | 300 ml vegetable oil; for frying
+s: Soften the onion and carrot in the butter for 8 minutes, stir in 30 g flour and the curry powder for 2 minutes. | Whisk in the stock, honey and soy and simmer for 15 minutes until thick. | Coat the chicken in the remaining flour, beaten egg and panko. | Fry for 4 minutes per side until golden and slice. | Serve with rice and the curry sauce.
+
+@ d63deb09-46b7-492d-b7a9-f7fcd36e50dc | Japanese Halal Chicken and Vegetable Nimono (Simmered Dish)
+i: 400 g halal chicken thighs; cut into chunks | 300 g daikon radish; cut into chunks | 2 pieces carrots; cut into chunks | 150 g lotus root; sliced | 6 pieces dried shiitake mushrooms; soaked | 500 ml kombu dashi | 3 tbsp soy sauce | 2 tbsp sugar | 1 tbsp vegetable oil | 100 g snow peas
+s: Brown the chicken in the oil. | Add the daikon, carrots, lotus root and mushrooms and stir for 2 minutes. | Add the dashi, soy and sugar, cover with a small lid or paper and simmer for 25 minutes. | Add the snow peas for 2 minutes. | Serve warm with the broth spooned over.
+
+@ dc19db3a-a873-4c9f-909d-43ea2287d31c | Japanese Halal Salmon Teriyaki Bento
+i: 3 pieces salmon fillets | 4 tbsp soy sauce | 2 tbsp sugar | 1 tbsp honey | 1 tsp rice vinegar | 1 tbsp vegetable oil | 300 g broccoli florets | 2 tbsp pickled ginger | 400 g japanese short-grain rice
+s: Mix the soy, sugar, honey and vinegar. | Cook the rice and steam the broccoli for 4 minutes. | Fry the salmon in the oil for 3 minutes per side. | Pour in the sauce and spoon it over until thick and glossy. | Pack with rice, broccoli and pickled ginger.
+
+@ df034af8-c7f2-4371-8249-20fd281d9c11 | Japanese Halal Chicken Fried Rice (Chahan)
+i: 600 g cooked japanese rice; day-old | 250 g halal chicken thigh; diced | 3 pieces eggs; beaten | 4 pieces spring onions; sliced | 1 tbsp soy sauce | 1 tsp sesame oil | 2 tbsp vegetable oil | white pepper to taste | salt to taste
+s: Stir-fry the chicken in 1 tbsp oil for 5 minutes and remove. | Pour the eggs into the remaining hot oil and immediately add the rice, tossing so the egg coats the grains. | Fry for 4 minutes over high heat. | Return the chicken with soy, salt, white pepper and most of the spring onions. | Finish with sesame oil and the rest of the spring onions.
+
+@ eca4813a-c9ba-4bfb-b5f3-23c8086ee3f3 | Japanese Halal Chicken Soboro Donburi (Minced Chicken Bowl)
+i: 400 g halal chicken mince | 3 tbsp soy sauce | 7 tsp sugar; 2 tbsp for the chicken, 1 tsp for the eggs | 1 tsp grated ginger | 4 pieces eggs | 150 g frozen peas | 400 g japanese short-grain rice | 1 tbsp vegetable oil
+s: Cook the rice. | Cook the chicken with soy, 2 tbsp sugar and ginger, stirring with chopsticks, for 6 minutes until crumbly and dry. | Beat the eggs with 1 tsp sugar and cook in the oil, stirring constantly, to fine scrambled crumbs. | Boil the peas for 3 minutes. | Arrange the chicken, egg and peas in stripes over bowls of rice.
+
+@ fd8fb668-6122-496f-899d-b4521221baca | Japanese Halal Chicken Katsudon (Fried Cutlet Egg Bowl)
+i: 2 pieces halal chicken breasts; flattened | 40 g plain flour | 4 pieces eggs | 80 g panko breadcrumbs | 1 pieces onion; sliced | 250 ml kombu dashi | 3 tbsp soy sauce | 1.5 tbsp sugar | 2 pieces spring onions | 400 g japanese short-grain rice | 300 ml vegetable oil; for frying
+s: Coat the chicken in flour, one beaten egg and panko and fry for 4 minutes per side, then slice. | Cook the rice. | Simmer the dashi, soy, sugar and onion for 4 minutes. | Lay the cutlets in the pan, pour over the remaining beaten eggs, cover and cook 1 minute until just set. | Slide over rice and top with spring onions.
+
+@ 092ae07c-cbea-4585-afc3-60eb2ba73e9a | Moroccan Halal Lamb and Turnip Tagine
+i: 1 kg halal lamb shoulder; cut into pieces | 600 g baby turnips; halved | 2 pieces onions; grated | 3 cloves garlic | 1 tsp ground ginger | 1 pinch saffron | 0.5 tsp ground turmeric | 1 tsp black pepper | 1 handful fresh coriander; chopped | 3 tbsp olive oil | 30 g butter | salt to taste
+s: Mix the lamb with the onions, garlic, spices, half the coriander, oil, butter and salt in a tagine or heavy pot. | Cook gently for 10 minutes, then add 500 ml water. | Cover and simmer for 75 minutes until the lamb is tender. | Add the turnips and cook for 20 minutes. | Reduce the sauce if needed and scatter with the remaining coriander.
+
+@ 0c5b61d1-2279-47d0-b18a-6f4e1e11bbbc | Moroccan Halal Beef Couscous with Seven Vegetables
+i: 800 g halal beef shin; cut into pieces | 500 g couscous | 300 g pumpkin; chunked | 3 pieces carrots; halved | 2 pieces turnips; quartered | 2 pieces zucchini; chunked | 0.25 pieces white cabbage; wedged | 200 g cooked chickpeas | 2 pieces onions | 2 pieces tomatoes | 1 tsp ground ginger | 1 tsp ground turmeric | 1 pinch saffron | 1 handful fresh coriander and parsley; tied | 4 tbsp olive oil | 40 g butter | salt to taste
+s: Brown the beef with the onions in the oil, add the spices, tomatoes, herbs, salt and 2 l water and simmer for 60 minutes. | Add the carrots, turnips and cabbage and cook for 20 minutes. | Add the pumpkin, zucchini and chickpeas and cook 15 minutes more. | Moisten the couscous with salted water, steam over the stew for 15 minutes, fluff and steam again, then rub in the butter. | Mound the couscous, top with beef and vegetables and spoon over the broth.
+
+@ 10595978-1dec-42a3-af11-91133e076982 | Moroccan Bissara (Split Fava Bean Soup with Olive Oil)
+i: 400 g dried split fava beans; soaked overnight | 6 cloves garlic | 1.5 l water | 2 tsp ground cumin | 1 tsp smoked paprika | 80 ml extra virgin olive oil | 1 pieces lemon | 1 pieces bread loaf | salt to taste
+s: Simmer the beans with the garlic in the water for 60 minutes until very soft. | Blend until smooth and loosen with water to a thick soup. | Season with half the cumin, salt and a little oil. | Ladle into bowls and drizzle generously with oil. | Sprinkle with the remaining cumin and paprika and serve with lemon and bread.
+
+@ 303eb75f-5b11-481c-9dd6-5abfa99a5b96 | Moroccan Halal Chicken Tagine with Quince and Honey
+i: 1.2 kg halal chicken pieces | 2 pieces quinces; peeled, cored and quartered | 2 pieces onions; grated | 1 tsp ground ginger | 1 tsp ground cinnamon | 1 pinch saffron | 3 tbsp honey | 3 tbsp olive oil | 20 g butter | 1 tbsp sesame seeds; toasted | salt to taste
+s: Cook the chicken with the onions, ginger, half the cinnamon, saffron, oil and salt for 10 minutes, then add 400 ml water, cover and simmer for 45 minutes. | Poach the quinces in water for 15 minutes until just tender. | Drain, then cook them in the butter with the honey and remaining cinnamon for 10 minutes until caramelised. | Reduce the chicken sauce until thick. | Serve the chicken topped with the quince and sesame seeds.
+
+@ 37df7e56-ad9b-4ad3-b7e3-1170194e789d | Traditional Moroccan Halal Chicken Tagine with Preserved Lemons and Olives
+i: 1.2 kg halal chicken pieces | 2 pieces onions; grated | 4 cloves garlic | 1 tsp ground ginger | 1 tsp ground turmeric | 1 pinch saffron | 1 handful fresh coriander and parsley; chopped | 2 pieces preserved lemons; quartered | 150 g green olives | 4 tbsp olive oil | salt to taste
+s: Rub the chicken with the garlic, spices, half the herbs, oil and a little salt. | Cook with the onions in a tagine for 10 minutes, turning. | Add 300 ml water, cover and simmer for 45 minutes. | Add the preserved lemons and olives and cook 15 minutes more. | Reduce the sauce and finish with the remaining herbs.
+
+@ 3e56ec3f-148c-4ca2-a342-924d1804dab2 | Moroccan Halal Chicken Rfissa (Pursed Semolina Pancakes with Lentils)
+i: 1.5 kg halal chicken pieces | 150 g green lentils | 3 pieces onions; sliced | 2 tbsp fenugreek seeds; soaked | 2 tsp ras el hanout | 1 tsp ground ginger | 1 tsp ground turmeric | 1 pinch saffron | 4 tbsp olive oil | 30 g butter | 8 pieces msemen or trid pancakes; torn | salt to taste
+s: Brown the chicken with the onions, spices and oil, then add the fenugreek and 1.5 l water. | Simmer for 40 minutes, add the lentils and cook 30 minutes more until tender. | Warm the torn pancakes in a steamer or oven. | Toss them with the butter and a ladle of broth on a platter. | Top with the chicken and lentils and pour over the broth.
+
+@ 50321580-0100-4ad0-aba7-c446e1f2e077 | Moroccan Semolina Bread (Msemmen) Stuffed with Halal Kefta
+i: 250 g plain flour | 100 g fine semolina | 200 ml warm water | 300 g halal beef mince | 1 pieces onion; finely chopped | 1 handful fresh parsley; chopped | 1 tsp ground cumin | 1 tsp paprika | 60 g butter; softened | 4 tbsp vegetable oil | salt to taste
+s: Knead the flour, semolina, salt and water into a soft dough and rest 15 minutes. | Fry the beef with onion, parsley, cumin, paprika and salt for 8 minutes until dry. | Divide the dough into 6, oil your hands and stretch each very thin, then spread with butter. | Put filling in the middle and fold into squares. | Fry in the oil for 3 minutes per side until crisp and golden.
+
+@ 629690b6-01d6-4269-b7a3-30153fb08be3 | Moroccan Halal Beef Tagine with Artichokes and Peas
+i: 900 g halal beef chuck; cubed | 6 pieces artichoke hearts; halved | 300 g frozen peas | 2 pieces onions; grated | 3 cloves garlic | 1 tsp ground ginger | 0.5 tsp ground turmeric | 1 pinch saffron | 1 pieces preserved lemon; sliced | 4 tbsp olive oil | 1 handful fresh coriander | salt to taste
+s: Cook the beef with onions, garlic, spices, oil and salt for 10 minutes. | Add 600 ml water, cover and simmer for 90 minutes. | Add the artichoke hearts and preserved lemon and cook for 15 minutes. | Add the peas for 8 minutes. | Finish with coriander and serve with bread.
+
+@ 7d18d774-4099-405b-97be-399f61e731a2 | Moroccan Halal Chicken Pastilla (Savory Sweet Pie)
+i: 1 kg halal chicken thighs | 2 pieces onions; grated | 1 tsp ground ginger | 2 tsp ground cinnamon | 1 pinch saffron | 1 handful fresh parsley and coriander; chopped | 4 pieces eggs; beaten | 150 g blanched almonds; toasted and ground | 3 tbsp powdered sugar | 1 tbsp orange blossom water | 10 sheets filo or warka pastry | 100 g butter; melted | salt to taste
+s: Simmer the chicken with onions, ginger, half the cinnamon, saffron, herbs and salt in 300 ml water for 40 minutes, then shred. | Reduce the broth, stir in the eggs and cook until softly set. | Mix the almonds with 2 tbsp sugar, the remaining cinnamon and orange blossom water. | Layer buttered pastry in a round dish, add the egg, chicken and almonds, and fold over more buttered sheets to close. | Bake at 190°C for 30 minutes and dust with the remaining sugar and cinnamon.
+
+@ 843ede41-8f17-4a03-bc32-619b77dd77ab | Moroccan Halal Lamb Mechoui (Slow-Roasted Spiced Lamb)
+i: 2.5 kg halal lamb shoulder | 100 g butter; softened | 4 cloves garlic; crushed | 4 tbsp ground cumin; half for the rub, half for dipping | 2 tsp paprika | 1 tsp ground coriander | 1 pinch saffron | 2 tsp salt
+s: Mix the butter, garlic, half the cumin, the other spices and half the salt and rub all over the lamb, making small cuts so it gets inside. | Put in a roasting tin with 200 ml water, cover tightly with foil. | Roast at 160°C for 4 hours, basting every hour. | Uncover, raise to 220°C and roast for 20 minutes until crisp. | Serve the lamb pulled from the bone with little bowls of the remaining cumin and salt for dipping.
+
+@ 8ae626b8-8e21-408d-8f80-2d27b22253f2 | Moroccan Halal Chicken Mchermel (Garlic Coriander Chicken)
+i: 800 g halal chicken thighs | 6 cloves garlic; crushed | 1 bunch fresh coriander; chopped | 1 bunch fresh parsley; chopped | 1 tsp ground cumin | 1 tsp paprika | 1 tsp ground ginger | 1 pinch saffron | 1 pieces preserved lemon; chopped | 80 g green olives | 4 tbsp olive oil | 1 pieces onion; grated | salt to taste
+s: Mix the garlic, herbs, spices, oil and salt into a chermoula and coat the chicken for 30 minutes. | Cook the chicken and onion in a pan for 10 minutes, turning. | Add 300 ml water, cover and simmer for 35 minutes. | Add the preserved lemon and olives and cook 10 minutes more. | Reduce the sauce until thick and serve with bread.
+
+@ 9e46bc79-372e-43fe-9cca-efeed75aca2a | Moroccan Vegetable Couscous with Chickpeas and Raisins
+i: 400 g couscous | 400 g butternut squash; chunked | 2 pieces zucchini; chunked | 2 pieces carrots; chunked | 400 g cooked chickpeas | 2 pieces tomatoes; chopped | 3 pieces onions; sliced | 80 g raisins | 2 tbsp honey | 2 tsp ras el hanout | 1 tsp ground cinnamon | 4 tbsp olive oil | 30 g butter | 1 l vegetable stock | salt to taste
+s: Simmer the carrots, tomatoes, one onion and ras el hanout in the stock for 15 minutes, then add the squash, zucchini and chickpeas for 15 minutes. | For the tfaya, cook the remaining onions slowly in the oil for 25 minutes, then add the raisins, honey and cinnamon for 5 minutes. | Pour 500 ml hot salted water over the couscous, cover for 5 minutes and fluff with the butter. | Mound the couscous on a platter and arrange the vegetables around. | Spoon over the broth and top with the sweet onion tfaya.
+
+@ ad8dca9a-f763-4770-b1cd-afa9969ca22f | Moroccan Halal Lamb Tagine with Prunes and Toasted Almonds
+i: 4 pieces halal lamb shanks | 250 g pitted prunes | 2 pieces onions; grated | 2 tsp ground cinnamon | 1 tsp ground ginger | 1 pinch saffron | 3 tbsp honey | 3 tbsp olive oil | 60 g blanched almonds; toasted | 1 tbsp sesame seeds; toasted | salt to taste
+s: Brown the lamb in the oil, add the onions, spices and salt and cook for 5 minutes. | Add 800 ml water, cover and simmer for 2 hours until very tender. | Simmer the prunes in a ladle of the sauce with the honey for 15 minutes. | Reduce the lamb sauce, then add the prunes. | Serve topped with almonds and sesame seeds.
+
+@ af03a369-74ba-481b-a427-7061da87d9f8 | Moroccan Fish Tagine with Chermoula and Vegetables
+i: 600 g white fish fillets | 4 cloves garlic; crushed | 1 handful fresh coriander; chopped | 1 handful fresh parsley; chopped | 2 tsp ground cumin | 2 tsp paprika | 1 pieces lemon; juiced | 5 tbsp olive oil | 3 pieces potatoes; thinly sliced | 2 pieces bell peppers; sliced | 3 pieces tomatoes; sliced | 80 g green olives | salt to taste
+s: Blend the garlic, herbs, spices, lemon juice, 3 tbsp oil and salt into chermoula and coat the fish for 20 minutes. | Layer the potatoes in a tagine or baking dish with a little chermoula and the remaining oil. | Add the peppers, then the fish, tomatoes and olives on top. | Pour in 150 ml water, cover and bake at 190°C for 40 minutes. | Uncover for 10 minutes and serve.
+
+@ bb1b8b3b-7a28-4ac7-be24-e1b7825ae862 | Moroccan Halal Chicken Tagine with Potatoes and Carrots
+i: 1.2 kg halal chicken pieces | 4 pieces potatoes; cut into wedges | 3 pieces carrots; halved | 2 pieces onions; sliced | 3 cloves garlic | 1 tsp ground ginger | 1 tsp ground turmeric | 1 tsp paprika | 1 pinch saffron | 100 g green olives | 1 handful fresh coriander | 4 tbsp olive oil | salt to taste
+s: Toss the chicken with garlic, spices, half the coriander, oil and salt. | Lay the onions in a tagine, arrange the chicken in the centre and the potatoes and carrots around it. | Add 300 ml water, cover and cook on low for 60 minutes. | Add the olives for the last 10 minutes. | Finish with coriander and serve with bread.
+
+@ bebf536a-3bb4-4170-886b-d1a64a91cfc1 | Moroccan Halal Beef Spiced Skewers (Brochettes) with Fries
+i: 600 g halal beef sirloin; cubed | 1 pieces onion; grated | 3 tsp ground cumin | 2 tsp paprika | 1 handful fresh parsley; chopped | 3 tbsp olive oil | 800 g potatoes; cut into fries | 500 ml vegetable oil; for frying | salt to taste
+s: Marinate the beef with onion, 2 tsp cumin, paprika, parsley, olive oil and salt for 30 minutes. | Thread onto skewers. | Fry the potatoes at 160°C for 6 minutes, then at 190°C for 3 minutes until crisp, and season with the remaining cumin and salt. | Grill the skewers for 8 minutes, turning, until charred. | Serve with the fries and harissa or salad.
+
+@ e4e53a78-0d55-4325-b7cc-2ac9f8d0e81a | Moroccan Halal Beef Tagine with Sweet Potatoes and Prunes
+i: 900 g halal beef chuck; cubed | 2 pieces sweet potatoes; cut into wedges | 200 g pitted prunes | 2 pieces onions; grated | 2 tsp ground cinnamon | 1 tsp ground ginger | 1 pinch saffron | 2 tbsp honey | 3 tbsp olive oil | 1 tbsp sesame seeds; toasted | salt to taste
+s: Cook the beef with onions, spices, oil and salt for 10 minutes. | Add 700 ml water, cover and simmer for 90 minutes. | Add the sweet potatoes and cook 20 minutes. | Add the prunes and honey and simmer 10 minutes until the sauce is glossy. | Sprinkle with sesame seeds.
+
+@ f04d6b79-0a4c-41f4-a89b-584e7bf21223 | Moroccan Kefta Mkaouara (Meatball Tagine with Eggs)
+i: 300 g halal beef mince | 200 g halal lamb mince | 1 pieces onion; grated | 1 handful fresh parsley and coriander; chopped | 2 tsp ground cumin | 2 tsp paprika | 800 g tomatoes; grated | 3 cloves garlic | 0.5 tsp chilli flakes | 3 tbsp olive oil | 4 pieces eggs | salt to taste
+s: Mix the minces with onion, half the herbs, half the cumin and paprika and salt, and roll into small balls. | Simmer the tomatoes, garlic, remaining spices, chilli and oil for 15 minutes. | Add the meatballs, cover and cook for 15 minutes. | Crack in the eggs, cover and cook 5 minutes until the whites set. | Finish with the remaining herbs and serve with bread.
+
+@ f184e76e-da1e-4e36-b93e-6e5f78fd2f1f | Moroccan Harira Soup with Dates and Crusty Bread
+i: 250 g halal beef; finely diced | 100 g green lentils | 200 g cooked chickpeas | 1 pieces onion; chopped | 2 pieces celery stalks; chopped | 1 handful fresh coriander and parsley; chopped | 400 g chopped tomatoes | 2 tbsp tomato paste | 1 tsp ground ginger | 1 tsp ground turmeric | 1 tsp ground cinnamon | 50 g broken vermicelli | 2 tbsp plain flour | 2 tbsp olive oil | 12 pieces dates | 1 pieces bread loaf | 1 pieces lemon | salt to taste
+s: Cook the beef, onion, celery, herbs and spices in the oil for 5 minutes. | Add the tomatoes, tomato paste, lentils and 1.5 l water and simmer for 40 minutes. | Add the chickpeas and vermicelli and cook for 5 minutes. | Whisk the flour with 150 ml water and stir in to thicken, simmering 5 minutes. | Serve with dates, lemon and bread.
+
+@ fd3eb8e7-9fdb-4f6a-9a7e-1350d8980859 | Moroccan Zaalouk and Taktouka Salad Platter with Fresh Bread
+i: 2 pieces eggplants | 3 pieces green bell peppers | 6 pieces tomatoes; grated | 4 cloves garlic | 2 tsp ground cumin | 2 tsp paprika | 1 handful fresh coriander and parsley; chopped | 6 tbsp olive oil | 1 pieces lemon | 100 g mixed olives | 1 pieces khobz or round bread | salt to taste
+s: Char the eggplants and peppers over a flame or under a grill, then peel; chop the eggplant and slice the peppers. | For zaalouk, cook the eggplant with half the tomatoes, half the garlic, cumin, paprika and 3 tbsp oil for 15 minutes, mashing. | For taktouka, cook the peppers with the remaining tomatoes, garlic and oil for 15 minutes until thick. | Season both, add herbs and a squeeze of lemon and cool. | Serve with olives and warm bread.
+
+@ 06770ce7-ea55-4c68-bd51-30cdd0c5ac51 | Ethiopian Halal Kik Alicha (Yellow Split Pea Stew)
+i: 300 g yellow split peas; rinsed | 2 pieces onions; finely chopped | 4 cloves garlic | 3 cm ginger | 1 tsp ground turmeric | 3 tbsp vegetable oil | 1 l water | 2 pieces green chillies; split | salt to taste
+s: Simmer the split peas in the water for 35 minutes until soft. | Cook the onions in a dry pan for 5 minutes, then add the oil and cook 5 minutes more. | Add the garlic, ginger and turmeric for 2 minutes. | Add the split peas with their liquid and simmer for 10 minutes, mashing slightly. | Add the chillies and salt and serve with injera.
+
+@ 19405e02-4cb9-4644-8da9-e7156a2895a0 | Ethiopian Halal Lamb Alicha Wat (Mild Turmeric Stew)
+i: 800 g halal lamb shoulder; cubed | 3 pieces onions; finely chopped | 4 cloves garlic | 3 cm ginger | 1 tsp ground turmeric | 3 pieces potatoes; cubed | 2 pieces carrots; sliced | 2 pieces green chillies | 50 g butter; spiced with cardamom and fenugreek for niter kibbeh | 2 tbsp vegetable oil | salt to taste
+s: Cook the onions in a dry pot for 8 minutes, then add the oil and butter. | Add the garlic, ginger and turmeric for 2 minutes. | Add the lamb and cook for 10 minutes, then 500 ml water, cover and simmer for 45 minutes. | Add the potatoes and carrots for 20 minutes. | Add the chillies and salt and serve with injera.
+
+@ 1c93f5f8-b0e0-4926-84ec-32a83996635d | Ethiopian Halal Asa Tibs (Spiced Pan-Fried Fish)
+i: 600 g firm white fish; cut into chunks | 1 pieces lemon; juiced | 3 cloves garlic | 2 tsp berbere | 1 pieces red onion; sliced | 1 pieces green bell pepper; sliced | 2 pieces jalapeños; sliced | 1 pieces tomato; diced | 4 tbsp vegetable oil | 2 tbsp plain flour | salt to taste
+s: Marinate the fish with lemon juice, garlic, half the berbere and salt for 15 minutes. | Dust the fish with flour and fry in 3 tbsp oil for 5 minutes until crisp, then remove. | Fry the onion, pepper and jalapeños in the remaining oil for 4 minutes. | Add the tomato and remaining berbere for 2 minutes. | Return the fish, toss gently and serve with injera.
+
+@ 2b888a5c-3428-4415-b564-eb3921bef6e9 | Ethiopian Halal Beef Tibs with Rosemary and Peppers
+i: 600 g halal beef sirloin; cubed | 1 pieces red onion; sliced | 3 cloves garlic | 2 pieces jalapeños; sliced | 1 pieces green bell pepper; sliced | 2 pieces rosemary sprigs | 40 g butter; spiced for niter kibbeh | 1 tbsp vegetable oil | 1 tsp berbere | salt to taste
+s: Sear the beef in the oil over high heat for 3 minutes. | Add the onion, garlic and peppers and cook for 3 minutes. | Add the butter, rosemary and berbere and toss for 2 minutes. | Season with salt. | Serve sizzling with injera.
+
+@ 3006ac9d-25eb-4ddb-83d2-addd036d8e7d | Ethiopian Halal Atakilt Wat (Cabbage, Potato, and Carrot Hash)
+i: 0.5 pieces white cabbage; shredded | 4 pieces potatoes; cubed | 4 pieces carrots; sliced | 2 pieces onions; sliced | 4 cloves garlic | 3 cm ginger | 1 tsp ground turmeric | 1 tsp ground cumin | 4 tbsp vegetable oil | salt to taste
+s: Soften the onions in the oil for 8 minutes. | Add the garlic, ginger, turmeric and cumin for 2 minutes. | Add the carrots and potatoes with 150 ml water, cover and cook for 10 minutes. | Add the cabbage and salt, cover and cook for 15 minutes until everything is tender. | Serve warm with injera.
+
+@ 3d8ec5d5-6f65-4b1d-a7b2-eeed6a305d5a | Ethiopian Halal Kitfo (Minced Beef with Spiced Butter)
+i: 500 g lean halal beef; very finely minced | 60 g butter; spiced with cardamom and fenugreek for niter kibbeh | 2 tsp mitmita chilli spice | 0.5 tsp ground cardamom | 150 g ayib (fresh cheese) or cottage cheese | 200 g cooked collard greens; chopped | salt to taste
+s: Melt the butter gently with the cardamom. | Add the beef and mitmita and stir over low heat for 2 to 4 minutes until warmed through and cooked to medium (or longer for well done). | Season with salt. | Serve with the fresh cheese and collard greens. | Eat with injera or kocho.
+
+@ 3f6af314-cf87-4615-b8c2-8854377643c1 | Traditional Ethiopian Halal Doro Wat with Injera
+i: 8 pieces halal chicken drumsticks; skinned and scored | 4 pieces red onions; finely chopped | 4 cloves garlic | 3 cm ginger | 3 tbsp berbere | 80 g butter; spiced for niter kibbeh | 2 tbsp tomato paste | 4 pieces eggs; hard-boiled and scored | 1 pieces lemon | 6 pieces injera breads | salt to taste
+s: Rub the chicken with lemon juice and salt. | Cook the onions in a dry pot for 15 minutes, stirring, until soft and darkened, then add the butter. | Add the garlic, ginger, berbere and tomato paste and cook for 10 minutes. | Add the chicken and 500 ml water, cover and simmer for 40 minutes. | Add the eggs for 10 minutes and serve on injera.
+
+@ 40105928-52f1-4fb3-ab8a-3dbb4b4d8ff8 | Ethiopian Halal Dinich Alicha (Potato and Carrot Stew)
+i: 5 pieces potatoes; cubed | 3 pieces carrots; sliced | 2 pieces onions; chopped | 3 cloves garlic | 2 cm ginger | 1 tsp ground turmeric | 2 pieces green chillies | 3 tbsp vegetable oil | 1 handful fresh parsley | salt to taste
+s: Soften the onions in the oil for 8 minutes. | Add the garlic, ginger and turmeric for 2 minutes. | Add the potatoes, carrots and 400 ml water and simmer for 20 minutes. | Add the chillies and salt and cook 5 minutes more. | Sprinkle with parsley and serve with injera.
+
+@ 5121c36c-2221-41a5-be47-9e1108ecab29 | Ethiopian Halal Lamb Tibs with Awaze Sauce
+i: 600 g halal lamb leg; cubed | 1 pieces red onion; sliced | 1 pieces green bell pepper; sliced | 2 pieces jalapeños | 3 cloves garlic | 2 tbsp berbere | 1 tbsp lemon juice | 2 tbsp vegetable oil | 30 g butter; spiced for niter kibbeh | salt to taste
+s: Mix the berbere with lemon juice, one garlic clove and a little water to make awaze paste. | Sear the lamb in the oil for 4 minutes. | Add the onion, pepper, jalapeños and remaining garlic and cook for 3 minutes. | Add the butter and awaze and toss for 2 minutes. | Season and serve with injera.
+
+@ 581dc679-1c85-430d-8aeb-f38d1488d9e5 | Ethiopian Halal Tibs Firfir (Injera Sautéed with Spiced Beef)
+i: 400 g halal beef; cubed | 4 pieces injera breads; torn | 2 pieces red onions; chopped | 3 cloves garlic | 2 tbsp berbere | 2 tbsp tomato paste | 50 g butter; spiced for niter kibbeh | 1 tbsp vegetable oil | 2 pieces jalapeños | salt to taste
+s: Sear the beef in the oil for 4 minutes and set aside. | Cook the onions in the butter for 8 minutes, add the garlic, berbere and tomato paste for 3 minutes. | Add 300 ml water and simmer for 5 minutes. | Return the beef and stir in the injera pieces until they soak up the sauce. | Top with jalapeños and serve.

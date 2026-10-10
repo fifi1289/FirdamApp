@@ -1,0 +1,140 @@
+# Batch 09 — Tunisian, plus Ethiopian and Pakistani dinner versions of dishes written earlier
+@ 0bd0f1bc-ed12-4fa7-be46-8e74b7c66e8d | Tunisian Halal Slata Mechouria (Roasted Pepper and Tuna Salad)
+i: 4 pieces green bell peppers | 2 pieces long green chillies | 3 pieces tomatoes | 1 pieces onion | 3 cloves garlic | 1 tsp ground caraway | 4 tbsp olive oil | 1 pieces lemon | 150 g canned tuna; drained | 2 pieces eggs; hard-boiled | 8 pieces black olives | salt to taste
+s: Grill or char the peppers, chillies, tomatoes, onion and garlic until blackened and soft. | Peel everything and chop finely or mash together. | Season with caraway, salt, oil and lemon juice. | Spread on a plate. | Top with tuna, quartered eggs and olives and serve with bread.
+
+@ 11b4da7d-e4f3-4b1d-b64b-cccd9798f53d | Tunisian Halal Brik bil-Rebii (Crispy Pastry with Egg and Tuna)
+i: 2 sheets brick or warka pastry | 100 g canned tuna; drained | 1 tbsp capers; chopped | 1 handful fresh parsley; chopped | 1 pieces potato; boiled and mashed | 2 pieces eggs | 1 pieces lemon | 300 ml vegetable oil; for frying | salt to taste
+s: Mix the tuna, capers, parsley, potato and a pinch of salt. | Spread half on one side of each pastry sheet, making a well in the middle. | Crack an egg into the well and fold the pastry over into a triangle. | Slide into hot oil and fry for 1 minute per side until crisp, keeping the yolk runny. | Drain and serve at once with lemon.
+
+@ 1824e565-08cb-4133-9d59-a01380f7ff37 | Tunisian Halal Stuffed Quince with Minced Meat (Tajin Safarjal)
+i: 4 pieces quinces; halved and cored | 400 g halal beef mince | 1 pieces onion; grated | 1 handful fresh parsley; chopped | 1 tsp ground cinnamon | 1 pinch saffron | 1 tbsp sugar | 30 g butter | 2 tbsp olive oil | salt to taste
+s: Hollow the quince halves a little more and keep them in lemon water. | Mix the beef with onion, parsley, half the cinnamon and salt and fill the quinces. | Lay in a pan with the butter, oil, saffron, remaining cinnamon, sugar and 500 ml water. | Cover and simmer for 45 minutes until the quince is tender. | Uncover and reduce the sauce until syrupy.
+
+@ 1d49a937-80ca-4f58-a600-aa80894d7519 | Tunisian Halal Makroudh with Mint Tea (Semolina Date Pastry)
+i: 500 g medium semolina | 150 ml olive oil | 200 ml warm water | 300 g date paste | 1 tsp ground cinnamon | 1 tbsp orange blossom water | 300 g honey | 600 ml vegetable oil; for frying | 2 tsp green tea leaves | 1 handful fresh mint | 3 tbsp sugar | salt to taste
+s: Rub the semolina with the olive oil and a pinch of salt, rest 30 minutes, then bring together with water into a soft dough. | Knead the date paste with cinnamon into a rope. | Flatten the dough into a log, lay the date rope inside, close it and cut into diamonds. | Fry at 170°C for 4 minutes until golden, then soak in warm honey with orange blossom water for 2 minutes. | Brew the tea with mint and sugar and serve with the makroudh.
+
+@ 2affbb1c-32a2-41d2-85b4-477ec6c3be99 | Tunisian Halal Shorba Zite (Spiced Tomato Vermicelli Soup)
+i: 250 g halal beef; small cubes | 120 g fine vermicelli or orzo | 150 g cooked chickpeas | 1 pieces onion; chopped | 2 tbsp tomato paste | 1 tbsp harissa | 1 tsp ground caraway | 1 tsp paprika | 1 handful fresh parsley | 3 tbsp olive oil | 1.5 l water | 1 pieces lemon | salt to taste
+s: Brown the beef and onion in the oil. | Add the tomato paste, harissa, caraway and paprika for 2 minutes. | Add the water and simmer for 40 minutes. | Add the chickpeas and vermicelli and cook for 10 minutes. | Finish with parsley and serve with lemon.
+
+@ 3399673f-165e-465d-8853-64739a6c924b | Tunisian Halal Mloukhia (Dark Jute Leaf Beef Stew)
+i: 100 g dried mloukhia powder | 200 ml olive oil | 900 g halal beef chuck; large cubes | 1 tbsp tomato paste | 4 cloves garlic | 1 tsp ground coriander | 1 tsp ground caraway | 2 pieces bay leaves | 2 l water | salt to taste
+s: Heat the oil gently and stir in the mloukhia powder for 5 minutes without letting it catch. | Add the water little by little, whisking, and bring to a simmer. | Cook on very low heat for 2 hours, stirring often, until dark and thick. | Add the beef, tomato paste, garlic, spices, bay leaves and salt and cook for 2 hours more until the oil rises. | Serve with bread.
+
+@ 3667d2c6-24d8-4158-8ed6-ef6ae298d455 | Tunisian Halal Nwasser (Square Steamed Pasta with Chicken)
+i: 1 kg halal chicken pieces | 400 g nwasser or small square pasta | 1 pieces onion; chopped | 3 tbsp tomato paste | 1 tbsp harissa | 1 tsp paprika | 1 tsp ground caraway | 200 g cooked chickpeas | 3 pieces potatoes; quartered | 4 tbsp olive oil | 30 g butter | salt to taste
+s: Brown the chicken and onion in the oil, add the tomato paste, harissa and spices. | Add 1.5 l water, the chickpeas and potatoes and simmer for 35 minutes. | Steam the pasta over the broth for 15 minutes, toss with butter and a ladle of broth and steam 10 minutes more. | Season. | Serve the pasta topped with chicken, potatoes and sauce.
+
+@ 44033f57-2fd7-431c-b250-50189f6367fd | Tunisian Halal Mrouzia with Lamb and Ras el Hanout
+same: fc6fb7a5-265f-4c07-8a1c-74f8c891fefe
+
+@ 474c1e29-b043-4bed-892f-6e3d9f7c340e | Tunisian Halal Ojja with Merguez Sausages and Eggs
+i: 6 pieces halal beef merguez; sliced | 1 pieces green bell pepper; sliced | 4 cloves garlic | 400 g chopped tomatoes | 1 tbsp tomato paste | 1 tbsp harissa | 1 tsp ground caraway | 3 tbsp olive oil | 4 pieces eggs | 1 pieces baguette | salt to taste
+s: Brown the merguez in the oil and remove. | Soften the pepper and garlic, add the tomato paste, harissa and caraway. | Add the tomatoes and 100 ml water and simmer for 10 minutes, then return the merguez. | Crack in the eggs, cover and cook for 5 minutes until set. | Serve with bread.
+
+@ 52e519ac-1f3c-4b78-b69b-69e802de1065 | Tunisian Halal Mchermela (Fish with Caramelized Onion Sauce)
+i: 600 g white fish fillets | 4 pieces onions; thinly sliced | 60 g raisins | 1 pinch saffron | 1 tsp ground cumin | 1 tsp ground cinnamon | 1 tbsp sugar | 1 tbsp white vinegar | 50 g plain flour | 6 tbsp olive oil | salt to taste
+s: Cook the onions slowly in 4 tbsp oil for 25 minutes until golden. | Add the raisins, saffron, cumin, cinnamon, sugar, vinegar and 100 ml water and simmer for 10 minutes until jammy. | Season and flour the fish. | Fry in the remaining oil for 3 minutes per side. | Serve the fish on the onion sauce.
+
+@ 59c8daf1-fcd7-495e-9daf-125e872589f8 | Tunisian Halal Kafteji (Spiced Fried Vegetable and Egg Hash)
+i: 2 pieces green bell peppers | 2 pieces tomatoes | 2 pieces potatoes; cubed | 300 g pumpkin; cubed | 4 pieces eggs | 1 tbsp harissa | 1 tsp ground caraway | 3 tbsp olive oil | 500 ml vegetable oil; for frying | 1 pieces baguette | salt to taste
+s: Fry the potatoes, pumpkin, peppers and tomatoes separately until soft and golden. | Fry the eggs. | Chop everything together roughly on a board. | Mix with harissa, caraway, olive oil and salt. | Serve warm in bread or on a plate.
+
+@ 7291e4cd-d09e-4a02-a5f8-35f9e03117c6 | Tunisian Halal Chmenni (Fish and Potato Stew)
+i: 600 g firm white fish; cut into chunks | 4 pieces potatoes; thickly sliced | 4 cloves garlic | 2 tbsp tomato paste | 1 tbsp harissa | 1 tsp ground caraway | 1 tsp paprika | 1 pieces lemon | 4 tbsp olive oil | 1 handful fresh parsley | salt to taste
+s: Fry the garlic, tomato paste, harissa and spices in the oil for 2 minutes. | Add 800 ml water and the potatoes and simmer for 15 minutes. | Add the fish and simmer gently for 8 minutes. | Season with salt and lemon juice. | Scatter with parsley and serve with bread.
+
+@ 7fbd6f56-cf3c-45a5-9d49-e1e17037a8b7 | Tunisian Halal Lablabi (Spiced Chickpea and Bread Soup)
+i: 600 g cooked chickpeas; with 1 l cooking liquid | 6 cloves garlic; crushed | 2 tsp ground cumin | 2 tbsp harissa | 4 tbsp olive oil | 3 pieces eggs | 150 g canned tuna | 1 pieces stale baguette; torn | 2 tbsp capers | 1 pieces lemon | salt to taste
+s: Simmer the chickpeas in their liquid with half the garlic, cumin and salt for 15 minutes. | Put torn bread in bowls. | Ladle over the hot chickpeas and broth. | Poach the eggs in the broth for 3 minutes and add one to each bowl. | Top with harissa, remaining garlic, tuna, capers, olive oil, cumin and lemon, and mix at the table.
+
+@ 9828bbb6-b6ba-487c-8e59-47fd71ff5938 | Tunisian Halal Malfouf (Stuffed Cabbage Rolls with Beef)
+i: 1 pieces white cabbage; leaves blanched | 400 g halal beef mince | 150 g short-grain rice | 1 pieces onion; grated | 1 handful fresh parsley; chopped | 1 tsp ground caraway | 1 tsp paprika | 3 tbsp tomato paste | 1 tbsp harissa | 3 tbsp olive oil | 1 pieces lemon | salt to taste
+s: Mix the beef, rice, onion, parsley, spices, 1 tbsp oil and salt. | Roll spoonfuls in the cabbage leaves and pack into a pot. | Mix the tomato paste and harissa with 800 ml water, the remaining oil and salt and pour over. | Weigh down with a plate, cover and simmer for 50 minutes. | Add lemon juice and serve.
+
+@ 9b8a2cc4-7c36-4404-92ce-750261268627 | Tunisian Halal Borghol (Cracked Wheat Tomato Pilaf with Beef)
+i: 500 g halal beef; cubed | 300 g coarse bulgur wheat | 200 g cooked chickpeas | 1 pieces onion; chopped | 3 cloves garlic | 3 tbsp tomato paste | 1 tbsp harissa | 1 tsp ground caraway | 1 tsp paprika | 4 tbsp olive oil | salt to taste
+s: Brown the beef and onion in the oil, add the garlic, tomato paste, harissa and spices. | Add 1 l water and simmer for 50 minutes. | Add the chickpeas and bulgur and stir. | Cover and cook on low for 15 minutes until the bulgur has absorbed the sauce. | Rest 10 minutes and serve.
+
+@ ebae7fd2-46f9-4a3f-ae45-d6d340b5bd9f | Tunisian Halal Fricassee (Fried Dough Sandwiches with Tuna)
+i: 400 g plain flour | 7 g dried yeast | 1 pieces egg | 220 ml warm water | 1 tsp sugar | 150 g canned tuna | 2 pieces potatoes; boiled and diced | 2 pieces eggs; hard-boiled | 12 pieces black olives | 2 tbsp harissa | 1 tbsp capers | 600 ml vegetable oil; for frying | salt to taste
+s: Make a soft dough with the flour, yeast, sugar, salt, egg and water and leave to rise for 1 hour. | Shape into 10 small oval buns and rest 20 minutes. | Fry at 170°C for 2 minutes per side until puffed and golden. | Split and spread with harissa. | Fill with tuna, potato, egg, olives and capers.
+
+@ f77b3527-3a33-4f23-911d-2cd50b3890fb | Tunisian Halal Shakshuka with Artichokes and Fava Beans
+i: 6 pieces artichoke hearts; quartered | 200 g fresh or frozen fava beans | 1 pieces onion; sliced | 3 cloves garlic | 400 g chopped tomatoes | 1 tbsp tomato paste | 1 tbsp harissa | 1 tsp ground caraway | 4 tbsp olive oil | 4 pieces eggs | salt to taste
+s: Soften the onion and garlic in the oil, add the tomato paste, harissa and caraway. | Add the tomatoes, artichokes, fava beans and 150 ml water. | Simmer for 15 minutes until tender. | Crack in the eggs, cover and cook 5 minutes. | Serve with bread.
+
+@ f79fa3cd-03b2-483d-a52d-6c0078877e23 | Traditional Tunisian Halal Lamb Couscous with Harissa
+i: 1 kg halal lamb shoulder; bone-in pieces | 500 g fine couscous | 1 pieces onion; chopped | 3 tbsp tomato paste | 2 tbsp harissa | 1 tsp ground caraway | 1 tsp paprika | 200 g cooked chickpeas | 3 pieces carrots | 2 pieces zucchini | 3 pieces potatoes | 4 tbsp olive oil | 40 g butter | salt to taste
+s: Brown the lamb and onion in the oil, add the tomato paste, harissa and spices. | Add 2 l water and simmer for 60 minutes. | Add the carrots and potatoes for 20 minutes, then the zucchini and chickpeas for 15 minutes. | Steam the couscous over the broth twice, fluffing between, and rub in the butter and a ladle of red broth. | Serve the couscous with lamb, vegetables and broth.
+
+@ f92d9515-4b54-4f5b-a952-8e966d959678 | Tunisian Halal Kamounia (Beef and Liver Stew in Cumin Sauce)
+i: 500 g halal beef; cubed | 250 g halal beef liver; cubed | 8 cloves garlic | 2 tbsp ground cumin | 1 tbsp tomato paste | 1 tsp harissa | 1 tsp ground coriander | 5 tbsp olive oil | 1 handful fresh parsley | salt to taste
+s: Pound the garlic with the cumin and coriander to a paste. | Brown the beef in the oil, add half the paste and the tomato paste, then 700 ml water. | Simmer for 50 minutes. | Add the liver, harissa and the rest of the paste and simmer for 15 minutes until the sauce is thick. | Season and finish with parsley.
+
+@ fbe3093c-d771-43ed-96d0-17c91f2af237 | Tunisian Halal Mtabga (Stuffed Semolina Flatbread)
+i: 400 g fine semolina | 4 tbsp olive oil | 250 ml warm water | 2 pieces onions; finely chopped | 3 pieces tomatoes; finely chopped | 1 tbsp harissa | 1 tbsp dried mint | 1 tsp ground caraway | 30 g butter | salt to taste
+s: Rub the semolina with half the oil and salt, add water and knead to a soft dough, then rest 20 minutes. | Cook the onions in the remaining oil for 10 minutes, add the tomatoes, harissa, mint and caraway and cook until thick. | Divide the dough in two, roll each into a round and spread filling over one, then cover with the other and seal. | Cook in a dry heavy pan for 6 minutes per side. | Brush with butter and cut into wedges.
+
+@ 03a929fb-fe80-423c-8662-942988b7a0a3 | Ethiopian Halal Shiro Wat (Spiced Chickpea Flour Dinner Stew)
+same: fae30fc0-c1e6-44e5-856b-3de58e947bd0
+@ 0c48edf1-1e8c-42f1-bf7f-6edd1ebfdf60 | Ethiopian Halal Quanta Firfir (Dried Beef with Injera Dinner)
+same: e2830801-a16f-49dd-b3e1-6e95a908405c
+@ 20c43689-7cb4-4023-a6ef-45571bd6cf41 | Ethiopian Halal Atakilt Wat (Cabbage, Potato, and Carrot Dinner Hash)
+same: 3006ac9d-25eb-4ddb-83d2-addd036d8e7d
+@ 24448994-00d1-40a5-a04c-33c5da06efdd | Ethiopian Halal Beef Tibs Sizzling Dinner Platter
+same: 2b888a5c-3428-4415-b564-eb3921bef6e9
+@ 24600b81-1c4c-4000-8233-73a82de2ac3d | Ethiopian Halal Ful Medames Dinner Special
+same: f9f8446a-ddf5-4ab2-b770-b123eca7889f
+@ 3123f5ee-da61-4607-896c-a372c61bf5eb | Ethiopian Halal Gomen Wat (Braised Collard Greens Dinner)
+same: 673aa9a1-f68e-4eaa-be56-49e4aaf34261
+@ 44deb967-adde-49ed-ad6e-51a8c30f0efe | Ethiopian Halal Beyaynetu Grand Vegetarian Dinner Platter
+same: cb195208-d7e8-4007-8a0f-1a59e9acfb51
+@ 687142af-18e4-4be7-b2f8-d9899f187c77 | Ethiopian Halal Tibs Firfir (Injera Sautéed with Spiced Beef Dinner)
+same: 581dc679-1c85-430d-8aeb-f38d1488d9e5
+@ 6cec9975-0dc6-4f16-8f60-7631b7f5515a | Ethiopian Halal Beef Dulet (Spiced Minced Meat Hash Dinner)
+same: 95fe9bfc-4baa-408a-a077-b9b626b74e8a
+@ 6dedcad8-f65d-494e-8f78-b1810b4f404f | Ethiopian Halal Kitfo Special Dinner with Kocho
+same: 3d8ec5d5-6f65-4b1d-a7b2-eeed6a305d5a
+@ 7256bab5-7ca0-4781-941c-836c3c820a11 | Ethiopian Halal Dinich Alicha (Potato and Carrot Dinner Stew)
+same: 40105928-52f1-4fb3-ab8a-3dbb4b4d8ff8
+@ 9b9b9a7f-6d46-4802-846d-9048287800ca | Ethiopian Halal Misir Wat (Spiced Red Lentil Dinner Stew)
+same: e7c07a56-40c3-4ae1-a0ef-b18f6cc29799
+@ a4a04c15-ab77-446b-a458-d0adde27e6bb | Ethiopian Halal Chicken Alicha Wat Dinner
+same: a482baa5-1a0f-41c4-b398-caeeeddd52ef
+@ a4e5a9fe-eb00-4992-9ed5-e21c2a6156b3 | Ethiopian Halal Lamb Tibs with Awaze Sauce Dinner
+same: 5121c36c-2221-41a5-be47-9e1108ecab29
+@ a9d591d9-eac3-4ca7-99ad-0774043d10e5 | Ethiopian Halal Shiro Firfir (Injera with Shiro Sauce Dinner)
+same: 6b50a386-19ce-457c-8f20-7a377e4dbd89
+@ aaf0ef97-fbde-4b7b-98ee-7b517b76b093 | Ethiopian Halal Asa Tibs (Spiced Pan-Fried Fish Dinner)
+same: 1c93f5f8-b0e0-4926-84ec-32a83996635d
+@ ac206c03-2867-45a2-bebf-60bccbac7fc3 | Ethiopian Halal Lamb Alicha Wat (Mild Festive Stew)
+same: 19405e02-4cb9-4644-8da9-e7156a2895a0
+@ b276db39-04fb-4242-adad-1b65471c17d7 | Ethiopian Halal Chechebsa Dinner Special
+same: e3a6b591-8ea3-4fc3-8edd-5808f8cd7d9e
+@ d8bd69e9-8fba-4dad-ba62-d48d5920387b | Traditional Ethiopian Halal Doro Wat Feast Dinner
+same: 3f6af314-cf87-4615-b8c2-8854377643c1
+@ e92d8d55-9bd4-42f5-b6c1-aa5a44bd2e9d | Ethiopian Halal Kik Alicha (Yellow Split Pea Dinner Stew)
+same: 06770ce7-ea55-4c68-bd51-30cdd0c5ac51
+@ 18a57769-801e-47cc-801c-8c7a639a67f6 | Pakistani Halal Beef Haleem Festive Dinner
+same: 1ca5d14d-c364-4546-86fa-6babc3410f48
+@ 208c3781-625f-495b-8521-0ebd174e3424 | Pakistani Halal Chicken Yakhni Pulao Dinner
+same: 67f50b6c-9d72-4c8c-85e7-856f07625708
+@ 22fc264e-915f-449a-906e-a2e5af50ed35 | Pakistani Halal Beef Nihari Overnight Stew Dinner
+same: e7ec1feb-20c4-43a3-ab92-4f8f4fb6c600
+@ 29d07400-765a-40bc-948f-cea8e5f362ab | Pakistani Halal Palak Gosht Spinach and Mutton Dinner Curry
+same: 085eff43-1402-4e03-9461-834bc0316a69
+@ 29e01bbb-54c8-414c-8a65-d9668c0ce1d7 | Pakistani Halal Sindhi Mutton Biryani Dinner
+same: 941e60f6-8d42-4932-9ed5-6e7c8d7a37cc
+@ 33d35b88-e9d8-4c83-945d-50bd1795a016 | Pakistani Halal Chicken White Korma Dinner
+same: 5247ff73-b684-4298-993f-805bcdfeeaa8
+@ 35389ad1-5860-4166-adb6-f23e5cf83e0d | Pakistani Halal Grand Chana Chaat and Dahi Baray Dinner Platter
+same: 64a80a3e-bd1d-4992-ab58-3f3e1cc5d695
+@ 3d2b4486-c673-4a4c-863a-96cf9d216872 | Pakistani Halal Aloo Gosht Potato and Beef Dinner Stew
+same: 28e18309-0342-437a-a8b8-21668055da93
+@ 3ea90599-aa0f-4484-8102-1f7a7801ca6d | Pakistani Halal Bhindi Masala Okra Dinner Stir-Fry
+same: f9664797-4414-44b4-83ac-a7f3f91a7656
+@ 5086843d-d4b4-4062-954e-9b51da4d63c4 | Pakistani Halal Daal Chawal Dinner Special
+same: 064eebec-0b05-4c7b-b14d-3d8df44de97d

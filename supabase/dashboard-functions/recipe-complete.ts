@@ -28,7 +28,7 @@ const ALLERGEN_RULES: AllergenRule[] = [
     name: 'Gluten',
     aliases: ['gluten', 'wheat', 'coeliac', 'celiac', 'barley', 'rye'],
     include:
-      /\b(flour|bread|breadcrumbs?|panko|pitta?s?|naan|chapati|roti|paratha|flatbreads?|lepinja|tortillas?|wraps?|pasta|spaghetti|penne|fusilli|macaroni|fettuccine|tagliatelle|linguine|rigatoni|ravioli|tortellini|buns?|bread rolls?|granola|muesli|lasagne|lasagna|orzo|noodles?|vermicelli|couscous|bulgur|bulgh?ur|freekeh|frik|semolina|barley|wheat|rye|spelt|seitan|filo|phyllo|puff pastry|pastry|brik|warka|pizza dough|dough|soy sauce|kecap manis|teriyaki sauce|oyster sauce|hoisin|crackers?|biscuits?|cake|rusk|kataifi|kunafa|knafeh|malt|jareesh|harees|yufka)\b/,
+      /\b(flour|bread|breadcrumbs?|brioche|baguettes?|croissants?|bagels?|sourdough|msemen|baghrir|pretzels?|waffles?|crumpets?|muffins?|panko|pitta?s?|naan|chapati|roti|paratha|flatbreads?|lepinja|tortillas?|wraps?|pasta|spaghetti|penne|fusilli|macaroni|fettuccine|tagliatelle|linguine|rigatoni|ravioli|tortellini|buns?|bread rolls?|granola|muesli|lasagne|lasagna|orzo|noodles?|vermicelli|couscous|bulgur|bulgh?ur|freekeh|frik|semolina|barley|wheat|rye|spelt|seitan|filo|phyllo|puff pastry|pastry|brik|warka|pizza dough|dough|soy sauce|kecap manis|teriyaki sauce|oyster sauce|hoisin|crackers?|biscuits?|cake|rusk|kataifi|kunafa|knafeh|malt|jareesh|harees|yufka)\b/,
     exclude:
       /\b(rice flour|glutinous rice flour|gluten-free|chickpea flour|gram flour|besan|corn ?flour|cornmeal|(white |yellow )?maize (flour|meal)|maize|almond flour|coconut flour|tapioca|cassava|teff|potato flour|buckwheat|rice noodles?|rice vermicelli|glass noodles|rice paper|corn tortillas?|tamari|coconut aminos|rice cakes?)\b/,
   },
@@ -289,7 +289,7 @@ async function describeOpenAIFailure(res: Response): Promise<OpenAIFailure> {
   // Visible in Supabase → Edge Functions → Logs.
   console.error(`OpenAI ${res.status} ${type}: ${detail}`);
 
-  if (res.status === 429 && /insufficient_quota/.test(type + detail)) {
+  if (res.status === 429 && /insufficient_quota|credit_balance|no credits|billing/i.test(type + detail)) {
     return {
       status: 503,
       code: "ai_quota",

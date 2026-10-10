@@ -29,6 +29,10 @@ jobs:
         run: |
           node --experimental-strip-types supabase/seed/build-recipes.mts
           git diff --exit-code supabase/migrations/20261008101000_seed_recipe_library.sql
+      - name: Database halal and allergen checks match the app's rules
+        run: |
+          node --experimental-strip-types supabase/seed/build-recipe-checks.mts
+          git diff --exit-code supabase/migrations/20261011120000_recipe_checks.sql
 
   cloudflare:
     runs-on: ubuntu-latest

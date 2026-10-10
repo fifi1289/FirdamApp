@@ -24,5 +24,11 @@ jobs:
           for(const v of stable){
             const p=JSON.parse(execSync(`npm view @opennextjs/cloudflare@${v} peerDependencies --json`).toString()||"{}");
             console.log(v.padEnd(10), JSON.stringify(p));
-          }'
-          npm view wrangler version
+          }' > probe.txt
+          npm view wrangler version >> probe.txt
+          npm view next@15 version --json | tail -3 >> probe.txt
+      - name: Save results to the branch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add probe.txt && git commit -m "Probe results [skip ci]" && git push

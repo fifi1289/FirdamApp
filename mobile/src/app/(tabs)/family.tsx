@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 
@@ -12,7 +13,6 @@ import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 
 const links = [
-  { label: 'Family members, portions and allergies', path: '/dashboard/family' },
   { label: 'Help and support', path: '/support' },
   { label: 'Security and two-step verification', path: '/security' },
   { label: 'Privacy Policy', path: '/privacy' },
@@ -75,8 +75,16 @@ export default function Family() {
           {k.household ? `${k.household.people} ${k.household.people === 1 ? 'person' : 'people'} · cooks for ${formatPortions(k.household.portions)}` : 'Loading…'}
         </T>
         <T size={13.5} color={colors.muted}>
-          {k.prefs?.allergies.length ? `Kept out of every plan: ${k.prefs.allergies.join(', ')}` : 'No allergies set. Add them in Kitchen → Plan → Preferences.'}
+          {k.prefs?.allergies.length ? `Kept out of every plan: ${k.prefs.allergies.join(', ')}` : 'No allergies set yet.'}
         </T>
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+          <View style={{ flex: 1 }}>
+            <Button label="Family members" variant="secondary" onPress={() => router.push('/family-members')} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button label="Allergies" variant="secondary" onPress={() => router.push('/meal-preferences')} />
+          </View>
+        </View>
       </Card>
 
       <Card style={{ paddingVertical: 4 }}>

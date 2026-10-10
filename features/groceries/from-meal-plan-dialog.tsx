@@ -16,7 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { normalizePlan, formatWeekRange } from '@/features/meals/meal-plan-generator';
+import { normalizePlan, formatWeekRange, repairPlanIngredients } from '@/features/meals/meal-plan-generator';
 import {
   formatQuantityWithUnit,
   getPlanPantrySummary,
@@ -70,7 +70,8 @@ export function FromMealPlanDialog({
         return;
       }
       const record = plans[0]!;
-      const plan = normalizePlan(record.plan_data as Record<string, unknown>);
+      const plan = await repairPlanIngredients(record.id, normalizePlan(record.plan_data as Record<string, unknown>));
+      if (cancelled) return;
       const summary = getPlanPantrySummary(plan, pantry ?? []);
       const already = new Set(existingItems.map((i) => i.name.trim().toLowerCase()));
       const list = summary.missingIngredients.filter(

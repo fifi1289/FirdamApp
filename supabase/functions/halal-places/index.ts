@@ -47,7 +47,8 @@ interface NormalizedPlace {
   phone: string | null;
   website: string | null;
   openingHours: string | null;
-  halalStatus: "halal" | "halal_only" | "halal_options" | "mosque";
+  /** may_sell: a food shop not marked halal on the map that often stocks halal food. */
+  halalStatus: "halal" | "halal_only" | "halal_options" | "mosque" | "may_sell";
   certification: string | null;
   cuisine: string | null;
 }
@@ -128,6 +129,11 @@ function normalize(el: OsmElement): NormalizedPlace | null {
   if (category === "mosque") halalStatus = "mosque";
   else if (dietHalal === "only") halalStatus = "halal_only";
   else if (dietHalal === "limited") halalStatus = "halal_options";
+  else if (
+    !["yes", "only"].includes(dietHalal) &&
+    !/halal/i.test(`${tags.cuisine ?? ""} ${name}`) &&
+    (category === "grocery" || category === "butcher")
+  ) halalStatus = "may_sell";
   else halalStatus = "halal";
 
   return {
@@ -192,7 +198,7 @@ function normalizeAgency(el: OsmElement): TravelAgency | null {
   };
 }
 
-async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?: string): Promise<OsmElement[]> {
+async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?: string, stores = false): Promise<OsmElement[]> {
   // Gather shops and amenities in the area once, then filter that set in
   // memory — far cheaper than one spatial query per condition in dense cities.
   const query = rawQuery ?? `
@@ -207,8 +213,10 @@ async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?
       nwr.pois["cuisine"~"halal",i];
       nwr.pois["name"~"halal",i];
       nwr.pois["amenity"="place_of_worship"]["religion"="muslim"];
-    );
-    out center tags 400;
+    )->.halal;
+    .halal out center tags 400;${stores ? `
+    (nwr.pois["shop"~"^(supermarket|grocery|butcher|deli|spices|food|greengrocer)$"]; - .halal;)->.stores;
+    .stores out center tags 250;` : ""}
   `;
 
   // Hedged requests: ask the main server first, and if it hasn't answered after
@@ -352,11 +360,13 @@ Deno.serve(async (req: Request) => {
 
     if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
       // Round so nearby searches share a cache entry (~1 km grid).
-      const key = `p:${lat.toFixed(2)}:${lng.toFixed(2)}:${radius}`;
+      // stores=1 also lists food shops that often stock halal products.
+      const stores = url.searchParams.get("stores") === "1";
+      const key = `p:${lat.toFixed(2)}:${lng.toFixed(2)}:${radius}:${stores ? 1 : 0}`;
       const hit = cached<unknown>(key);
       if (hit) return json(hit);
 
-      const elements = await queryOverpass(lat, lng, radius);
+      const elements = await queryOverpass(lat, lng, radius, undefined, stores);
       const seen = new Set<string>();
       const places: NormalizedPlace[] = [];
       for (const el of elements) {

@@ -40,6 +40,7 @@ import { CALCULATION_METHODS, usePrayerSettings } from '@/lib/prayer/prayer';
 import { useReminderSettings } from '@/lib/reminders/reminders';
 import type { Profile } from '@/types/database';
 import { DeleteAccountCard } from '@/components/settings/delete-account-card';
+import { TwoFactorCard } from '@/components/settings/two-factor-card';
 
 const themeOptions = [
   { value: 'light', label: 'Light', icon: Sun },
@@ -436,6 +437,8 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
               </Button>
             </CardContent>
           </Card>
+
+          <TwoFactorCard />
 
           <DeleteAccountCard />
         </TabsContent>

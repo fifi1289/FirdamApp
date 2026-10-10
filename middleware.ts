@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/privacy', '/terms', '/support', '/auth', '/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email'];
+const PUBLIC_PATHS = ['/privacy', '/terms', '/security', '/support', '/auth', '/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email'];
 
 function isPublicPath(pathname: string): boolean {
   return (
@@ -43,6 +43,27 @@ export async function middleware(request: NextRequest) {
     redirectUrl.pathname = '/auth/login';
     redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
+  }
+
+  // Two-step verification: a signed-in session that still needs its code can
+  // only reach the code page (and public pages) until it's verified.
+  if (user && (!isPublicPath(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith('/auth'))) {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    const needsCode = aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2';
+    const onCodePage = request.nextUrl.pathname === '/verify-2fa';
+    if (needsCode && !onCodePage) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/verify-2fa';
+      redirectUrl.search = '';
+      if (!request.nextUrl.pathname.startsWith('/auth')) redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+    if (!needsCode && onCodePage) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/dashboard';
+      redirectUrl.search = '';
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
   // If an authenticated user lands on an auth page, send them to the dashboard.

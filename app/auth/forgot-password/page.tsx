@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Turnstile, TURNSTILE_SITE_KEY } from '@/components/auth/turnstile';
 
 import { AuthShell } from '@/components/auth/auth-shell';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,8 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [captcha, setCaptcha] = React.useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = React.useState(0);
   const [sent, setSent] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,14 +35,20 @@ export default function ForgotPasswordPage() {
       return;
     }
 
+    if (TURNSTILE_SITE_KEY && !captcha) {
+      toast.message('One moment — we’re checking you’re not a bot.');
+      return;
+    }
+
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      await requestPasswordReset(supabase, email);
+      await requestPasswordReset(supabase, email, captcha);
       setSent(true);
       toast.success('Reset link sent. Check your inbox.');
     } catch (err) {
       setError(getAuthErrorMessage(err));
+      setCaptchaReset((n) => n + 1);
     } finally {
       setLoading(false);
     }
@@ -92,7 +101,9 @@ export default function ForgotPasswordPage() {
             {error && <p className="text-xs text-destructive">{error}</p>}
           </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={loading}>
+          <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
+
+        <Button type="submit" className="w-full" size="lg" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

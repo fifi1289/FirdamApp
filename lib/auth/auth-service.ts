@@ -15,6 +15,8 @@ export interface SignUpInput {
   password: string;
   firstName: string;
   lastName: string;
+  /** Cloudflare Turnstile token, when bot protection is on. */
+  captchaToken?: string | null;
 }
 
 export interface AuthResult {
@@ -30,6 +32,7 @@ export async function signUp(
     email: input.email,
     password: input.password,
     options: {
+      captchaToken: input.captchaToken ?? undefined,
       data: {
         first_name: input.firstName,
         last_name: input.lastName,
@@ -47,9 +50,14 @@ export async function signUp(
 export async function signIn(
   supabase: SupabaseClient<Database>,
   email: string,
-  password: string
+  password: string,
+  captchaToken?: string | null
 ): Promise<void> {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+    options: captchaToken ? { captchaToken } : undefined,
+  });
   if (error) throw error;
 }
 
@@ -60,9 +68,11 @@ export async function signOut(supabase: SupabaseClient<Database>): Promise<void>
 
 export async function requestPasswordReset(
   supabase: SupabaseClient<Database>,
-  email: string
+  email: string,
+  captchaToken?: string | null
 ): Promise<void> {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    captchaToken: captchaToken ?? undefined,
     redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/reset-password`,
   });
   if (error) throw error;

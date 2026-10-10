@@ -16,6 +16,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { Business, Database } from '@/types/database';
 import { BUSINESS_CATEGORIES } from '@/features/directory/directory-config';
 import { CommunityModeration } from '@/features/community/community-moderation';
+import { RecipeFill } from '@/features/admin/recipe-fill';
 import { RecipePhotos } from '@/features/admin/recipe-photos';
 import { RecipePhotoUpload } from '@/features/admin/recipe-photo-upload';
 
@@ -171,6 +172,7 @@ export function AdminDashboard() {
           <TabsTrigger value="review">Review ({pending.length})</TabsTrigger>
           <TabsTrigger value="live">Live listings</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
+          <TabsTrigger value="recipes">Recipes</TabsTrigger>
           <TabsTrigger value="photos">Recipe photos</TabsTrigger>
         </TabsList>
         <TabsContent value="review" className="mt-0 space-y-3">
@@ -184,6 +186,9 @@ export function AdminDashboard() {
           {approved.map((b) => (
             <Row key={b.id} b={b} />
           ))}
+        </TabsContent>
+        <TabsContent value="recipes" className="mt-0">
+          <RecipeFill />
         </TabsContent>
         <TabsContent value="photos" className="mt-0 space-y-5">
           <RecipePhotoUpload />

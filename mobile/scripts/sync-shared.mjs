@@ -14,7 +14,7 @@ const repo = resolve(mobile, '..');
 const out = join(mobile, 'src', 'shared');
 
 const FILES = {
-  'lib/recipes/allergens.ts': 'allergens.ts',
+  'supabase/functions/_shared/allergens.ts': 'allergens.ts',
   'features/meals/meals-config.ts': 'meals-config.ts',
   'features/meals/meal-images.ts': 'meal-images.ts',
   'features/meals/plan-core.ts': 'plan-core.ts',

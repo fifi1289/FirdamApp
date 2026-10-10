@@ -28,6 +28,8 @@ export default function RecipeScreen() {
   const k = useKitchen();
   const [recipe, setRecipe] = useState<RecipeRow | null | undefined>(undefined);
   const [adding, setAdding] = useState(false);
+  // Once added, the button rests so a second tap doesn't add the amounts again.
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     loadRecipes()
@@ -71,7 +73,8 @@ export default function RecipeScreen() {
         k.items
       );
       await refreshShopping();
-      Alert.alert(added ? `Added ${added} to Shopping` : 'Already on your list');
+      setAdded(true);
+      Alert.alert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
     } catch (e) {
       Alert.alert('Could not add', e instanceof Error ? e.message : 'Please try again.');
     } finally {
@@ -176,7 +179,7 @@ export default function RecipeScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         {toBuy.length ? (
-          <Button label={k.pantry.length ? `Add ${toBuy.length} missing to Shopping` : `Add ${toBuy.length} ingredients to Shopping`} onPress={addMissing} busy={adding} />
+          <Button label={added ? 'Added to Shopping' : k.pantry.length ? `Add ${toBuy.length} missing to Shopping` : `Add ${toBuy.length} ingredients to Shopping`} onPress={addMissing} busy={adding} disabled={added} />
         ) : (
           <Button label="All set — enjoy cooking" variant="secondary" onPress={() => router.back()} />
         )}

@@ -12,6 +12,7 @@ import { getMealImage } from '@/shared/meal-images';
 import { DEFAULT_PREFERENCES, type MealPreferencesState } from '@/shared/meals-config';
 import { checkNeeds, Ledger, mergeShortfalls, type Need } from '@/shared/pantry-engine';
 import { householdFrom, type Household } from '@/shared/pantry-portions';
+import { addAmounts, convertBase, ingredientKey, toBase } from '@/shared/pantry-units';
 import {
   RECIPE_SELECT,
   buildPlanFromRecipes,
@@ -258,7 +259,33 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
       })),
     })),
   });
-  return plan;
+  return withoutAllergies(plan, prefs, portions, pantry, weekStart);
+}
+
+/** True when an AI-written meal contains one of the family's allergies. */
+export function mealConflicts(m: MockMeal, allergies: string[]): boolean {
+  return conflictsWithAllergies(m.ingredients.map((i) => i.name), allergies);
+}
+
+/**
+ * The AI chef is told about allergies, but its answer is checked too: any meal
+ * that still contains one is swapped for a safe library recipe of the same type.
+ */
+async function withoutAllergies(plan: GeneratedMealPlan, prefs: MealPreferencesState, portions: number, pantry: PantryItem[], weekStart: string): Promise<GeneratedMealPlan> {
+  const allergies = prefs.allergies ?? [];
+  if (!allergies.length || !plan.days.some((d) => d.meals.some((m) => mealConflicts(m, allergies)))) return plan;
+  const safe = await buildLibraryPlan(prefs, portions, pantry, weekStart).catch(() => null);
+  return {
+    ...plan,
+    days: plan.days.map((d) => ({
+      ...d,
+      meals: d.meals.flatMap((m) => {
+        if (!mealConflicts(m, allergies)) return [m];
+        const swap = safe?.days.find((s) => s.date === d.date)?.meals.find((s) => s.type === m.type);
+        return swap ? [swap] : [];
+      }),
+    })),
+  };
 }
 
 // ---------- Shopping list ----------
@@ -278,28 +305,63 @@ export async function loadShoppingItems(listId: string): Promise<GroceryItem[]> 
   return (data ?? []) as GroceryItem[];
 }
 
+/**
+ * Adds food to the list. Food already waiting on it gets the amounts added
+ * together (2 potatoes + 3 potatoes → 5), converting units where needed.
+ * Returns how many lines were added or topped up.
+ */
 export async function addShoppingItems(
   listId: string,
   items: { name: string; quantity: number | null; unit: string | null; fromMealPlan?: boolean }[],
   existing: GroceryItem[]
 ): Promise<number> {
-  // Skip food already waiting on the list.
-  const open = new Set(existing.filter((i) => !i.checked).map((i) => i.name.trim().toLowerCase()));
-  const rows = items
-    .filter((i) => i.name.trim() && !open.has(i.name.trim().toLowerCase()))
-    .map((i) => ({
-      list_id: listId,
-      name: i.name.trim(),
-      quantity: i.quantity,
-      unit: i.unit || null,
-      category: guessCategory(i.name),
-      checked: false,
-      from_meal_plan: !!i.fromMealPlan,
-    }));
-  if (!rows.length) return 0;
-  const { error } = await supabase.from('grocery_items').insert(rows);
-  if (error) throw error;
-  return rows.length;
+  const incoming = mergeShortfalls([items.filter((i) => i.name.trim()).map((i) => ({ name: i.name.trim(), quantity: i.quantity, unit: i.unit ?? '' }))]);
+  const open = existing.filter((i) => !i.checked);
+  const updates: { id: string; quantity: number | null; unit: string | null }[] = [];
+  const rows: Record<string, unknown>[] = [];
+  const fromPlan = items.some((i) => i.fromMealPlan);
+
+  for (const item of incoming) {
+    const key = ingredientKey(item.name);
+    let merged = false;
+    for (const row of open.filter((o) => ingredientKey(o.name) === key)) {
+      const pending = updates.find((u) => u.id === row.id);
+      const current = pending ?? { quantity: row.quantity, unit: row.unit };
+      const sum = addAmounts(current, { quantity: item.quantity, unit: item.unit || null }, item.name);
+      if (!sum) continue;
+      merged = true;
+      if (sum.quantity !== current.quantity || (sum.unit ?? null) !== (current.unit ?? null)) {
+        const next = { id: row.id, quantity: sum.quantity, unit: sum.unit || null };
+        if (pending) Object.assign(pending, next);
+        else updates.push(next);
+      }
+      break;
+    }
+    if (!merged) {
+      rows.push({
+        list_id: listId,
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit || null,
+        category: guessCategory(item.name),
+        checked: false,
+        from_meal_plan: fromPlan,
+      });
+    }
+  }
+
+  if (rows.length) {
+    const { error } = await supabase.from('grocery_items').insert(rows);
+    if (error) throw error;
+  }
+  for (const u of updates) {
+    const { error } = await supabase
+      .from('grocery_items')
+      .update({ quantity: u.quantity, unit: u.unit, updated_at: new Date().toISOString() })
+      .eq('id', u.id);
+    if (error) throw error;
+  }
+  return rows.length + updates.length;
 }
 
 export async function setItemChecked(id: string, checked: boolean) {
@@ -314,9 +376,11 @@ export async function removeCheckedItems(listId: string) {
 
 /**
  * What to buy for the rest of this week's plan: each meal's ingredients minus
- * what the pantry covers (counting what earlier meals use up).
+ * what the pantry covers (counting what earlier meals use up), minus what an
+ * earlier tap already put on the list for the plan — so tapping twice doesn't
+ * double it.
  */
-export function shoppingForPlan(plan: GeneratedMealPlan, pantry: PantryItem[], fromDate = formatDateISO(new Date())) {
+export function shoppingForPlan(plan: GeneratedMealPlan, pantry: PantryItem[], fromDate = formatDateISO(new Date()), listed: GroceryItem[] = []) {
   const ledger = new Ledger(pantry);
   const lists = plan.days
     .filter((d) => d.date >= fromDate)
@@ -325,5 +389,21 @@ export function shoppingForPlan(plan: GeneratedMealPlan, pantry: PantryItem[], f
       const check = checkNeeds(mealNeeds(m), pantry, { ledger, commit: true });
       return check.lines.filter((l) => l.status === 'missing' || l.status === 'short').map((l) => l.shortfall ?? { name: l.need.name, quantity: l.scaled, unit: l.need.unit });
     });
-  return mergeShortfalls(lists);
+  const forPlan = listed.filter((i) => i.from_meal_plan);
+  return mergeShortfalls(lists).flatMap((need) => {
+    const key = ingredientKey(need.name);
+    let left: number | null = need.quantity;
+    for (const item of forPlan.filter((i) => ingredientKey(i.name) === key)) {
+      if (left == null || item.quantity == null) return []; // "some" is already on the list
+      const have = toBase(item.quantity, item.unit || 'pieces', item.name);
+      const want = toBase(left, need.unit || 'pieces', need.name);
+      if (!have || !want) return [];
+      const covered = convertBase(have.amount, have.base, want.base, need.name);
+      if (covered == null) continue;
+      const rest = want.amount - covered;
+      if (rest <= want.amount * 0.05) return [];
+      left = +((left * rest) / want.amount).toFixed(2);
+    }
+    return [{ ...need, quantity: left }];
+  });
 }

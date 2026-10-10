@@ -316,4 +316,38 @@ END $$;
 RESET request.jwt.claims;
 RESET ROLE;
 
+-- Completing a name-only recipe: ingredients are reused by name, duplicates
+-- dropped, a second call changes nothing, and signed-in users can't call it.
+INSERT INTO public.recipes (id, name, servings) VALUES ('00000000-0000-0000-0000-0000000000c1', 'Smoke test lentil soup', 4);
+DO $$ DECLARE n integer; BEGIN
+  IF public.count_recipes_missing_ingredients() < 1 THEN RAISE EXCEPTION 'missing recipe not counted'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.recipes_missing_ingredients(50) WHERE id = '00000000-0000-0000-0000-0000000000c1') THEN
+    RAISE EXCEPTION 'missing recipe not listed';
+  END IF;
+  n := public.complete_recipe('00000000-0000-0000-0000-0000000000c1',
+    '[{"name":"Red Lentils","quantity":250,"unit":"g"},{"name":"onion","quantity":1,"unit":"pieces"},{"name":"onion","quantity":2,"unit":"pieces"},{"name":"salt","quantity":null,"unit":"to taste"}]',
+    '[{"instruction":"Rinse the lentils well.","minutes":2},{"instruction":"Simmer everything for 25 minutes.","minutes":25}]',
+    '[["celery","celeriac"],["dairy","milk","lactose"],["not a real allergen"]]');
+  IF n <> 3 THEN RAISE EXCEPTION 'complete_recipe added % ingredients, expected 3', n; END IF;
+  IF (SELECT count(*) FROM public.recipe_steps WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1') <> 2 THEN RAISE EXCEPTION 'steps not saved'; END IF;
+  IF (SELECT count(*) FROM public.recipe_allergens WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1') <> 2 THEN RAISE EXCEPTION 'allergens not tagged'; END IF;
+  IF public.complete_recipe('00000000-0000-0000-0000-0000000000c1', '[{"name":"rice"}]', '[{"instruction":"x"}]') <> 0 THEN
+    RAISE EXCEPTION 'complete_recipe overwrote a finished recipe';
+  END IF;
+END $$;
+-- Supabase grants new functions to signed-in users by default (as line ~110
+-- does here); the migration must take that back.
+\i supabase/migrations/20261011110000_complete_recipe_tools.sql
+SET ROLE authenticated;
+DO $$ BEGIN
+  PERFORM public.count_recipes_missing_ingredients();
+  RAISE EXCEPTION 'users can call the recipe tools';
+EXCEPTION WHEN insufficient_privilege THEN NULL;
+END $$;
+RESET ROLE;
+DELETE FROM public.recipe_ingredients WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1';
+DELETE FROM public.recipe_steps WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1';
+DELETE FROM public.recipe_allergens WHERE recipe_id = '00000000-0000-0000-0000-0000000000c1';
+DELETE FROM public.recipes WHERE id = '00000000-0000-0000-0000-0000000000c1';
+
 SELECT 'RLS smoke test passed' AS result;

@@ -287,6 +287,48 @@ function friendly(amount: number, base: Base, name: string): { quantity: number;
   return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'L' } : { quantity: Math.ceil(amount / 10) * 10 || amount, unit: 'ml' };
 }
 
+// ── Adding amounts ───────────────────────────────────────────────────
+
+interface Amount {
+  quantity: number | null;
+  unit: string | null;
+}
+
+/** A number with no unit ("6 eggs") counts pieces. */
+function measured(a: Amount): Amount {
+  const u = normUnit(a.unit);
+  return a.quantity != null && a.quantity > 0 && !u ? { quantity: a.quantity, unit: 'pieces' } : a;
+}
+
+/**
+ * Adds two amounts of the same food, keeping the first one's unit when it can:
+ *   2 pieces + 3 pcs potato → 5 pieces;  2 kg + 3 pieces potato → 2.6 kg;  200 g + 1 cup rice → 392 g.
+ * An unmeasured amount ("to taste", "a bunch") adds nothing to a measured one.
+ * Returns null when the two can't be added (e.g. 2 cups + 3 pieces of something we can't weigh).
+ */
+function addAmounts(first: Amount, second: Amount, name: string): Amount | null {
+  const a = measured(first);
+  const b = measured(second);
+  const ba = toBase(a.quantity, a.unit, name);
+  const bb = toBase(b.quantity, b.unit, name);
+  if (!ba && !bb) return normUnit(a.unit) === normUnit(b.unit) || !b.unit || normUnit(b.unit) === 'to taste' ? first : !a.unit || normUnit(a.unit) === 'to taste' ? second : null;
+  if (!bb) return first;
+  if (!ba) return second;
+  if (normUnit(a.unit) === normUnit(b.unit)) return { quantity: +(a.quantity! + b.quantity!).toFixed(2), unit: first.unit };
+  const extra = convertBase(bb.amount, bb.base, ba.base, name);
+  if (extra != null) {
+    const inFirstUnit = toUnit(ba.amount + extra, ba.base, a.unit!, name);
+    if (inFirstUnit != null) return { quantity: +inFirstUnit.toFixed(2), unit: first.unit };
+  }
+  // The first unit can't hold it (e.g. pieces of something we can't weigh): try the second's.
+  const back = convertBase(ba.amount, ba.base, bb.base, name);
+  if (back != null) {
+    const inSecondUnit = toUnit(bb.amount + back, bb.base, b.unit!, name);
+    if (inSecondUnit != null) return { quantity: +inSecondUnit.toFixed(2), unit: second.unit };
+  }
+  return null;
+}
+
 /**
  * Compares what recipes need with what's in the pantry — with real amounts,
  * scaled to the family's portions — and works out what to take out of the
@@ -482,16 +524,25 @@ function deductionsFor(check: RecipeCheck): Deduction[] {
 
 /** Merges shortfalls of the same food across several recipes. */
 function mergeShortfalls(lists: { name: string; quantity: number | null; unit: string }[][]) {
-  const out = new Map<string, { name: string; quantity: number | null; unit: string }>();
+  // Same food under different names or units ("potato", 2 kg + "potatoes", 3 pieces) becomes one line.
+  const out = new Map<string, { name: string; quantity: number | null; unit: string }[]>();
   for (const list of lists) {
     for (const s of list) {
-      const key = `${s.name.toLowerCase()}|${s.unit}`;
-      const prev = out.get(key);
-      if (prev && prev.quantity != null && s.quantity != null) prev.quantity = +(prev.quantity + s.quantity).toFixed(2);
-      else if (!prev) out.set(key, { ...s });
+      const key = ingredientKey(s.name) || s.name.toLowerCase();
+      const group = out.get(key) ?? [];
+      let merged = false;
+      for (let i = 0; i < group.length && !merged; i++) {
+        const sum = addAmounts(group[i]!, s, s.name);
+        if (sum) {
+          group[i] = { name: group[i]!.name, quantity: sum.quantity, unit: sum.unit ?? '' };
+          merged = true;
+        }
+      }
+      if (!merged) group.push({ ...s });
+      out.set(key, group);
     }
   }
-  return Array.from(out.values());
+  return Array.from(out.values()).flat();
 }
 
 // ── inlined from supabase/functions/_shared/pantry-portions.ts ──

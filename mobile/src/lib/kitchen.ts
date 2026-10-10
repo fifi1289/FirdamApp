@@ -267,7 +267,7 @@ export async function getShoppingList(): Promise<{ id: string; name: string }> {
   const { data } = await supabase.from('grocery_lists').select('id, name').order('created_at', { ascending: true }).limit(1);
   const first = (data ?? [])[0] as { id: string; name: string } | undefined;
   if (first) return first;
-  const { data: created, error } = await supabase.from('grocery_lists').insert({ name: 'Shopping list' }).select('id, name').single();
+  const { data: created, error } = await supabase.from('grocery_lists').insert({ name: 'Weekly groceries' }).select('id, name').single();
   if (error) throw error;
   return created as { id: string; name: string };
 }

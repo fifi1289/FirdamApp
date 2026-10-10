@@ -45,6 +45,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // The reset page signs you in from the email link itself, whatever session
+  // this browser already has, so leave it alone.
+  if (request.nextUrl.pathname === '/auth/reset-password') return response;
+
   // Two-step verification: a signed-in session that still needs its code can
   // only reach the code page (and public pages) until it's verified.
   if (user && (!isPublicPath(request.nextUrl.pathname) || request.nextUrl.pathname.startsWith('/auth'))) {

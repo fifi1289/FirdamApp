@@ -1,4 +1,4 @@
-# Temporary helper (run 2): runs package commands for mobile/ (npm isn't reachable from
+# Temporary helper (run 3): runs package commands for mobile/ (npm isn't reachable from
 # the coding session) and commits the updated package files back.
 name: mobile-deps
 on:
@@ -21,9 +21,9 @@ jobs:
       - name: Update packages
         run: |
           {
-            echo "== expo install react-dom"; npx expo install react-dom 2>&1 | grep -v "^npm warn" | tail -25
-            npx expo install --check 2>&1 | tail -15 || true
-            npm ci --dry-run 2>&1 | grep -i "error" | head -10 || true
+            echo "== pin react-dom"; npm install react-dom@19.2.3 --save-exact --no-audit --no-fund 2>&1 | grep -v "^npm warn" | tail -15
+            echo "== expo check"; npx expo install --check 2>&1 | tail -15
+            echo "== clean install test"; rm -rf node_modules; npm ci --no-audit --no-fund 2>&1 | grep -v "^npm warn" | tail -8
             echo "== deps"; node -p 'JSON.stringify(require("./package.json").dependencies)'
           } > ../deps-report.txt
       - name: Save

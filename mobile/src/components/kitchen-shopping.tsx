@@ -8,6 +8,7 @@ import type { GroceryItem } from '@/lib/db-types';
 import { addShoppingItems, removeCheckedItems, setItemChecked } from '@/lib/kitchen';
 import { patchKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { formatQty, groupByAisle, needsHalalSource, parseQuickAdd } from '@/shared/grocery-utils';
+import { haramItemMessage } from '@/shared/halal';
 import { colors, fonts } from '@/theme';
 
 export function ShoppingView() {
@@ -26,7 +27,11 @@ export function ShoppingView() {
     try {
       // "2 kg rice, 6 eggs" adds two items.
       const parsed = value.split(/,|\n/).map((s) => s.trim()).filter(Boolean).map(parseQuickAdd);
-      await addShoppingItems(k.listId, parsed, k.items);
+      // Halal only (the database refuses haram food too).
+      const refused = parsed.map((p) => haramItemMessage(p.name)).filter((m): m is string => !!m);
+      const halal = parsed.filter((p) => !haramItemMessage(p.name));
+      if (halal.length) await addShoppingItems(k.listId, halal, k.items);
+      if (refused.length) Alert.alert('Not added', refused.join('\n\n'));
       setText('');
       await refreshShopping();
     } catch (e) {

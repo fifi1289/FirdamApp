@@ -7,6 +7,7 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from './config';
 import type { GroceryItem, MealPreferencesRow, PantryItem } from './db-types';
 import { supabase } from './supabase';
 import { conflictsWithAllergies, detectAllergens, fitsDiet } from '@/shared/allergens';
+import { mealHaramReason } from '@/shared/halal';
 import { guessCategory } from '@/shared/grocery-utils';
 import { getMealImage } from '@/shared/meal-images';
 import { DEFAULT_PREFERENCES, type MealPreferencesState } from '@/shared/meals-config';
@@ -274,19 +275,22 @@ export function mealConflicts(m: MockMeal, allergies: string[]): boolean {
 }
 
 /**
- * The AI chef is told about allergies, but its answer is checked too: any meal
- * that still contains one is swapped for a safe library recipe of the same type.
+ * The AI chef is told about allergies and that Firdam is halal-only, but its
+ * answer is checked too: any meal that contains a family allergy or isn't halal
+ * is swapped for a safe library recipe of the same type.
  */
 async function withoutAllergies(plan: GeneratedMealPlan, prefs: MealPreferencesState, portions: number, pantry: PantryItem[], weekStart: string): Promise<GeneratedMealPlan> {
   const allergies = prefs.allergies ?? [];
-  if (!allergies.length || !plan.days.some((d) => d.meals.some((m) => mealConflicts(m, allergies)))) return plan;
+  // Also catches anything not halal (the server checks first; this is a backstop).
+  const unsafe = (m: MockMeal) => mealConflicts(m, allergies) || !!mealHaramReason(m as unknown as Record<string, unknown>);
+  if (!plan.days.some((d) => d.meals.some(unsafe))) return plan;
   const safe = await buildLibraryPlan(prefs, portions, pantry, weekStart).catch(() => null);
   return {
     ...plan,
     days: plan.days.map((d) => ({
       ...d,
       meals: d.meals.flatMap((m) => {
-        if (!mealConflicts(m, allergies)) return [m];
+        if (!unsafe(m)) return [m];
         const swap = safe?.days.find((s) => s.date === d.date)?.meals.find((s) => s.type === m.type);
         return swap ? [swap] : [];
       }),

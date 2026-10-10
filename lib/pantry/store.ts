@@ -4,6 +4,7 @@
  * All automatic pantry changes go through here, so each one is recorded in
  * `pantry_events` (with the row as it was) and can be undone as a batch.
  */
+import { haramItemMessage } from '@/lib/recipes/halal';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { guessCategory } from '@/features/groceries/grocery-utils';
 import { matchScore, toBase, toUnit } from '@/lib/pantry/units';
@@ -38,6 +39,13 @@ export async function applyPantryChanges(changes: PantryChange[], source: Pantry
     before: Row | null;
     after: Row | null;
   }[] = [];
+
+  // Halal only: refuse before changing anything (the database refuses too).
+  for (const c of changes) {
+    const name = c.kind === 'insert' ? c.row.name : c.kind === 'update' ? (c.patch as { name?: string }).name : undefined;
+    const notHalal = typeof name === 'string' ? haramItemMessage(name) : null;
+    if (notHalal) throw new Error(notHalal);
+  }
 
   for (const c of changes) {
     if (c.kind === 'update') {

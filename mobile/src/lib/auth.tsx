@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { WEBSITE } from './config';
+import { resetKitchen } from './kitchen-store';
 import { supabase } from './supabase';
 
 interface AuthState {
@@ -111,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       signOut: async () => {
         await supabase.auth.signOut();
+        resetKitchen();
       },
     }),
     [loading, session, needsCode, firstName, load]

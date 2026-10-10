@@ -10,7 +10,6 @@ import type {
   MockMeal,
 } from '@/features/meals/meal-plan-generator';
 import type { MealPreferencesState } from '@/features/meals/meals-config';
-import type { PantryItem } from '@/types/database';
 
 const FUNCTION_SLUG = 'generate-meal-plan';
 const VALID_DIFFICULTIES: MealDifficulty[] = ['Easy', 'Medium', 'Hard'];
@@ -19,7 +18,8 @@ export interface GenerateMealPlanInput {
   preferences: MealPreferencesState;
   householdSize?: number;
   weekStartDate: string;
-  pantryItems?: PantryItem[];
+  /** Only name, quantity and unit are sent to the AI chef. */
+  pantryItems?: { name: string; quantity: number; unit: string }[];
 }
 
 export class GenerateMealPlanError extends Error {

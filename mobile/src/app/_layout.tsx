@@ -49,6 +49,9 @@ function Navigator() {
       <Stack.Protected guard={signedIn && !needsCode}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="prayer-settings" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="meal-preferences" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="recipe/[id]" />
+        <Stack.Screen name="meal" />
       </Stack.Protected>
     </Stack>
   );

@@ -2,9 +2,14 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { StarPattern } from '@/components/art';
+import { openMeal } from '@/components/kitchen-plan';
+import { Photo } from '@/components/kitchen-ui';
 import { ComingNext, TabScreen } from '@/components/screen';
-import { T } from '@/components/ui';
+import { Button, Card, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
+import { formatDateISO } from '@/lib/kitchen';
+import { useKitchen } from '@/lib/kitchen-store';
+import { formatPortions } from '@/shared/pantry-portions';
 import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
 import { colors } from '@/theme';
 
@@ -74,13 +79,58 @@ function PrayerCard() {
   );
 }
 
+function TonightCard() {
+  const k = useKitchen();
+  const today = formatDateISO(new Date());
+  const meals = k.week?.plan.days.find((d) => d.date === today)?.meals ?? [];
+  const meal = meals.find((m) => m.type === 'dinner') ?? meals[meals.length - 1];
+  const openItems = k.items.filter((i) => !i.checked).length;
+
+  if (k.loading) return null;
+  return (
+    <>
+      {meal ? (
+        <Card style={styles.dinner}>
+          <Photo uri={meal.image} size={92} radius={18} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+              {meal.type === 'dinner' ? 'TONIGHT’S DINNER' : `TODAY · ${meal.type.toUpperCase()}`}
+            </T>
+            <T size={18} weight="bold" numberOfLines={2} style={{ marginTop: 3 }}>
+              {meal.name}
+            </T>
+            <T size={13} color={colors.muted}>{`${meal.prepTime + meal.cookTime} min · for ${formatPortions(meal.servings)}`}</T>
+            <Button label="Start cooking" onPress={() => openMeal(meal, today)} style={{ height: 36, alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 14 }} />
+          </View>
+        </Card>
+      ) : (
+        <Card style={{ gap: 10 }}>
+          <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+            THIS WEEK’S MEALS
+          </T>
+          <T size={15} color="#5F5048">
+            No plan yet. Firdam can plan your week in seconds, sized for your family.
+          </T>
+          <Button label="Plan my week" onPress={() => router.push('/kitchen')} style={{ height: 44 }} />
+        </Card>
+      )}
+      {openItems ? (
+        <Pressable accessibilityRole="button" onPress={() => router.push('/kitchen')} style={styles.shopping}>
+          <T weight="bold">Family shopping list</T>
+          <T size={13} color={colors.muted}>{`${openItems} item${openItems === 1 ? '' : 's'} to buy`}</T>
+        </Pressable>
+      ) : null}
+    </>
+  );
+}
+
 export default function Today() {
   const { firstName } = useAuth();
   const now = useNow(60000);
   return (
     <TabScreen title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
       <PrayerCard />
-      <ComingNext step={4} title="Tonight’s dinner" text="Your meal plan, sized for your family, with what is already in your pantry." />
+      <TonightCard />
       <ComingNext step={5} title="Use soon" text="Pantry items close to their date, so nothing goes to waste." />
     </TabScreen>
   );
@@ -92,4 +142,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 6, marginTop: 18 },
   cell: { flex: 1, alignItems: 'center', borderRadius: 10, paddingVertical: 4, gap: 2 },
   cellActive: { backgroundColor: colors.gold },
+  dinner: { flexDirection: 'row', gap: 14, alignItems: 'center', padding: 14 },
+  shopping: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 16 },
 });

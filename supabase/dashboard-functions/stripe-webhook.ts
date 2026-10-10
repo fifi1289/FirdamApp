@@ -81,7 +81,8 @@ function planForPrice(priceId: string | undefined, fallback?: string): "premium"
   if (priceId && [env("STRIPE_PRICE_PREMIUM_MONTHLY"), env("STRIPE_PRICE_PREMIUM_YEARLY")].includes(priceId)) {
     return "premium";
   }
-  return fallback === "family" ? "family" : "premium";
+  // Firdam Family is the only plan sold now; older "premium" prices are matched above.
+  return fallback === "premium" ? "premium" : "family";
 }
 
 const KNOWN_STATUSES = new Set([

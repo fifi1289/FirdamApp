@@ -549,7 +549,7 @@ function formatPortions(p: number): string {
 
 // Keep in sync with lib/plan/plan.ts. Each Companion message costs roughly
 // $0.001–0.002 in OpenAI fees, an AI meal plan roughly $0.003–0.005.
-const FREE_AI_PLANS_PER_MONTH = 2;
+const FREE_AI_PLANS_PER_MONTH = 1;
 // The Companion chat is a paid feature; Free users get pantry matching (no AI) instead.
 const FREE_COMPANION_MESSAGES_PER_MONTH = 0;
 // Fair-use caps for paid plans, so one account can't run up a large bill.
@@ -557,7 +557,7 @@ const FREE_COMPANION_MESSAGES_PER_MONTH = 0;
 const PAID_AI_PLANS_PER_MONTH = 8;
 // Receipt scans (paid plans only): about $0.01 each in OpenAI fees.
 const PAID_RECEIPT_SCANS_PER_MONTH = 30;
-const PAID_COMPANION_MESSAGES_PER_DAY = 50;
+const PAID_COMPANION_MESSAGES_PER_DAY = 20;
 
 function env_shared(name: string): string | undefined {
   const v = Deno.env.get(name);

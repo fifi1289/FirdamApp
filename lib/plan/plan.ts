@@ -12,7 +12,7 @@ import type { PlanId, Subscription } from '@/types/database';
 export const PLAN_LIMITS = {
   free: {
     companionMessagesPerMonth: 0,
-    aiMealPlansPerMonth: 2,
+    aiMealPlansPerMonth: 1,
     customRecipes: 3,
     trips: 1,
     habits: 3,
@@ -44,7 +44,7 @@ export const PLAN_LIMITS = {
 
 /** Fair-use caps on paid plans (AI costs real money per use). */
 export const FAIR_USE = {
-  companionMessagesPerDay: 50,
+  companionMessagesPerDay: 20,
 } as const;
 
 export type LimitKey = keyof (typeof PLAN_LIMITS)['free'];
@@ -60,10 +60,18 @@ export const LIMIT_LABELS: Record<LimitKey, string> = {
   shoppingLists: 'shopping lists',
 };
 
+/** Firdam Family prices, in Canadian dollars. */
+export const PRICES = {
+  month: { amount: 'CA$4.99', note: 'a month' },
+  year: { amount: 'CA$39.99', note: 'a year', saving: 'Save 33%' },
+  founding: 'CA$29.99 a year for the first 500 founding families, locked in',
+} as const;
+
 export const PLAN_NAMES: Record<PlanId, string> = {
   free: 'Free',
-  premium: 'Premium',
-  family: 'Family+',
+  // One paid plan, Firdam Family. "premium" is kept only for older subscriptions.
+  premium: 'Firdam Family',
+  family: 'Firdam Family',
 };
 
 export interface PlanState {

@@ -50,7 +50,7 @@ const sections: LegalSection[] = [
       <>
         <ul>
           <li>
-            {SITE.name} has a Free plan and paid plans (Premium and Family+). What each plan includes, and its price, is
+            {SITE.name} has a Free plan and a paid plan, Firdam Family. What each plan includes, and its price, is
             shown on the Upgrade page when you subscribe.
           </li>
           <li>

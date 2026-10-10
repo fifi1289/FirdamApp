@@ -42,7 +42,8 @@ export const moduleIconMap: Record<ModuleIconName, LucideIcon> = {
 
 export const MODULE_GROUPS: ModuleGroup[] = ['Halal living', 'Faith', 'Family', 'Community & travel', 'Money'];
 
-export const lifeModules: LifeModule[] = [
+/** Every module Firdam has, including ones hidden for the launch. */
+export const allModules: LifeModule[] = [
   {
     id: 'halal-places',
     name: 'Halal Places',
@@ -218,8 +219,21 @@ export const lifeModules: LifeModule[] = [
   },
 ];
 
+/**
+ * Hidden until after launch: unfinished, or only useful once many families use
+ * Firdam. Their pages still exist; they are just not shown in menus or lists.
+ * Remove an id here to bring a module back.
+ */
+export const HIDDEN_MODULE_IDS = new Set(['planner', 'learning', 'health', 'community', 'travel', 'directory']);
+
+/** The modules shown in menus, the home page and the landing page. */
+export const lifeModules: LifeModule[] = allModules.filter((m) => !HIDDEN_MODULE_IDS.has(m.id));
+
+/** Groups that still have a visible module. */
+export const VISIBLE_MODULE_GROUPS: ModuleGroup[] = MODULE_GROUPS.filter((g) => lifeModules.some((m) => m.group === g));
+
 export function getModuleById(id: string) {
-  return lifeModules.find((m) => m.id === id);
+  return allModules.find((m) => m.id === id);
 }
 
 export const activeModules = lifeModules.filter((m) => m.status === 'active');

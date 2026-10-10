@@ -160,21 +160,11 @@ DO $$ BEGIN
 END $$;
 RESET ROLE;
 
--- Shared households (Family+)
+-- Shared households (free for 2 people, up to 8 with a paid plan)
 INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-000000000004', 'c@example.com');
 INSERT INTO public.subscriptions (user_id, plan, status) VALUES ('00000000-0000-0000-0000-000000000001', 'family', 'active');
 SET ROLE authenticated;
--- Free users cannot create a household.
-SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
-DO $$ BEGIN
-  BEGIN
-    PERFORM public.create_household('Sneaky');
-    RAISE EXCEPTION 'free user created a household';
-  EXCEPTION WHEN raise_exception THEN
-    IF SQLERRM = 'free user created a household' THEN RAISE; END IF;
-  END;
-END $$;
--- Nor share their items into someone else's household directly.
+-- Users cannot push their items into someone else's household directly.
 DO $$ BEGIN
   BEGIN
     PERFORM public.share_my_items(gen_random_uuid());
@@ -249,6 +239,32 @@ SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.household_members) <> 1 THEN RAISE EXCEPTION 'member not removed on leave'; END IF;
   IF (SELECT count(*) FROM public.grocery_items) <> 2 THEN RAISE EXCEPTION 'family list lost items on leave'; END IF;
+END $$;
+RESET ROLE;
+
+-- A free household holds 2 people; a third needs a paid plan.
+INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-000000000005', 'd@example.com');
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000004';
+SELECT public.create_household('Small family');
+INSERT INTO public.household_invites (household_id, email)
+  SELECT public.my_household_id(), e FROM unnest(ARRAY['b@example.com', 'd@example.com']) AS e;
+RESET ROLE;
+CREATE TEMP TABLE free_invites AS
+  SELECT i.email, i.token FROM public.household_invites i
+  JOIN public.households h ON h.id = i.household_id WHERE h.name = 'Small family';
+GRANT SELECT ON free_invites TO authenticated;
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
+SELECT public.accept_household_invite((SELECT token FROM free_invites WHERE email = 'b@example.com'));
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000005';
+DO $$ BEGIN
+  BEGIN
+    PERFORM public.accept_household_invite((SELECT token FROM free_invites WHERE email = 'd@example.com'));
+    RAISE EXCEPTION 'third person joined a free household';
+  EXCEPTION WHEN raise_exception THEN
+    IF SQLERRM <> 'This household is full' THEN RAISE; END IF;
+  END;
 END $$;
 RESET ROLE;
 

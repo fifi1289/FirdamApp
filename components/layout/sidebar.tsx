@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { Logo } from '@/components/brand/logo';
 import { PLAN_NAMES, usePlan } from '@/lib/plan/plan';
 import {
-  MODULE_GROUPS,
+  VISIBLE_MODULE_GROUPS,
   lifeModules,
   moduleIconMap,
 } from '@/features/modules/module-config';
@@ -33,7 +33,7 @@ const mainNav: NavItem[] = [
   { label: 'Companion', href: '/dashboard/companion', icon: Sparkles, badge: 'AI' },
 ];
 
-const groupedNav = MODULE_GROUPS.map((group) => ({
+const groupedNav = VISIBLE_MODULE_GROUPS.map((group) => ({
   title: group,
   items: lifeModules
     .filter((m) => m.group === group)
@@ -127,10 +127,10 @@ function PlanCard() {
     >
       <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
         <Crown className="h-4 w-4 text-primary" />
-        Try Premium free
+        Try Firdam Family free
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        More AI help, unlimited recipes, trips and lists — 14 days free.
+        AI meal plans, receipt scanning and your whole household — CA$4.99 a month.
       </p>
     </Link>
   );

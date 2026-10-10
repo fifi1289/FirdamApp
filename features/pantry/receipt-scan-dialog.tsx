@@ -62,7 +62,7 @@ function todayISO() {
 }
 
 /**
- * Scan a receipt (Premium / Family+): photo → list of food → check it → pantry.
+ * Scan a receipt (Firdam Family): photo → list of food → check it → pantry.
  * Optionally ticks the items off the shopping list and records the spend.
  */
 export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
@@ -183,7 +183,7 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
               {!planLoading && !isPaid ? (
                 <div className="rounded-2xl border border-brand-gold/40 bg-brand-gold/10 p-5 text-center">
                   <Crown className="mx-auto h-6 w-6 text-[#7a5a30] dark:text-brand-gold" />
-                  <p className="mt-2 font-semibold text-foreground">Receipt scanning comes with Premium and Family+</p>
+                  <p className="mt-2 font-semibold text-foreground">Receipt scanning comes with Firdam Family</p>
                   <p className="mt-1 text-sm text-muted-foreground">Free plan: use quick add — type “2 kg chicken, a dozen eggs”.</p>
                   <Button className="mt-4" onClick={() => setUpgradeOpen(true)}>
                     See plans
@@ -320,7 +320,7 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
       <UpgradeDialog
         open={upgradeOpen}
         onOpenChange={setUpgradeOpen}
-        title="Scan receipts with Premium"
+        title="Scan receipts with Firdam Family"
         description="Photograph your receipt and your pantry fills itself — up to 30 receipts a month."
       />
     </>

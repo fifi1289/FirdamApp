@@ -155,9 +155,10 @@ Repository secrets (GitHub → Settings → Secrets and variables → Actions):
 
 - `CLOUDFLARE_API_TOKEN` — Cloudflare → My Profile → API Tokens → "Edit Cloudflare Workers" template
 - `CLOUDFLARE_ACCOUNT_ID` — Cloudflare → Workers & Pages → Account details
-- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and optionally `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
-  (baked in at build time; change them, then re-run the deploy). Never add the Supabase service-role key — the
-  website doesn't need it.
+
+The public Supabase URL and anon key are written in `deploy.yml` (they ship to every browser anyway). The optional
+Turnstile site key is a repository *variable* `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. Never add the Supabase service-role
+key — the website doesn't need it.
 
 The Worker's name must match `name` in `wrangler.jsonc` (`firdamapp`); its custom domains are firdam.com and
 www.firdam.com. `@opennextjs/cloudflare` is pinned to 1.15.x, the last release that supports Next.js 14; upgrading

@@ -148,19 +148,21 @@ also applies every migration to a clean Postgres database and runs an RLS smoke 
 ## Hosting (Cloudflare Workers)
 
 The site runs on Cloudflare Workers using the OpenNext adapter (`wrangler.jsonc`, `open-next.config.ts`).
-Cloudflare builds every push from GitHub:
+GitHub Actions publishes it (`.github/workflows/deploy.yml`) on every push to `main`, and it can be run by hand
+from the Actions tab ("Deploy to Cloudflare" → Run workflow). Cloudflare's own Git builds are turned off.
 
-- **Build command:** `npx opennextjs-cloudflare build`
-- **Deploy command (main):** `npx opennextjs-cloudflare deploy`
-- **Non-production branches:** `npx opennextjs-cloudflare upload` (gives each branch a preview link)
-- **Build variables:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and optionally
-  `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. These are baked in at build time, so change them under Build → Variables and redeploy.
-  Never add the Supabase service-role key — the website doesn't need it.
+Repository secrets (GitHub → Settings → Secrets and variables → Actions):
 
-The Worker's name in Cloudflare must match `name` in `wrangler.jsonc` (`firdamapp`).
-`@opennextjs/cloudflare` is pinned to 1.15.x, the last release that supports Next.js 14; upgrading Next.js to 15.5+
-lets it move to the latest adapter. CI checks the Cloudflare build and that the Worker stays under the free plan's
-3 MiB (compressed) limit. Try it locally with `npm run preview`.
+- `CLOUDFLARE_API_TOKEN` — Cloudflare → My Profile → API Tokens → "Edit Cloudflare Workers" template
+- `CLOUDFLARE_ACCOUNT_ID` — Cloudflare → Workers & Pages → Account details
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and optionally `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+  (baked in at build time; change them, then re-run the deploy). Never add the Supabase service-role key — the
+  website doesn't need it.
+
+The Worker's name must match `name` in `wrangler.jsonc` (`firdamapp`); its custom domains are firdam.com and
+www.firdam.com. `@opennextjs/cloudflare` is pinned to 1.15.x, the last release that supports Next.js 14; upgrading
+Next.js to 15.5+ lets it move to the latest adapter. CI checks the Cloudflare build and that the Worker stays under
+the free plan's 3 MiB (compressed) limit. Try it locally with `npm run preview`.
 
 ## Before launch
 

@@ -21,7 +21,13 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.firdam.app"
+      "package": "com.firdam.app",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -52,6 +58,19 @@
       ]
     ],
     "scheme": "firdam",
-    "backgroundColor": "#F8F4EE"
+    "backgroundColor": "#F8F4EE",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2f82ff99-c2a3-46cf-b494-191650d1efde"
+      }
+    },
+    "owner": "firdam-app",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2f82ff99-c2a3-46cf-b494-191650d1efde"
+    }
   }
 }

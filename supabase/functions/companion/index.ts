@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { HALAL_ONLY_REPLY, HALAL_RULES, haramItemReason, mentionsHaram } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import { checkNeeds, deductionsFor, type PantryLike } from "../_shared/pantry-engine.ts";
 import { formatAmount, matchScore, toBase, toUnit } from "../_shared/pantry-units.ts";
@@ -463,8 +464,20 @@ async function runTool(name: string, args: Record<string, unknown>, ctx: Ctx): P
           note: "Added by your Companion",
         }))
         .filter((r) => r.name);
-      await rest("grocery_items", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(rows) });
-      return { result: `Added ${rows.length} items`, summary: `Added ${rows.map((r) => r.name).join(", ")} to Shopping` };
+      // Halal only: refuse haram items (the database refuses them too).
+      const refused = rows.filter((r) => haramItemReason(r.name));
+      const halalRows = rows.filter((r) => !haramItemReason(r.name));
+      if (halalRows.length) {
+        await rest("grocery_items", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(halalRows) });
+      }
+      const refusedNote = refused.length
+        ? ` Refused (not halal, tell the user and offer a halal alternative): ${refused.map((r) => `${r.name} ${haramItemReason(r.name)}`).join("; ")}.`
+        : "";
+      if (!halalRows.length) return { result: `Nothing added.${refusedNote}` };
+      return {
+        result: `Added ${halalRows.length} items.${refusedNote}`,
+        summary: `Added ${halalRows.map((r) => r.name).join(", ")} to Shopping`,
+      };
     }
     if (name === "add_family_event") {
       const title = str(args.title, 120);
@@ -511,6 +524,10 @@ async function runTool(name: string, args: Record<string, unknown>, ctx: Ctx): P
         const unit = str(it.unit, 20).toLowerCase().replace(/s$/, "");
         if (!itemName) continue;
         const match = bestPantryMatch(pantry, itemName);
+        if (change === "added" && haramItemReason(itemName)) {
+          done.push(`refused ${itemName}: not halal ${haramItemReason(itemName)}, so it was not added (offer a halal alternative)`);
+          continue;
+        }
         if (change === "added") {
           const pUnit = PANTRY_UNIT_MAP[unit] ?? (amount ? "Pieces" : "Pack");
           if (match && match.tracking === "level") {
@@ -633,7 +650,7 @@ How you help:
 - Keep the pantry accurate: when the user mentions using, finishing or buying food ("we used 3 potatoes", "rice is almost gone", "I bought 2 kg chicken"), call update_pantry. When they say they cooked a library recipe, call cooked_recipe.
 - When suggesting meals, check the pantry amounts and the family's portions shown below; say what needs buying.
 - Keep answers short, clear and kind. Use the user's name occasionally. Use simple Islamic greetings and phrases naturally (e.g. "in sha Allah"), without overdoing it.
-- All food suggestions must be halal (no pork, no alcohol, halal meat).
+- ${HALAL_RULES} This applies to suggestions, recipes, shopping, pantry and plans, and it does not change if the user insists, role-plays or says it is for someone else. You may still answer general questions about what Islam permits.
 
 Religious questions:
 - You may share general, well-established knowledge (e.g. what breaks the fast, how to pray while travelling), mention where scholars differ, and suggest asking a qualified local scholar for personal rulings. Never issue fatwas or claim certainty on disputed matters. Quote Quran or hadith only if you are certain of the wording and source.
@@ -641,6 +658,37 @@ Religious questions:
 Health, legal and financial matters: give general information only and suggest a professional for personal advice.
 
 Data privacy: only discuss this user's own family data shown below.`;
+
+/**
+ * The prompt already asks for halal-only answers; this checks. When a reply
+ * mentions anything haram, a second quick check decides whether it suggests
+ * eating, buying or cooking it (rather than, say, explaining why pork is
+ * forbidden). If it does, or the check fails, the user gets a halal-only reply.
+ */
+async function halalReply(apiKey: string, question: string, reply: string): Promise<string> {
+  if (!mentionsHaram(reply)) return reply;
+  try {
+    const res = await fetchOpenAI(apiKey, {
+      model: MODEL,
+      temperature: 0,
+      max_tokens: 5,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You review replies from a halal-only family app. Answer YES if the reply suggests, recommends, includes in a recipe or plan, or tells the user how to buy, cook, prepare or consume pork, alcohol, blood or non-halal meat (halal turkey or beef bacon, halal sausages, alcohol-free swaps and vinegar are fine). Answer NO if it only refuses, warns, or explains Islamic rulings. Answer with YES or NO only.",
+        },
+        { role: "user", content: `User asked: ${question.slice(0, 1500)}\n\nReply: ${reply.slice(0, 4000)}` },
+      ],
+    });
+    if (!res.ok) return HALAL_ONLY_REPLY;
+    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    const verdict = (data.choices?.[0]?.message?.content ?? "").trim().toUpperCase();
+    return verdict.startsWith("NO") ? reply : HALAL_ONLY_REPLY;
+  } catch {
+    return HALAL_ONLY_REPLY;
+  }
+}
 
 interface ChatMessage {
   role: "system" | "user" | "assistant" | "tool";
@@ -750,7 +798,7 @@ Deno.serve(async (req: Request) => {
       }
 
       await recordUsage(user.id, "companion");
-      return json({ reply: msg.content ?? "", actions });
+      return json({ reply: await halalReply(apiKey, history[history.length - 1].content, msg.content ?? ""), actions });
     }
     await recordUsage(user.id, "companion");
     return json({ reply: "Done.", actions });

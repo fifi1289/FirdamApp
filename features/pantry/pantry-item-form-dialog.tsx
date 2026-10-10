@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { haramItemMessage } from '@/lib/recipes/halal';
 import {
   PANTRY_CATEGORIES,
   PANTRY_UNITS,
@@ -115,6 +116,13 @@ export function PantryItemFormDialog({
       tracking: values.staple ? ('level' as const) : ('count' as const),
       level: values.staple ? (item?.level ?? 'full') : null,
     };
+
+    // Halal only (the database refuses haram food too).
+    const notHalal = haramItemMessage(payload.name);
+    if (notHalal) {
+      toast.error('Not added', { description: notHalal });
+      return;
+    }
 
     setSubmitting(true);
 

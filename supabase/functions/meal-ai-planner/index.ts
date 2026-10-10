@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { HALAL_RULES, mealHaramReason } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import {
   FREE_AI_PLANS_PER_MONTH,
@@ -71,7 +72,9 @@ Rules:
 3. Each day must contain exactly the meal types requested, in the order given.
 4. When pantry usage is prioritized, prefer recipes whose ingredients overlap with the pantry list.
 5. Spread cuisines naturally across the week when multiple cuisines are available.
-6. Return ONLY valid JSON matching the requested schema. No markdown, no commentary.`;
+6. Return ONLY valid JSON matching the requested schema. No markdown, no commentary.
+
+${HALAL_RULES}`;
 
 function buildUserPrompt(req: PlannerRequest): string {
   const recipeList = req.recipes
@@ -193,6 +196,10 @@ Deno.serve(async (req: Request) => {
 
     const body = (await req.json()) as PlannerRequest;
 
+    // Only halal recipes can be planned, whatever the app sends.
+    if (Array.isArray(body.recipes)) {
+      body.recipes = body.recipes.filter((r) => r && !mealHaramReason(r as unknown as Record<string, unknown>));
+    }
     if (!body.recipes || !Array.isArray(body.recipes) || body.recipes.length === 0) {
       return new Response(
         JSON.stringify({ error: "A non-empty recipes array is required." }),
@@ -248,8 +255,15 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Keep only meals that point at a recipe we sent (all checked halal above).
+    const allowed = new Set(body.recipes.map((r) => r.name.trim().toLowerCase()));
+    const planned = parsed as PlannerResponse;
+    for (const day of planned.days) {
+      day.meals = day.meals.filter((m) => allowed.has(String(m.recipeName ?? "").trim().toLowerCase()));
+    }
+
     await recordUsage(user.id, "ai_meal_plan");
-    return new Response(JSON.stringify(parsed as PlannerResponse), {
+    return new Response(JSON.stringify(planned), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {

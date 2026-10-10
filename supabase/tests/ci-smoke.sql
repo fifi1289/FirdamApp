@@ -281,6 +281,31 @@ DO $$ BEGIN
   EXCEPTION WHEN check_violation THEN NULL;
   END;
 END $$;
+-- Halal only: haram food is refused everywhere; halal look-alikes are fine.
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO public.pantry_items (name, category, quantity, unit) VALUES ('Smoked bacon', 'Meat & Poultry', 1, 'Pack');
+    RAISE EXCEPTION 'bacon accepted in the pantry';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+  BEGIN
+    INSERT INTO public.grocery_items (list_id, name) SELECT id, 'Red wine' FROM public.grocery_lists LIMIT 1;
+    RAISE EXCEPTION 'wine accepted on the shopping list';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+  BEGIN
+    INSERT INTO public.user_recipes (name, ingredients, steps) VALUES ('Pasta', '[{"name":"pancetta","quantity":"100","unit":"g"}]', '["Fry it."]');
+    RAISE EXCEPTION 'pork recipe accepted';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+  BEGIN
+    UPDATE public.pantry_items SET name = 'Pork chops' WHERE name = 'Rice';
+    RAISE EXCEPTION 'renamed to pork';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+END $$;
+INSERT INTO public.pantry_items (name, category, quantity, unit) VALUES ('Halal turkey bacon', 'Meat & Poultry', 1, 'Pack'), ('Ginger ale', 'Drinks', 1, 'Bottle');
+DELETE FROM public.pantry_items WHERE name IN ('Halal turkey bacon', 'Ginger ale');
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000004';
 DO $$ BEGIN
   IF (SELECT count(*) FROM public.cooking_log) <> 0 THEN RAISE EXCEPTION 'cooking log leaked'; END IF;

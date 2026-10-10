@@ -8,20 +8,23 @@ DECLARE
   txt text;
 BEGIN
   FOREACH txt IN ARRAY coalesce(ingredients, '{}') LOOP
-    IF txt ~* '\y(pork|bacon|ham|lard|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling)\y' THEN
-      RETURN substring(txt from '(?i)(\y(pork|bacon|ham|lard|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling)\y)') || ' (' || 'pork' || ')';
+    IF txt ~* '\y(pork|pig|pigs|swine|lard|lardons|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling|mortadella|speck|chicharr[oó]n(es)?)\y' THEN
+      RETURN substring(txt from '(?i)(\y(pork|pig|pigs|swine|lard|lardons|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling|mortadella|speck|chicharr[oó]n(es)?)\y)') || ' (' || 'pork' || ')';
     END IF;
-    IF txt ~* '\y(?<!beef |chicken |halal )(chorizo|salami|sausages?)\y' THEN
-      RETURN substring(txt from '(?i)(\y(?<!beef |chicken |halal )(chorizo|salami|sausages?)\y)') || ' (' || 'possibly pork (say beef/chicken/halal)' || ')';
+    IF txt ~* '\y(?<!beef |chicken |turkey |halal )(bacon|hams?|jam[oó]n)\y' THEN
+      RETURN substring(txt from '(?i)(\y(?<!beef |chicken |turkey |halal )(bacon|hams?|jam[oó]n)\y)') || ' (' || 'pork unless made from halal turkey or beef' || ')';
     END IF;
-    IF txt ~* '\y(wine|beer|ale|lager|rum|sake|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|sherry|port|marsala|kirsch|champagne|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|amaretto|kahlua)\y' THEN
-      RETURN substring(txt from '(?i)(\y(wine|beer|ale|lager|rum|sake|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|sherry|port|marsala|kirsch|champagne|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|amaretto|kahlua)\y)') || ' (' || 'alcohol' || ')';
+    IF txt ~* '\y(?<!beef |chicken |turkey |lamb |merguez |halal )(chorizo|salami|sausages?|hot dogs?|frankfurters?|bratwurst|kielbasa)\y' THEN
+      RETURN substring(txt from '(?i)(\y(?<!beef |chicken |turkey |lamb |merguez |halal )(chorizo|salami|sausages?|hot dogs?|frankfurters?|bratwurst|kielbasa)\y)') || ' (' || 'possibly pork unless labelled beef, chicken or halal' || ')';
+    END IF;
+    IF txt ~* '\y(wine|(?<!root |ginger )beer|(?<!ginger )ale|lager|stout|rum|sake|soju|makgeolli|baijiu|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|liquor|sherry|port|marsala|kirsch|champagne|prosecco|cava|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|mezcal|amaretto|kahlua|ouzo|raki|arak|absinthe|mead)\y' THEN
+      RETURN substring(txt from '(?i)(\y(wine|(?<!root |ginger )beer|(?<!ginger )ale|lager|stout|rum|sake|soju|makgeolli|baijiu|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|liquor|sherry|port|marsala|kirsch|champagne|prosecco|cava|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|mezcal|amaretto|kahlua|ouzo|raki|arak|absinthe|mead)\y)') || ' (' || 'alcohol' || ')';
     END IF;
     IF txt ~* '\y(?<!halal |beef |fish |agar )(gelatin|gelatine)\y' THEN
-      RETURN substring(txt from '(?i)(\y(?<!halal |beef |fish |agar )(gelatin|gelatine)\y)') || ' (' || 'gelatin (say halal gelatin)' || ')';
+      RETURN substring(txt from '(?i)(\y(?<!halal |beef |fish |agar )(gelatin|gelatine)\y)') || ' (' || 'not halal unless it is halal or fish gelatin' || ')';
     END IF;
     IF txt ~* '\yvanilla extract\y' THEN
-      RETURN substring(txt from '(?i)(\yvanilla extract\y)') || ' (' || 'vanilla extract contains alcohol (use vanilla powder)' || ')';
+      RETURN substring(txt from '(?i)(\yvanilla extract\y)') || ' (' || 'contains alcohol; use vanilla powder' || ')';
     END IF;
     IF txt ~* '\yblood\y' THEN
       RETURN substring(txt from '(?i)(\yblood\y)') || ' (' || 'blood' || ')';
@@ -29,17 +32,17 @@ BEGIN
   END LOOP;
   -- Method text: the ingredient-only rules ("sausages") are skipped.
   FOREACH txt IN ARRAY coalesce(steps, '{}') LOOP
-    IF txt ~* '\y(pork|bacon|ham|lard|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling)\y' THEN
-      RETURN substring(txt from '(?i)(\y(pork|bacon|ham|lard|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling)\y)') || ' (' || 'pork' || ')';
+    IF txt ~* '\y(pork|pig|pigs|swine|lard|lardons|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling|mortadella|speck|chicharr[oó]n(es)?)\y' THEN
+      RETURN substring(txt from '(?i)(\y(pork|pig|pigs|swine|lard|lardons|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling|mortadella|speck|chicharr[oó]n(es)?)\y)') || ' (' || 'pork' || ')';
     END IF;
-    IF txt ~* '\y(wine|beer|ale|lager|rum|sake|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|sherry|port|marsala|kirsch|champagne|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|amaretto|kahlua)\y' THEN
-      RETURN substring(txt from '(?i)(\y(wine|beer|ale|lager|rum|sake|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|sherry|port|marsala|kirsch|champagne|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|amaretto|kahlua)\y)') || ' (' || 'alcohol' || ')';
+    IF txt ~* '\y(wine|(?<!root |ginger )beer|(?<!ginger )ale|lager|stout|rum|sake|soju|makgeolli|baijiu|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|liquor|sherry|port|marsala|kirsch|champagne|prosecco|cava|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|mezcal|amaretto|kahlua|ouzo|raki|arak|absinthe|mead)\y' THEN
+      RETURN substring(txt from '(?i)(\y(wine|(?<!root |ginger )beer|(?<!ginger )ale|lager|stout|rum|sake|soju|makgeolli|baijiu|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|liquor|sherry|port|marsala|kirsch|champagne|prosecco|cava|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|mezcal|amaretto|kahlua|ouzo|raki|arak|absinthe|mead)\y)') || ' (' || 'alcohol' || ')';
     END IF;
     IF txt ~* '\y(?<!halal |beef |fish |agar )(gelatin|gelatine)\y' THEN
-      RETURN substring(txt from '(?i)(\y(?<!halal |beef |fish |agar )(gelatin|gelatine)\y)') || ' (' || 'gelatin (say halal gelatin)' || ')';
+      RETURN substring(txt from '(?i)(\y(?<!halal |beef |fish |agar )(gelatin|gelatine)\y)') || ' (' || 'not halal unless it is halal or fish gelatin' || ')';
     END IF;
     IF txt ~* '\yvanilla extract\y' THEN
-      RETURN substring(txt from '(?i)(\yvanilla extract\y)') || ' (' || 'vanilla extract contains alcohol (use vanilla powder)' || ')';
+      RETURN substring(txt from '(?i)(\yvanilla extract\y)') || ' (' || 'contains alcohol; use vanilla powder' || ')';
     END IF;
     IF txt ~* '\yblood\y' THEN
       RETURN substring(txt from '(?i)(\yblood\y)') || ' (' || 'blood' || ')';

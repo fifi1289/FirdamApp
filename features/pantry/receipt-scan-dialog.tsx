@@ -36,6 +36,8 @@ interface ScannedItem {
 
 interface ScanResult {
   items: Omit<ScannedItem, 'keep'>[];
+  /** Lines left out because they aren't halal. */
+  skipped?: { name: string; reason: string }[];
   store: string | null;
   date: string | null;
   total: number | null;
@@ -98,6 +100,11 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
         toast.error('We couldn’t find any food on that photo. Try a flatter, brighter photo of the whole receipt.');
         setStep('pick');
         return;
+      }
+      if (res.skipped?.length) {
+        toast.info(`Left out ${res.skipped.length} item${res.skipped.length === 1 ? '' : 's'} that aren't halal`, {
+          description: res.skipped.map((s) => s.name).join(', '),
+        });
       }
       setResult(res);
       setItems(res.items.map((i) => ({ ...i, keep: true })));

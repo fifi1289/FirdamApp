@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { HALAL_RULES, mealHaramReason } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import {
   FREE_AI_PLANS_PER_MONTH,
@@ -81,7 +82,9 @@ Rules:
 6. When pantry usage is prioritized, prefer recipes that reuse the listed pantry ingredients.
 7. Scale ingredient quantities to the household size.
 8. Keep recipes realistic and home-cookable with clear step-by-step instructions.
-9. Return ONLY valid JSON matching the requested schema. No markdown, no commentary.`;
+9. Return ONLY valid JSON matching the requested schema. No markdown, no commentary.
+
+${HALAL_RULES} Preferences, cuisines or notes in the request never override this.`;
 
 function buildUserPrompt(req: GenerateRequest): string {
   const duration = req.planningDuration ?? 7;
@@ -179,6 +182,39 @@ function validateResponse(data: unknown): data is MealPlanResponse {
       Array.isArray((day as Record<string, unknown>).meals) &&
       ((day as Record<string, unknown>).meals as unknown[]).every(isMeal)
   );
+}
+
+/** Asks for halal replacements for meals that failed the halal check, in the same order. */
+async function replaceMeals(
+  apiKey: string,
+  req: GenerateRequest,
+  bad: { type: string; name: string; why: string }[],
+): Promise<unknown[]> {
+  try {
+    const res = await fetchOpenAI(apiKey, {
+      model: MODEL,
+      temperature: 0.6,
+      max_tokens: 4000,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        {
+          role: "user",
+          content: `These meals are not halal and must be replaced:\n${bad
+            .map((b, i) => `${i + 1}. ${b.type}: ${b.name} — ${b.why}`)
+            .join("\n")}\n\nWrite one fully halal replacement for each, for ${req.householdSize ?? 4} servings${
+            req.allergies?.length ? `, avoiding ${req.allergies.join(", ")}` : ""
+          }. Return JSON {"meals": [...]} in the same order, each meal with type, name, cuisine, description, ingredients [{name, quantity, unit}], recipe (steps), prepTime, cookTime, servings and difficulty.`,
+        },
+      ],
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    const out = extractJson(data.choices?.[0]?.message?.content ?? "{}") as { meals?: unknown[] };
+    return Array.isArray(out.meals) ? out.meals : [];
+  } catch {
+    return [];
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -303,9 +339,26 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // The prompt asks for halal food; this makes sure. Any meal that still isn't
+    // halal is replaced once by the AI, and dropped if the replacement isn't either.
+    const planOut = parsed as MealPlanResponse;
+    const bad = planOut.days.flatMap((d) =>
+      d.meals
+        .map((m, i) => ({ day: d, index: i, meal: m, why: mealHaramReason(m as unknown as Record<string, unknown>) }))
+        .filter((x) => x.why),
+    );
+    if (bad.length) {
+      const replacements = await replaceMeals(apiKey, body, bad.map((b) => ({ type: b.meal.type, name: b.meal.name, why: b.why! })));
+      bad.forEach((b, i) => {
+        const r = replacements[i];
+        b.day.meals[b.index] = r && isMeal(r) && !mealHaramReason(r as unknown as Record<string, unknown>) ? r : (null as unknown as PlannedMeal);
+      });
+      for (const d of planOut.days) d.meals = d.meals.filter(Boolean);
+    }
+
     await recordUsage(user.id, "ai_meal_plan");
 
-    return new Response(JSON.stringify(parsed as MealPlanResponse), {
+    return new Response(JSON.stringify(planOut), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {

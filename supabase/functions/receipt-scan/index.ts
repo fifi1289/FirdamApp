@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { haramItemReason } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import { countUsageThisMonth, getPlan, getUser, PAID_RECEIPT_SCANS_PER_MONTH, recordUsage } from "../_shared/plan.ts";
 
@@ -103,6 +104,9 @@ Deno.serve(async (req) => {
       })
       .filter((i) => i.name)
       .slice(0, 80);
+    // Halal only: haram lines on a receipt are not offered for the pantry.
+    const skipped = items.filter((i) => haramItemReason(i.name)).map((i) => ({ name: i.name, reason: haramItemReason(i.name) }));
+    const halalItems = items.filter((i) => !haramItemReason(i.name));
 
     // Count the scan once the receipt was read (a failed OpenAI call doesn't count).
     await recordUsage(user.id, "receipt_scan");
@@ -110,7 +114,8 @@ Deno.serve(async (req) => {
     const total = typeof parsed.total === "number" && parsed.total > 0 ? Math.round(parsed.total * 100) / 100 : null;
     const date = typeof parsed.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(parsed.date) ? parsed.date : null;
     return json({
-      items,
+      items: halalItems,
+      skipped,
       store: typeof parsed.store === "string" ? parsed.store.slice(0, 80) : null,
       date,
       total,

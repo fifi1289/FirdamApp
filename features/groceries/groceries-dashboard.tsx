@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Receipt } from 'lucide-react';
 import { toast } from 'sonner';
+import { haramItemMessage } from '@/lib/recipes/halal';
 import { applyPantryChanges, changesForAdding } from '@/lib/pantry/store';
 import { isStapleFood } from '@/lib/pantry/quick-add';
 import { undoToast } from '@/features/pantry/cook-dialog';
@@ -215,6 +216,11 @@ export function GroceriesDashboard() {
     e?.preventDefault();
     if (!activeId || !quickAdd.trim()) return;
     const parsed = parseQuickAdd(quickAdd);
+    const notHalal = haramItemMessage(parsed.name);
+    if (notHalal) {
+      toast.error('Not added', { description: notHalal });
+      return;
+    }
     setAdding(true);
     const { data, error } = await supabase
       .from('grocery_items')
@@ -239,6 +245,7 @@ export function GroceriesDashboard() {
 
   /** Adds suggested items (from pantry habits) to the open list. */
   const addSuggested = async (list: { name: string; quantity: number | null; unit: string | null }[]) => {
+    list = list.filter((i) => !haramItemMessage(i.name));
     if (!activeId || !list.length) return;
     const { data, error } = await supabase
       .from('grocery_items')

@@ -1,3 +1,4 @@
+// GENERATED from supabase/functions/_shared/halal.ts by mobile/scripts/sync-shared.mjs — do not edit here.
 /**
  * Words that make a recipe not halal. Checked in ingredient names and method
  * text. Shared by the recipe library builder (supabase/seed/build-recipes.mts),

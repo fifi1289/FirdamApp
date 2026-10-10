@@ -1,0 +1,104 @@
+# Batch 10 — dinner versions of Pakistani, Malaysian and Algerian dishes written earlier, plus Mthawem
+
+@ 53e0d8e3-603c-48a6-9f0e-65eafe82efa6 | Algerian Halal Mthawem Garlic Chicken Stew Dinner
+i: 800 g halal chicken pieces | 300 g halal beef mince | 1 pieces onion; grated | 12 cloves garlic; crushed | 2 tsp ground cumin | 1 tsp paprika | 1 tsp black pepper | 200 g cooked chickpeas | 1 handful fresh parsley; chopped | 1 pieces egg | 3 tbsp olive oil | 1 pieces lemon | salt to taste
+s: Mix the beef with a third of the garlic, half the cumin, half the parsley, the egg and salt and roll into small meatballs. | Cook the chicken with the onion, another third of the garlic, the remaining cumin, paprika, pepper, oil and salt for 10 minutes. | Add 700 ml water and the chickpeas and simmer for 25 minutes. | Add the meatballs and simmer for 15 minutes, then stir in the last of the garlic and cook 5 minutes. | Finish with parsley and lemon and serve with bread.
+
+@ 53ffbd49-e61a-4c91-aa59-75cb278deff7 | Wedding Mutton Korma Dinner
+same: 0345a361-fd80-49d4-a7dd-03f1e75f056c
+@ 58d92bed-85c4-472d-9450-a4080dc023b4 | Tandoori Chicken Dinner
+same: 126a6041-9d76-4f55-91f6-5595b699685c
+@ 59da804b-1451-4747-bdf4-706a2c5df0f4 | Chicken Karahi Dinner
+same: cbea5f72-16b1-4f9a-9b9a-d5f4ace2b20d
+@ 8777a9e2-8fb5-486a-84ca-bb1c871c828c | Chapli Kebab Dinner
+same: 42e85556-4a96-42da-8a93-31fb6d8625a6
+@ 8f41657d-0f1b-4976-a43c-887cdb11ff99 | Daal Makhani Dinner
+same: c6b13927-c1d9-4ddc-9606-06f188efb2d4
+@ 8f63a3cb-2648-4766-bc13-3434b07b8e62 | Chicken Handi Dinner
+same: 3fbf6ff5-3108-4a1e-ad48-37dfb7b8d595
+@ a6472c56-c43d-4d5f-b95d-4fd1435cc665 | Shami Kebab Dinner
+same: 4401d7dc-30f2-49bb-9a62-3703ecb544d9
+@ bb80ba2b-0a0e-45c7-8af1-8968e0ce7015 | Mutton Paya Dinner
+same: 1f07f69a-7786-425f-adb3-e88628e9c8af
+@ dc26c1d2-1da7-4154-9bbe-df0dc8247818 | Seekh Kebab Dinner
+same: 4e30c7e1-7c49-4e83-afcc-f08ce6cac527
+@ ebf153cb-f451-43cb-9e4d-e917523c97bd | Chicken Dum Biryani Dinner
+same: 1fb58fed-5e55-499a-85da-89ede129f333
+@ 08e2e219-e77e-4416-bd7b-31a38c2c354e | Ayam Masak Merah Dinner
+same: 524cca3e-9daf-4bfd-aeac-7cf1e55286ae
+@ 0c3d413b-60f9-43dc-bc0e-6e2357af660a | Beef Korma Roti Canai Dinner
+same: 73bfe174-4575-4dc1-b74f-1d5613f3c213
+@ 10e70fcf-04ce-486c-a0aa-87b12e04a131 | Beef Rendang Dinner
+same: 51ee43fd-7cbc-47b1-83c8-85c89b8b5d03
+@ 116508e3-57c4-4e0e-8baa-cc93ef5d0cc4 | Beef Satay Rice Bowl Dinner
+same: 95ffaba0-5544-4c64-9438-ed3222e45859
+@ 1ee518ff-007d-4101-8a63-16826cb90fbe | Mee Rebus Dinner
+same: 2fb34db6-7c3b-4818-ac5b-04edd35feddd
+@ 32b70c91-2e34-427e-8137-c25e723070d9 | Hainanese Chicken Rice Dinner
+same: d1f9f24b-e974-40b2-b750-72984f24558f
+@ 35f5f98c-abb9-48a6-bf4f-0e5a60355a84 | Sup Berempah Dinner
+same: bb84fb43-627c-4213-9fb9-5273eae54278
+@ 45d1ec10-a569-4c20-9813-0035307c1376 | Char Kway Teow Dinner
+same: 8855bd26-7144-4f7d-afb2-3947f6290c70
+@ 591dc068-a699-44f1-b550-795fe4468b5a | Asam Pedas Dinner
+same: 8be10123-504b-43e2-9b3d-aed30bd266a8
+@ 5e26120c-8d4a-419a-b0a8-3a8db437181b | Beef Murtabak Dinner
+same: 095a8ad3-ce25-4702-8653-306f1d258381
+@ 62125211-0ae9-4bd5-a664-b82005a59e3b | Rojak Pasembur Dinner
+same: 58bf2829-5fbc-4b16-9ea9-a7cc3bc7b179
+@ 741e5f0e-1808-40af-97f3-3f58e843f5e1 | Mee Goreng Mamak Special Dinner
+same: ece9de5b-9ff7-48ad-9fc5-19116acc7390
+@ 7bcffca8-868a-4669-a17e-379a13b8c1ea | Chicken Kurma Dinner
+same: 1752e8e1-8d34-464f-b250-d7814bf483c2
+@ 8f25c402-e991-4486-9b0b-3e800a1f9a77 | Mee Goreng Mamak Dinner
+same: c09081eb-afec-4577-8d2c-31bfd2a68ae9
+@ 9a740635-7543-4413-8932-7b59fd638317 | Soto Ayam Dinner
+same: 9db9620a-6e8d-4ec3-85c1-b2708bddc14f
+@ 9f577fc9-3dd4-474d-9e49-ede8ca95f437 | Nasi Lemak Royale Dinner
+same: acf09289-c9a8-4ab1-af39-88c708133047
+@ b790cd25-a4d5-4b19-a6da-bba583786698 | Curry Laksa Dinner
+same: 67d310ac-fd16-4060-a7cb-a10929048aa2
+@ e50f57a4-bd7b-417b-8035-9fd5c4a6d8f8 | Penang Laksa Dinner
+same: 0745d297-9d1c-4b70-911a-dca24e9b196e
+@ eb2911fb-28e3-4ed0-9d7f-c063c4833fb6 | Nasi Goreng Kampung Dinner
+same: e19bbbb9-1b1e-45d4-9166-ad09a1ab8f0f
+@ fcd240f7-c1e2-4f95-811e-92cc5a1b7a0a | Chicken Satay Dinner
+same: d745fe67-73f9-4ebd-9e7d-a26647e1af0e
+@ 0f44a07b-a5a0-4869-8bf2-1c9c8f0650b3 | Batata Koucha Dinner
+same: 36ec59ad-86cb-45ea-9257-8856d9980112
+@ 0f7ec61e-505b-48d2-ba65-9f2eed03af50 | Mrouzia Dinner
+same: fc6fb7a5-265f-4c07-8a1c-74f8c891fefe
+@ 3db736ab-d0b8-4d90-acf1-2ec84021e94d | Garanti Dinner
+same: dc635e51-a8d6-42fe-9fdc-5c94ba7fedc8
+@ 4a2cef86-ee5f-45c2-9931-fc8ebc9b7bca | Lamb Couscous Seven Vegetables Dinner
+same: a623d028-4e58-437d-a798-f0f1c9be07ef
+@ 563d9e57-42d7-488a-8bc1-5931ff623337 | M'hedjeb Dinner
+same: 08b2680a-f4f0-4376-8f48-eca4b718c42b
+@ 7a936b25-527d-4bc2-825b-f517fe680c5a | Chorba Frik Dinner
+same: 655e2489-7e05-416c-a401-9d1c7c632f12
+@ 81dd1d7f-2911-4906-92e4-431fc3bf6996 | Mderbel Dinner
+same: 6cb58251-0205-45e8-9548-9adeb5560a77
+@ 8c8d71b1-c43a-44a5-bf4c-a9456d22c599 | Dolma Kourchef Dinner
+same: 23fcd03a-0fdc-44b8-bd43-7b86899dfe12
+@ 9dce0a20-40a5-49ae-8538-ee707e07a347 | Karantika Dinner
+same: d248743a-f70b-4f52-beff-e291082f5d2d
+@ a204851e-ffc9-4f19-a1e4-bd78be5b7c1e | Bourek Dinner
+same: bcdb97b5-a118-4204-8a66-e3abc4c897c6
+@ ac4c5bed-a9d0-4e0e-a07c-8577444ab4ac | Tlitli Dinner
+same: c4d49454-24ae-4a5e-819f-dd8994f08798
+@ b255c2fd-ed9a-4af5-842f-42d65432dcea | Rechta Dinner
+same: 64c2d06c-b3e0-48e3-9c04-d3d37cdf3d07
+@ c30c7776-c17e-4d8e-b3d8-8bb330b6fb0b | Lham Laaloum Dinner
+same: be2046b9-f444-4b8c-ab3d-2f6947082718
+@ cfbe0652-5a2d-4f6c-a2d4-286db468d2ad | Chakhchoukha Dinner
+same: 2a0f6ded-0cad-4cae-9ba0-ff05cc0edf10
+@ d8fe88d8-769c-463c-82cd-a665a4498cb6 | Chakchouka Dinner
+same: f4aa3c98-86c2-4200-91f0-a1212c4609f2
+@ dc708fe2-a92d-4b4f-b6a3-c32f6d2c8137 | Kefta Tagine Dinner
+same: e137315a-4510-401f-aab0-5b63fa3feadc
+@ dee01520-1f93-4968-97dd-915877a50e08 | Kesra with Stew Dinner
+same: 54429cb7-1092-41b0-8ef3-ad53196ad889
+@ fc19825f-ebfe-492a-bf1a-505d0b2eca46 | Chicken and Olive Tagine Dinner
+same: a387bf0f-1f16-42ed-aca9-717a126e832f
+@ fcc2504d-08f3-4145-af51-8ed1b40621ab | Couscous with Merguez Dinner
+same: 912054a9-e525-40be-9f76-023f16bf9d53

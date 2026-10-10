@@ -6,7 +6,7 @@
 export const SITE = {
   name: 'Firdam',
   /** Public address of the app. Change it when your own domain is connected. */
-  url: 'https://firdamapp.vercel.app',
+  url: 'https://firdamapp.oumzilfirdaous5.workers.dev',
   /**
    * Who is legally responsible. Firdam isn't incorporated yet, so it's run by
    * its founder as an individual. After registering, change this to the

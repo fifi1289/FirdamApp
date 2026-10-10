@@ -1,6 +1,7 @@
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import {
   RECIPE_SELECT,
+  fetchAllPages,
   buildPlanFromRecipes,
   type GeneratedMealPlan,
   type MealPlanGeneratorInput,
@@ -13,14 +14,16 @@ export async function generateMealPlanFromSupabase(
   input: MealPlanGeneratorInput
 ): Promise<GeneratedMealPlan> {
   const supabase = createSupabaseBrowserClient();
-  const { data, error } = await supabase
-    .from('recipes')
-    .select(RECIPE_SELECT)
-    .eq('is_active', true)
-    .order('created_at', { ascending: true });
-
-  if (error) {
-    throw new Error(`Failed to load recipes: ${error.message}`);
-  }
-  return buildPlanFromRecipes((data ?? []) as unknown as RecipeRow[], input);
+  const data = await fetchAllPages<RecipeRow>((from, to) =>
+    supabase
+      .from('recipes')
+      .select(RECIPE_SELECT)
+      .eq('is_active', true)
+      .order('created_at', { ascending: true })
+      .order('id')
+      .range(from, to)
+  ).catch((e: Error) => {
+    throw new Error(`Failed to load recipes: ${e.message}`);
+  });
+  return buildPlanFromRecipes(data, input);
 }

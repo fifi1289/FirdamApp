@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { fetchAllPages } from '@/features/meals/plan-core';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 const BUCKET = 'recipe-images';
@@ -67,9 +68,15 @@ export function RecipePhotoUpload() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase.from('recipes').select('id, name, image_path').eq('is_active', true).order('name');
-    if (error) toast.error(error.message);
-    setRecipes((data ?? []) as RecipeRow[]);
+    try {
+      setRecipes(
+        await fetchAllPages<RecipeRow>((from, to) =>
+          supabase.from('recipes').select('id, name, image_path').eq('is_active', true).order('name').order('id').range(from, to)
+        )
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Could not load recipes.');
+    }
   }, [supabase]);
 
   useEffect(() => {

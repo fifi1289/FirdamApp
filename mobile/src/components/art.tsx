@@ -1,3 +1,4 @@
+import type { ColorValue } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { colors } from '@/theme';
@@ -29,7 +30,7 @@ export function StarPattern({ size, color = colors.sand, strokeWidth = 0.6 }: { 
 export type IconName = 'today' | 'kitchen' | 'prayer' | 'halal' | 'family' | 'shield' | 'chevron' | 'cart' | 'back';
 
 /** Line icons drawn to match the design. */
-export function Icon({ name, size = 24, color = colors.walnut, fill = 'none' }: { name: IconName; size?: number; color?: string; fill?: string }) {
+export function Icon({ name, size = 24, color = colors.walnut, fill = 'none' }: { name: IconName; size?: number; color?: ColorValue; fill?: ColorValue }) {
   const common = { stroke: color, strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">

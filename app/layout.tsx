@@ -5,6 +5,7 @@ import { IBM_Plex_Sans_Arabic, Inter, Plus_Jakarta_Sans } from 'next/font/google
 import { ThemeProvider } from '@/components/theme/theme-provider';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { SITE } from '@/lib/site';
 
 // Brand guide: Plus Jakarta Sans (primary), Inter (secondary), IBM Plex Sans Arabic.
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans' });
@@ -17,7 +18,7 @@ const arabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://firdam.app'),
+  metadataBase: new URL(SITE.url),
   title: {
     default: 'Firdam — One Home for Your Muslim Life',
     template: '%s · Firdam',

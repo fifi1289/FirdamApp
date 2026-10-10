@@ -15,7 +15,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
  *   STRIPE_SECRET_KEY
  *   STRIPE_PRICE_PREMIUM_MONTHLY, STRIPE_PRICE_PREMIUM_YEARLY
  *   STRIPE_PRICE_FAMILY_MONTHLY,  STRIPE_PRICE_FAMILY_YEARLY
- *   SITE_URL   e.g. https://firdam.app
+ *   SITE_URL   e.g. https://firdam.com
  * SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
  */
 

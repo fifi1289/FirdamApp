@@ -15,6 +15,10 @@
  *   i: 300 g basmati rice | 2 pieces onion; finely chopped | ?1 handful parsley | salt to taste
  *   s: First step. | Second step. | Third step.
  * "?" marks an optional ingredient; text after ";" is a note.
+ * A dish that appears twice in the library (a lunch and a dinner version) can
+ * reuse another recipe's ingredients and method:
+ *   @ <recipe uuid> | Recipe name
+ *   same: <uuid of the recipe to copy>
  */
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -35,7 +39,7 @@ const NEEDS_HALAL = /\b(beef|lamb|mutton|goat|veal|chicken|turkey|duck|mince|sau
 const HALAL_EXEMPT = /\b(halal|stock cube|bouillon|stock|broth|cheese|milk|yogh?urt|kefir)\b|chickpea|chicken of the woods/;
 
 interface Item { name: string; quantity: number | null; unit: string; optional: boolean; notes: string | null }
-interface Recipe { id: string; name: string; items: Item[]; steps: { instruction: string; minutes: number | null }[] }
+interface Recipe { id: string; name: string; items: Item[]; steps: { instruction: string; minutes: number | null }[]; same?: string }
 
 function parseQty(s: string): number | null {
   if (/^\d+\/\d+$/.test(s)) {
@@ -71,7 +75,7 @@ function parse(file: string): Recipe[] {
   let cur: Partial<Recipe> | null = null;
   const done = () => {
     if (!cur) return;
-    if (!cur.items || !cur.steps) throw new Error(`${cur.name}: needs both an i: and an s: line`);
+    if (!cur.same && (!cur.items || !cur.steps)) throw new Error(`${cur.name}: needs both an i: and an s: line`);
     out.push(cur as Recipe);
   };
   text.split('\n').forEach((line, n) => {
@@ -83,6 +87,9 @@ function parse(file: string): Recipe[] {
       const [id, ...name] = l.slice(1).split('|');
       cur = { id: id!.trim(), name: name.join('|').trim() };
       if (!UUID.test(cur.id!)) throw new Error(`${where}: bad recipe id`);
+    } else if (l.startsWith('same:') && cur) {
+      cur.same = l.slice(5).trim();
+      if (!UUID.test(cur.same)) throw new Error(`${where}: bad recipe id after same:`);
     } else if (l.startsWith('i:') && cur) {
       cur.items = l.slice(2).split('|').map((s) => parseItem(s, `${where} (${cur!.name})`));
     } else if (l.startsWith('s:') && cur) {
@@ -123,11 +130,22 @@ const files = process.argv.slice(2).length
   ? process.argv.slice(2)
   : readdirSync(DIR).filter((f) => f.endsWith('.txt')).sort().map((f) => join(DIR, f));
 
+// Every recipe written so far, so "same:" can point at any batch.
+const library = new Map<string, Recipe>();
+for (const f of readdirSync(DIR).filter((f) => f.endsWith('.txt'))) {
+  for (const r of parse(join(DIR, f))) if (!r.same) library.set(r.id, r);
+}
+
 let failed = 0;
 let total = 0;
 const seen = new Set<string>();
 for (const file of files) {
-  const recipes = parse(file);
+  const recipes = parse(file).map((r) => {
+    if (!r.same) return r;
+    const source = library.get(r.same);
+    if (!source) throw new Error(`${r.name}: no written recipe with id ${r.same}`);
+    return { ...r, items: source.items, steps: source.steps };
+  });
   const rows: unknown[] = [];
   for (const r of recipes) {
     if (seen.has(r.id)) {

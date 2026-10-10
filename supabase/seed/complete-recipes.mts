@@ -32,7 +32,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const VAGUE = /\b(pesto|curry paste|stir[- ]fry sauce|spice mix|seasoning mix|cake mix|ready[- ]made sauce)\b/;
 // Meat and similar must be named halal.
 const NEEDS_HALAL = /\b(beef|lamb|mutton|goat|veal|chicken|turkey|duck|mince|sausages?|gelatine?|merguez|sucuk|sujuk|pastirma|basturma|liver|kofta meat)\b/;
-const HALAL_EXEMPT = /\b(halal|stock cube|bouillon|stock|broth)\b|chickpea|chicken of the woods/;
+const HALAL_EXEMPT = /\b(halal|stock cube|bouillon|stock|broth|cheese|milk|yogh?urt|kefir)\b|chickpea|chicken of the woods/;
 
 interface Item { name: string; quantity: number | null; unit: string; optional: boolean; notes: string | null }
 interface Recipe { id: string; name: string; items: Item[]; steps: { instruction: string; minutes: number | null }[] }

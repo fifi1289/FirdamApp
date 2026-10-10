@@ -1,0 +1,48 @@
+# Publishes the site to Cloudflare Workers whenever main changes.
+# Needs two repository secrets (GitHub → Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+# The Supabase URL and anon key below are public by design (every visitor's browser
+# receives them); data is protected by row-level security, not by hiding these.
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NEXT_PUBLIC_SUPABASE_URL: https://psxwslmsjdtfzneoujea.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzeHdzbG1zamR0ZnpuZW91amVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNDI2NTgsImV4cCI6MjA5OTcxODY1OH0.PwBjPd9BcHll38hjGaCMR6JVdwPulpApFsPokx0IpCQ
+      # Optional: Turnstile site key (also public). Set it as a repository variable to turn on bot protection.
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+    steps:
+      - name: Check the secrets are set
+        run: |
+          missing=""
+          for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Add these repository secrets before deploying:$missing"
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build for Cloudflare
+        run: npx opennextjs-cloudflare build
+      - name: Deploy
+        run: npx opennextjs-cloudflare deploy

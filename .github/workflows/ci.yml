@@ -55,6 +55,27 @@ jobs:
             exit 1
           fi
 
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Install
+        run: npm ci > /tmp/npm-ci.log 2>&1 || { grep -v '^npm warn' /tmp/npm-ci.log | head -30 | while IFS= read -r l; do echo "::error::$l"; done; exit 1; }
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Expo health check
+        run: npx expo-doctor
+      - name: App bundles for iPhone and Android
+        run: npx expo export --platform ios --platform android --output-dir /tmp/expo-export
+
   migrations:
     runs-on: ubuntu-latest
     services:

@@ -1,0 +1,83 @@
+# Publishes the Firdam app to Expo so it opens on a phone in Expo Go.
+# Needs the repository secret EXPO_TOKEN (expo.dev → Account settings → Access tokens).
+# The first run creates the Expo project and saves its id in mobile/app.json.
+name: Mobile preview
+
+on:
+  push:
+    branches: [main, feature/mobile-app]
+    paths: ['mobile/**', '.github/workflows/mobile-preview.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: mobile-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.token.outputs.ready }}
+    steps:
+      - id: token
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -n "$EXPO_TOKEN" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping: add the EXPO_TOKEN repository secret to publish the app to Expo Go."
+          fi
+
+  publish:
+    needs: check
+    if: needs.check.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+      - name: Create the Expo project (first run only)
+        run: |
+          if node -e 'process.exit(require("./app.json").expo?.extra?.eas?.projectId ? 0 : 1)'; then
+            echo "Expo project already set up."
+            exit 0
+          fi
+          eas init --non-interactive --force
+          eas update:configure --platform all --non-interactive
+          # Expo Go loads updates made for its SDK version.
+          node -e '
+            const fs = require("fs");
+            const a = JSON.parse(fs.readFileSync("app.json"));
+            a.expo.runtimeVersion = { policy: "sdkVersion" };
+            fs.writeFileSync("app.json", JSON.stringify(a, null, 2) + "\n");'
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add app.json package.json package-lock.json
+          git commit -m "Connect the app to its Expo project [skip ci]"
+          git push
+      - name: Publish to the preview channel
+        run: |
+          MESSAGE="$(git log -1 --pretty=%s)"
+          eas update --channel preview --message "$MESSAGE" --non-interactive
+          PROJECT_ID=$(node -p 'require("./app.json").expo.extra.eas.projectId')
+          {
+            echo "### Open the app on your iPhone"
+            echo ""
+            echo "Scan this code with the iPhone camera (Expo Go must be installed):"
+            echo ""
+            echo "![QR code](https://qr.expo.dev/eas-update?projectId=${PROJECT_ID}&runtimeVersion=exposdk:57.0.0&channel=preview)"
+          } >> "$GITHUB_STEP_SUMMARY"

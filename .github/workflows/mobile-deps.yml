@@ -1,0 +1,37 @@
+# Temporary helper: runs package commands for mobile/ (npm isn't reachable from
+# the coding session) and commits the updated package files back.
+name: mobile-deps
+on:
+  push:
+    branches: [feature/mobile-app]
+    paths: ['.github/workflows/mobile-deps.yml']
+permissions:
+  contents: write
+jobs:
+  deps:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Update packages
+        run: |
+          set -o pipefail
+          {
+            npm install --no-audit --no-fund 2>&1 | tail -5
+            npx expo install react-dom 2>&1 | tail -5
+            npx expo install --check 2>&1 | tail -15 || true
+            npm ci --dry-run 2>&1 | grep -i "error" | head -10 || true
+            echo "== deps"; node -p 'JSON.stringify(require("./package.json").dependencies)'
+          } > ../deps-report.txt
+      - name: Save
+        working-directory: .
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add mobile/package.json mobile/package-lock.json deps-report.txt
+          git commit -m "Update mobile packages [skip ci]" && git push

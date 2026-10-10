@@ -124,6 +124,20 @@ ${aliasRows}
 END;
 $$;
 
+-- Same as complete_recipes_batch, in a compact form for writing many recipes:
+--   [["<recipe id>", [["basmati rice", 300, "g", "rinsed"], ["salt", null, "to taste"]], ["Step one…", "Step two…"]], …]
+CREATE OR REPLACE FUNCTION public.complete_recipes_compact(batch jsonb)
+RETURNS jsonb LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT public.complete_recipes_batch(coalesce(jsonb_agg(jsonb_build_object(
+    'id', x ->> 0,
+    'items', (SELECT jsonb_agg(jsonb_build_object('name', i ->> 0, 'quantity', i -> 1, 'unit', i ->> 2, 'notes', i ->> 3))
+              FROM jsonb_array_elements(x -> 1) i),
+    'steps', (SELECT jsonb_agg(jsonb_build_object('instruction', st)) FROM jsonb_array_elements_text(x -> 2) st),
+    'allergens', coalesce(x -> 3, '[]')
+  )), '[]'))
+  FROM jsonb_array_elements(batch) x;
+$$;
+
 -- Re-checks every library recipe's ingredients against the allergen rules and
 -- adds any missing tags (run after the rules change). Returns tags added.
 CREATE OR REPLACE FUNCTION public.retag_recipe_allergens()
@@ -155,7 +169,7 @@ $$;
 DO $$
 DECLARE fn text;
 BEGIN
-  FOREACH fn IN ARRAY ARRAY['public.complete_recipes_batch(jsonb)', 'public.retag_recipe_allergens()'] LOOP
+  FOREACH fn IN ARRAY ARRAY['public.complete_recipes_batch(jsonb)', 'public.complete_recipes_compact(jsonb)', 'public.retag_recipe_allergens()'] LOOP
     EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', fn);
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
       EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM anon, authenticated', fn);

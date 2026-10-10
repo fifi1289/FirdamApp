@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Check, Crown, Loader2, ShieldCheck, Sparkles, Users } from 'lucide-react';
+
+type Tier = 'free' | 'family';
 import { toast } from 'sonner';
 
 import { AppShell } from '@/components/layout/app-shell';
@@ -10,42 +12,25 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { callEdgeFunction, EdgeFunctionError } from '@/lib/supabase/functions';
-import { PLAN_NAMES, refreshPlan, usePlan } from '@/lib/plan/plan';
+import { PLAN_NAMES, PRICES, refreshPlan, usePlan } from '@/lib/plan/plan';
 import { cn } from '@/lib/utils';
-import type { PlanId } from '@/types/database';
 
 type Interval = 'month' | 'year';
 
-const PRICES: Record<Exclude<PlanId, 'free'>, Record<Interval, { amount: string; note: string }>> = {
-  premium: {
-    month: { amount: '$19.99', note: 'per month' },
-    year: { amount: '$199', note: 'per year — 2 months free' },
-  },
-  family: {
-    month: { amount: '$39.99', note: 'per month' },
-    year: { amount: '$399', note: 'per year — 2 months free' },
-  },
-};
-
-const FEATURES: { label: string; free: string | boolean; premium: string | boolean; family: string | boolean }[] = [
-  { label: 'Prayer times, Qibla & monthly timetable', free: true, premium: true, family: true },
-  { label: 'Halal Places finder & reviews', free: true, premium: true, family: true },
-  { label: 'Recipe library & meal planner', free: true, premium: true, family: true },
-  { label: 'Quran & duas, Ramadan planner', free: true, premium: true, family: true },
-  { label: 'Family calendar, community events', free: true, premium: true, family: true },
-  { label: '“What can I cook?” from your pantry', free: true, premium: true, family: true },
-  { label: 'AI Family Companion', free: false, premium: '50 messages a day', family: '50 a day per person' },
-  { label: 'Meal plans from the recipe library', free: 'Unlimited', premium: 'Unlimited', family: 'Unlimited' },
-  { label: 'AI chef meal plans (3, 5 or 7 days)', free: '2 a month', premium: '8 a month', family: '8 a month per person' },
-  { label: 'Your own recipes', free: '3', premium: 'Unlimited', family: 'Unlimited' },
-  { label: 'Trips with destination guides', free: '1', premium: 'Unlimited', family: 'Unlimited' },
-  { label: 'Health habits tracked', free: '3', premium: 'Unlimited', family: 'Unlimited' },
-  { label: 'Savings goals (Hajj, Eid…)', free: '1', premium: 'Unlimited', family: 'Unlimited' },
-  { label: 'Learning goals for the family', free: '2', premium: 'Unlimited', family: 'Unlimited' },
-  { label: 'Shopping lists', free: '2', premium: 'Unlimited', family: 'Unlimited' },
-  { label: 'Priority support', free: false, premium: true, family: true },
-  { label: 'Scan receipts into the pantry', free: false, premium: '30 a month', family: '30 a month per person' },
-  { label: 'Shared household — up to 8 people', free: false, premium: false, family: true },
+const FEATURES: { label: string; free: string | boolean; family: string | boolean }[] = [
+  { label: 'Prayer times, Qibla & monthly timetable', free: true, family: true },
+  { label: 'Halal Places finder & reviews', free: true, family: true },
+  { label: 'Recipe library with allergy filters', free: true, family: true },
+  { label: 'Quran & duas, Ramadan tracker', free: true, family: true },
+  { label: '“What can I cook?” from your pantry', free: true, family: true },
+  { label: 'Meal plans from the recipe library', free: 'Unlimited', family: 'Unlimited' },
+  { label: 'Shared household', free: '2 people', family: 'Up to 8 people' },
+  { label: 'AI meal plans from your pantry (3, 5 or 7 days)', free: '1 a month', family: '8 a month' },
+  { label: 'Scan receipts into the pantry', free: false, family: '30 a month' },
+  { label: 'Ask Firdam (AI helper)', free: false, family: '20 messages a day' },
+  { label: 'Your own recipes', free: '3', family: 'Unlimited' },
+  { label: 'Shopping lists', free: '2', family: 'Unlimited' },
+  { label: 'Savings goals (Hajj, Eid…)', free: '1', family: 'Unlimited' },
 ];
 
 function Cell({ value }: { value: string | boolean }) {
@@ -63,7 +48,7 @@ export function UpgradePage() {
     const status = new URLSearchParams(window.location.search).get('checkout');
     if (status === 'success') {
       refreshPlan();
-      toast.success('Welcome to Firdam Premium! Your trial has started.', {
+      toast.success('Welcome to Firdam Family! Your trial has started.', {
         description: 'It can take a few seconds for your plan to update.',
       });
     } else if (status === 'cancelled') {
@@ -71,7 +56,7 @@ export function UpgradePage() {
     }
   }, []);
 
-  const go = async (action: 'checkout' | 'portal', target?: Exclude<PlanId, 'free'>) => {
+  const go = async (action: 'checkout' | 'portal', target?: 'family') => {
     setBusy(action === 'portal' ? 'portal' : target ?? null);
     try {
       const { url } = await callEdgeFunction<{ url: string }>('billing', undefined, {
@@ -92,17 +77,17 @@ export function UpgradePage() {
     }
   };
 
-  const tiers: { id: PlanId; title: string; icon: typeof Crown; blurb: string; highlighted?: boolean }[] = [
-    { id: 'free', title: 'Free', icon: ShieldCheck, blurb: 'Everything you need to begin.' },
-    { id: 'premium', title: 'Premium', icon: Crown, blurb: 'For individuals and couples who want it all.', highlighted: true },
-    { id: 'family', title: 'Family+', icon: Users, blurb: 'One home for the whole household.' },
+  const tiers: { id: Tier; title: string; icon: typeof Crown; blurb: string; highlighted?: boolean }[] = [
+    { id: 'free', title: 'Free', icon: ShieldCheck, blurb: 'Prayer times, halal places, recipes and a shared list for two.' },
+    { id: 'family', title: 'Firdam Family', icon: Users, blurb: 'The halal kitchen that plans, shops and tracks the pantry — for everyone at home.', highlighted: true },
   ];
+  const paid = plan !== 'free';
 
   return (
     <AppShell>
       <PageHeader
         title="Plans"
-        description="Support Firdam and unlock everything for your family. Every paid plan starts with a 14-day free trial."
+        description="One low price for your whole household. Firdam Family starts with a 14-day free trial."
       >
         {plan !== 'free' && (
           <Button variant="outline" size="sm" onClick={() => go('portal')} disabled={busy === 'portal'}>
@@ -146,17 +131,17 @@ export function UpgradePage() {
                 interval === i ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'
               )}
             >
-              {i === 'month' ? 'Monthly' : 'Yearly · save 17%'}
+              {i === 'month' ? 'Monthly' : `Yearly · ${PRICES.year.saving.toLowerCase()}`}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-3xl grid-cols-1 gap-5 md:grid-cols-2">
         {tiers.map((t) => {
           const Icon = t.icon;
-          const current = plan === t.id;
-          const price = t.id === 'free' ? { amount: '$0', note: 'forever' } : PRICES[t.id][interval];
+          const current = t.id === 'free' ? !paid : paid;
+          const price = t.id === 'free' ? { amount: 'CA$0', note: 'forever' } : PRICES[interval];
           return (
             <Card
               key={t.id}
@@ -180,6 +165,9 @@ export function UpgradePage() {
                   {price.amount}
                   <span className="ml-1 text-sm font-normal text-muted-foreground">{price.note}</span>
                 </p>
+                {t.id === 'family' && (
+                  <p className="mt-2 text-xs font-medium text-brand-sage">{PRICES.founding}</p>
+                )}
                 <div className="mt-auto pt-6">
                   {current ? (
                     <Button variant="outline" className="w-full" disabled>
@@ -195,11 +183,11 @@ export function UpgradePage() {
                     <Button
                       className="w-full"
                       variant={t.highlighted ? 'default' : 'outline'}
-                      onClick={() => (plan === 'free' ? go('checkout', t.id as 'premium' | 'family') : go('portal'))}
+                      onClick={() => (plan === 'free' ? go('checkout', 'family') : go('portal'))}
                       disabled={busy !== null}
                     >
                       {busy === t.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {plan === 'free' ? 'Start 14-day free trial' : `Switch to ${t.title}`}
+                      {plan === 'free' ? 'Start 14-day free trial' : 'Manage billing'}
                     </Button>
                   )}
                 </div>
@@ -211,13 +199,12 @@ export function UpgradePage() {
 
       <Card className="mt-8 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-sm">
+          <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-left">
                 <th className="px-4 py-3 font-medium text-muted-foreground">Compare plans</th>
                 <th className="px-4 py-3 text-center font-semibold text-foreground">Free</th>
-                <th className="px-4 py-3 text-center font-semibold text-foreground">Premium</th>
-                <th className="px-4 py-3 text-center font-semibold text-foreground">Family+</th>
+                <th className="px-4 py-3 text-center font-semibold text-foreground">Firdam Family</th>
               </tr>
             </thead>
             <tbody>
@@ -225,7 +212,6 @@ export function UpgradePage() {
                 <tr key={f.label} className="border-b border-border/60 last:border-0">
                   <td className="px-4 py-2.5 text-foreground">{f.label}</td>
                   <td className="px-4 py-2.5 text-center"><Cell value={f.free} /></td>
-                  <td className="px-4 py-2.5 text-center"><Cell value={f.premium} /></td>
                   <td className="px-4 py-2.5 text-center"><Cell value={f.family} /></td>
                 </tr>
               ))}
@@ -235,8 +221,7 @@ export function UpgradePage() {
       </Card>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Payments are handled securely by Stripe. Cancel anytime from “Manage billing”. Prices in your
-        local currency may vary.
+        Prices in Canadian dollars. Payments are handled securely by Stripe. Cancel anytime from “Manage billing”.
       </p>
     </AppShell>
   );

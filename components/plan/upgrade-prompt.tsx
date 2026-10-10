@@ -15,12 +15,12 @@ import { cn } from '@/lib/utils';
 import { LIMIT_LABELS, PLAN_LIMITS, type LimitKey } from '@/lib/plan/plan';
 
 const PREMIUM_PERKS = [
-  'AI Family Companion — 50 messages a day',
-  'AI chef meal plans — 8 a month',
+  'AI meal plans from your pantry — 8 a month',
   'Scan receipts straight into your pantry',
-  'Unlimited trips, habits, goals and recipes',
-  'Ramadan, zakat and savings tools without limits',
-  'Priority support',
+  'Your whole household — up to 8 people',
+  'Ask Firdam, the AI helper — 20 messages a day',
+  'Unlimited recipes, lists and savings goals',
+  'CA$4.99 a month for everyone at home',
 ];
 
 export function UpgradeDialog({
@@ -46,7 +46,7 @@ export function UpgradeDialog({
           </span>
           <DialogHeader className="mt-4 space-y-1.5 text-left">
             <DialogTitle className="font-display text-xl text-brand-linen">
-              {title ?? 'Unlock more with Premium'}
+              {title ?? 'Unlock the full kitchen with Firdam Family'}
             </DialogTitle>
             <DialogDescription className="text-brand-linen/80">
               {description ??
@@ -91,7 +91,7 @@ export function PremiumBadge({ className }: { className?: string }) {
       )}
     >
       <Crown className="h-3 w-3" />
-      Premium
+      Family plan
     </span>
   );
 }

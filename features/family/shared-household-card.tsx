@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Check, Copy, Crown, Home, Loader2, LogOut, Mail, UserMinus, Users, X } from 'lucide-react';
+import { Check, Copy, Home, Loader2, LogOut, Mail, UserMinus, Users, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,8 @@ import { usePlan } from '@/lib/plan/plan';
 import type { Household, HouseholdInvite, HouseholdMember } from '@/types/database';
 
 const SHARED = ['Family calendar', 'Shopping lists', 'Household tasks', 'Meal plans', 'Pantry', 'Family profiles'];
+/** A household holds 2 people on Free and up to 8 with Firdam Family (enforced in the database). */
+const FREE_MEMBERS = 2;
 const MAX_MEMBERS = 8;
 
 export function inviteLink(token: string) {
@@ -39,7 +41,7 @@ function errorMessage(err: unknown) {
 export function SharedHouseholdCard() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const { user } = useAuth();
-  const { plan, loading: planLoading } = usePlan();
+  const { loading: planLoading } = usePlan();
 
   const [loading, setLoading] = useState(true);
   const [household, setHousehold] = useState<Household | null>(null);
@@ -50,6 +52,7 @@ export function SharedHouseholdCard() {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [capacity, setCapacity] = useState(FREE_MEMBERS);
   const [confirm, setConfirm] = useState<{ kind: 'leave' } | { kind: 'remove'; member: HouseholdMember } | null>(null);
 
   const load = useCallback(async () => {
@@ -74,6 +77,8 @@ export function SharedHouseholdCard() {
       ]);
       setMembers(m ?? []);
       setInvites(inv ?? []);
+      const { data: cap } = await supabase.rpc('household_capacity' as never, { hid: hh.id } as never);
+      setCapacity(typeof cap === 'number' ? cap : FREE_MEMBERS);
     } else {
       setMembers([]);
       setInvites([]);
@@ -88,10 +93,6 @@ export function SharedHouseholdCard() {
   const isOwner = !!household && household.owner_id === user?.id;
 
   const create = async () => {
-    if (plan !== 'family') {
-      setUpgradeOpen(true);
-      return;
-    }
     setBusy(true);
     const { error } = await supabase.rpc('create_household', { household_name: name.trim() || 'Our family' });
     setBusy(false);
@@ -109,8 +110,9 @@ export function SharedHouseholdCard() {
       toast.error('Enter a valid email address.');
       return;
     }
-    if (members.length + invites.length >= MAX_MEMBERS) {
-      toast.error(`A household can have up to ${MAX_MEMBERS} people.`);
+    if (members.length + invites.length >= capacity) {
+      if (capacity < MAX_MEMBERS) setUpgradeOpen(true);
+      else toast.error(`A household can have up to ${MAX_MEMBERS} people.`);
       return;
     }
     setBusy(true);
@@ -226,8 +228,8 @@ export function SharedHouseholdCard() {
                 aria-label="Household name"
               />
               <Button onClick={create} disabled={busy || planLoading} className="shrink-0">
-                {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : plan === 'family' ? <Users className="mr-2 h-4 w-4" /> : <Crown className="mr-2 h-4 w-4" />}
-                {plan === 'family' ? 'Create household' : 'Get Family+'}
+                {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-4 w-4" />}
+                Create household
               </Button>
             </div>
           ) : (
@@ -345,8 +347,8 @@ export function SharedHouseholdCard() {
       <UpgradeDialog
         open={upgradeOpen}
         onOpenChange={setUpgradeOpen}
-        title="Shared households come with Family+"
-        description="Invite up to 7 family members to share your calendar, shopping lists, tasks, meals and pantry."
+        title="Bigger households come with Firdam Family"
+        description="A free household holds 2 people. With Firdam Family, up to 8 people share the calendar, shopping lists, meals and pantry — for CA$4.99 a month."
       />
     </>
   );

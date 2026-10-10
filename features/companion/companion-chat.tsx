@@ -275,7 +275,7 @@ export function CompanionChat() {
           Up to {FAIR_USE.companionMessagesPerDay} messages a day.
         </p>
       </div>
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} title="The Companion is part of Premium" />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} title="Ask Firdam is part of Firdam Family" />
     </AppShell>
   );
 }
@@ -300,7 +300,7 @@ function CompanionLocked() {
             <h1 className="mt-4 font-display text-2xl font-semibold">Your Family Companion</h1>
             <p className="mt-1 max-w-md text-sm text-brand-linen/80">
               An AI assistant that knows your family’s week, meals, pantry and budget — and can add tasks, events and
-              shopping for you. Included with Premium and Family+.
+              shopping for you. Included with Firdam Family.
             </p>
           </div>
           <CardContent className="space-y-5 p-6">

@@ -36,7 +36,7 @@ import {
 import { cn } from '@/lib/utils';
 import { usePlan } from '@/lib/plan/plan';
 import { TodayCookingCard } from '@/features/home/today-cooking-card';
-import { MODULE_GROUPS, lifeModules } from '@/features/modules/module-config';
+import { VISIBLE_MODULE_GROUPS, lifeModules } from '@/features/modules/module-config';
 import { ModuleCard } from '@/features/modules/module-card';
 import { DuaCard } from '@/features/quran/duas-view';
 import { duaOfTheDay } from '@/features/quran/duas';
@@ -268,20 +268,7 @@ export function HomeDashboard() {
 
       {/* Today at a glance */}
       <h2 className="mb-3 mt-8 text-lg font-semibold tracking-tight text-foreground">Today at a glance</h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Tile
-          href="/dashboard/planner"
-          icon={ListChecks}
-          label="Tasks today"
-          value={snap ? snap.tasksOpen : '—'}
-          sub={
-            snap
-              ? snap.tasksOpen === 0 && snap.tasksDone > 0
-                ? 'All done — alhamdulillah'
-                : `${snap.tasksDone} completed`
-              : undefined
-          }
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Tile
           href="/dashboard/meals"
           icon={Utensils}
@@ -441,7 +428,7 @@ export function HomeDashboard() {
 
       {/* Modules */}
       <div className="mt-10 space-y-8">
-        {MODULE_GROUPS.map((group) => (
+        {VISIBLE_MODULE_GROUPS.map((group) => (
           <section key={group}>
             <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">{group}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -8,51 +8,38 @@ import { cn } from '@/lib/utils';
 const tiers = [
   {
     name: 'Free',
-    price: '$0',
+    price: 'CA$0',
     period: 'forever',
-    description: 'Everything you need to begin.',
+    note: null as string | null,
+    description: 'Everything you need every day, free for good.',
     features: [
-      'Prayer times, Qibla & monthly timetable',
-      'Halal Places finder',
-      'Daily duas & Quran tracker',
-      'Family calendar',
-      'Basic meal and grocery planning',
+      'Prayer times, adhan reminders & Qibla',
+      'Halal places near you, confirmed by families',
+      '204 halal recipes with allergy filters',
+      'Shared shopping list for two people',
+      '1 AI meal plan a month',
     ],
     cta: 'Get started',
     href: '/auth/register',
     highlighted: false,
   },
   {
-    name: 'Premium',
-    price: '$19.99',
+    name: 'Firdam Family',
+    price: 'CA$4.99',
     period: 'month',
-    description: 'For individuals and couples who want it all.',
+    note: 'or CA$39.99 a year · founding families CA$29.99 a year' as string | null,
+    description: 'The halal kitchen that runs itself, for everyone at home.',
     features: [
-      'AI Family Companion & AI halal meal plans',
-      'Budget, savings goals & zakat calculator',
-      'Ramadan planner & tracker',
-      'Reminders for prayers and events',
-      'Priority support',
+      '8 AI meal plans a month, built from your pantry',
+      'Portions sized for adults and children',
+      'Scan receipts straight into your pantry',
+      'Your whole household — up to 8 people',
+      'Ramadan meal mode, budget & zakat tools',
+      'Ask Firdam, the AI helper',
     ],
-    cta: 'Start Premium',
+    cta: 'Start 14-day free trial',
     href: '/auth/register',
     highlighted: true,
-  },
-  {
-    name: 'Family+',
-    price: '$39.99',
-    period: 'month',
-    description: 'One home for the whole household.',
-    features: [
-      'Everything in Premium',
-      'Shared family workspace',
-      'Multiple family profiles',
-      'Shared calendars and grocery lists',
-      'Advanced collaboration',
-    ],
-    cta: 'Choose Family+',
-    href: '/auth/register',
-    highlighted: false,
   },
 ];
 
@@ -68,11 +55,11 @@ export function Pricing() {
             Simple pricing for every family
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
-            Start free. Upgrade when your family is ready for more.
+            Start free. One low price unlocks the full kitchen for your whole household.
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-6 md:grid-cols-2">
           {tiers.map((tier) => (
             <div
               key={tier.name}
@@ -105,6 +92,7 @@ export function Pricing() {
                   /{tier.period}
                 </span>
               </div>
+              {tier.note && <p className="mt-1 text-xs text-muted-foreground">{tier.note}</p>}
 
               <ul className="mt-6 flex-1 space-y-3">
                 {tier.features.map((feat) => (

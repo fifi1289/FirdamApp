@@ -3,7 +3,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 /**
  * Billing — Stripe Checkout and the Stripe customer portal.
  *
- *   POST { action: "checkout", plan: "premium" | "family", interval: "month" | "year" }
+ *   POST { action: "checkout", interval: "month" | "year" }   (one plan: Firdam Family)
  *     → { url }  (redirect the browser there)
  *   POST { action: "portal" }
  *     → { url }
@@ -160,7 +160,8 @@ Deno.serve(async (req: Request) => {
     }
 
     if (body.action === "checkout") {
-      const plan = body.plan === "family" ? "family" : "premium";
+      // One paid plan: Firdam Family.
+      const plan = "family";
       const interval = body.interval === "year" ? "year" : "month";
       const price = priceFor(plan, interval);
       if (!price) return json({ error: `No Stripe price configured for ${plan} (${interval}).` }, 501);

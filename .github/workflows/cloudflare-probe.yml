@@ -1,5 +1,5 @@
-# Temporary: finds an OpenNext adapter that supports this Next.js version,
-# writes it into the lockfile and test-builds the app for Cloudflare.
+# Temporary: adds the Cloudflare adapter to the lockfile (npm isn't reachable
+# from the coding session) and test-builds the app for Cloudflare.
 name: cloudflare-probe
 on:
   push:
@@ -10,25 +10,31 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Adapter versions and the Next.js versions they accept
+      - name: Install
         run: |
-          node -e '
-          const {execSync}=require("child_process");
-          const all=JSON.parse(execSync("npm view @opennextjs/cloudflare versions --json"));
-          const stable=all.filter(v=>!v.includes("-")&&!v.startsWith("0."));
-          for(const v of stable){
-            const p=JSON.parse(execSync(`npm view @opennextjs/cloudflare@${v} peerDependencies --json`).toString()||"{}");
-            console.log(v.padEnd(10), JSON.stringify(p));
-          }' > probe.txt
-          npm view wrangler version >> probe.txt
-          npm view next@15 version --json | tail -3 >> probe.txt
+          set -o pipefail
+          {
+            npm install --no-audit --no-fund next@14 eslint-config-next@14 @opennextjs/cloudflare@1.15.1 2>&1
+            npm install --no-audit --no-fund -D wrangler@4 2>&1
+            npm ls next @opennextjs/cloudflare wrangler 2>&1
+          } | tail -40 > probe.txt
+      - name: Build for Cloudflare
+        continue-on-error: true
+        run: |
+          { npx opennextjs-cloudflare build 2>&1 | tail -60; echo "build exit ${PIPESTATUS[0]}"; } >> probe.txt
+          { npx wrangler deploy --dry-run --outdir /tmp/cfout 2>&1 | tail -25; } >> probe.txt
+          du -sh .open-next/assets >> probe.txt 2>&1 || true
       - name: Save results to the branch
+        if: always()
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add probe.txt && git commit -m "Probe results [skip ci]" && git push
+          git add probe.txt package.json package-lock.json && git commit -m "Add Cloudflare adapter to lockfile; probe results [skip ci]" && git push

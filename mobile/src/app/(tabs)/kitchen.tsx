@@ -6,7 +6,7 @@ import { PlanView } from '@/components/kitchen-plan';
 import { RecipesView } from '@/components/kitchen-recipes';
 import { ShoppingView } from '@/components/kitchen-shopping';
 import { Segmented } from '@/components/kitchen-ui';
-import { ComingNext } from '@/components/screen';
+import { PantryView } from '@/components/kitchen-pantry';
 import { Button, T } from '@/components/ui';
 import { useKitchen } from '@/lib/kitchen-store';
 import { colors } from '@/theme';
@@ -60,7 +60,7 @@ export default function Kitchen() {
         ) : section === 'shopping' ? (
           <ShoppingView />
         ) : (
-          <ComingNext step={5} title="Smart pantry" text="Scan a receipt, keep track of what you have, and see what to use first." />
+          <PantryView />
         )}
       </ScrollView>
     </SafeAreaView>

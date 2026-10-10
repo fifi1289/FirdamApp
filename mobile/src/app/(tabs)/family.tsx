@@ -1,13 +1,19 @@
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/art';
-import { ComingNext, TabScreen } from '@/components/screen';
+import { TabScreen } from '@/components/screen';
 import { Button, Card, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { WEBSITE } from '@/lib/config';
+import { callFunction } from '@/lib/functions';
+import { useKitchen } from '@/lib/kitchen-store';
+import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 
 const links = [
+  { label: 'Family members, portions and allergies', path: '/dashboard/family' },
+  { label: 'Help and support', path: '/support' },
   { label: 'Security and two-step verification', path: '/security' },
   { label: 'Privacy Policy', path: '/privacy' },
   { label: 'Terms of Use', path: '/terms' },
@@ -15,6 +21,34 @@ const links = [
 
 export default function Family() {
   const { firstName, session, signOut } = useAuth();
+  const k = useKitchen();
+  const [deleting, setDeleting] = useState(false);
+
+  // Apple and Google require that people can delete their account from the app.
+  const deleteAccount = () => {
+    Alert.alert(
+      'Delete your account?',
+      'This permanently deletes your account and your personal data: pantry, plans, shopping lists, budget and family details. It can’t be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await callFunction('delete-account', undefined, { confirm: 'DELETE' });
+              await signOut();
+            } catch (e) {
+              Alert.alert('Could not delete your account', e instanceof Error ? e.message : 'Please try again, or email support@firdam.com.');
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  };
   const initial = (firstName ?? session?.user.email ?? '?').charAt(0).toUpperCase();
 
   return (
@@ -33,7 +67,17 @@ export default function Family() {
         </View>
       </Card>
 
-      <ComingNext step={7} title="Your household and plan" text="Invite your family, set each person’s portions and allergies, and manage Firdam Family." />
+      <Card style={{ gap: 4 }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          YOUR HOUSEHOLD
+        </T>
+        <T size={16} weight="bold">
+          {k.household ? `${k.household.people} ${k.household.people === 1 ? 'person' : 'people'} · cooks for ${formatPortions(k.household.portions)}` : 'Loading…'}
+        </T>
+        <T size={13.5} color={colors.muted}>
+          {k.prefs?.allergies.length ? `Kept out of every plan: ${k.prefs.allergies.join(', ')}` : 'No allergies set. Add them in Kitchen → Plan → Preferences.'}
+        </T>
+      </Card>
 
       <Card style={{ paddingVertical: 4 }}>
         {links.map((l, i) => (
@@ -52,6 +96,7 @@ export default function Family() {
       </Card>
 
       <Button label="Sign out" variant="secondary" onPress={signOut} />
+      <Button label="Delete my account" variant="text" onPress={deleteAccount} busy={deleting} />
     </TabScreen>
   );
 }

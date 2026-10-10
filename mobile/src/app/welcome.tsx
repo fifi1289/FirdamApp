@@ -58,7 +58,7 @@ export default function Welcome() {
         <Button label="Get started — it's free" onPress={() => router.push('/sign-up')} />
         <Button label="I already have an account" variant="text" onPress={() => router.push('/sign-in')} />
         <T size={12.5} color={colors.muted} style={{ textAlign: 'center' }}>
-          Free forever for prayer times and halal places. Full kitchen for CA$4.99 a month, for everyone at home.
+          Prayer times, Qibla, halal places near you and a family kitchen that plans halal meals around what you have.
         </T>
       </View>
     </SafeAreaView>

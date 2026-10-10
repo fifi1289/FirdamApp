@@ -182,9 +182,9 @@ export function PlanView() {
           <Button label="Quick plan from the recipe library" variant={aiLeft > 0 ? 'secondary' : 'primary'} onPress={() => generate(false)} busy={busy === 'library'} disabled={!!busy} />
           <Button label="Allergies, diets & meals" variant="text" onPress={() => router.push('/meal-preferences')} />
         </View>
-        {aiLeft === 0 && !k.paid ? (
+        {aiLeft === 0 ? (
           <View style={{ marginTop: 6 }}>
-            <Badge label="Firdam Family: 8 AI plans a month" tone="walnut" />
+            <Badge label="AI chef plans refresh next month · library plans are unlimited" tone="walnut" />
           </View>
         ) : null}
       </View>

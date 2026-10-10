@@ -1,0 +1,39 @@
+# Builds the store versions of the Firdam app on Expo (EAS) and, if asked,
+# sends them to App Store Connect / Google Play. Run it by hand from Actions.
+# Needs the repository secret EXPO_TOKEN. Store sign-in details live in Expo,
+# not in GitHub (see mobile/STORE-LISTING.md).
+name: Mobile store build
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Which store
+        type: choice
+        options: [all, android, ios]
+        default: all
+      submit:
+        description: Send the builds to the stores when done
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+      - name: Build
+        run: eas build --platform ${{ inputs.platform }} --profile production --non-interactive --no-wait ${{ inputs.submit && '--auto-submit' || '' }}

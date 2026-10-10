@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { StarPattern } from '@/components/art';
 import { openMeal } from '@/components/kitchen-plan';
 import { Photo } from '@/components/kitchen-ui';
-import { ComingNext, TabScreen } from '@/components/screen';
+import { TabScreen } from '@/components/screen';
 import { Button, Card, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { formatDateISO } from '@/lib/kitchen';
@@ -131,7 +131,13 @@ export default function Today() {
     <TabScreen title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
       <PrayerCard />
       <TonightCard />
-      <ComingNext step={5} title="Use soon" text="Pantry items close to their date, so nothing goes to waste." />
+      <Card style={{ gap: 6 }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          HALAL NEAR YOU
+        </T>
+        <T size={15}>Restaurants, butchers, groceries and mosques around you, with directions.</T>
+        <Button label="Find halal places" variant="secondary" onPress={() => router.push('/halal')} />
+      </Card>
     </TabScreen>
   );
 }

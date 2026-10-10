@@ -335,6 +335,9 @@ DO $$ DECLARE n integer; BEGIN
     RAISE EXCEPTION 'complete_recipe overwrote a finished recipe';
   END IF;
 END $$;
+-- Supabase grants new functions to signed-in users by default (as line ~110
+-- does here); the migration must take that back.
+\i supabase/migrations/20261011110000_complete_recipe_tools.sql
 SET ROLE authenticated;
 DO $$ BEGIN
   PERFORM public.count_recipes_missing_ingredients();

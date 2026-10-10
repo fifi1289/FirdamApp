@@ -6,14 +6,14 @@
  *   node --experimental-strip-types supabase/seed/build-recipes.mts --check  # check only
  *
  * Every recipe is checked for halal ingredients, format and units. Allergens
- * and diet tags are worked out from the ingredients (lib/recipes/allergens.ts)
+ * and diet tags are worked out from the ingredients (supabase/functions/_shared/allergens.ts)
  * and merged with any allergens listed in the file.
  */
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ALLERGEN_RULES, detectAllergens, fitsDiet, ruleForAllergy } from '../../lib/recipes/allergens.ts';
+import { ALLERGEN_RULES, detectAllergens, fitsDiet, ruleForAllergy } from '../functions/_shared/allergens.ts';
 import { HARAM } from '../functions/_shared/halal.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));

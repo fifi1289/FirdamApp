@@ -141,9 +141,26 @@ also applies every migration to a clean Postgres database and runs an RLS smoke 
 - Two-step verification (TOTP): Settings → Account. Enforced by the middleware and by a restrictive policy on every table
   (`20261010100000_require_2fa_when_enabled.sql`). **Re-run that migration after creating new tables** so they get the policy too.
 - Bot protection with Cloudflare Turnstile (free): create a widget at dash.cloudflare.com → Turnstile, set
-  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in Vercel and redeploy, **then** paste the secret key in Supabase → Authentication →
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in Cloudflare (Worker → Settings → Build → Variables) and redeploy, **then** paste the secret key in Supabase → Authentication →
   Attack Protection → Enable CAPTCHA (Turnstile). Doing it in the other order blocks every sign-in.
 - The zakat calculator stores its inputs only in the browser.
+
+## Hosting (Cloudflare Workers)
+
+The site runs on Cloudflare Workers using the OpenNext adapter (`wrangler.jsonc`, `open-next.config.ts`).
+Cloudflare builds every push from GitHub:
+
+- **Build command:** `npx opennextjs-cloudflare build`
+- **Deploy command (main):** `npx opennextjs-cloudflare deploy`
+- **Non-production branches:** `npx opennextjs-cloudflare upload` (gives each branch a preview link)
+- **Build variables:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and optionally
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY`. These are baked in at build time, so change them under Build → Variables and redeploy.
+  Never add the Supabase service-role key — the website doesn't need it.
+
+The Worker's name in Cloudflare must match `name` in `wrangler.jsonc` (`firdamapp`).
+`@opennextjs/cloudflare` is pinned to 1.15.x, the last release that supports Next.js 14; upgrading Next.js to 15.5+
+lets it move to the latest adapter. CI checks the Cloudflare build and that the Worker stays under the free plan's
+3 MiB (compressed) limit. Try it locally with `npm run preview`.
 
 ## Before launch
 

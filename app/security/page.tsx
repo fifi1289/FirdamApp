@@ -67,7 +67,7 @@ const sections: LegalSection[] = [
         {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
           ? 'Sign-in, sign-up and password reset are protected by Cloudflare Turnstile, which stops automated password-guessing without annoying puzzles. '
           : ''}
-        The app runs on Vercel’s global network, which absorbs traffic floods (DDoS), and our
+        The app runs on Cloudflare’s global network, which absorbs traffic floods (DDoS), and our
         login provider limits repeated attempts. Pages send strict browser security rules that block other sites from
         framing {SITE.name} and stop injected scripts from talking to unknown servers.
       </p>

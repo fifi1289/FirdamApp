@@ -155,7 +155,7 @@ const sections: LegalSection[] = [
             and use it only to provide their service:
             <ul className="mt-1.5">
               <li>Supabase — database, login and file storage;</li>
-              <li>Vercel — website hosting;</li>
+              <li>Cloudflare — website hosting and protection from attacks;</li>
               <li>OpenAI — the AI features described above;</li>
               <li>Stripe — payments and subscriptions;</li>
               <li>

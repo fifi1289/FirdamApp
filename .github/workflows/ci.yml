@@ -30,6 +30,31 @@ jobs:
           node --experimental-strip-types supabase/seed/build-recipes.mts
           git diff --exit-code supabase/migrations/20261008101000_seed_recipe_library.sql
 
+  cloudflare:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build for Cloudflare Workers
+        run: npx opennextjs-cloudflare build
+      - name: Worker fits the free plan (3 MiB compressed)
+        run: |
+          set -o pipefail
+          npx wrangler deploy --dry-run --outdir /tmp/cf-worker | tee /tmp/cf-dry-run.txt
+          gzip_kib=$(grep -o 'gzip: [0-9.]* KiB' /tmp/cf-dry-run.txt | grep -o '[0-9.]*')
+          echo "Compressed Worker size: ${gzip_kib} KiB"
+          if [ "$(echo "$gzip_kib > 3072" | bc)" = 1 ]; then
+            echo "::error::Worker is ${gzip_kib} KiB compressed, over the free plan's 3 MiB limit (paid plan allows 10 MiB)."
+            exit 1
+          fi
+
   migrations:
     runs-on: ubuntu-latest
     services:

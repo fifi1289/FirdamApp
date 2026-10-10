@@ -26,7 +26,7 @@ import { haramReason } from '../functions/_shared/halal.ts';
 const here = dirname(fileURLToPath(import.meta.url));
 const DIR = join(here, 'recipe-completions');
 
-const UNITS = new Set(['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pieces', 'cloves', 'pinch', 'handful', 'bunch', 'can', 'slices', 'cm', 'sprigs', 'stalks', 'leaves']);
+const UNITS = new Set(['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pieces', 'cloves', 'pinch', 'handful', 'bunch', 'can', 'slices', 'cm', 'sprigs', 'stalks', 'leaves', 'sheets']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 // Ready-made products that hide allergens: name what's in them instead.
 const VAGUE = /\b(pesto|curry paste|stir[- ]fry sauce|spice mix|seasoning mix|cake mix|ready[- ]made sauce)\b/;

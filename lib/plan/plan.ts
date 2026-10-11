@@ -118,7 +118,6 @@ function loadSubscription(): Promise<Subscription | null> {
 }
 
 function effectivePlan(sub: Subscription | null): PlanId {
-  if (FREE_LAUNCH) return 'family';
   if (!sub) return 'free';
   const live = sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due';
   const notExpired = !sub.current_period_end || new Date(sub.current_period_end) > new Date();

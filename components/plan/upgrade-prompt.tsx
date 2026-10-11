@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { LIMIT_LABELS, PLAN_LIMITS, type LimitKey } from '@/lib/plan/plan';
+import { FREE_LAUNCH, LIMIT_LABELS, PLAN_LIMITS, type LimitKey } from '@/lib/plan/plan';
 
 const PREMIUM_PERKS = [
   'AI meal plans from your pantry — 8 a month',
@@ -37,6 +37,26 @@ export function UpgradeDialog({
   description?: string;
 }) {
   const freeLimit = limitKey ? PLAN_LIMITS.free[limitKey] : null;
+  // Nothing is sold yet: explain the free allowance without prices or checkout.
+  if (FREE_LAUNCH) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="space-y-1.5 text-left">
+            <DialogTitle className="font-display text-xl">
+              {limitKey && freeLimit !== null ? 'You’ve reached this month’s free limit' : 'Coming with Firdam Family'}
+            </DialogTitle>
+            <DialogDescription>
+              {limitKey && freeLimit !== null
+                ? `The Free plan includes ${freeLimit} ${LIMIT_LABELS[limitKey]}. Your allowance starts again on the 1st of next month. More with Firdam Family, coming soon.`
+                : 'This feature is part of Firdam Family, coming soon.'}
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={() => onOpenChange(false)}>OK</Button>
+        </DialogContent>
+      </Dialog>
+    );
+  }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-hidden p-0 sm:max-w-md">

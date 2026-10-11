@@ -80,4 +80,8 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 REVOKE EXECUTE ON FUNCTION public.save_ai_recipe(jsonb) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.save_ai_recipe(jsonb) TO service_role;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    GRANT EXECUTE ON FUNCTION public.save_ai_recipe(jsonb) TO service_role;
+  END IF;
+END $$;

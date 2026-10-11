@@ -24,7 +24,7 @@ const FEATURES: { label: string; free: string | boolean; family: string | boolea
   { label: 'Quran & duas, Ramadan tracker', free: true, family: true },
   { label: '“What can I cook?” from your pantry', free: true, family: true },
   { label: 'Meal plans from the recipe library', free: 'Unlimited', family: 'Unlimited' },
-  { label: 'Shared household', free: '2 people', family: 'Up to 8 people' },
+  { label: 'Shared household', free: '4 people', family: 'Up to 8 people' },
   { label: 'AI meal plans from your pantry (3, 5 or 7 days)', free: '1 a month', family: '8 a month' },
   { label: 'Scan receipts into the pantry', free: '1 a month', family: '30 a month' },
   { label: 'Ask Firdam (AI helper)', free: false, family: '20 messages a day' },

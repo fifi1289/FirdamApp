@@ -24,7 +24,7 @@ import { usePlan } from '@/lib/plan/plan';
 import type { Household, HouseholdInvite, HouseholdMember } from '@/types/database';
 
 const SHARED = ['Family calendar', 'Shopping lists', 'Household tasks', 'Meal plans', 'Pantry', 'Family profiles'];
-/** A household holds 2 people on Free and up to 8 with Firdam Family (enforced in the database). */
+/** A household holds 4 people on Free and up to 8 with Firdam Family (enforced in the database). */
 const FREE_MEMBERS = 2;
 const MAX_MEMBERS = 8;
 
@@ -348,7 +348,7 @@ export function SharedHouseholdCard() {
         open={upgradeOpen}
         onOpenChange={setUpgradeOpen}
         title="Bigger households come with Firdam Family"
-        description="A free household holds 2 people. With Firdam Family, up to 8 people share the calendar, shopping lists, meals and pantry — for CA$4.99 a month."
+        description="A free household holds 4 people. With Firdam Family, up to 8 people share the calendar, shopping lists, meals and pantry — for CA$4.99 a month."
       />
     </>
   );

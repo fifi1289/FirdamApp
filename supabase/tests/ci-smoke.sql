@@ -243,7 +243,7 @@ DO $$ BEGIN
 END $$;
 RESET ROLE;
 
--- A free household holds 2 people; a third needs a paid plan.
+-- A free household holds 4 people (Firdam Family: 8).
 -- (Checked with the free launch switched off.)
 CREATE OR REPLACE FUNCTION public.free_launch() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT false $$;
 INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-000000000005', 'd@example.com');
@@ -261,13 +261,10 @@ SET ROLE authenticated;
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
 SELECT public.accept_household_invite((SELECT token FROM free_invites WHERE email = 'b@example.com'));
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000005';
+-- A free household holds 4: a third person can join.
+SELECT public.accept_household_invite((SELECT token FROM free_invites WHERE email = 'd@example.com'));
 DO $$ BEGIN
-  BEGIN
-    PERFORM public.accept_household_invite((SELECT token FROM free_invites WHERE email = 'd@example.com'));
-    RAISE EXCEPTION 'third person joined a free household';
-  EXCEPTION WHEN raise_exception THEN
-    IF SQLERRM <> 'This household is full' THEN RAISE; END IF;
-  END;
+  IF public.household_capacity(public.my_household_id()) <> 4 THEN RAISE EXCEPTION 'a free household should hold 4'; END IF;
 END $$;
 RESET ROLE;
 CREATE OR REPLACE FUNCTION public.free_launch() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT false $$;

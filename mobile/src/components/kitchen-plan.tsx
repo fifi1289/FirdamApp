@@ -121,7 +121,7 @@ export function PlanView() {
     }
   };
   const swap = (m: MockMeal) =>
-    showAlert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 5 a month on the free plan, 40 with Firdam Family.', [
+    showAlert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 10 a month on the free plan, 40 with Firdam Family.', [
       { text: 'From the recipe library', onPress: () => swapFrom(m, 'library') },
       { text: 'Ask the AI chef', onPress: () => swapFrom(m, 'ai') },
       { text: 'Cancel', style: 'cancel' },

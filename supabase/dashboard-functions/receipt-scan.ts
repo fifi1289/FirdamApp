@@ -176,7 +176,7 @@ async function describeOpenAIFailure(res: Response): Promise<OpenAIFailure> {
 
 // Keep in sync with lib/plan/plan.ts. Each Companion message costs roughly
 // $0.001–0.002 in OpenAI fees, an AI meal plan roughly $0.003–0.005.
-const FREE_AI_PLANS_PER_MONTH = 1;
+const FREE_AI_PLANS_PER_MONTH = 2;
 // The Companion chat is a paid feature; Free users get pantry matching (no AI) instead.
 const FREE_COMPANION_MESSAGES_PER_MONTH = 0;
 // Fair-use caps for paid plans, so one account can't run up a large bill.
@@ -184,6 +184,8 @@ const FREE_COMPANION_MESSAGES_PER_MONTH = 0;
 const PAID_AI_PLANS_PER_MONTH = 8;
 // Receipt scans (paid plans only): about $0.01 each in OpenAI fees.
 const PAID_RECEIPT_SCANS_PER_MONTH = 30;
+// Free plan: one receipt a month to try it.
+const FREE_RECEIPT_SCANS_PER_MONTH = 1;
 const PAID_COMPANION_MESSAGES_PER_DAY = 20;
 
 // Free launch: everyone gets the full app (with the fair-use caps above) and
@@ -284,7 +286,7 @@ async function isAdminUser(userId: string): Promise<boolean> {
 // ── receipt-scan ──
 /**
  * Reads a shopping receipt photo and returns the food items on it, ready for
- * the family to check before they go into the pantry. Paid plans only.
+ * the family to check before they go into the pantry. Free plan: 1 a month.
  *
  * POST { image: "data:image/jpeg;base64,…" }
  * → { items: [{ name, quantity, unit, category, staple }], store, date, total, currency, used, limit }
@@ -329,11 +331,12 @@ Deno.serve(async (req) => {
     const user = await getUser(req);
     if (!user) return json({ error: "Please sign in." }, 401);
     const plan = await getPlan(user.id);
-    if (plan === "free") {
-      return json({ error: "Receipt scanning is part of Premium and Family+.", code: "limit_reached" }, 402);
-    }
+    const limit = plan === "free" ? FREE_RECEIPT_SCANS_PER_MONTH : PAID_RECEIPT_SCANS_PER_MONTH;
     const used = await countUsageThisMonth(user.id, "receipt_scan");
-    if (used >= PAID_RECEIPT_SCANS_PER_MONTH) {
+    if (plan === "free" && used >= limit) {
+      return json({ error: "You've used this month's free receipt scan. Quick add still works.", code: "limit_reached" }, 402);
+    }
+    if (used >= limit) {
       return json(
         { error: `You've scanned ${PAID_RECEIPT_SCANS_PER_MONTH} receipts this month — the monthly maximum. Quick add still works.`, code: "fair_use" },
         429,
@@ -400,7 +403,7 @@ Deno.serve(async (req) => {
       total,
       currency: typeof parsed.currency === "string" ? parsed.currency.slice(0, 8) : null,
       used: used + 1,
-      limit: PAID_RECEIPT_SCANS_PER_MONTH,
+      limit,
     });
   } catch (err) {
     console.error(err);

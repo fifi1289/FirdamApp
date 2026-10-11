@@ -59,6 +59,14 @@
         {
           "color": "#855C49"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Firdam uses your photos only when you choose a receipt to scan into your pantry.",
+          "cameraPermission": "Firdam uses the camera only when you take a photo of a receipt to scan into your pantry.",
+          "microphonePermission": false
+        }
       ]
     ],
     "scheme": "firdam",

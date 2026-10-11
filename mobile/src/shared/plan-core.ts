@@ -274,16 +274,22 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
     date.setDate(date.getDate() + i);
 
     const meals: MockMeal[] = lowerTypes.map((type, idx) => {
-      let pool = byType[type] ?? recipes;
-      // Prefer the chosen cuisines for this meal type, when there are enough of them.
+      const typePool = byType[type] ?? recipes;
+      let pool = typePool;
+      // Chosen cuisines lead on most days (4 of 7), other days bring variety, so
+      // the week doesn't feel the same every day.
       const wanted = (cuisinePrefs[type] ?? []).map((c) => c.toLowerCase());
-      if (wanted.length > 0) {
-        const preferred = pool.filter((r) => wanted.includes((r.cuisine?.name ?? '').toLowerCase()));
+      if (wanted.length > 0 && (i % 2 === 0 || i === planningDuration - 1)) {
+        const preferred = typePool.filter((r) => wanted.includes((r.cuisine?.name ?? '').toLowerCase()));
         if (preferred.some((r) => !usedIds.has(r.id))) pool = preferred;
+      } else if (wanted.length > 0) {
+        const others = typePool.filter((r) => !wanted.includes((r.cuisine?.name ?? '').toLowerCase()));
+        if (others.some((r) => !usedIds.has(r.id))) pool = others;
       }
       let candidate: RecipeRow | undefined;
 
-      const unused = pool.filter((r) => !usedIds.has(r.id));
+      let unused = pool.filter((r) => !usedIds.has(r.id));
+      if (unused.length === 0) unused = typePool.filter((r) => !usedIds.has(r.id));
       if (unused.length > 0 && pantryFirst) {
         const scored = shuffle(unused).map((r) => {
           const c = checkNeeds(needsOf(r), pantry, { factor: factorOf(r), ledger });
@@ -391,6 +397,39 @@ export function normalizePlan(data: Record<string, unknown>): GeneratedMealPlan 
       date: String(day.date ?? ''),
       meals: ((day.meals as Record<string, unknown>[]) ?? []).map(normalizeMeal),
     })),
+  };
+}
+
+/**
+ * Swaps one meal of a plan for another library recipe of the same meal type
+ * that suits the family's allergies and diets and isn't already in the plan.
+ * Returns the new plan, or null when no other recipe fits.
+ */
+export function swapPlanMeal(
+  plan: GeneratedMealPlan,
+  date: string,
+  type: string,
+  all: RecipeRow[],
+  preferences: MealPreferencesState,
+  householdSize: number
+): GeneratedMealPlan | null {
+  const used = new Set(plan.days.flatMap((d) => d.meals.map((m) => m.id)));
+  const key = mealTypeKey(type);
+  const options = all.filter(
+    (r) =>
+      !used.has(r.id) &&
+      mealTypeKey(r.meal_type?.name ?? '') === key &&
+      r.recipe_ingredients.length > 0 &&
+      recipeSuits(r, preferences.allergies ?? [], preferences.dietaryPreferences ?? [])
+  );
+  const pick = shuffle(options)[0];
+  if (!pick) return null;
+  const meal = toMockMeal(pick, type, householdSize);
+  return {
+    ...plan,
+    days: plan.days.map((d) =>
+      d.date !== date ? d : { ...d, meals: d.meals.map((m) => (m.type === type ? meal : m)) }
+    ),
   };
 }
 

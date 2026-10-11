@@ -13,6 +13,7 @@ import {
   buildLibraryPlan,
   formatDateISO,
   getStartOfWeek,
+  loadRecipes,
   mealNeeds,
   saveWeekPlan,
   shoppingForPlan,
@@ -20,6 +21,7 @@ import {
 } from '@/lib/kitchen';
 import { patchKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { checkNeeds } from '@/shared/pantry-engine';
+import { swapPlanMeal } from '@/shared/plan-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 
@@ -45,6 +47,26 @@ export function PlanView() {
   const days = useMemo(() => weekDays(getStartOfWeek()), []);
   const [selected, setSelected] = useState(today);
   const [busy, setBusy] = useState<'ai' | 'library' | 'shop' | null>(null);
+  const [swapping, setSwapping] = useState<string | null>(null);
+
+  // Replace one meal (breakfast, lunch, dinner or snack) with another library recipe.
+  const swap = async (m: MockMeal) => {
+    if (!k.week || !k.prefs || swapping) return;
+    setSwapping(`${selected}-${m.type}`);
+    try {
+      const next = swapPlanMeal(k.week.plan, selected, m.type, await loadRecipes(), k.prefs, k.household?.portions ?? 2);
+      if (!next) {
+        Alert.alert('No other recipe fits', 'Every other recipe for this meal is already in your plan or doesn’t suit your family’s allergies and diets.');
+        return;
+      }
+      const id = await saveWeekPlan(next, k.prefs, k.week.id);
+      patchKitchen({ week: { id, plan: next } });
+    } catch (e) {
+      Alert.alert('Could not swap this meal', e instanceof Error ? e.message : 'Please try again.');
+    } finally {
+      setSwapping(null);
+    }
+  };
 
   const plan = k.week?.plan ?? null;
   const day = plan?.days.find((d) => d.date === selected) ?? null;
@@ -78,6 +100,7 @@ export function PlanView() {
         }
         const id = await saveWeekPlan(next, prefs, k.week?.id ?? null);
         patchKitchen({ week: { id, plan: next } });
+        Alert.alert('Your new plan is ready', 'Tap any day to see its meals. Use “Swap” on a meal to change just that one.');
       } catch (e) {
         Alert.alert('Could not plan your week', e instanceof Error ? e.message : 'Please try again.');
       } finally {
@@ -152,6 +175,17 @@ export function PlanView() {
                     <T size={12.5} color={colors.muted}>{`${m.prepTime + m.cookTime} min · for ${formatPortions(m.servings)}`}</T>
                   )}
                 </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Swap ${m.type}`}
+                  hitSlop={10}
+                  onPress={() => swap(m)}
+                  style={styles.swap}
+                >
+                  <T size={12.5} weight="bold" color={colors.walnut}>
+                    {swapping === `${selected}-${m.type}` ? '…' : 'Swap'}
+                  </T>
+                </Pressable>
               </Pressable>
             );
           })}
@@ -195,6 +229,7 @@ export function PlanView() {
 const styles = StyleSheet.create({
   day: { width: 48, paddingVertical: 8, borderRadius: 14, alignItems: 'center', gap: 2 },
   dayOn: { backgroundColor: colors.walnut },
+  swap: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: colors.line },
   dot: { width: 5, height: 5, borderRadius: 3, marginTop: 2 },
   meal: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 10 },
   planCard: { backgroundColor: colors.tint, borderRadius: 24, padding: 18, overflow: 'hidden' },

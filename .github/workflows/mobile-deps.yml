@@ -1,4 +1,4 @@
-# Temporary helper (run 4: adhan): runs package commands for mobile/ (npm isn't reachable from
+# Temporary helper (last run 5: webview + image picker — done): runs package commands for mobile/ (npm isn't reachable from
 # the coding session) and commits the updated package files back.
 name: mobile-deps
 on:
@@ -22,9 +22,9 @@ jobs:
         run: |
           {
             npm ci --no-audit --no-fund > /dev/null 2>&1
-            echo "== install"; npm install adhan --save --no-audit --no-fund 2>&1 | grep -v "^npm warn" | tail -8
+            echo "== install"; npx expo install react-native-webview expo-image-picker 2>&1 | tail -8
             echo "== expo check"; npx expo install --check 2>&1 | tail -10
-            echo "== adhan"; node -p 'require("./package.json").dependencies.adhan'
+            echo "== deps"; node -p 'JSON.stringify([require("./package.json").dependencies["react-native-webview"], require("./package.json").dependencies["expo-image-picker"]])'
           } > ../deps-report.txt
       - name: Save
         if: always()

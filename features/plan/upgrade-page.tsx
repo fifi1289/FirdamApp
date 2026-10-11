@@ -26,7 +26,7 @@ const FEATURES: { label: string; free: string | boolean; family: string | boolea
   { label: 'Meal plans from the recipe library', free: 'Unlimited', family: 'Unlimited' },
   { label: 'Shared household', free: '2 people', family: 'Up to 8 people' },
   { label: 'AI meal plans from your pantry (3, 5 or 7 days)', free: '1 a month', family: '8 a month' },
-  { label: 'Scan receipts into the pantry', free: false, family: '30 a month' },
+  { label: 'Scan receipts into the pantry', free: '1 a month', family: '30 a month' },
   { label: 'Ask Firdam (AI helper)', free: false, family: '20 messages a day' },
   { label: 'Your own recipes', free: '3', family: 'Unlimited' },
   { label: 'Shopping lists', free: '2', family: 'Unlimited' },

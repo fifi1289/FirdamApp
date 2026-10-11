@@ -3,7 +3,7 @@
 -- set FREE_LAUNCH to false in lib/plan/launch.ts and _shared/plan.ts). Re-runnable.
 
 CREATE OR REPLACE FUNCTION public.free_launch()
-RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$;
+RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT true $$;
 
 CREATE OR REPLACE FUNCTION public.household_capacity(hid uuid)
 RETURNS integer LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$

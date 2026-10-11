@@ -179,17 +179,22 @@ export default function RecipeScreen() {
                     {l.neededText}
                   </T>
                   {l.status === 'missing' || l.status === 'short' ? (
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`I have ${l.need.name}`}
-                      onPress={() => haveIt(l)}
-                      style={styles.have}
-                      hitSlop={6}
-                    >
-                      <T size={12} weight="bold" color={colors.sageDark}>
-                        {having === l.need.name ? '…' : 'I have it'}
+                    <View style={{ alignItems: 'flex-end', gap: 4, width: 84 }}>
+                      <T size={12.5} weight="bold" color={s.color}>
+                        {s.label}
                       </T>
-                    </Pressable>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`I have ${l.need.name}`}
+                        onPress={() => haveIt(l)}
+                        style={styles.have}
+                        hitSlop={6}
+                      >
+                        <T size={11.5} weight="bold" color={colors.sageDark}>
+                          {having === l.need.name ? '…' : 'I have it'}
+                        </T>
+                      </Pressable>
+                    </View>
                   ) : k.pantry.length ? (
                     <T size={12.5} weight="bold" color={s.color} style={{ width: 76, textAlign: 'right' }}>
                       {s.label}

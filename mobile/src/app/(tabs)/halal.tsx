@@ -22,7 +22,7 @@ interface Place {
   address: string | null;
   phone: string | null;
   openingHours: string | null;
-  halalStatus: 'halal' | 'halal_only' | 'halal_options' | 'mosque' | 'may_sell';
+  halalStatus: 'halal' | 'halal_only' | 'halal_options' | 'mosque' | 'may_sell' | 'likely';
   cuisine: string | null;
   /** Added by Firdam families on the website. */
   community?: boolean;
@@ -44,7 +44,11 @@ const STATUS: Record<Place['halalStatus'], { label: string; tone: 'sage' | 'ambe
   halal_options: { label: 'Halal options', tone: 'amber' },
   mosque: { label: 'Mosque', tone: 'walnut' },
   may_sell: { label: 'May stock halal · ask', tone: 'walnut' },
+  likely: { label: 'Likely halal · ask', tone: 'amber' },
 };
+
+/** Confirmed halal first, then likely halal, then shops that may stock it. */
+const rank = (p: Place) => (p.halalStatus === 'may_sell' ? 2 : p.halalStatus === 'likely' ? 1 : 0);
 
 /** One search area around you; the list is sorted nearest first. */
 const RADIUS_KM = 25;
@@ -55,6 +59,7 @@ const PIN: Record<Place['halalStatus'], string> = {
   halal_options: '#C98A1B',
   mosque: '#6B4F3A',
   may_sell: '#8A8F98',
+  likely: '#E0A84B',
 };
 
 /** Places families added on the website, inside the search square. */
@@ -161,7 +166,7 @@ export default function Halal() {
       .map((p) => ({ p, km: distanceKm(place, p) }))
       .filter((x) => x.km <= km)
       // Places marked halal first, then shops that may stock it; nearest first.
-      .sort((a, b) => Number(a.p.halalStatus === 'may_sell') - Number(b.p.halalStatus === 'may_sell') || a.km - b.km)
+      .sort((a, b) => rank(a.p) - rank(b.p) || a.km - b.km)
       .slice(0, 100);
   }, [places, place, filter]);
 

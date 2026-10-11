@@ -83,7 +83,7 @@ export const FILTER_CATEGORIES: HalalPlaceCategory[] = [
 export const RADIUS_OPTIONS = [1, 3, 5, 10, 25] as const;
 export type RadiusKm = (typeof RADIUS_OPTIONS)[number];
 
-export type HalalStatus = 'halal' | 'halal_only' | 'halal_options' | 'muslim_owned' | 'mosque';
+export type HalalStatus = 'halal' | 'halal_only' | 'halal_options' | 'muslim_owned' | 'mosque' | 'likely' | 'may_sell';
 
 export const HALAL_STATUS_LABEL: Record<HalalStatus, string> = {
   halal: 'Halal',
@@ -91,6 +91,8 @@ export const HALAL_STATUS_LABEL: Record<HalalStatus, string> = {
   halal_options: 'Halal options',
   muslim_owned: 'Muslim-owned',
   mosque: 'Mosque',
+  likely: 'Likely halal · ask',
+  may_sell: 'May stock halal · ask',
 };
 
 export const COMMUNITY_STATUS_OPTIONS: { value: CommunityHalalStatus; label: string; hint: string }[] = [

@@ -101,11 +101,20 @@ export default function MealScreen() {
                   {l.neededText}
                 </T>
                 {l.status === 'missing' || l.status === 'short' ? (
-                  <Pressable accessibilityRole="button" accessibilityLabel={`I have ${l.need.name}`} onPress={() => haveIt(l)} style={styles.have} hitSlop={6}>
-                    <T size={12} weight="bold" color={colors.sageDark}>
-                      {having === l.need.name ? '…' : 'I have it'}
+                  <View style={{ alignItems: 'flex-end', gap: 4, marginLeft: 8 }}>
+                    <T size={12.5} weight="bold" color={l.status === 'short' ? '#8A5A16' : colors.brickText}>
+                      {l.status === 'short' ? 'not enough' : 'to buy'}
                     </T>
-                  </Pressable>
+                    <Pressable accessibilityRole="button" accessibilityLabel={`I have ${l.need.name}`} onPress={() => haveIt(l)} style={styles.have} hitSlop={6}>
+                      <T size={11.5} weight="bold" color={colors.sageDark}>
+                        {having === l.need.name ? '…' : 'I have it'}
+                      </T>
+                    </Pressable>
+                  </View>
+                ) : l.status === 'enough' ? (
+                  <T size={12.5} weight="bold" color={colors.sage} style={{ marginLeft: 8 }}>
+                    at home
+                  </T>
                 ) : null}
               </View>
             ))}
@@ -139,7 +148,7 @@ export default function MealScreen() {
 }
 
 const styles = StyleSheet.create({
-  have: { marginLeft: 8, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: '#CFE0C6', backgroundColor: '#EEF4EA' },
+  have: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: '#CFE0C6', backgroundColor: '#EEF4EA' },
   screen: { flex: 1, backgroundColor: colors.linen },
   back: { position: 'absolute', left: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   sheet: { marginTop: -24, backgroundColor: colors.linen, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 },

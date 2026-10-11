@@ -14,7 +14,6 @@ import { useAuth } from '@/components/auth/auth-provider';
 const navLinks = [
   { label: 'Modules', href: '#modules' },
   { label: 'Features', href: '#features' },
-  { label: 'Pricing', href: '#pricing' },
   { label: 'FAQ', href: '#faq' },
 ];
 

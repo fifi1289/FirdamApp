@@ -92,7 +92,11 @@ export async function loadPantry(): Promise<PantryItem[]> {
   return (data ?? []) as PantryItem[];
 }
 
+/** Free launch: everyone gets the full app. Set to false when paid plans start. */
+const FREE_LAUNCH = true;
+
 export async function isPaidPlan(): Promise<boolean> {
+  if (FREE_LAUNCH) return true;
   const { data } = await supabase.from('subscriptions').select('plan, status, current_period_end').maybeSingle();
   const s = data as { plan: string; status: string; current_period_end: string | null } | null;
   if (!s || s.plan === 'free') return false;

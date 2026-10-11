@@ -49,7 +49,8 @@ interface NormalizedPlace {
   website: string | null;
   openingHours: string | null;
   /** may_sell: a food shop not marked halal on the map that often stocks halal food. */
-  halalStatus: "halal" | "halal_only" | "halal_options" | "mosque" | "may_sell";
+  /** likely: a restaurant whose cuisine is usually halal but isn't marked so on the map. */
+  halalStatus: "halal" | "halal_only" | "halal_options" | "mosque" | "may_sell" | "likely";
   certification: string | null;
   cuisine: string | null;
 }
@@ -106,6 +107,12 @@ function tileQuery(t: Tile): string {
       nwr["amenity"~"^(restaurant|fast_food|cafe)$"]["name"~"halal",i];
     )->.halal;
     .halal out center tags;
+    (
+      nwr["amenity"~"^(restaurant|fast_food|cafe)$"]["cuisine"~"lebanese|middle_eastern|shawarma|kebab|afghan|pakistani|turkish|arab|persian|iranian|somali|falafel|moroccan|syrian|yemeni|egyptian|iraqi|palestinian|jordanian|bangladeshi|uyghur|ethiopian|eritrean",i];
+      nwr["amenity"~"^(restaurant|fast_food|cafe)$"]["name"~"shawarma|shawerma|kebab|kabob|falafel|zaatar|manakeesh|mandi",i];
+    )->.cuisine;
+    (.cuisine; - .halal;)->.likely;
+    .likely out center tags;
     (nwr["shop"~"^(supermarket|grocery|butcher|deli|spices|food|greengrocer)$"]; - .halal;)->.stores;
     .stores out center tags 600;
   `;
@@ -204,6 +211,11 @@ function buildAddress(tags: Record<string, string>): string | null {
   return parts.length ? parts.join(", ") : null;
 }
 
+// Cuisines whose restaurants are usually halal (shown as "likely halal · ask").
+const LIKELY_HALAL_CUISINE =
+  /(lebanese|middle_eastern|shawarma|kebab|afghan|pakistani|turkish|arab|persian|iranian|somali|falafel|moroccan|syrian|yemeni|egyptian|iraqi|palestinian|jordanian|bangladeshi|uyghur|ethiopian|eritrean)/i;
+const LIKELY_HALAL_NAME = /(shawarma|shawerma|kebab|kabob|falafel|halal|zaatar|manakeesh|mandi)/i;
+
 function normalize(el: OsmElement): NormalizedPlace | null {
   const tags = el.tags ?? {};
   const lat = el.lat ?? el.center?.lat;
@@ -224,6 +236,12 @@ function normalize(el: OsmElement): NormalizedPlace | null {
     !/halal/i.test(`${tags.cuisine ?? ""} ${name}`) &&
     (category === "grocery" || category === "butcher")
   ) halalStatus = "may_sell";
+  else if (
+    !["yes", "only"].includes(dietHalal) &&
+    !/halal/i.test(tags.cuisine ?? "") &&
+    (category === "restaurant" || category === "cafe") &&
+    (LIKELY_HALAL_CUISINE.test(tags.cuisine ?? "") || LIKELY_HALAL_NAME.test(name))
+  ) halalStatus = LIKELY_HALAL_NAME.test(name) && /halal/i.test(name) ? "halal" : "likely";
   else halalStatus = "halal";
 
   return {

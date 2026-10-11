@@ -18,7 +18,7 @@ export const FREE_RECEIPT_SCANS_PER_MONTH = 1;
 export const PAID_COMPANION_MESSAGES_PER_DAY = 20;
 // Swapping one meal with the AI chef (about $0.0005 each). Separate from whole
 // AI plans so a swap never uses up a plan. Library swaps are always unlimited.
-export const FREE_AI_SWAPS_PER_MONTH = 5;
+export const FREE_AI_SWAPS_PER_MONTH = 10;
 export const PAID_AI_SWAPS_PER_MONTH = 40;
 
 function env(name: string): string | undefined {

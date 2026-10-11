@@ -1,4 +1,3 @@
-import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -30,13 +29,15 @@ export function SocialSignIn() {
   return (
     <View style={{ gap: 10 }}>
       {apple ? (
-        <AppleAuthentication.AppleAuthenticationButton
-          buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-          cornerRadius={16}
-          style={{ height: 50 }}
-          onPress={() => run(signInWithApple)}
-        />
+        // Apple's style: black button, Apple logo, "Continue with Apple".
+        <Pressable accessibilityRole="button" accessibilityLabel="Continue with Apple" onPress={() => run(signInWithApple)} style={styles.apple} disabled={busy}>
+          <T weight="bold" size={18} color="#FFFFFF">
+            {'\uF8FF'}
+          </T>
+          <T weight="bold" size={15.5} color="#FFFFFF">
+            Continue with Apple
+          </T>
+        </Pressable>
       ) : null}
       <Pressable accessibilityRole="button" onPress={() => run(signInWithGoogle)} style={styles.google} disabled={busy}>
         <T weight="extrabold" size={17} color="#4285F4">
@@ -58,6 +59,7 @@ export function SocialSignIn() {
 }
 
 const styles = StyleSheet.create({
+  apple: { height: 50, borderRadius: 16, backgroundColor: '#000000', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   google: { height: 50, borderRadius: 16, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.white, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   or: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 4 },
   line: { flex: 1, height: 1, backgroundColor: colors.line },

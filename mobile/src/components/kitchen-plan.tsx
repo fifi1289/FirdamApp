@@ -89,7 +89,15 @@ export function PlanView() {
       if (source === 'library') {
         const res = swapPlanMeal(wk.plan, selected, m.type, await loadRecipes(), k.prefs, portions);
         if (!res) {
-          showAlert('No other library recipe fits', 'Try “Ask the AI chef” — it can write a new dish that suits your family.');
+          const cuisine = (k.prefs.cuisinePreferences?.[m.type] ?? []).join(' or ');
+          showAlert(
+            cuisine ? `No other ${cuisine} ${m.type} in the library` : 'No other library recipe fits',
+            'The AI chef can create a new one that suits your family, and it joins the recipe library.',
+            [
+              { text: 'Create with the AI chef', onPress: () => swapFrom(m, 'ai') },
+              { text: 'Not now', style: 'cancel' },
+            ],
+          );
           return;
         }
         next = res.plan;
@@ -113,7 +121,7 @@ export function PlanView() {
     }
   };
   const swap = (m: MockMeal) =>
-    showAlert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 5 a month on the free plan, 40 with Firdam Family.', [
+    showAlert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 10 a month on the free plan, 40 with Firdam Family.', [
       { text: 'From the recipe library', onPress: () => swapFrom(m, 'library') },
       { text: 'Ask the AI chef', onPress: () => swapFrom(m, 'ai') },
       { text: 'Cancel', style: 'cancel' },
@@ -208,6 +216,28 @@ export function PlanView() {
       {day?.meals.length ? (
         <View style={{ gap: 10 }}>
           {day.meals.map((m) => {
+            if (m.needsAI) {
+              const busyHere = swapping === `${selected}-${m.type}`;
+              return (
+                <View key={`${m.type}-${m.id}`} style={[styles.meal, styles.needsAI]}>
+                  <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                    <T size={11.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+                      {TYPE_LABEL[m.type] ?? m.type.toUpperCase()}
+                    </T>
+                    <T size={14.5} weight="bold">{`No ${m.needsAI} ${m.type} in the library yet`}</T>
+                    <T size={12.5} color={colors.muted}>
+                      The AI chef can create one for your family. It joins the recipe library too.
+                    </T>
+                    <Button
+                      label={busyHere ? 'Creating…' : 'Create with the AI chef'}
+                      onPress={() => swapFrom(m, 'ai')}
+                      busy={busyHere}
+                      style={{ height: 40, alignSelf: 'flex-start', paddingHorizontal: 14, marginTop: 4 }}
+                    />
+                  </View>
+                </View>
+              );
+            }
             const check = checkNeeds(mealNeeds(m), k.pantry);
             const total = check.lines.filter((l) => l.status !== 'optional').length;
             const missing = check.missingCount + check.shortCount;
@@ -302,6 +332,7 @@ export function PlanView() {
 const styles = StyleSheet.create({
   day: { width: 48, paddingVertical: 8, borderRadius: 14, alignItems: 'center', gap: 2 },
   dayOn: { backgroundColor: colors.walnut },
+  needsAI: { borderStyle: 'dashed', borderColor: colors.sand, backgroundColor: colors.tint, padding: 14 },
   swap: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: colors.line },
   dot: { width: 5, height: 5, borderRadius: 3, marginTop: 2 },
   meal: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 10 },

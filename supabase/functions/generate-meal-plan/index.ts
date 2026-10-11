@@ -117,7 +117,7 @@ async function swapOneMeal(apiKey: string, userId: string, plan: string, body: G
   const ask = `Write ONE ${type} for ${body.householdSize ?? 4} servings.
 ${body.dietaryPreferences?.length ? `Diets: ${body.dietaryPreferences.join(", ")}.` : ""}
 ${body.allergies?.length ? `Never use (allergies): ${body.allergies.join(", ")}.` : ""}
-${cuisines.length ? `Preferred cuisine: ${cuisines.join(" or ")} (a different cuisine is fine if it suits better).` : ""}
+${cuisines.length ? `Cuisine (required): ${cuisines.join(" or ")}.` : ""}
 It must be different from these dishes already in the plan: ${avoid.join("; ") || "none"}.
 Return JSON {"meal": {type, name, cuisine, description, ingredients [{name, quantity, unit}], recipe (steps), prepTime, cookTime, servings, difficulty}}.`;
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -155,7 +155,7 @@ Generate a complete halal weekly meal plan directly from the user's preferences.
 Rules:
 1. Every recipe MUST be strictly halal — no pork, no alcohol, no non-halal meat. All meat is assumed halal.
 2. Respect all dietary preferences and avoid every listed allergy across ingredients and recipe steps.
-3. Use the preferred cuisines for a meal type on about four days of the week and other cuisines on the rest, so the week doesn't feel the same every day; leave a meal type unconstrained when its list is empty.
+3. When cuisines are given for a meal type, every meal of that type MUST come from those cuisines (vary the dishes within them); leave a meal type unconstrained when its list is empty.
 4. Each day must contain exactly the requested meal types, in the order given.
 5. Maximize variety — never repeat a recipe, and avoid near-duplicates (e.g. vegetable curry, vegetable korma and vegetable tikka masala in one week). Vary the main ingredient and cooking style from day to day, and keep each dish typical for its meal (breakfast dishes for breakfast).
 6. When pantry usage is prioritized, prefer recipes that reuse the listed pantry ingredients.

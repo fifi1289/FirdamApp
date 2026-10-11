@@ -9,7 +9,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 /** Sign in with Apple is offered on iPhone (Apple requires it next to Google sign-in). */
 export async function appleSignInAvailable(): Promise<boolean> {
-  return Platform.OS === 'ios' && (await AppleAuthentication.isAvailableAsync().catch(() => false));
+  return Platform.OS === 'ios';
 }
 
 /** Native Sign in with Apple, then a Supabase session from Apple's identity token. */

@@ -8,7 +8,18 @@ import { Button, Card, Field, T } from '@/components/ui';
 import { loadHousehold } from '@/lib/kitchen';
 import { patchKitchen } from '@/lib/kitchen-store';
 import { supabase } from '@/lib/supabase';
+import { formatPortions, portionFor } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+
+// How much each person eats. "Auto" works it out from their age.
+const PORTIONS: { label: string; value: number | null }[] = [
+  { label: 'Auto (from age)', value: null },
+  { label: 'Small · ½', value: 0.5 },
+  { label: 'Child · ¾', value: 0.75 },
+  { label: 'Adult · 1', value: 1 },
+  { label: 'Big eater · 1½', value: 1.5 },
+  { label: 'Double · 2', value: 2 },
+];
 
 const RELATIONSHIPS = ['Self', 'Spouse', 'Son', 'Daughter', 'Father', 'Mother', 'Brother', 'Sister', 'Grandfather', 'Grandmother', 'Other'];
 
@@ -17,11 +28,12 @@ interface Member {
   first_name: string;
   relationship: string;
   birth_date: string | null;
+  portion: number | null;
 }
 
-type Draft = { id: string | null; first_name: string; relationship: string; birth_date: string };
+type Draft = { id: string | null; first_name: string; relationship: string; birth_date: string; portion: number | null };
 
-const EMPTY: Draft = { id: null, first_name: '', relationship: 'Son', birth_date: '' };
+const EMPTY: Draft = { id: null, first_name: '', relationship: 'Son', birth_date: '', portion: null };
 
 function age(birth: string | null): string {
   if (!birth) return '';
@@ -38,7 +50,7 @@ export default function FamilyMembers() {
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase.from('family_members').select('id, first_name, relationship, birth_date').order('created_at', { ascending: true });
+    const { data, error } = await supabase.from('family_members').select('id, first_name, relationship, birth_date, portion').order('created_at', { ascending: true });
     if (error) Alert.alert('Could not load your family', error.message);
     setMembers((data ?? []) as Member[]);
   }, []);
@@ -57,7 +69,7 @@ export default function FamilyMembers() {
     const birth = draft.birth_date.trim();
     if (birth && !/^\d{4}-\d{2}-\d{2}$/.test(birth)) return Alert.alert('Birth date', 'Use the format YYYY-MM-DD, for example 2018-04-21.');
     setSaving(true);
-    const payload = { first_name: name, relationship: draft.relationship, birth_date: birth || null };
+    const payload = { first_name: name, relationship: draft.relationship, birth_date: birth || null, portion: draft.portion };
     const { error } = draft.id
       ? await supabase.from('family_members').update(payload).eq('id', draft.id)
       : await supabase.from('family_members').insert(payload);
@@ -104,13 +116,13 @@ export default function FamilyMembers() {
                 key={m.id}
                 accessibilityRole="button"
                 accessibilityHint="Edit this family member"
-                onPress={() => setDraft({ id: m.id, first_name: m.first_name, relationship: m.relationship, birth_date: m.birth_date ?? '' })}
+                onPress={() => setDraft({ id: m.id, first_name: m.first_name, relationship: m.relationship, birth_date: m.birth_date ?? '', portion: m.portion })}
                 style={styles.row}
               >
                 <View style={{ flex: 1 }}>
                   <T weight="bold">{m.first_name}</T>
                   <T size={13} color={colors.muted}>
-                    {[m.relationship, age(m.birth_date)].filter(Boolean).join(' · ')}
+                    {[m.relationship, age(m.birth_date), `eats ${formatPortions(portionFor(m))} portion`].filter(Boolean).join(' · ')}
                   </T>
                 </View>
                 <T size={13} weight="semibold" color={colors.walnut}>
@@ -139,6 +151,14 @@ export default function FamilyMembers() {
               placeholder="2018-04-21"
               keyboardType="numbers-and-punctuation"
             />
+            <T weight="semibold" size={14}>
+              Portion
+            </T>
+            <View style={styles.wrap}>
+              {PORTIONS.map((p) => (
+                <Chip key={p.label} label={p.label} selected={draft.portion === p.value} onPress={() => setDraft({ ...draft, portion: p.value })} />
+              ))}
+            </View>
             <Button label={draft.id ? 'Save changes' : 'Add to family'} onPress={save} busy={saving} />
             {draft.id ? <Button label="Remove from family" variant="text" onPress={() => remove(members!.find((m) => m.id === draft.id)!)} /> : null}
             <Button label="Cancel" variant="secondary" onPress={() => setDraft(null)} />

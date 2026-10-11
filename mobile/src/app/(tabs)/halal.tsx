@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge, Chip } from '@/components/kitchen-ui';
 import { PlacesMap, type MapPin } from '@/components/places-map';
@@ -109,6 +109,7 @@ export default function Halal() {
   const [stores, setStores] = useState(true);
   const [view, setView] = useState<'list' | 'map'>('list');
   const [notice, setNotice] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
 
   const load = useCallback(async () => {
     if (!place) return;
@@ -236,6 +237,8 @@ export default function Halal() {
             ))
           )}
 
+          <Button label="Add a halal place you know" variant="secondary" onPress={() => setAdding(true)} />
+          <AddPlaceSheet open={adding} onClose={() => setAdding(false)} onAdded={load} />
           <Button label="Update my location" variant="text" onPress={useMyLocation} busy={locating} />
           <T size={11.5} color={colors.muted} style={{ textAlign: 'center' }}>
             Places from © OpenStreetMap contributors and Firdam families. Always check halal certification with the place.
@@ -246,6 +249,88 @@ export default function Halal() {
   );
 }
 
+const ADD_CATEGORIES: { key: Category; label: string }[] = [
+  { key: 'restaurant', label: 'Restaurant' },
+  { key: 'butcher', label: 'Butcher' },
+  { key: 'grocery', label: 'Grocery' },
+  { key: 'cafe', label: 'Café / bakery' },
+  { key: 'mosque', label: 'Mosque' },
+];
+
+/** Families add places the map doesn't know yet, by name and street address. */
+function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () => void; onAdded: () => void }) {
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [category, setCategory] = useState<Category>('restaurant');
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (name.trim().length < 2 || address.trim().length < 6) return Alert.alert('Add the name and the full street address.');
+    setSaving(true);
+    try {
+      const res = await callFunction<{ results: { latitude: number; longitude: number; label: string; city: string | null; country: string | null }[] }>(
+        'halal-places',
+        { address: address.trim() },
+      );
+      const hit = res.results?.[0];
+      if (!hit) {
+        Alert.alert('Address not found', 'Check the street number and city, for example “123 Bank St, Ottawa”.');
+        return;
+      }
+      const { error } = await supabase.from('halal_places').insert({
+        name: name.trim(),
+        category,
+        address: hit.label,
+        city: hit.city,
+        country: hit.country,
+        latitude: hit.latitude,
+        longitude: hit.longitude,
+        halal_status: 'halal',
+      });
+      if (error) throw error;
+      setName('');
+      setAddress('');
+      onClose();
+      onAdded();
+      Alert.alert('Thank you!', 'The place is now on Firdam for every family nearby.');
+    } catch (e) {
+      Alert.alert('Could not add the place', e instanceof Error ? e.message : 'Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
+        <Pressable style={styles.sheet} onPress={() => {}}>
+          <T weight="extrabold" size={20}>
+            Add a halal place
+          </T>
+          <TextInput value={name} onChangeText={setName} placeholder="Name, e.g. Shawarma Palace" placeholderTextColor="#9C8D84" style={styles.input} />
+          <TextInput
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Street address, e.g. 464 Rideau St, Ottawa"
+            placeholderTextColor="#9C8D84"
+            style={styles.input}
+          />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {ADD_CATEGORIES.map((c) => (
+              <Chip key={c.key} label={c.label} selected={category === c.key} onPress={() => setCategory(c.key)} />
+            ))}
+          </View>
+          <Button label="Add the place" onPress={save} busy={saving} />
+          <Button label="Cancel" variant="text" onPress={onClose} />
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
 const styles = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: colors.linen, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, gap: 12, paddingBottom: 34 },
+  input: { height: 48, borderRadius: 14, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontSize: 15, color: colors.espresso },
   card: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 14 },
 });

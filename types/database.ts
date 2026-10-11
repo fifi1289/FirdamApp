@@ -162,6 +162,7 @@ export type Database = {
           first_name: string;
           relationship: FamilyRelationship;
           birth_date: string | null;
+          portion: number | null;
           notes: string | null;
           created_at: string;
           updated_at: string;
@@ -172,6 +173,7 @@ export type Database = {
           first_name: string;
           relationship: FamilyRelationship;
           birth_date?: string | null;
+          portion?: number | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -182,6 +184,7 @@ export type Database = {
           first_name?: string;
           relationship?: FamilyRelationship;
           birth_date?: string | null;
+          portion?: number | null;
           notes?: string | null;
           updated_at?: string;
         };

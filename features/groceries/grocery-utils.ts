@@ -28,6 +28,7 @@ export const AISLE_ORDER: PantryCategory[] = [
 ];
 
 const KEYWORDS: [PantryCategory, string[]][] = [
+  ['Canned Foods', ['canned', 'tinned', 'tin of', 'can of', 'crushed tomato', 'diced tomato', 'tomato sauce', 'chickpeas can', 'coconut milk']],
   ['Poultry', ['chicken', 'turkey', 'duck', 'poultry', 'wings', 'drumstick']],
   ['Meat', ['beef', 'lamb', 'mutton', 'goat', 'veal', 'mince', 'kofta', 'steak', 'sausage', 'merguez', 'meat']],
   ['Seafood', ['fish', 'salmon', 'tuna', 'shrimp', 'prawn', 'cod', 'sardine', 'tilapia']],
@@ -38,9 +39,8 @@ const KEYWORDS: [PantryCategory, string[]][] = [
   ['Grains', ['flour', 'oats', 'bulgur', 'quinoa', 'barley', 'semolina', 'lentil', 'chickpea', 'bean', 'freekeh']],
   ['Spices', ['cumin', 'turmeric', 'paprika', 'cinnamon', 'cardamom', 'saffron', 'salt', 'black pepper', 'pepper flakes', 'chili flakes', 'powder', 'sumac', "za'atar", 'zaatar', 'masala', 'spice', 'clove', 'nutmeg', 'baharat']],
   ['Fruits', ['apple', 'banana', 'orange', 'lemon', 'lime', 'date', 'grape', 'mango', 'berry', 'berries', 'pomegranate', 'melon', 'fig', 'apricot', 'pear', 'peach']],
-  ['Vegetables', ['onion', 'garlic', 'tomato', 'potato', 'carrot', 'pepper', 'cucumber', 'spinach', 'lettuce', 'parsley', 'coriander', 'cilantro', 'mint', 'zucchini', 'eggplant', 'aubergine', 'cabbage', 'okra', 'broccoli', 'ginger', 'celery', 'mushroom']],
+  ['Vegetables', ['onion', 'shallot', 'scallion', 'leek', 'garlic', 'tomato', 'potato', 'carrot', 'pepper', 'cucumber', 'spinach', 'lettuce', 'parsley', 'coriander', 'cilantro', 'mint', 'zucchini', 'eggplant', 'aubergine', 'cabbage', 'okra', 'broccoli', 'ginger', 'celery', 'mushroom']],
   ['Oils & Condiments', ['oil', 'vinegar', 'sauce', 'ketchup', 'mayo', 'tahini', 'honey', 'jam', 'mustard', 'harissa', 'molasses', 'paste']],
-  ['Canned Foods', ['canned', 'tin', 'can of']],
   ['Beverages', ['juice', 'water', 'tea', 'coffee', 'soda', 'drink']],
   ['Snacks', ['chips', 'crisps', 'biscuit', 'cookie', 'chocolate', 'nuts', 'almond', 'pistachio', 'cracker', 'candy']],
   ['Frozen Foods', ['frozen', 'ice cream']],
@@ -137,7 +137,9 @@ export function asPantryCategory(c: string): PantryCategory {
 export function groupByAisle(items: GroceryItem[]): { category: PantryCategory; items: GroceryItem[] }[] {
   const map = new Map<PantryCategory, GroceryItem[]>();
   for (const item of items) {
-    const c = asPantryCategory(item.category);
+    // Items saved as "Other" (or with no aisle) are sorted by their name instead.
+    const saved = asPantryCategory(item.category);
+    const c = saved === 'Other' ? guessCategory(item.name) : saved;
     const list = map.get(c) ?? [];
     list.push(item);
     map.set(c, list);

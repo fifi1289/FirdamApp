@@ -13,7 +13,8 @@
         "NSLocationWhenInUseUsageDescription": "Firdam uses your location to show prayer times, the Qibla and halal places near you.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -67,7 +68,9 @@
           "cameraPermission": "Firdam uses the camera only when you take a photo of a receipt to scan into your pantry.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-apple-authentication",
+      "expo-web-browser"
     ],
     "scheme": "firdam",
     "backgroundColor": "#F8F4EE",

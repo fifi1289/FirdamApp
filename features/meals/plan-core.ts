@@ -293,7 +293,9 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
         const scored = shuffle(unused).map((r) => {
           const c = checkNeeds(needsOf(r), pantry, { factor: factorOf(r), ledger });
           const usesPantry = c.lines.filter((l) => l.item && (l.status === 'enough' || l.status === 'short')).length;
-          return { r, score: c.missingCount * 2 + c.shortCount - usesPantry * 0.5 };
+          // Food close to its use-by date counts extra, so it gets eaten first.
+          const usesSoon = c.lines.filter((l) => l.item && useSoon(l.item as PantryLike)).length;
+          return { r, score: c.missingCount * 2 + c.shortCount - usesPantry * 0.5 - usesSoon * 2 };
         });
         scored.sort((a, b) => a.score - b.score);
         // Keep some variety: choose among the best few.
@@ -331,6 +333,13 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
     weekStartDate: formatDateISO(start),
     days,
   };
+}
+
+/** True when a pantry item should be used within the next 4 days (or is past its date). */
+function useSoon(item: PantryLike): boolean {
+  if (!item.expiration_date) return false;
+  const days = (new Date(`${item.expiration_date}T12:00:00`).getTime() - Date.now()) / 86_400_000;
+  return days <= 4;
 }
 
 /** A random id for a plan (works on the web and on phones). */

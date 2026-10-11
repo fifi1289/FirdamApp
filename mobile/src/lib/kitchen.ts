@@ -83,7 +83,7 @@ export async function loadChoices(): Promise<{ allergies: string[]; diets: strin
 }
 
 export async function loadHousehold(): Promise<Household> {
-  const { data } = await supabase.from('family_members').select('birth_date, relationship');
+  const { data } = await supabase.from('family_members').select('birth_date, relationship, portion');
   const members = (data ?? []) as { birth_date: string | null; relationship: string }[];
   return members.length ? householdFrom(members) : { portions: 2, people: 2, children: 0 };
 }
@@ -261,7 +261,12 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
       allergies: prefs.allergies,
       cuisinePreferences: prefs.cuisinePreferences,
       usePantryFirst: prefs.usePantryFirst,
-      pantryItems: pantry.map((p) => ({ name: p.name, quantity: p.quantity, unit: p.unit })),
+      pantryItems: pantry.map((p) => ({
+        name: p.name,
+        quantity: p.quantity,
+        unit: p.unit,
+        useSoon: !!p.expiration_date && new Date(`${p.expiration_date}T12:00:00`).getTime() - Date.now() <= 4 * 86_400_000,
+      })),
     }),
   });
   const json = (await res.json().catch(() => null)) as

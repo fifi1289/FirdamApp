@@ -161,11 +161,15 @@ export async function requestGeneratedMealPlan(
     allergies: preferences.allergies,
     cuisinePreferences: preferences.cuisinePreferences,
     usePantryFirst: preferences.usePantryFirst,
-    pantryItems: pantryItems.map((p) => ({
-      name: p.name,
-      quantity: p.quantity,
-      unit: p.unit,
-    })),
+    pantryItems: pantryItems.map((p) => {
+      const exp = (p as { expiration_date?: string | null }).expiration_date;
+      return {
+        name: p.name,
+        quantity: p.quantity,
+        unit: p.unit,
+        useSoon: !!exp && new Date(`${exp}T12:00:00`).getTime() - Date.now() <= 4 * 86_400_000,
+      };
+    }),
   };
 
   const res = await fetch(functionUrl, {

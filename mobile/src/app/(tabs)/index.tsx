@@ -110,6 +110,40 @@ function UseSoonCard() {
   );
 }
 
+// Modules on firdam.com that are coming to the app.
+const COMING = [
+  { title: 'Quran', text: 'Daily reading goals and khatm tracking' },
+  { title: 'Ramadan', text: 'Suhoor and iftar times, fasting log' },
+  { title: 'Family calendar', text: 'Shared events, school and appointments' },
+  { title: 'Budget & savings', text: 'Household spending and halal savings goals' },
+  { title: 'Hajj & Umrah', text: 'Plan the trip with trusted agencies' },
+  { title: 'Community', text: 'Events at mosques and centres near you' },
+];
+
+function ComingSoonCard() {
+  return (
+    <Card style={{ gap: 10 }}>
+      <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+        COMING SOON TO THE APP
+      </T>
+      {COMING.map((c) => (
+        <View key={c.title} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={styles.soonDot} />
+          <View style={{ flex: 1 }}>
+            <T size={14.5} weight="semibold">
+              {c.title}
+            </T>
+            <T size={12.5} color={colors.muted}>
+              {c.text}
+            </T>
+          </View>
+          <Badge label="Soon" tone="amber" />
+        </View>
+      ))}
+    </Card>
+  );
+}
+
 function TonightCard() {
   const k = useKitchen();
   const today = formatDateISO(new Date());
@@ -146,9 +180,35 @@ function TonightCard() {
         </Card>
       )}
       {openItems ? (
-        <Pressable accessibilityRole="button" onPress={() => router.push('/kitchen')} style={styles.shopping}>
-          <T weight="bold">Family shopping list</T>
-          <T size={13} color={colors.muted}>{`${openItems} item${openItems === 1 ? '' : 's'} to buy`}</T>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push({ pathname: '/kitchen', params: { section: 'shopping' } })}
+          style={styles.shopCard}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <T size={12.5} weight="bold" color={colors.sageDark} style={{ letterSpacing: 0.4 }}>
+              SHOPPING LIST
+            </T>
+            <Badge label={`${openItems} to buy`} tone="sage" />
+          </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            {k.items
+              .filter((i) => !i.checked)
+              .slice(0, 5)
+              .map((i) => (
+                <View key={i.id} style={styles.shopItem}>
+                  <T size={13} weight="semibold">
+                    {i.name}
+                  </T>
+                </View>
+              ))}
+            {openItems > 5 ? (
+              <T size={13} color={colors.muted} style={{ alignSelf: 'center' }}>{`+${openItems - 5} more`}</T>
+            ) : null}
+          </View>
+          <T size={13.5} weight="bold" color={colors.sageDark}>
+            Open the shopping list ›
+          </T>
         </Pressable>
       ) : null}
     </>
@@ -170,11 +230,15 @@ export default function Today() {
         <T size={15}>Restaurants, butchers, groceries and mosques around you, with directions.</T>
         <Button label="Find halal places" variant="secondary" onPress={() => router.push('/halal')} />
       </Card>
+      <ComingSoonCard />
     </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  shopCard: { gap: 10, backgroundColor: '#EEF4EA', borderWidth: 1, borderColor: '#CFE0C6', borderRadius: 20, padding: 16 },
+  shopItem: { backgroundColor: colors.card, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: '#CFE0C6' },
+  soonDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.gold },
   warn: { gap: 8, backgroundColor: '#FFF4E0', borderWidth: 1, borderColor: '#F0D29A', borderRadius: 20, padding: 16 },
   warnRed: { backgroundColor: '#FCEAE6', borderColor: '#EDB9AE' },
   prayer: { backgroundColor: colors.espresso, borderRadius: 24, padding: 20, overflow: 'hidden' },

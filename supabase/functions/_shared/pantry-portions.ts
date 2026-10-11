@@ -3,9 +3,12 @@
 export interface MemberLike {
   birth_date: string | null;
   relationship: string;
+  /** Set by the family (1 = adult portion); otherwise worked out from age. */
+  portion?: number | null;
 }
 
 export function portionFor(member: MemberLike): number {
+  if (member.portion != null && Number(member.portion) > 0) return Number(member.portion);
   if (member.birth_date) {
     const born = new Date(member.birth_date);
     if (!Number.isNaN(born.getTime())) {

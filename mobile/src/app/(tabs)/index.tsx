@@ -147,7 +147,8 @@ function ComingSoonCard() {
 function TonightCard() {
   const k = useKitchen();
   const today = formatDateISO(new Date());
-  const meals = k.week?.plan.days.find((d) => d.date === today)?.meals ?? [];
+  // Skip meals still waiting for the AI chef (no recipe yet).
+  const meals = (k.week?.plan.days.find((d) => d.date === today)?.meals ?? []).filter((m) => !m.needsAI);
   const meal = meals.find((m) => m.type === 'dinner') ?? meals[meals.length - 1];
   const openItems = k.items.filter((i) => !i.checked).length;
 

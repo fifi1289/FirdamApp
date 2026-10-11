@@ -29,6 +29,11 @@ export interface MockMeal {
   cookTime: number;
   servings: number;
   difficulty: MealDifficulty;
+  /**
+   * The library has no (unused) recipe in the cuisine the family chose for
+   * this meal: the app offers "Create with the AI chef" instead. Holds the cuisine.
+   */
+  needsAI?: string;
 }
 
 export interface MockDay {
@@ -278,20 +283,33 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
     const meals: MockMeal[] = lowerTypes.map((type, idx) => {
       const typePool = byType[type] ?? recipes;
       let pool = typePool;
-      // Chosen cuisines are respected: only those cuisines for this meal. If they
-      // run out, use their dishes from a nearby meal type (snack ↔ breakfast,
-      // lunch ↔ dinner), then repeat one, and only leave the cuisine if the
-      // library has nothing of it at all.
+      // Chosen cuisines are respected: only those cuisines for this meal, also
+      // from a nearby meal type (snack ↔ breakfast, lunch ↔ dinner). When the
+      // library has none left, the meal says so and offers the AI chef.
       const wanted = (cuisinePrefs[type] ?? []).map((c) => c.toLowerCase());
-      let strictCuisine = false;
-      if (wanted.length > 0) {
+      const strictCuisine = wanted.length > 0;
+      if (strictCuisine) {
         const ofCuisine = (rs: RecipeRow[]) => rs.filter((r) => wanted.includes((r.cuisine?.name ?? '').toLowerCase()));
-        const same = ofCuisine(typePool);
-        const near = ofCuisine(NEAR_MEALS[type]?.flatMap((t) => byType[t] ?? []) ?? []);
-        if (same.some((r) => !usedIds.has(r.id))) pool = same;
-        else if (near.some((r) => !usedIds.has(r.id))) pool = near;
-        else if (same.length || near.length) pool = [...same, ...near];
-        strictCuisine = same.length + near.length > 0;
+        const same = ofCuisine(typePool).filter((r) => !usedIds.has(r.id));
+        const near = ofCuisine(NEAR_MEALS[type]?.flatMap((t) => byType[t] ?? []) ?? []).filter((r) => !usedIds.has(r.id));
+        pool = same.length ? same : near;
+        if (pool.length === 0) {
+          const cuisine = (cuisinePrefs[type] ?? []).join(' or ');
+          return {
+            id: `needs-ai-${i}-${type}`,
+            name: `${cuisine} ${type}`,
+            type,
+            description: `No more ${cuisine} ${type} recipes in the library yet.`,
+            image: getMealImage(`${cuisine} ${type}`, type),
+            ingredients: [],
+            recipe: [],
+            prepTime: 0,
+            cookTime: 0,
+            servings: householdSize,
+            difficulty: 'Easy',
+            needsAI: cuisine,
+          } satisfies MockMeal;
+        }
       }      let candidate: RecipeRow | undefined;
 
       let unused = pool.filter((r) => !usedIds.has(r.id));
@@ -396,6 +414,7 @@ export function normalizeMeal(meal: Record<string, unknown>): MockMeal {
     cookTime: Number(meal.cookTime ?? 0),
     servings: Number(meal.servings ?? 4),
     difficulty: difficulty ?? 'Medium',
+    ...(meal.needsAI ? { needsAI: String(meal.needsAI) } : {}),
   };
 }
 
@@ -461,7 +480,8 @@ export function swapPlanMeal(
         recipeSuits(r, allergies, tier.diets)
     );
     const inCuisine = wanted.length ? options.filter((r) => wanted.includes((r.cuisine?.name ?? '').toLowerCase())) : options;
-    const pick = shuffle(inCuisine.length ? inCuisine : options)[0];
+    // Never leave the chosen cuisines: if none fit, the app offers the AI chef.
+    const pick = shuffle(inCuisine)[0];
     if (!pick) continue;
     const meal = toMockMeal(pick, type, householdSize);
     return {

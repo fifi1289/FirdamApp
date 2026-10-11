@@ -27,6 +27,10 @@ export async function signInWithApple(): Promise<boolean> {
     return true;
   } catch (e) {
     if ((e as { code?: string }).code === 'ERR_REQUEST_CANCELED') return false;
+    // The Expo Go preview doesn't include Apple's sign-in; the real app does.
+    if (e instanceof Error && /not available|native dependencies|linked/i.test(e.message)) {
+      throw new Error('Sign in with Apple works in the Firdam app from TestFlight or the App Store, not in this preview. Use Google or email here.');
+    }
     throw e;
   }
 }

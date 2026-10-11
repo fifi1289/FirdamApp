@@ -12,6 +12,7 @@ import { checkNeeds, type Line } from '@/shared/pantry-engine';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { ToBuyButton } from '@/components/to-buy-button';
 
 /** A meal the AI chef wrote (not from the recipe library). */
 export default function MealScreen() {
@@ -102,9 +103,7 @@ export default function MealScreen() {
                 </T>
                 {l.status === 'missing' || l.status === 'short' ? (
                   <View style={{ alignItems: 'flex-end', gap: 4, marginLeft: 8 }}>
-                    <T size={12.5} weight="bold" color={l.status === 'short' ? '#8A5A16' : colors.brickText}>
-                      {l.status === 'short' ? 'not enough' : 'to buy'}
-                    </T>
+                    <ToBuyButton line={l} label={l.status === 'short' ? 'not enough' : 'to buy'} color={l.status === 'short' ? '#8A5A16' : colors.brickText} />
                     <Pressable accessibilityRole="button" accessibilityLabel={`I have ${l.need.name}`} onPress={() => haveIt(l)} style={styles.have} hitSlop={6}>
                       <T size={11.5} weight="bold" color={colors.sageDark}>
                         {having === l.need.name ? '…' : 'I have it'}

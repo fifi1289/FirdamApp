@@ -43,7 +43,8 @@ const STATUS: Record<Place['halalStatus'], { label: string; tone: 'sage' | 'ambe
   may_sell: { label: 'May stock halal · ask', tone: 'walnut' },
 };
 
-const DISTANCES = [2, 5, 10, 20, 30];
+/** One search area around you; the list is sorted nearest first. */
+const RADIUS_KM = 25;
 
 const PIN: Record<Place['halalStatus'], string> = {
   halal_only: '#2E7D4F',
@@ -104,7 +105,7 @@ export default function Halal() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | Category>('all');
   const [locating, setLocating] = useState(false);
-  const [km, setKm] = useState(10);
+  const km = RADIUS_KM;
   const [stores, setStores] = useState(true);
   const [view, setView] = useState<'list' | 'map'>('list');
   const [notice, setNotice] = useState<string | null>(null);
@@ -130,7 +131,7 @@ export default function Halal() {
     if (osm.status === 'rejected' || osm.value.pending) {
       setNotice(found.length ? 'Adding more places around you — pull back in a few minutes for the full list.' : 'Firdam is gathering halal places for your area. Check back in a few minutes.');
     }
-  }, [place, km, stores]);
+  }, [place, stores]);
 
   useEffect(() => {
     load();
@@ -156,7 +157,7 @@ export default function Halal() {
       // Places marked halal first, then shops that may stock it; nearest first.
       .sort((a, b) => Number(a.p.halalStatus === 'may_sell') - Number(b.p.halalStatus === 'may_sell') || a.km - b.km)
       .slice(0, 100);
-  }, [places, place, filter, km]);
+  }, [places, place, filter]);
 
   return (
     <TabScreen title="Halal near me" subtitle={place ? `Around ${place.label}` : 'Restaurants, butchers, groceries and mosques'}>
@@ -170,14 +171,6 @@ export default function Halal() {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {FILTERS.map((f) => (
               <Chip key={f.key} label={f.label} selected={filter === f.key} onPress={() => setFilter(f.key)} />
-            ))}
-          </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-            <T size={13} weight="semibold" color={colors.muted}>
-              Within
-            </T>
-            {DISTANCES.map((d) => (
-              <Chip key={d} label={`${d} km`} selected={km === d} onPress={() => setKm(d)} />
             ))}
           </View>
           <Chip label="Also show shops that may stock halal food" selected={stores} onPress={() => setStores(!stores)} />
@@ -201,7 +194,7 @@ export default function Halal() {
           ) : shown.length === 0 ? (
             <Card>
               <T size={14.5} color={colors.muted}>
-                {`Nothing listed within ${km} km yet. Try a wider distance or another filter.`}
+                {filter === 'all' ? 'No halal places listed near you yet.' : 'Nothing in this category near you yet. Try “All”.'}
               </T>
             </Card>
           ) : view === 'map' ? (

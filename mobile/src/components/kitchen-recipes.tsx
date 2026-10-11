@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge, Chip, Photo } from '@/components/kitchen-ui';
 import { Button, T } from '@/components/ui';
@@ -9,6 +9,9 @@ import { useKitchen } from '@/lib/kitchen-store';
 import { colors, fonts } from '@/theme';
 
 type Filter = 'safe' | 'quick' | 'cook';
+
+const MEALS = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
+const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
 
 /** Recipes shown per page; "Show more" adds the next page. */
 const PAGE_SIZE = 40;
@@ -20,8 +23,11 @@ export function RecipesView() {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<Set<Filter>>(new Set(['safe']));
   const [limit, setLimit] = useState(PAGE_SIZE);
+  const [meal, setMeal] = useState<string | null>(null);
+  const [cuisine, setCuisine] = useState<string | null>(null);
+  const [diet, setDiet] = useState<string | null>(null);
   // A new search or filter starts again from the top.
-  useEffect(() => setLimit(PAGE_SIZE), [query, filters]);
+  useEffect(() => setLimit(PAGE_SIZE), [query, filters, meal, cuisine, diet]);
 
   useEffect(() => {
     loadRecipes()
@@ -33,6 +39,13 @@ export function RecipesView() {
   const diets = k.prefs?.dietaryPreferences ?? [];
   const portions = k.household?.portions ?? 2;
 
+  // Cuisines in the library, most recipes first.
+  const cuisines = useMemo(() => {
+    const count = new Map<string, number>();
+    for (const r of recipes ?? []) if (r.cuisine?.name) count.set(r.cuisine.name, (count.get(r.cuisine.name) ?? 0) + 1);
+    return [...count.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c);
+  }, [recipes]);
+
   const shown = useMemo(() => {
     if (!recipes) return [];
     const q = query.trim().toLowerCase();
@@ -40,10 +53,13 @@ export function RecipesView() {
       .filter((r) => !q || r.name.toLowerCase().includes(q) || (r.cuisine?.name ?? '').toLowerCase().includes(q))
       .filter((r) => !filters.has('safe') || (isSafeFor(r, allergies) && fitsDiets(r, diets)))
       .filter((r) => !filters.has('quick') || totalMinutes(r) <= 30)
+      .filter((r) => !meal || (r.meal_type?.name ?? '').toLowerCase().includes(meal))
+      .filter((r) => !cuisine || r.cuisine?.name === cuisine)
+      .filter((r) => !diet || fitsDiets(r, [diet]))
       .map((r) => ({ r, check: k.pantry.length ? checkRecipe(r, k.pantry, portions) : null }))
       .filter(({ check }) => !filters.has('cook') || (check && check.verdict !== 'far'))
       .sort((a, b) => (filters.has('cook') && a.check && b.check ? a.check.missingCount - b.check.missingCount : 0));
-  }, [recipes, query, filters, allergies, diets, k.pantry, portions]);
+  }, [recipes, query, filters, meal, cuisine, diet, allergies, diets, k.pantry, portions]);
 
   const toggle = (f: Filter) =>
     setFilters((cur) => {
@@ -72,9 +88,25 @@ export function RecipesView() {
         <Chip label="30 min or less" selected={filters.has('quick')} onPress={() => toggle('quick')} />
         {k.pantry.length ? <Chip label="Cook with what I have" selected={filters.has('cook')} onPress={() => toggle('cook')} /> : null}
       </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+        {MEALS.map((m) => (
+          <Chip key={m} label={m[0].toUpperCase() + m.slice(1)} selected={meal === m} onPress={() => setMeal(meal === m ? null : m)} />
+        ))}
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+        {cuisines.map((c) => (
+          <Chip key={c} label={c} selected={cuisine === c} onPress={() => setCuisine(cuisine === c ? null : c)} />
+        ))}
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+        {DIETS.map((d) => (
+          <Chip key={d} label={d} selected={diet === d} onPress={() => setDiet(diet === d ? null : d)} tone="sage" />
+        ))}
+      </ScrollView>
       <T size={12.5} color={colors.muted}>
         {shown.length > limit ? `Showing ${limit} of ${shown.length} recipes` : `${shown.length} recipe${shown.length === 1 ? '' : 's'}`}
         {filters.has('safe') && allergies.length ? ` · without ${allergies.join(', ').toLowerCase()}` : ''}
+        {filters.has('safe') && diets.length ? ` · ${diets.join(', ').toLowerCase()}` : ''}
       </T>
 
       {shown.slice(0, limit).map(({ r, check }) => (

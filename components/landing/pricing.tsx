@@ -17,7 +17,7 @@ const tiers = [
       'Halal places near you, confirmed by families',
       '204 halal recipes with allergy filters',
       'Shared shopping list for two people',
-      '1 AI meal plan a month',
+      '2 AI meal plans a month',
     ],
     cta: 'Get started',
     href: '/auth/register',

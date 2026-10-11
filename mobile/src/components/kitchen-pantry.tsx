@@ -1,10 +1,12 @@
 import * as Haptics from 'expo-haptics';
+import * as ImagePicker from 'expo-image-picker';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
 import type { PantryItem } from '@/lib/db-types';
+import { callFunction } from '@/lib/functions';
 import { patchKitchen, refreshKitchen, useKitchen } from '@/lib/kitchen-store';
 import { supabase } from '@/lib/supabase';
 import { groupByAisle, guessCategory, parseQuickAdd, toPantryUnit } from '@/shared/grocery-utils';
@@ -71,6 +73,59 @@ export function PantryView() {
     }
   };
 
+  // Receipt → food lines → pantry. The server checks the monthly allowance
+  // (1 on the free plan) and leaves out anything that isn't halal.
+  const [scanning, setScanning] = useState(false);
+  const scanWith = async (source: 'camera' | 'library') => {
+    const perm = source === 'camera' ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return Alert.alert('Permission needed', 'Allow access in Settings to scan a receipt.');
+    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.5, base64: true };
+    const shot = source === 'camera' ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
+    const asset = shot.canceled ? null : shot.assets[0];
+    if (!asset?.base64) return;
+    setScanning(true);
+    try {
+      const res = await callFunction<{
+        items: { name: string; quantity: number; unit: string; category: string; staple: boolean }[];
+        skipped?: { name: string }[];
+      }>('receipt-scan', undefined, { image: `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` });
+      const items = res.items ?? [];
+      if (!items.length) return Alert.alert('No food found', 'Try again with the whole receipt flat and in good light.');
+      const list = items.map((i) => `• ${i.quantity} ${i.unit} ${i.name}`).join('\n');
+      const skipped = res.skipped?.length ? `\n\nLeft out (not halal): ${res.skipped.map((x) => x.name).join(', ')}` : '';
+      Alert.alert(`Add ${items.length} item${items.length === 1 ? '' : 's'} to your pantry?`, list + skipped, [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Add',
+          onPress: async () => {
+            const { error } = await supabase.from('pantry_items').insert(
+              items.map((i) => ({
+                name: i.name,
+                category: i.category,
+                quantity: i.quantity,
+                unit: i.unit,
+                tracking: i.staple ? 'level' : 'count',
+                ...(i.staple ? { level: 'full' } : {}),
+              })),
+            );
+            if (error) Alert.alert('Could not add', error.message);
+            await refreshKitchen();
+          },
+        },
+      ]);
+    } catch (e) {
+      Alert.alert('Could not read the receipt', e instanceof Error ? e.message : 'Please try again.');
+    } finally {
+      setScanning(false);
+    }
+  };
+  const scanReceipt = () =>
+    Alert.alert('Scan a receipt', 'Food on the receipt goes into your pantry. The free plan includes one scan a month.', [
+      { text: 'Take a photo', onPress: () => scanWith('camera') },
+      { text: 'Choose a photo', onPress: () => scanWith('library') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+
   const usedUp = (item: PantryItem) => {
     Alert.alert(`Used up ${item.name}?`, 'It will be removed from your pantry.', [
       { text: 'Cancel', style: 'cancel' },
@@ -102,6 +157,7 @@ export function PantryView() {
         />
         <Button label="Add" onPress={add} busy={busy} style={{ height: 48, paddingHorizontal: 18 }} />
       </View>
+      <Button label={scanning ? 'Reading your receipt…' : 'Scan a receipt'} variant="secondary" onPress={scanReceipt} busy={scanning} />
 
       {soon.length ? (
         <Card style={{ gap: 8 }}>

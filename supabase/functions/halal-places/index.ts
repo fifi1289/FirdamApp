@@ -74,6 +74,36 @@ function remember(key: string, body: unknown) {
   cache.set(key, { at: Date.now(), body });
 }
 
+// ---- Persistent cache in the database (last good answer per area) ----
+const DB_FRESH_MS = 24 * 3600_000;
+function dbHeaders(): Record<string, string> | null {
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  return key ? { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" } : null;
+}
+async function dbGet(key: string): Promise<{ body: unknown; fresh: boolean } | null> {
+  const url = Deno.env.get("SUPABASE_URL");
+  const headers = dbHeaders();
+  if (!url || !headers) return null;
+  try {
+    const res = await fetch(`${url}/rest/v1/osm_place_cache?key=eq.${encodeURIComponent(key)}&select=body,fetched_at`, { headers });
+    if (!res.ok) return null;
+    const row = ((await res.json()) as { body: unknown; fetched_at: string }[])[0];
+    return row ? { body: row.body, fresh: Date.now() - new Date(row.fetched_at).getTime() < DB_FRESH_MS } : null;
+  } catch {
+    return null;
+  }
+}
+async function dbPut(key: string, body: unknown) {
+  const url = Deno.env.get("SUPABASE_URL");
+  const headers = dbHeaders();
+  if (!url || !headers) return;
+  await fetch(`${url}/rest/v1/osm_place_cache?on_conflict=key`, {
+    method: "POST",
+    headers: { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({ key, body, fetched_at: new Date().toISOString() }),
+  }).catch(() => {});
+}
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -201,21 +231,23 @@ function normalizeAgency(el: OsmElement): TravelAgency | null {
 async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?: string, stores = false): Promise<OsmElement[]> {
   // Gather shops and amenities in the area once, then filter that set in
   // memory — far cheaper than one spatial query per condition in dense cities.
+  // A bounding box with tag filters is far lighter for the public servers than
+  // collecting every shop and amenity in the area first.
+  const dLat = radius / 111_320;
+  const dLng = radius / (111_320 * Math.max(0.2, Math.cos((lat * Math.PI) / 180)));
+  const bbox = [lat - dLat, lng - dLng, lat + dLat, lng + dLng].map((n) => n.toFixed(5)).join(",");
   const query = rawQuery ?? `
-    [out:json][timeout:45];
+    [out:json][timeout:25][bbox:${bbox}];
     (
-      nwr(around:${radius},${lat},${lng})["shop"];
-      nwr(around:${radius},${lat},${lng})["amenity"];
-    )->.pois;
-    (
-      nwr.pois["diet:halal"~"^(yes|only|limited)$"];
-      nwr.pois["halal"="yes"];
-      nwr.pois["cuisine"~"halal",i];
-      nwr.pois["name"~"halal",i];
-      nwr.pois["amenity"="place_of_worship"]["religion"="muslim"];
+      nwr["diet:halal"~"^(yes|only|limited)$"];
+      nwr["halal"="yes"];
+      nwr["cuisine"~"halal",i];
+      nwr["amenity"="place_of_worship"]["religion"="muslim"];
+      nwr["shop"]["name"~"halal",i];
+      nwr["amenity"~"^(restaurant|fast_food|cafe)$"]["name"~"halal",i];
     )->.halal;
     .halal out center tags 400;${stores ? `
-    (nwr.pois["shop"~"^(supermarket|grocery|butcher|deli|spices|food|greengrocer)$"]; - .halal;)->.stores;
+    (nwr["shop"~"^(supermarket|grocery|butcher|deli|spices|food|greengrocer)$"]; - .halal;)->.stores;
     .stores out center tags 250;` : ""}
   `;
 
@@ -365,8 +397,20 @@ Deno.serve(async (req: Request) => {
       const key = `p:${lat.toFixed(2)}:${lng.toFixed(2)}:${radius}:${stores ? 1 : 0}`;
       const hit = cached<unknown>(key);
       if (hit) return json(hit);
+      const stored = await dbGet(key);
+      if (stored?.fresh) {
+        remember(key, stored.body);
+        return json(stored.body);
+      }
 
-      const elements = await queryOverpass(lat, lng, radius, undefined, stores);
+      let elements: OsmElement[];
+      try {
+        elements = await queryOverpass(lat, lng, radius, undefined, stores);
+      } catch (err) {
+        // Map servers busy: an older answer for this area beats an empty screen.
+        if (stored) return json({ ...(stored.body as Record<string, unknown>), stale: true });
+        throw err;
+      }
       const seen = new Set<string>();
       const places: NormalizedPlace[] = [];
       for (const el of elements) {
@@ -377,6 +421,7 @@ Deno.serve(async (req: Request) => {
       }
       const body = { places, attribution: "© OpenStreetMap contributors" };
       remember(key, body);
+      await dbPut(key, body);
       return json(body);
     }
 

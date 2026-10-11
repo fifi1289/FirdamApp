@@ -1,11 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { haramItemReason } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
-import { countUsageThisMonth, getPlan, getUser, PAID_RECEIPT_SCANS_PER_MONTH, recordUsage } from "../_shared/plan.ts";
+import { countUsageThisMonth, FREE_RECEIPT_SCANS_PER_MONTH, getPlan, getUser, PAID_RECEIPT_SCANS_PER_MONTH, recordUsage } from "../_shared/plan.ts";
 
 /**
  * Reads a shopping receipt photo and returns the food items on it, ready for
- * the family to check before they go into the pantry. Paid plans only.
+ * the family to check before they go into the pantry. Free plan: 1 a month.
  *
  * POST { image: "data:image/jpeg;base64,…" }
  * → { items: [{ name, quantity, unit, category, staple }], store, date, total, currency, used, limit }
@@ -50,11 +50,12 @@ Deno.serve(async (req) => {
     const user = await getUser(req);
     if (!user) return json({ error: "Please sign in." }, 401);
     const plan = await getPlan(user.id);
-    if (plan === "free") {
-      return json({ error: "Receipt scanning is part of Premium and Family+.", code: "limit_reached" }, 402);
-    }
+    const limit = plan === "free" ? FREE_RECEIPT_SCANS_PER_MONTH : PAID_RECEIPT_SCANS_PER_MONTH;
     const used = await countUsageThisMonth(user.id, "receipt_scan");
-    if (used >= PAID_RECEIPT_SCANS_PER_MONTH) {
+    if (plan === "free" && used >= limit) {
+      return json({ error: "You've used this month's free receipt scan. Quick add still works.", code: "limit_reached" }, 402);
+    }
+    if (used >= limit) {
       return json(
         { error: `You've scanned ${PAID_RECEIPT_SCANS_PER_MONTH} receipts this month — the monthly maximum. Quick add still works.`, code: "fair_use" },
         429,
@@ -121,7 +122,7 @@ Deno.serve(async (req) => {
       total,
       currency: typeof parsed.currency === "string" ? parsed.currency.slice(0, 8) : null,
       used: used + 1,
-      limit: PAID_RECEIPT_SCANS_PER_MONTH,
+      limit,
     });
   } catch (err) {
     console.error(err);

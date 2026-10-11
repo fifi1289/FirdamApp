@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Camera, Check, Crown, Loader2, Receipt, RotateCcw } from 'lucide-react';
+import { Camera, Check, Loader2, Receipt, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,6 @@ import {
 import { UpgradeDialog } from '@/components/plan/upgrade-prompt';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { callEdgeFunction, EdgeFunctionError } from '@/lib/supabase/functions';
-import { usePlan } from '@/lib/plan/plan';
 import { applyPantryChanges, changesForAdding } from '@/lib/pantry/store';
 import { matchScore } from '@/lib/pantry/units';
 import { undoToast } from '@/features/pantry/cook-dialog';
@@ -69,7 +68,6 @@ function todayISO() {
  */
 export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const { isPaid, loading: planLoading } = usePlan();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<'pick' | 'reading' | 'review'>('pick');
   const [preview, setPreview] = useState<string | null>(null);
@@ -187,16 +185,6 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
 
           {step === 'pick' && (
             <div className="space-y-4">
-              {!planLoading && !isPaid ? (
-                <div className="rounded-2xl border border-brand-gold/40 bg-brand-gold/10 p-5 text-center">
-                  <Crown className="mx-auto h-6 w-6 text-[#7a5a30] dark:text-brand-gold" />
-                  <p className="mt-2 font-semibold text-foreground">Receipt scanning comes with Firdam Family</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Free plan: use quick add — type “2 kg chicken, a dozen eggs”.</p>
-                  <Button className="mt-4" onClick={() => setUpgradeOpen(true)}>
-                    See plans
-                  </Button>
-                </div>
-              ) : (
                 <>
                   <input
                     ref={fileRef}
@@ -219,7 +207,6 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
                   </button>
                   <p className="text-center text-xs text-muted-foreground">Up to 30 receipts a month. The photo isn’t stored.</p>
                 </>
-              )}
             </div>
           )}
 
@@ -327,8 +314,8 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
       <UpgradeDialog
         open={upgradeOpen}
         onOpenChange={setUpgradeOpen}
-        title="Scan receipts with Firdam Family"
-        description="Photograph your receipt and your pantry fills itself — up to 30 receipts a month."
+        title="More receipt scans with Firdam Family"
+        description="The free plan includes one receipt a month. Firdam Family scans up to 30."
       />
     </>
   );

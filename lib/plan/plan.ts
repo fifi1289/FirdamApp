@@ -12,7 +12,7 @@ import type { PlanId, Subscription } from '@/types/database';
 export const PLAN_LIMITS = {
   free: {
     companionMessagesPerMonth: 0,
-    aiMealPlansPerMonth: 1,
+    aiMealPlansPerMonth: 2,
     customRecipes: 3,
     trips: 1,
     habits: 3,

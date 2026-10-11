@@ -76,9 +76,9 @@ Generate a complete halal weekly meal plan directly from the user's preferences.
 Rules:
 1. Every recipe MUST be strictly halal — no pork, no alcohol, no non-halal meat. All meat is assumed halal.
 2. Respect all dietary preferences and avoid every listed allergy across ingredients and recipe steps.
-3. Honor cuisine preferences per meal type when provided; leave a meal type unconstrained when its list is empty.
+3. Use the preferred cuisines for a meal type on about four days of the week and other cuisines on the rest, so the week doesn't feel the same every day; leave a meal type unconstrained when its list is empty.
 4. Each day must contain exactly the requested meal types, in the order given.
-5. Maximize variety — avoid repeating the same recipe within the plan.
+5. Maximize variety — never repeat a recipe, and avoid near-duplicates (e.g. vegetable curry, vegetable korma and vegetable tikka masala in one week). Vary the main ingredient and cooking style from day to day, and keep each dish typical for its meal (breakfast dishes for breakfast).
 6. When pantry usage is prioritized, prefer recipes that reuse the listed pantry ingredients.
 7. Scale ingredient quantities to the household size.
 8. Keep recipes realistic and home-cookable with clear step-by-step instructions.

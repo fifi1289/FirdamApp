@@ -6,10 +6,12 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from '@/components/art';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
-import { addShoppingItems, checkRecipe, isSafeFor, loadRecipes, recipeAllergens, recipeImage, totalMinutes, type RecipeRow } from '@/lib/kitchen';
+import { addShoppingItems, checkRecipe, fitsDiets, isSafeFor, loadRecipes, recipeAllergens, recipeImage, totalMinutes, type RecipeRow } from '@/lib/kitchen';
 import { refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+
+const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
 
 const STATUS: Record<string, { label: string; color: string }> = {
   enough: { label: 'have', color: colors.sage },
@@ -60,6 +62,9 @@ export default function RecipeScreen() {
 
   const safe = isSafeFor(recipe, allergies);
   const found = recipeAllergens(recipe);
+  const familyDiets = k.prefs?.dietaryPreferences ?? [];
+  const missedDiets = familyDiets.filter((d) => !fitsDiets(recipe, [d]));
+  const suits = DIETS.filter((d) => fitsDiets(recipe, [d]));
   const steps = recipe.recipe_steps.slice().sort((a, b) => a.step_number - b.step_number);
   const h = k.household;
 
@@ -109,7 +114,18 @@ export default function RecipeScreen() {
             ) : null}
             <Badge label="Halal ingredients" tone="walnut" />
             {found.length && !allergies.length ? <Badge label={`Contains ${found.join(', ').toLowerCase()}`} tone="amber" /> : null}
+            {familyDiets.length ? (
+              <Badge
+                label={missedDiets.length ? `Not ${missedDiets.join(', ').toLowerCase()}` : `Fits your diet: ${familyDiets.join(', ').toLowerCase()}`}
+                tone={missedDiets.length ? 'brick' : 'sage'}
+              />
+            ) : null}
           </View>
+          {suits.length ? (
+            <T size={13} color={colors.muted} style={{ marginTop: 8 }}>
+              {`Suits: ${suits.join(' · ')}`}
+            </T>
+          ) : null}
 
           <Card style={styles.portions}>
             <View style={{ flex: 1 }}>

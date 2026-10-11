@@ -35,7 +35,7 @@ export type { GeneratedMealPlan, MockMeal, RecipeRow, MealPreferencesState, Hous
 export { formatWeekRange, getStartOfWeek, formatDateISO };
 
 /** The plan limits on the phone, matching lib/plan/plan.ts. */
-export const AI_PLANS_PER_MONTH = { free: 1, paid: 8 } as const;
+export const AI_PLANS_PER_MONTH = { free: 2, paid: 8 } as const;
 
 // ---------- Preferences, household, plan ----------
 

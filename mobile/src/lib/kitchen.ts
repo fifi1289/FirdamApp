@@ -86,7 +86,8 @@ export async function loadChoices(): Promise<{ allergies: string[]; diets: strin
 export async function loadHousehold(): Promise<Household> {
   const { data } = await supabase.from('family_members').select('birth_date, relationship, portion');
   const members = (data ?? []) as { birth_date: string | null; relationship: string }[];
-  return members.length ? householdFrom(members) : { portions: 2, people: 2, children: 0 };
+  // No family members added yet: just the account holder.
+  return householdFrom(members);
 }
 
 export async function loadPantry(): Promise<PantryItem[]> {
@@ -94,11 +95,7 @@ export async function loadPantry(): Promise<PantryItem[]> {
   return (data ?? []) as PantryItem[];
 }
 
-/** Free launch: everyone gets the full app. Set to false when paid plans start. */
-const FREE_LAUNCH = true;
-
 export async function isPaidPlan(): Promise<boolean> {
-  if (FREE_LAUNCH) return true;
   const { data } = await supabase.from('subscriptions').select('plan, status, current_period_end').maybeSingle();
   const s = data as { plan: string; status: string; current_period_end: string | null } | null;
   if (!s || s.plan === 'free') return false;

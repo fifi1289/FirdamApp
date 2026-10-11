@@ -270,7 +270,7 @@ DO $$ BEGIN
   END;
 END $$;
 RESET ROLE;
-CREATE OR REPLACE FUNCTION public.free_launch() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT true $$;
+CREATE OR REPLACE FUNCTION public.free_launch() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT false $$;
 
 -- Pantry tracking: cooking log and pantry history are private to the household.
 SET ROLE authenticated;

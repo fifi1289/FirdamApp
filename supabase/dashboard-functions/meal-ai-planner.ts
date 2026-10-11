@@ -192,10 +192,6 @@ const PAID_COMPANION_MESSAGES_PER_DAY = 20;
 const FREE_AI_SWAPS_PER_MONTH = 5;
 const PAID_AI_SWAPS_PER_MONTH = 40;
 
-// Free launch: everyone gets the full app (with the fair-use caps above) and
-// nothing is sold. Keep in sync with FREE_LAUNCH in lib/plan/plan.ts.
-const FREE_LAUNCH = true;
-
 function env(name: string): string | undefined {
   const v = Deno.env.get(name);
   return v && v.trim() ? v.trim() : undefined;
@@ -223,7 +219,6 @@ function serviceHeaders(): Record<string, string> | null {
 }
 
 async function getPlan(userId: string): Promise<"free" | "premium" | "family"> {
-  if (FREE_LAUNCH) return "family";
   const url = env("SUPABASE_URL");
   const headers = serviceHeaders();
   if (!url || !headers) return "free";

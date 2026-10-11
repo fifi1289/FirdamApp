@@ -31,7 +31,7 @@ export default function Welcome() {
           بِسْمِ ٱللَّٰهِ
         </T>
         <T weight="extrabold" size={34} style={styles.title} accessibilityRole="header">
-          Your halal kitchen, planned for the whole family.
+          One home for your Muslim life.
         </T>
         <T size={16} color="#5F5048" style={{ marginTop: 14, lineHeight: 24 }}>
           Weekly meals from what is already in your cupboard, one shared shopping list, and prayer times at a glance.

@@ -196,6 +196,9 @@ export function fitsDiet(
       return recipe.protein != null ? recipe.protein >= 25 : tags.has('high-protein');
     case 'kid-friendly':
       return tags.has('kid-friendly');
+    case 'halal':
+      // Every Firdam recipe is halal.
+      return true;
     default:
       // Unknown preference from the database: trust a matching tag if there is one.
       return tags.size === 0 || tags.has(normalize(diet));

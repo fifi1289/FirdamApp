@@ -400,10 +400,21 @@ export function normalizePlan(data: Record<string, unknown>): GeneratedMealPlan 
   };
 }
 
+// Preferences that can be relaxed for a swap when nothing else fits. Allergies,
+// halal and choices like vegetarian or vegan are never relaxed.
+const SOFT_DIETS = ['high-protein', 'low-carb', 'kid-friendly'];
+const NEAR_TYPES: Record<string, string[]> = {
+  dinner: ['lunch'],
+  lunch: ['dinner'],
+  breakfast: ['snack'],
+  snack: ['breakfast'],
+};
+
 /**
  * Swaps one meal of a plan for another library recipe of the same meal type
  * that suits the family's allergies and diets and isn't already in the plan.
- * Returns the new plan, or null when no other recipe fits.
+ * When nothing fits, softer preferences are relaxed step by step and `note`
+ * says what changed. Returns null when even that finds nothing.
  */
 export function swapPlanMeal(
   plan: GeneratedMealPlan,
@@ -412,25 +423,40 @@ export function swapPlanMeal(
   all: RecipeRow[],
   preferences: MealPreferencesState,
   householdSize: number
-): GeneratedMealPlan | null {
+): { plan: GeneratedMealPlan; note: string | null } | null {
   const used = new Set(plan.days.flatMap((d) => d.meals.map((m) => m.id)));
   const key = mealTypeKey(type);
-  const options = all.filter(
-    (r) =>
-      !used.has(r.id) &&
-      mealTypeKey(r.meal_type?.name ?? '') === key &&
-      r.recipe_ingredients.length > 0 &&
-      recipeSuits(r, preferences.allergies ?? [], preferences.dietaryPreferences ?? [])
-  );
-  const pick = shuffle(options)[0];
-  if (!pick) return null;
-  const meal = toMockMeal(pick, type, householdSize);
-  return {
-    ...plan,
-    days: plan.days.map((d) =>
-      d.date !== date ? d : { ...d, meals: d.meals.map((m) => (m.type === type ? meal : m)) }
-    ),
-  };
+  const allergies = preferences.allergies ?? [];
+  const diets = preferences.dietaryPreferences ?? [];
+  const firm = diets.filter((d) => !SOFT_DIETS.includes(d.toLowerCase()));
+  const soft = diets.filter((d) => SOFT_DIETS.includes(d.toLowerCase()));
+  const tiers: { types: string[]; diets: string[]; note: string | null }[] = [
+    { types: [key], diets, note: null },
+    ...(soft.length ? [{ types: [key], diets: firm, note: `Nothing ${soft.join(' and ').toLowerCase()} was left, so this one isn’t.` }] : []),
+    { types: [key, ...(NEAR_TYPES[key] ?? [])], diets: firm, note: `Picked from ${(NEAR_TYPES[key] ?? []).join(' and ')} recipes too, as no other ${key} fits.` },
+  ];
+  for (const tier of tiers) {
+    const options = all.filter(
+      (r) =>
+        !used.has(r.id) &&
+        tier.types.includes(mealTypeKey(r.meal_type?.name ?? '')) &&
+        r.recipe_ingredients.length > 0 &&
+        recipeSuits(r, allergies, tier.diets)
+    );
+    const pick = shuffle(options)[0];
+    if (!pick) continue;
+    const meal = toMockMeal(pick, type, householdSize);
+    return {
+      note: tier.note,
+      plan: {
+        ...plan,
+        days: plan.days.map((d) =>
+          d.date !== date ? d : { ...d, meals: d.meals.map((m) => (m.type === type ? meal : m)) }
+        ),
+      },
+    };
+  }
+  return null;
 }
 
 /** Ids of library meals saved before their recipe had ingredients. */

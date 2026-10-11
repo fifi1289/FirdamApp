@@ -187,6 +187,10 @@ const PAID_RECEIPT_SCANS_PER_MONTH = 30;
 // Free plan: one receipt a month to try it.
 const FREE_RECEIPT_SCANS_PER_MONTH = 1;
 const PAID_COMPANION_MESSAGES_PER_DAY = 20;
+// Swapping one meal with the AI chef (about $0.0005 each). Separate from whole
+// AI plans so a swap never uses up a plan. Library swaps are always unlimited.
+const FREE_AI_SWAPS_PER_MONTH = 5;
+const PAID_AI_SWAPS_PER_MONTH = 40;
 
 // Free launch: everyone gets the full app (with the fair-use caps above) and
 // nothing is sold. Keep in sync with FREE_LAUNCH in lib/plan/plan.ts.

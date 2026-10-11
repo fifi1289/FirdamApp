@@ -9,6 +9,7 @@ import {
   AI_PLANS_PER_MONTH,
   AIPlanError,
   addShoppingItems,
+  aiSwapMeal,
   buildAIPlan,
   buildLibraryPlan,
   formatDateISO,
@@ -21,6 +22,7 @@ import {
 } from '@/lib/kitchen';
 import { patchKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { checkNeeds } from '@/shared/pantry-engine';
+import { getMealImage } from '@/shared/meal-images';
 import { swapPlanMeal } from '@/shared/plan-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
@@ -49,30 +51,47 @@ export function PlanView() {
   const [busy, setBusy] = useState<'ai' | 'library' | 'shop' | null>(null);
   const [swapping, setSwapping] = useState<string | null>(null);
 
-  // Replace one meal (breakfast, lunch, dinner or snack) with another library recipe.
-  const swap = async (m: MockMeal) => {
+  // Replace one meal: from the recipe library (unlimited) or by the AI chef
+  // (its own monthly allowance, separate from whole AI plans).
+  const swapFrom = async (m: MockMeal, source: 'library' | 'ai') => {
     if (!k.week || !k.prefs || swapping) return;
     setSwapping(`${selected}-${m.type}`);
     try {
-      const next = swapPlanMeal(k.week.plan, selected, m.type, await loadRecipes(), k.prefs, k.household?.portions ?? 2);
-      if (!next) {
-        Alert.alert('No other recipe fits', 'Every other recipe for this meal is already in your plan or doesn’t suit your family’s allergies and diets.');
-        return;
+      const portions = k.household?.portions ?? 2;
+      let next = k.week.plan;
+      let note: string | null = null;
+      if (source === 'library') {
+        const res = swapPlanMeal(k.week.plan, selected, m.type, await loadRecipes(), k.prefs, portions);
+        if (!res) {
+          Alert.alert('No other library recipe fits', 'Try “Ask the AI chef” — it can write a new dish that suits your family.');
+          return;
+        }
+        next = res.plan;
+        note = res.note;
+      } else {
+        const avoid = k.week.plan.days.flatMap((d) => d.meals.map((x) => x.name));
+        const meal = await aiSwapMeal(k.prefs, portions, m.type, avoid);
+        if (!meal.image) meal.image = getMealImage(meal.name, m.type);
+        next = {
+          ...k.week.plan,
+          days: k.week.plan.days.map((d) => (d.date !== selected ? d : { ...d, meals: d.meals.map((x) => (x.type === m.type ? meal : x)) })),
+        };
       }
       const id = await saveWeekPlan(next, k.prefs, k.week.id);
       patchKitchen({ week: { id, plan: next } });
+      if (note) Alert.alert('Swapped', note);
     } catch (e) {
       Alert.alert('Could not swap this meal', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setSwapping(null);
     }
   };
-
-  const plan = k.week?.plan ?? null;
-  const day = plan?.days.find((d) => d.date === selected) ?? null;
-  const limit = k.paid ? AI_PLANS_PER_MONTH.paid : AI_PLANS_PER_MONTH.free;
-  const aiLeft = Math.max(0, limit - k.aiUsed);
-  const portions = k.household?.portions ?? 2;
+  const swap = (m: MockMeal) =>
+    Alert.alert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 5 a month on the free plan, 40 with Firdam Family.', [
+      { text: 'From the recipe library', onPress: () => swapFrom(m, 'library') },
+      { text: 'Ask the AI chef', onPress: () => swapFrom(m, 'ai') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
 
   const generate = async (useAI: boolean) => {
     if (!k.prefs) return;

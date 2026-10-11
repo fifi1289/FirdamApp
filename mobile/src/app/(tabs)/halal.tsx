@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Linking, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge, Chip } from '@/components/kitchen-ui';
 import { PlacesMap, type MapPin } from '@/components/places-map';
@@ -10,6 +10,7 @@ import { placeFromDevice } from '@/lib/location';
 import { usePrayerSettings } from '@/lib/prayer';
 import { supabase } from '@/lib/supabase';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 type Category = 'grocery' | 'butcher' | 'restaurant' | 'cafe' | 'mosque' | 'other';
 interface Place {
@@ -25,6 +26,8 @@ interface Place {
   cuisine: string | null;
   /** Added by Firdam families on the website. */
   community?: boolean;
+  /** Added by this family and waiting for Firdam to approve it. */
+  pending?: boolean;
 }
 
 const FILTERS: { key: 'all' | Category; label: string }[] = [
@@ -60,7 +63,8 @@ async function communityPlaces(lat: number, lng: number, km: number): Promise<Pl
   const dLng = km / (111.32 * Math.max(0.2, Math.cos((lat * Math.PI) / 180)));
   const { data } = await supabase
     .from('halal_places')
-    .select('id, name, category, latitude, longitude, address, phone, halal_status, certification')
+    .select('id, name, category, latitude, longitude, address, phone, halal_status, certification, status')
+    .neq('status', 'rejected')
     .gte('latitude', lat - dLat)
     .lte('latitude', lat + dLat)
     .gte('longitude', lng - dLng)
@@ -78,6 +82,7 @@ async function communityPlaces(lat: number, lng: number, km: number): Promise<Pl
     halalStatus: r.halal_status === 'halal_options' ? 'halal_options' : 'halal',
     cuisine: null,
     community: true,
+    pending: r.status === 'pending',
   }));
 }
 
@@ -227,7 +232,7 @@ export default function Halal() {
                   </T>
                   <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
                     <Badge label={STATUS[p.halalStatus].label} tone={STATUS[p.halalStatus].tone} />
-                    {p.community ? <Badge label="Added by families" tone="walnut" /> : null}
+                    {p.pending ? <Badge label="Waiting for approval" tone="amber" /> : p.community ? <Badge label="Added by families" tone="walnut" /> : null}
                   </View>
                 </View>
                 <T size={13} weight="bold" color={colors.walnut}>
@@ -263,9 +268,11 @@ function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () 
   const [address, setAddress] = useState('');
   const [category, setCategory] = useState<Category>('restaurant');
   const [saving, setSaving] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
 
   const save = async () => {
-    if (name.trim().length < 2 || address.trim().length < 6) return Alert.alert('Add the name and the full street address.');
+    if (name.trim().length < 2 || address.trim().length < 6) return setProblem('Add the name and the full street address.');
+    setProblem(null);
     setSaving(true);
     try {
       const res = await callFunction<{ results: { latitude: number; longitude: number; label: string; city: string | null; country: string | null }[] }>(
@@ -274,7 +281,7 @@ function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () 
       );
       const hit = res.results?.[0];
       if (!hit) {
-        Alert.alert('Address not found', 'Check the street number and city, for example “123 Bank St, Ottawa”.');
+        setProblem('Address not found. Check the street number and city, for example “123 Bank St, Ottawa”.');
         return;
       }
       const { error } = await supabase.from('halal_places').insert({
@@ -292,9 +299,9 @@ function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () 
       setAddress('');
       onClose();
       onAdded();
-      Alert.alert('Thank you!', 'The place is now on Firdam for every family nearby.');
+      setTimeout(() => showAlert('Thank you!', 'Firdam will check the place and add it for every family nearby, usually within a day. You can already see it, marked “Waiting for approval”.'), 400);
     } catch (e) {
-      Alert.alert('Could not add the place', e instanceof Error ? e.message : 'Please try again.');
+      setProblem(e instanceof Error ? e.message : 'Could not add the place. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -320,6 +327,11 @@ function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () 
               <Chip key={c.key} label={c.label} selected={category === c.key} onPress={() => setCategory(c.key)} />
             ))}
           </View>
+          {problem ? (
+            <T size={13.5} color={colors.brickText}>
+              {problem}
+            </T>
+          ) : null}
           <Button label="Add the place" onPress={save} busy={saving} />
           <Button label="Cancel" variant="text" onPress={onClose} />
         </Pressable>

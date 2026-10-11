@@ -165,7 +165,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
       toast.error('Could not add the place', { description: error.message });
       return;
     }
-    toast.success(`${name.trim()} was added — jazakAllahu khayran for helping others find it`);
+    toast.success(`Thank you — ${name.trim()} will appear for everyone once Firdam has checked it`);
     window.dispatchEvent(new Event(HALAL_PLACES_CHANGED));
     onOpenChange(false);
   };

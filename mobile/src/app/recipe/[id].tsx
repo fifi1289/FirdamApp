@@ -1,15 +1,17 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/art';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
-import { addShoppingItems, checkRecipe, fitsDiets, isSafeFor, loadRecipes, recipeAllergens, recipeImage, totalMinutes, type RecipeRow } from '@/lib/kitchen';
-import { refreshShopping, useKitchen } from '@/lib/kitchen-store';
+import { addShoppingItems, markHave, checkRecipe, fitsDiets, isSafeFor, loadRecipes, recipeAllergens, recipeImage, totalMinutes, type RecipeRow } from '@/lib/kitchen';
+import { refreshKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
+import type { Line } from '@/shared/pantry-engine';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
 
@@ -32,10 +34,26 @@ export default function RecipeScreen() {
   const [adding, setAdding] = useState(false);
   // Once added, the button rests so a second tap doesn't add the amounts again.
   const [added, setAdded] = useState(false);
+  // "I have it": the family already has this ingredient; add it to the pantry.
+  const [having, setHaving] = useState<string | null>(null);
+  const haveIt = async (l: Line) => {
+    if (having) return;
+    setHaving(l.need.name);
+    try {
+      await markHave(l);
+      await refreshKitchen();
+    } catch (e) {
+      showAlert('Could not add it to the pantry', e instanceof Error ? e.message : 'Please try again.');
+    } finally {
+      setHaving(null);
+    }
+  };
 
   useEffect(() => {
     loadRecipes()
-      .then((all) => setRecipe(all.find((r) => r.id === id) ?? null))
+      // A recipe the AI chef just added may not be in the saved list yet: reload once.
+      .then(async (all) => all.find((r) => r.id === id) ?? (await loadRecipes(true)).find((r) => r.id === id) ?? null)
+      .then(setRecipe)
       .catch(() => setRecipe(null));
   }, [id]);
 
@@ -79,9 +97,9 @@ export default function RecipeScreen() {
       );
       await refreshShopping();
       setAdded(true);
-      Alert.alert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
+      showAlert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
     } catch (e) {
-      Alert.alert('Could not add', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not add', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setAdding(false);
     }
@@ -160,7 +178,19 @@ export default function RecipeScreen() {
                   <T size={13} color={colors.muted}>
                     {l.neededText}
                   </T>
-                  {k.pantry.length ? (
+                  {l.status === 'missing' || l.status === 'short' ? (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`I have ${l.need.name}`}
+                      onPress={() => haveIt(l)}
+                      style={styles.have}
+                      hitSlop={6}
+                    >
+                      <T size={12} weight="bold" color={colors.sageDark}>
+                        {having === l.need.name ? '…' : 'I have it'}
+                      </T>
+                    </Pressable>
+                  ) : k.pantry.length ? (
                     <T size={12.5} weight="bold" color={s.color} style={{ width: 76, textAlign: 'right' }}>
                       {s.label}
                     </T>
@@ -205,6 +235,7 @@ export default function RecipeScreen() {
 }
 
 const styles = StyleSheet.create({
+  have: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: '#CFE0C6', backgroundColor: '#EEF4EA' },
   screen: { flex: 1, backgroundColor: colors.linen },
   center: { flex: 1, backgroundColor: colors.linen, alignItems: 'center', justifyContent: 'center' },
   back: { position: 'absolute', left: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },

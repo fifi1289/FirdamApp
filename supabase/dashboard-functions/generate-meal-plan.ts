@@ -313,6 +313,8 @@ interface MealIngredient {
 }
 
 interface PlannedMeal {
+  /** Set once the meal is saved in the recipe library. */
+  id?: string;
   type: string;
   name: string;
   cuisine: string;
@@ -348,6 +350,31 @@ interface GenerateRequest {
   pantryItems?: { name: string; quantity: number; unit: string; useSoon?: boolean }[];
   /** Swap one meal: its type, and dishes already in the plan to avoid. */
   swap?: { type: string; avoid?: string[] };
+}
+
+/**
+ * Saves AI-written meals in the recipe library (halal-checked by the database;
+ * a dish already in the library is reused) and gives each meal its recipe id.
+ */
+async function saveToLibrary(meals: PlannedMeal[]): Promise<void> {
+  const url = Deno.env.get("SUPABASE_URL");
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return;
+  await Promise.all(
+    meals.map(async (meal) => {
+      try {
+        const res = await fetch(`${url}/rest/v1/rpc/save_ai_recipe`, {
+          method: "POST",
+          headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ meal }),
+        });
+        const id = res.ok ? ((await res.json()) as string | null) : null;
+        if (id) meal.id = id;
+      } catch {
+        // The plan still works without the library copy.
+      }
+    }),
+  );
 }
 
 const json = (body: unknown, status = 200) =>
@@ -390,6 +417,7 @@ Return JSON {"meal": {type, name, cuisine, description, ingredients [{name, quan
     }
     if (meal && isMeal(meal) && !mealHaramReason(meal as unknown as Record<string, unknown>)) {
       (meal as PlannedMeal).type = type;
+      await saveToLibrary([meal as PlannedMeal]);
       await recordUsage(userId, "ai_meal_swap");
       return json({ meal, used: used + 1, limit });
     }
@@ -683,6 +711,7 @@ Deno.serve(async (req: Request) => {
       for (const d of planOut.days) d.meals = d.meals.filter(Boolean);
     }
 
+    await saveToLibrary(planOut.days.flatMap((d) => d.meals));
     await recordUsage(user.id, "ai_meal_plan");
 
     return new Response(JSON.stringify(planOut), {

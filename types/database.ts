@@ -636,6 +636,7 @@ export type Database = {
           website: string | null;
           certification: string | null;
           halal_status: CommunityHalalStatus;
+          status: 'pending' | 'approved' | 'rejected';
           notes: string | null;
           created_at: string;
           updated_at: string;
@@ -654,6 +655,7 @@ export type Database = {
           website?: string | null;
           certification?: string | null;
           halal_status?: CommunityHalalStatus;
+          status?: 'pending' | 'approved' | 'rejected';
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -670,6 +672,7 @@ export type Database = {
           website?: string | null;
           certification?: string | null;
           halal_status?: CommunityHalalStatus;
+          status?: 'pending' | 'approved' | 'rejected';
           notes?: string | null;
           updated_at?: string;
         };

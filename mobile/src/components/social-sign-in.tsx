@@ -1,10 +1,11 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { T } from '@/components/ui';
 import { appleSignInAvailable, signInWithApple, signInWithGoogle } from '@/lib/social-auth';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 /** "Continue with Apple" (iPhone) and "Continue with Google", above the email form. */
 export function SocialSignIn() {
@@ -20,7 +21,7 @@ export function SocialSignIn() {
     try {
       await fn();
     } catch (e) {
-      Alert.alert('Could not sign in', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not sign in', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setBusy(false);
     }

@@ -1,16 +1,17 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/art';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
-import { addShoppingItems, mealConflicts, mealNeeds } from '@/lib/kitchen';
-import { refreshShopping, useKitchen } from '@/lib/kitchen-store';
-import { checkNeeds } from '@/shared/pantry-engine';
+import { addShoppingItems, markHave, mealConflicts, mealNeeds } from '@/lib/kitchen';
+import { refreshKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
+import { checkNeeds, type Line } from '@/shared/pantry-engine';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 /** A meal the AI chef wrote (not from the recipe library). */
 export default function MealScreen() {
@@ -20,7 +21,22 @@ export default function MealScreen() {
   const [adding, setAdding] = useState(false);
   // Once added, the button rests so a second tap doesn't add the amounts again.
   const [added, setAdded] = useState(false);
-  const meal = k.week?.plan.days.find((d) => d.date === date)?.meals.find((m) => m.type === type) ?? null;
+  // This week's plan or next week's.
+  const meal =
+    [k.week, k.nextWeek].flatMap((w) => w?.plan.days ?? []).find((d) => d.date === date)?.meals.find((m) => m.type === type) ?? null;
+  const [having, setHaving] = useState<string | null>(null);
+  const haveIt = async (l: Line) => {
+    if (having) return;
+    setHaving(l.need.name);
+    try {
+      await markHave(l);
+      await refreshKitchen();
+    } catch (e) {
+      showAlert('Could not add it to the pantry', e instanceof Error ? e.message : 'Please try again.');
+    } finally {
+      setHaving(null);
+    }
+  };
   const check = useMemo(() => (meal ? checkNeeds(mealNeeds(meal), k.pantry) : null), [meal, k.pantry]);
 
   if (!meal || !check) {
@@ -40,7 +56,7 @@ export default function MealScreen() {
       const added = await addShoppingItems(k.listId, toBuy.map((l) => l.shortfall ?? { name: l.need.name, quantity: l.scaled, unit: l.need.unit }), k.items);
       await refreshShopping();
       setAdded(true);
-      Alert.alert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
+      showAlert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
     } finally {
       setAdding(false);
     }
@@ -76,12 +92,21 @@ export default function MealScreen() {
             Ingredients
           </T>
           <Card style={{ paddingVertical: 2 }}>
-            {meal.ingredients.map((i, idx) => (
-              <View key={`${i.name}-${idx}`} style={[styles.row, idx < meal.ingredients.length - 1 && styles.line]}>
+            {check.lines.map((l, idx) => (
+              <View key={`${l.need.name}-${idx}`} style={[styles.row, idx < check.lines.length - 1 && styles.line]}>
                 <T size={14.5} style={{ flex: 1 }}>
-                  {i.name}
+                  {l.need.name}
                 </T>
-                <T size={13} color={colors.muted}>{`${i.quantity} ${i.unit}`.trim()}</T>
+                <T size={13} color={colors.muted}>
+                  {l.neededText}
+                </T>
+                {l.status === 'missing' || l.status === 'short' ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel={`I have ${l.need.name}`} onPress={() => haveIt(l)} style={styles.have} hitSlop={6}>
+                    <T size={12} weight="bold" color={colors.sageDark}>
+                      {having === l.need.name ? '…' : 'I have it'}
+                    </T>
+                  </Pressable>
+                ) : null}
               </View>
             ))}
           </Card>
@@ -114,6 +139,7 @@ export default function MealScreen() {
 }
 
 const styles = StyleSheet.create({
+  have: { marginLeft: 8, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: '#CFE0C6', backgroundColor: '#EEF4EA' },
   screen: { flex: 1, backgroundColor: colors.linen },
   back: { position: 'absolute', left: 16, width: 44, height: 44, borderRadius: 22, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   sheet: { marginTop: -24, backgroundColor: colors.linen, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 },

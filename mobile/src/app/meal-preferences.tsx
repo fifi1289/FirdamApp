@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/kitchen-ui';
@@ -9,6 +9,7 @@ import { loadChoices, loadRecipes, savePreferences, type MealPreferencesState } 
 import { patchKitchen, useKitchen } from '@/lib/kitchen-store';
 import { MEAL_TYPES } from '@/shared/meals-config';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 function toggleIn(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
@@ -40,7 +41,7 @@ export default function MealPreferences() {
 
   const save = async () => {
     if (!prefs.mealTypes.length) {
-      Alert.alert('Choose at least one meal to plan.');
+      showAlert('Choose at least one meal to plan.');
       return;
     }
     setSaving(true);
@@ -49,7 +50,7 @@ export default function MealPreferences() {
       patchKitchen({ prefs });
       router.back();
     } catch (e) {
-      Alert.alert('Could not save', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not save', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setSaving(false);
     }

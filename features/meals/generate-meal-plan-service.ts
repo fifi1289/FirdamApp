@@ -100,7 +100,8 @@ function mapEdgeMeal(meal: EdgeMeal, dayIndex: number, mealIdx: number): MockMea
   const name = String(meal.name ?? 'Meal');
   const type = String(meal.type ?? '');
   return {
-    id: `${dayIndex}-${type}-${mealIdx}`,
+    // AI meals are saved in the recipe library; keep that recipe's id.
+    id: typeof (meal as { id?: unknown }).id === 'string' ? String((meal as { id?: string }).id) : `${dayIndex}-${type}-${mealIdx}`,
     name,
     type,
     description: String(meal.description ?? ''),

@@ -32,7 +32,8 @@ END $$;
 -- Second user: sees shared places/reviews, but none of user 1's private data.
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
 DO $$ BEGIN
-  IF (SELECT count(*) FROM public.halal_places) <> 1 THEN RAISE EXCEPTION 'community places should be shared'; END IF;
+  -- A place a family adds waits for an admin: others don't see it yet.
+  IF (SELECT count(*) FROM public.halal_places) <> 0 THEN RAISE EXCEPTION 'unapproved places must stay hidden'; END IF;
   IF (SELECT count(*) FROM public.halal_place_reviews) <> 1 THEN RAISE EXCEPTION 'reviews should be shared'; END IF;
   IF (SELECT count(*) FROM public.grocery_lists) <> 0 THEN RAISE EXCEPTION 'grocery lists leaked'; END IF;
   IF (SELECT count(*) FROM public.budget_transactions) <> 0 THEN RAISE EXCEPTION 'transactions leaked'; END IF;

@@ -112,12 +112,12 @@ function UseSoonCard() {
 
 // Modules on firdam.com that are coming to the app.
 const COMING = [
-  { title: 'Quran', text: 'Daily reading goals and khatm tracking' },
-  { title: 'Ramadan', text: 'Suhoor and iftar times, fasting log' },
-  { title: 'Family calendar', text: 'Shared events, school and appointments' },
-  { title: 'Budget & savings', text: 'Household spending and halal savings goals' },
-  { title: 'Hajj & Umrah', text: 'Plan the trip with trusted agencies' },
-  { title: 'Community', text: 'Events at mosques and centres near you' },
+  { title: 'Finance', text: 'Budget, savings goals, sadaqah and a zakat calculator' },
+  { title: 'Ramadan', text: 'Suhoor and iftar times and a fasting tracker' },
+  { title: 'Travel', text: 'Halal-friendly trips, Umrah and Hajj with trusted agencies' },
+  { title: 'Family Calendar', text: 'Eid, Aqiqah, Nikah, birthdays and school events' },
+  { title: 'Community', text: 'Halaqas, iftars, Eid prayers and fundraisers near you' },
+  { title: 'Health', text: 'Sunnah habits, appointments and vaccinations' },
 ];
 
 function ComingSoonCard() {

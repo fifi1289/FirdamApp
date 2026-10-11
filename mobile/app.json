@@ -14,7 +14,10 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "buildNumber": "1",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {

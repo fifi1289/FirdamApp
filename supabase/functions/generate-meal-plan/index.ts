@@ -69,7 +69,7 @@ interface GenerateRequest {
   allergies?: string[];
   cuisinePreferences?: Record<string, string[]>;
   usePantryFirst?: boolean;
-  pantryItems?: { name: string; quantity: number; unit: string }[];
+  pantryItems?: { name: string; quantity: number; unit: string; useSoon?: boolean }[];
   /** Swap one meal: its type, and dishes already in the plan to avoid. */
   swap?: { type: string; avoid?: string[] };
 }
@@ -153,8 +153,8 @@ function buildUserPrompt(req: GenerateRequest): string {
   const pantry =
     req.usePantryFirst && req.pantryItems?.length
       ? `\nPantry available (prioritize recipes using these): ${req.pantryItems
-          .map((p) => `${p.quantity} ${p.unit} ${p.name}`)
-          .join(", ")}.`
+          .map((p) => `${p.quantity} ${p.unit} ${p.name}${p.useSoon ? " (use soon)" : ""}`)
+          .join(", ")}.${req.pantryItems.some((p) => p.useSoon) ? " Items marked (use soon) are close to their use-by date: use them in the first days of the plan." : ""}`
       : "";
 
   return `Plan ${duration} days of meals.

@@ -7,6 +7,7 @@ import { Button, Field, T } from '@/components/ui';
 import { friendlyAuthError, useAuth } from '@/lib/auth';
 import { WEBSITE } from '@/lib/config';
 import { colors } from '@/theme';
+import { SocialSignIn } from '@/components/social-sign-in';
 
 export default function SignUp() {
   const { signUp } = useAuth();
@@ -49,6 +50,7 @@ export default function SignUp() {
 
   return (
     <AuthShell title="Create your account" subtitle="One account for you and, later, your whole household.">
+      <SocialSignIn />
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <View style={{ flex: 1 }}>
           <Field label="First name" value={firstName} onChangeText={setFirstName} autoComplete="given-name" textContentType="givenName" />

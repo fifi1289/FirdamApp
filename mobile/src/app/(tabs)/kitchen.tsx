@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,6 +17,11 @@ type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
 export default function Kitchen() {
   const k = useKitchen();
   const [section, setSection] = useState<Section>('plan');
+  // Home and notifications can open a section directly: /kitchen?section=shopping
+  const params = useLocalSearchParams<{ section?: string }>();
+  useEffect(() => {
+    if (params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section)) setSection(params.section as Section);
+  }, [params.section]);
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {

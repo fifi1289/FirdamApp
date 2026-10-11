@@ -5,6 +5,7 @@ import type { TextInput } from 'react-native';
 import { AuthShell, FormMessage } from '@/components/auth-shell';
 import { Button, Field } from '@/components/ui';
 import { friendlyAuthError, useAuth } from '@/lib/auth';
+import { SocialSignIn } from '@/components/social-sign-in';
 
 export default function SignIn() {
   const { signIn, sendPasswordReset } = useAuth();
@@ -50,6 +51,7 @@ export default function SignIn() {
 
   return (
     <AuthShell title="Welcome back" subtitle="Sign in with the same account you use on firdam.com.">
+      <SocialSignIn />
       <Field
         label="Email"
         value={email}

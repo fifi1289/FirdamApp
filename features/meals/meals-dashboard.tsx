@@ -229,7 +229,7 @@ export function MealsDashboard() {
 
   // Portions from Family profiles: adults 1, children 6–12 ¾, under 6 ½.
   const loadHouseholdSize = useCallback(async () => {
-    const { data, error } = await supabase.from('family_members').select('birth_date, relationship');
+    const { data, error } = await supabase.from('family_members').select('birth_date, relationship, portion');
     if (error) return;
     setHouseholdSize((data ?? []).length > 0 ? householdFrom(data ?? []).portions : 2);
   }, [supabase]);

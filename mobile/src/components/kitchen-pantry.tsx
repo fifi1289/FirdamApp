@@ -222,6 +222,11 @@ export function PantryView() {
                     </T>
                   </View>
                   {expiryBadge(i.expiration_date) ? <Badge {...expiryBadge(i.expiration_date)!} /> : null}
+                  <View style={styles.edit}>
+                    <T size={12.5} weight="bold" color={colors.walnut}>
+                      Edit
+                    </T>
+                  </View>
                 </Pressable>
               ))}
             </Card>
@@ -229,7 +234,7 @@ export function PantryView() {
         ))
       )}
       <T size={12} color={colors.muted} style={{ textAlign: 'center' }}>
-        Tap an item to change the amount, set its expiry date, or mark it used up.
+        Tap Edit to change an item’s amount or use-by date, or to mark it used up.
       </T>
       <PantryItemSheet item={editing} onClose={() => setEditing(null)} />
     </View>
@@ -242,6 +247,7 @@ const styles = StyleSheet.create({
   line: { borderBottomWidth: 1, borderBottomColor: colors.line },
   soonRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   dot: { width: 10, height: 10, borderRadius: 5 },
+  edit: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: colors.line },
   backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: colors.linen, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, gap: 14, paddingBottom: 34 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

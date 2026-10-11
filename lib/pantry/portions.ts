@@ -15,7 +15,7 @@ export function useHousehold(): { household: Household | null; refresh: () => vo
   const [tick, setTick] = useState(0);
   useEffect(() => {
     cache ??= (async () => {
-      const { data } = await createSupabaseBrowserClient().from('family_members').select('birth_date, relationship');
+      const { data } = await createSupabaseBrowserClient().from('family_members').select('birth_date, relationship, portion');
       return householdFrom((data ?? []) as { birth_date: string | null; relationship: string }[]);
     })();
     let live = true;

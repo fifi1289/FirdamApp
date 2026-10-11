@@ -178,6 +178,11 @@ export async function loadRecipes(force = false): Promise<RecipeRow[]> {
   return recipeCache;
 }
 
+/** True when a meal id is a recipe in the library (as far as the loaded list knows). */
+export function isLibraryRecipe(id: string): boolean {
+  return recipeCache ? recipeCache.some((r) => r.id === id) : true;
+}
+
 export function ingredientNames(r: RecipeRow): string[] {
   return r.recipe_ingredients.map((ri) => ri.ingredient?.name ?? '').filter(Boolean);
 }
@@ -283,11 +288,13 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
       ...d,
       meals: (d.meals ?? []).map((m, i) => ({
         ...m,
-        id: `${d.dayIndex}-${String(m.type ?? '')}-${i}`,
+        // AI meals are saved in the recipe library; keep that recipe's id.
+        id: typeof m.id === 'string' && m.id ? m.id : `${d.dayIndex}-${String(m.type ?? '')}-${i}`,
         image: getMealImage(String(m.name ?? ''), String(m.type ?? '')),
       })),
     })),
   });
+  await loadRecipes(true).catch(() => []);
   return withoutAllergies(plan, prefs, portions, pantry, weekStart);
 }
 
@@ -308,7 +315,9 @@ export async function aiSwapMeal(prefs: MealPreferencesState, portions: number, 
   });
   const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string } | null;
   if (!res.ok || !json?.meal) throw new AIPlanError(json?.error ?? `The AI chef could not swap this meal (${res.status}).`, res.status);
-  const meal = normalizeMeal({ ...json.meal, id: newPlanId(), type });
+  // The server saves the dish in the recipe library and returns its id.
+  const meal = normalizeMeal({ ...json.meal, id: (json.meal.id as string | undefined) ?? newPlanId(), type });
+  if (json.meal.id) await loadRecipes(true).catch(() => []);
   if (mealConflicts(meal, prefs.allergies)) throw new AIPlanError('The AI chef suggested something with a family allergy. Please try again.', 422);
   return meal;
 }

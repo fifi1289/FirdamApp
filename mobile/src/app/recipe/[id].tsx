@@ -36,7 +36,9 @@ export default function RecipeScreen() {
 
   useEffect(() => {
     loadRecipes()
-      .then((all) => setRecipe(all.find((r) => r.id === id) ?? null))
+      // A recipe the AI chef just added may not be in the saved list yet: reload once.
+      .then(async (all) => all.find((r) => r.id === id) ?? (await loadRecipes(true)).find((r) => r.id === id) ?? null)
+      .then(setRecipe)
       .catch(() => setRecipe(null));
   }, [id]);
 

@@ -10,6 +10,7 @@ import {
   AIPlanError,
   addShoppingItems,
   aiSwapMeal,
+  isLibraryRecipe,
   buildAIPlan,
   buildLibraryPlan,
   formatDateISO,
@@ -34,7 +35,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TYPE_LABEL: Record<string, string> = { breakfast: 'BREAKFAST', lunch: 'LUNCH', dinner: 'DINNER', snack: 'SNACK' };
 
 export function openMeal(meal: MockMeal, date: string) {
-  if (UUID.test(meal.id)) router.push({ pathname: '/recipe/[id]', params: { id: meal.id } });
+  // Library recipes open their recipe page; anything else opens from the plan itself.
+  if (UUID.test(meal.id) && isLibraryRecipe(meal.id)) router.push({ pathname: '/recipe/[id]', params: { id: meal.id } });
   else router.push({ pathname: '/meal', params: { date, type: meal.type } });
 }
 

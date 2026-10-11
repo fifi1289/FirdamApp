@@ -12,6 +12,7 @@ import type { Line } from '@/shared/pantry-engine';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { ToBuyButton } from '@/components/to-buy-button';
 
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
 
@@ -179,10 +180,8 @@ export default function RecipeScreen() {
                     {l.neededText}
                   </T>
                   {l.status === 'missing' || l.status === 'short' ? (
-                    <View style={{ alignItems: 'flex-end', gap: 4, width: 84 }}>
-                      <T size={12.5} weight="bold" color={s.color}>
-                        {s.label}
-                      </T>
+                    <View style={{ alignItems: 'flex-end', gap: 4, minWidth: 84 }}>
+                      <ToBuyButton line={l} label={s.label} color={s.color} />
                       <Pressable
                         accessibilityRole="button"
                         accessibilityLabel={`I have ${l.need.name}`}

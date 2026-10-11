@@ -7,7 +7,7 @@ import { colors } from '@/theme';
 /** Shown while the app starts: the logo, the name and the slogan. */
 export function BrandSplash() {
   return (
-    <View style={styles.screen} accessibilityLabel="Firdam. Your halal kitchen, planned for the whole family.">
+    <View style={styles.screen} accessibilityLabel="Firdam. One home for your Muslim life.">
       <View style={styles.star} pointerEvents="none">
         <StarPattern size={460} />
       </View>
@@ -16,7 +16,7 @@ export function BrandSplash() {
         Firdam
       </T>
       <T size={16} color="#5F5048" style={styles.slogan}>
-        Your halal kitchen, planned for the whole family.
+        One home for your Muslim life.
       </T>
     </View>
   );

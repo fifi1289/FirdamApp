@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
-import { loadChoices, savePreferences, type MealPreferencesState } from '@/lib/kitchen';
+import { loadChoices, loadRecipes, savePreferences, type MealPreferencesState } from '@/lib/kitchen';
 import { patchKitchen, useKitchen } from '@/lib/kitchen-store';
 import { MEAL_TYPES } from '@/shared/meals-config';
 import { colors } from '@/theme';
@@ -23,8 +23,17 @@ export default function MealPreferences() {
   useEffect(() => {
     if (!prefs && k.prefs) setPrefs(k.prefs);
   }, [k.prefs, prefs]);
+  const [cuisines, setCuisines] = useState<string[]>([]);
   useEffect(() => {
     loadChoices().then(setChoices).catch(() => {});
+    // Cuisines in the recipe library, most recipes first.
+    loadRecipes()
+      .then((rs) => {
+        const count = new Map<string, number>();
+        for (const r of rs) if (r.cuisine?.name) count.set(r.cuisine.name, (count.get(r.cuisine.name) ?? 0) + 1);
+        setCuisines([...count.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c));
+      })
+      .catch(() => {});
   }, []);
 
   if (!prefs) return null;
@@ -50,7 +59,7 @@ export default function MealPreferences() {
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
         <T weight="extrabold" size={22} accessibilityRole="header">
-          Meal preferences
+          Plan filters
         </T>
         <Button label="Cancel" variant="text" onPress={() => router.back()} />
       </View>
@@ -89,6 +98,35 @@ export default function MealPreferences() {
               <Chip key={m.key} label={m.label} selected={prefs.mealTypes.includes(m.key)} onPress={() => setPrefs({ ...prefs, mealTypes: toggleIn(prefs.mealTypes, m.key) })} />
             ))}
           </View>
+        </View>
+
+        <View style={{ gap: 10 }}>
+          <T weight="bold" size={16}>
+            Cuisines
+          </T>
+          <T size={13.5} color={colors.muted}>
+            Optional. Chosen cuisines lead on most days; other days bring variety.
+          </T>
+          {prefs.mealTypes.map((type) => {
+            const chosen = prefs.cuisinePreferences?.[type] ?? [];
+            return (
+              <View key={type} style={{ gap: 6 }}>
+                <T size={13} weight="bold" color={colors.walnut}>
+                  {type.toUpperCase()}
+                </T>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                  {cuisines.map((c) => (
+                    <Chip
+                      key={c}
+                      label={c}
+                      selected={chosen.includes(c)}
+                      onPress={() => setPrefs({ ...prefs, cuisinePreferences: { ...(prefs.cuisinePreferences ?? {}), [type]: toggleIn(chosen, c) } })}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            );
+          })}
         </View>
 
         <Card>

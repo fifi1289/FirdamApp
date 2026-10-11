@@ -3,12 +3,13 @@ import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { StarPattern } from '@/components/art';
-import { Badge, Photo } from '@/components/kitchen-ui';
+import { Badge, Chip, Photo } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
 import {
   AI_PLANS_PER_MONTH,
   AIPlanError,
   addShoppingItems,
+  aiSwapMeal,
   buildAIPlan,
   buildLibraryPlan,
   formatDateISO,
@@ -20,7 +21,10 @@ import {
   type MockMeal,
 } from '@/lib/kitchen';
 import { patchKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
+import { askForAlerts } from '@/lib/adhan-alerts';
+import { scheduleWeeklyPlanReminder } from '@/lib/weekly-plan-alert';
 import { checkNeeds } from '@/shared/pantry-engine';
+import { getMealImage } from '@/shared/meal-images';
 import { swapPlanMeal } from '@/shared/plan-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
@@ -44,41 +48,79 @@ function weekDays(weekStart: Date) {
 export function PlanView() {
   const k = useKitchen();
   const today = formatDateISO(new Date());
-  const days = useMemo(() => weekDays(getStartOfWeek()), []);
-  const [selected, setSelected] = useState(today);
+  // This week, or next week (ready at the end of the week).
+  const [offset, setOffset] = useState<0 | 1>(() => (new Date().getDay() === 0 && k.nextWeek ? 1 : 0));
+  const weekStartDate = useMemo(() => {
+    const d = getStartOfWeek();
+    d.setDate(d.getDate() + offset * 7);
+    return d;
+  }, [offset]);
+  const days = useMemo(() => weekDays(weekStartDate), [weekStartDate]);
+  const [selected, setSelected] = useState(offset ? formatDateISO(weekStartDate) : today);
+  const wk = offset ? k.nextWeek : k.week;
+  const weekKey = offset ? 'nextWeek' : 'week';
+  const switchWeek = (o: 0 | 1) => {
+    setOffset(o);
+    const d = getStartOfWeek();
+    d.setDate(d.getDate() + o * 7);
+    setSelected(o ? formatDateISO(d) : today);
+  };
   const [busy, setBusy] = useState<'ai' | 'library' | 'shop' | null>(null);
   const [swapping, setSwapping] = useState<string | null>(null);
 
-  // Replace one meal (breakfast, lunch, dinner or snack) with another library recipe.
-  const swap = async (m: MockMeal) => {
-    if (!k.week || !k.prefs || swapping) return;
+  const plan = wk?.plan ?? null;
+  const day = plan?.days.find((d) => d.date === selected) ?? null;
+  const limit = k.paid ? AI_PLANS_PER_MONTH.paid : AI_PLANS_PER_MONTH.free;
+  const aiLeft = Math.max(0, limit - k.aiUsed);
+  const portions = k.household?.portions ?? 2;
+
+  // Replace one meal: from the recipe library (unlimited) or by the AI chef
+  // (its own monthly allowance, separate from whole AI plans).
+  const swapFrom = async (m: MockMeal, source: 'library' | 'ai') => {
+    if (!wk || !k.prefs || swapping) return;
     setSwapping(`${selected}-${m.type}`);
     try {
-      const next = swapPlanMeal(k.week.plan, selected, m.type, await loadRecipes(), k.prefs, k.household?.portions ?? 2);
-      if (!next) {
-        Alert.alert('No other recipe fits', 'Every other recipe for this meal is already in your plan or doesn’t suit your family’s allergies and diets.');
-        return;
+      const portions = k.household?.portions ?? 2;
+      let next = wk.plan;
+      let note: string | null = null;
+      if (source === 'library') {
+        const res = swapPlanMeal(wk.plan, selected, m.type, await loadRecipes(), k.prefs, portions);
+        if (!res) {
+          Alert.alert('No other library recipe fits', 'Try “Ask the AI chef” — it can write a new dish that suits your family.');
+          return;
+        }
+        next = res.plan;
+        note = res.note;
+      } else {
+        const avoid = wk.plan.days.flatMap((d) => d.meals.map((x) => x.name));
+        const meal = await aiSwapMeal(k.prefs, portions, m.type, avoid);
+        if (!meal.image) meal.image = getMealImage(meal.name, m.type);
+        next = {
+          ...wk.plan,
+          days: wk.plan.days.map((d) => (d.date !== selected ? d : { ...d, meals: d.meals.map((x) => (x.type === m.type ? meal : x)) })),
+        };
       }
-      const id = await saveWeekPlan(next, k.prefs, k.week.id);
-      patchKitchen({ week: { id, plan: next } });
+      const id = await saveWeekPlan(next, k.prefs, wk.id);
+      patchKitchen({ [weekKey]: { id, plan: next } });
+      if (note) Alert.alert('Swapped', note);
     } catch (e) {
       Alert.alert('Could not swap this meal', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setSwapping(null);
     }
   };
-
-  const plan = k.week?.plan ?? null;
-  const day = plan?.days.find((d) => d.date === selected) ?? null;
-  const limit = k.paid ? AI_PLANS_PER_MONTH.paid : AI_PLANS_PER_MONTH.free;
-  const aiLeft = Math.max(0, limit - k.aiUsed);
-  const portions = k.household?.portions ?? 2;
+  const swap = (m: MockMeal) =>
+    Alert.alert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 5 a month on the free plan, 40 with Firdam Family.', [
+      { text: 'From the recipe library', onPress: () => swapFrom(m, 'library') },
+      { text: 'Ask the AI chef', onPress: () => swapFrom(m, 'ai') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
 
   const generate = async (useAI: boolean) => {
     if (!k.prefs) return;
     const run = async () => {
       setBusy(useAI ? 'ai' : 'library');
-      const weekStart = formatDateISO(getStartOfWeek());
+      const weekStart = formatDateISO(weekStartDate);
       const prefs = { ...k.prefs!, planningDuration: 7 };
       try {
         let next;
@@ -98,17 +140,22 @@ export function PlanView() {
         } else {
           next = await buildLibraryPlan(prefs, portions, k.pantry, weekStart);
         }
-        const id = await saveWeekPlan(next, prefs, k.week?.id ?? null);
-        patchKitchen({ week: { id, plan: next } });
-        Alert.alert('Your new plan is ready', 'Tap any day to see its meals. Use “Swap” on a meal to change just that one.');
+        const id = await saveWeekPlan(next, prefs, wk?.id ?? null);
+        patchKitchen({ [weekKey]: { id, plan: next } });
+        Alert.alert('Your new plan is ready', 'Tap any day to see its meals. Use “Swap” on a meal to change just that one. Each Sunday Firdam prepares next week’s plan and lets you know.');
+        askForAlerts()
+          .then((ok) => {
+            if (ok) return scheduleWeeklyPlanReminder();
+          })
+          .catch(() => {});
       } catch (e) {
         Alert.alert('Could not plan your week', e instanceof Error ? e.message : 'Please try again.');
       } finally {
         setBusy(null);
       }
     };
-    if (k.week) {
-      Alert.alert('Replace this week’s plan?', 'Your family will see the new plan on the website and in the app.', [
+    if (wk) {
+      Alert.alert(offset ? 'Replace next week’s plan?' : 'Replace this week’s plan?', 'Your family will see the new plan on the website and in the app.', [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Replace', style: 'destructive', onPress: run },
       ]);
@@ -119,7 +166,7 @@ export function PlanView() {
     if (!plan || !k.listId) return;
     setBusy('shop');
     try {
-      const needs = shoppingForPlan(plan, k.pantry, today, k.items);
+      const needs = shoppingForPlan(plan, k.pantry, offset ? formatDateISO(weekStartDate) : today, k.items);
       const added = await addShoppingItems(k.listId, needs.map((n) => ({ ...n, fromMealPlan: true })), k.items);
       await refreshShopping();
       Alert.alert(added ? `Updated ${added} item${added === 1 ? '' : 's'}` : 'Nothing to add', added ? 'Amounts for the same food are added together. Find them in Shopping.' : 'Your pantry and list already cover the rest of this week.');
@@ -132,6 +179,10 @@ export function PlanView() {
 
   return (
     <View style={{ gap: 14 }}>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <Chip label="This week" selected={offset === 0} onPress={() => switchWeek(0)} />
+        <Chip label={k.nextWeek ? 'Next week · ready' : 'Next week'} selected={offset === 1} onPress={() => switchWeek(1)} />
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
         {days.map((d) => {
           const iso = formatDateISO(d);
@@ -204,7 +255,7 @@ export function PlanView() {
           <StarPattern size={150} strokeWidth={1} />
         </View>
         <T weight="extrabold" size={17}>
-          {plan ? 'Plan this week again' : 'Plan my week'}
+          {plan ? (offset ? 'Plan next week again' : 'Plan this week again') : offset ? 'Plan next week' : 'Plan my week'}
         </T>
         <T size={13.5} color="#5F5048" style={{ marginTop: 4, lineHeight: 20 }}>
           {`For ${formatPortions(portions)} portions`}
@@ -214,7 +265,26 @@ export function PlanView() {
         <View style={{ gap: 8, marginTop: 14 }}>
           {aiLeft > 0 ? <Button label={`Plan with the AI chef (${aiLeft} left this month)`} onPress={() => generate(true)} busy={busy === 'ai'} disabled={!!busy} /> : null}
           <Button label="Quick plan from the recipe library" variant={aiLeft > 0 ? 'secondary' : 'primary'} onPress={() => generate(false)} busy={busy === 'library'} disabled={!!busy} />
-          <Button label="Allergies, diets & meals" variant="text" onPress={() => router.push('/meal-preferences')} />
+          <Pressable accessibilityRole="button" onPress={() => router.push('/meal-preferences')} style={styles.filters}>
+            <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+              PLAN FILTERS
+            </T>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              {[
+                ...(k.prefs?.mealTypes ?? []).map((m) => m[0].toUpperCase() + m.slice(1)),
+                ...(k.prefs?.dietaryPreferences ?? []).filter((d) => d.toLowerCase() !== 'halal'),
+                ...Object.values(k.prefs?.cuisinePreferences ?? {}).flat(),
+                ...(k.prefs?.usePantryFirst ? ['Pantry first'] : []),
+              ]
+                .filter((v, i, a) => a.indexOf(v) === i)
+                .map((f) => (
+                  <Badge key={f} label={f} tone="walnut" />
+                ))}
+            </View>
+            <T size={13} weight="bold" color={colors.walnut}>
+              Change meals, diets, cuisines ›
+            </T>
+          </Pressable>
         </View>
         {aiLeft === 0 ? (
           <View style={{ marginTop: 6 }}>
@@ -232,6 +302,7 @@ const styles = StyleSheet.create({
   swap: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: colors.line },
   dot: { width: 5, height: 5, borderRadius: 3, marginTop: 2 },
   meal: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 10 },
+  filters: { gap: 8, backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.line, padding: 12 },
   planCard: { backgroundColor: colors.tint, borderRadius: 24, padding: 18, overflow: 'hidden' },
   planStar: { position: 'absolute', right: -40, bottom: -50, opacity: 0.6 },
 });

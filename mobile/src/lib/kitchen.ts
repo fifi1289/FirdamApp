@@ -24,6 +24,7 @@ import {
   formatWeekRange,
   getStartOfWeek,
   newPlanId,
+  normalizeMeal,
   normalizePlan,
   type GeneratedMealPlan,
   type MealIngredient,
@@ -283,6 +284,28 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
     })),
   });
   return withoutAllergies(plan, prefs, portions, pantry, weekStart);
+}
+
+/** One new meal from the AI chef for a Swap (uses an AI swap, not a plan). */
+export async function aiSwapMeal(prefs: MealPreferencesState, portions: number, type: string, avoid: string[]): Promise<MockMeal> {
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) throw new AIPlanError('Please sign in again.', 401);
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-meal-plan`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}`, apikey: SUPABASE_ANON_KEY },
+    body: JSON.stringify({
+      householdSize: portions,
+      dietaryPreferences: prefs.dietaryPreferences,
+      allergies: prefs.allergies,
+      cuisinePreferences: prefs.cuisinePreferences,
+      swap: { type, avoid },
+    }),
+  });
+  const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string } | null;
+  if (!res.ok || !json?.meal) throw new AIPlanError(json?.error ?? `The AI chef could not swap this meal (${res.status}).`, res.status);
+  const meal = normalizeMeal({ ...json.meal, id: newPlanId(), type });
+  if (mealConflicts(meal, prefs.allergies)) throw new AIPlanError('The AI chef suggested something with a family allergy. Please try again.', 422);
+  return meal;
 }
 
 /** True when an AI-written meal contains one of the family's allergies. */

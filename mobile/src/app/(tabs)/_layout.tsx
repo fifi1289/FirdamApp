@@ -1,10 +1,12 @@
-import { Tabs } from 'expo-router';
+import * as Notifications from 'expo-notifications';
+import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
 import { Icon, type IconName } from '@/components/art';
 import { scheduleAdhanAlerts } from '@/lib/adhan-alerts';
 import { loadPrayerSettings, usePrayerSettings } from '@/lib/prayer';
+import { isWeeklyPlanTap, scheduleWeeklyPlanReminder } from '@/lib/weekly-plan-alert';
 import { colors, fonts } from '@/theme';
 
 /** Keeps a week of adhan alerts scheduled: on open, on return to the app, and when settings change. */
@@ -21,6 +23,22 @@ function useAdhanAlerts() {
   }, []);
 }
 
+/** Sunday's "your plan for next week is ready" reminder; tapping it opens Kitchen. */
+function useWeeklyPlanReminder() {
+  useEffect(() => {
+    scheduleWeeklyPlanReminder().catch(() => {});
+    Notifications.getLastNotificationResponseAsync()
+      .then((r) => {
+        if (isWeeklyPlanTap(r)) router.push('/kitchen');
+      })
+      .catch(() => {});
+    const sub = Notifications.addNotificationResponseReceivedListener((r) => {
+      if (isWeeklyPlanTap(r)) router.push('/kitchen');
+    });
+    return () => sub.remove();
+  }, []);
+}
+
 const tabs: { name: string; title: string; icon: IconName }[] = [
   { name: 'index', title: 'Today', icon: 'today' },
   { name: 'kitchen', title: 'Kitchen', icon: 'kitchen' },
@@ -31,6 +49,7 @@ const tabs: { name: string; title: string; icon: IconName }[] = [
 
 export default function TabsLayout() {
   useAdhanAlerts();
+  useWeeklyPlanReminder();
   return (
     <Tabs
       screenOptions={{

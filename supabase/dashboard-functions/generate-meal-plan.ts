@@ -187,6 +187,10 @@ const PAID_RECEIPT_SCANS_PER_MONTH = 30;
 // Free plan: one receipt a month to try it.
 const FREE_RECEIPT_SCANS_PER_MONTH = 1;
 const PAID_COMPANION_MESSAGES_PER_DAY = 20;
+// Swapping one meal with the AI chef (about $0.0005 each). Separate from whole
+// AI plans so a swap never uses up a plan. Library swaps are always unlimited.
+const FREE_AI_SWAPS_PER_MONTH = 5;
+const PAID_AI_SWAPS_PER_MONTH = 40;
 
 // Free launch: everyone gets the full app (with the fair-use caps above) and
 // nothing is sold. Keep in sync with FREE_LAUNCH in lib/plan/plan.ts.
@@ -342,6 +346,55 @@ interface GenerateRequest {
   cuisinePreferences?: Record<string, string[]>;
   usePantryFirst?: boolean;
   pantryItems?: { name: string; quantity: number; unit: string }[];
+  /** Swap one meal: its type, and dishes already in the plan to avoid. */
+  swap?: { type: string; avoid?: string[] };
+}
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+/** One new meal for a plan (the AI chef "Swap"). Counts as a swap, not a plan. */
+async function swapOneMeal(apiKey: string, userId: string, plan: string, body: GenerateRequest): Promise<Response> {
+  const limit = plan === "free" ? FREE_AI_SWAPS_PER_MONTH : PAID_AI_SWAPS_PER_MONTH;
+  const used = await countUsageThisMonth(userId, "ai_meal_swap");
+  if (used >= limit) {
+    return json({ error: `You've used this month's ${limit} AI chef swaps. Swaps from the recipe library are unlimited.`, code: "limit_reached" }, 402);
+  }
+  const type = String(body.swap?.type ?? "dinner").toLowerCase();
+  const cuisines = body.cuisinePreferences?.[type] ?? [];
+  const avoid = (body.swap?.avoid ?? []).slice(0, 40);
+  const ask = `Write ONE ${type} for ${body.householdSize ?? 4} servings.
+${body.dietaryPreferences?.length ? `Diets: ${body.dietaryPreferences.join(", ")}.` : ""}
+${body.allergies?.length ? `Never use (allergies): ${body.allergies.join(", ")}.` : ""}
+${cuisines.length ? `Preferred cuisine: ${cuisines.join(" or ")} (a different cuisine is fine if it suits better).` : ""}
+It must be different from these dishes already in the plan: ${avoid.join("; ") || "none"}.
+Return JSON {"meal": {type, name, cuisine, description, ingredients [{name, quantity, unit}], recipe (steps), prepTime, cookTime, servings, difficulty}}.`;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const res = await fetchOpenAI(apiKey, {
+      model: MODEL,
+      temperature: 0.9,
+      max_tokens: 2000,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: ask }],
+    });
+    if (!res.ok) {
+      const fail = await describeOpenAIFailure(res);
+      return json({ error: fail.message, code: fail.code }, fail.status);
+    }
+    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    let meal: unknown;
+    try {
+      meal = (extractJson(data.choices?.[0]?.message?.content ?? "{}") as { meal?: unknown }).meal;
+    } catch {
+      continue;
+    }
+    if (meal && isMeal(meal) && !mealHaramReason(meal as unknown as Record<string, unknown>)) {
+      (meal as PlannedMeal).type = type;
+      await recordUsage(userId, "ai_meal_swap");
+      return json({ meal, used: used + 1, limit });
+    }
+  }
+  return json({ error: "The AI chef couldn't suggest a suitable meal. Try again, or swap from the library." }, 502);
 }
 
 const SYSTEM_PROMPT = `You are a meal-planning assistant for a Muslim family app.
@@ -521,6 +574,8 @@ Deno.serve(async (req: Request) => {
       );
     }
     const plan = await getPlan(user.id);
+    const body = (await req.json()) as GenerateRequest;
+    if (body.swap) return await swapOneMeal(apiKey, user.id, plan, body);
     {
       const used = await countUsageThisMonth(user.id, "ai_meal_plan");
       if (plan !== "free" && used >= PAID_AI_PLANS_PER_MONTH) {
@@ -542,8 +597,6 @@ Deno.serve(async (req: Request) => {
         );
       }
     }
-
-    const body = (await req.json()) as GenerateRequest;
 
     const planningDuration = body.planningDuration ?? 7;
     if (

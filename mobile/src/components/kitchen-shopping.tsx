@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Checkbox } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
@@ -10,6 +10,7 @@ import { patchKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { formatQty, groupByAisle, needsHalalSource, parseQuickAdd } from '@/shared/grocery-utils';
 import { haramItemMessage } from '@/shared/halal';
 import { colors, fonts } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 export function ShoppingView() {
   const k = useKitchen();
@@ -31,11 +32,11 @@ export function ShoppingView() {
       const refused = parsed.map((p) => haramItemMessage(p.name)).filter((m): m is string => !!m);
       const halal = parsed.filter((p) => !haramItemMessage(p.name));
       if (halal.length) await addShoppingItems(k.listId, halal, k.items);
-      if (refused.length) Alert.alert('Not added', refused.join('\n\n'));
+      if (refused.length) showAlert('Not added', refused.join('\n\n'));
       setText('');
       await refreshShopping();
     } catch (e) {
-      Alert.alert('Could not add', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not add', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setBusy(false);
     }

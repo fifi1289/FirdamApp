@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { StarPattern } from '@/components/art';
 import { Badge, Chip, Photo } from '@/components/kitchen-ui';
@@ -28,6 +28,7 @@ import { getMealImage } from '@/shared/meal-images';
 import { swapPlanMeal } from '@/shared/plan-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TYPE_LABEL: Record<string, string> = { breakfast: 'BREAKFAST', lunch: 'LUNCH', dinner: 'DINNER', snack: 'SNACK' };
@@ -86,7 +87,7 @@ export function PlanView() {
       if (source === 'library') {
         const res = swapPlanMeal(wk.plan, selected, m.type, await loadRecipes(), k.prefs, portions);
         if (!res) {
-          Alert.alert('No other library recipe fits', 'Try “Ask the AI chef” — it can write a new dish that suits your family.');
+          showAlert('No other library recipe fits', 'Try “Ask the AI chef” — it can write a new dish that suits your family.');
           return;
         }
         next = res.plan;
@@ -102,15 +103,15 @@ export function PlanView() {
       }
       const id = await saveWeekPlan(next, k.prefs, wk.id);
       patchKitchen({ [weekKey]: { id, plan: next } });
-      if (note) Alert.alert('Swapped', note);
+      if (note) showAlert('Swapped', note);
     } catch (e) {
-      Alert.alert('Could not swap this meal', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not swap this meal', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setSwapping(null);
     }
   };
   const swap = (m: MockMeal) =>
-    Alert.alert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 5 a month on the free plan, 40 with Firdam Family.', [
+    showAlert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 5 a month on the free plan, 40 with Firdam Family.', [
       { text: 'From the recipe library', onPress: () => swapFrom(m, 'library') },
       { text: 'Ask the AI chef', onPress: () => swapFrom(m, 'ai') },
       { text: 'Cancel', style: 'cancel' },
@@ -130,7 +131,7 @@ export function PlanView() {
             patchKitchen({ aiUsed: k.aiUsed + 1 });
           } catch (e) {
             const used = e instanceof AIPlanError && (e.status === 402 || e.status === 429);
-            Alert.alert(
+            showAlert(
               used ? 'No AI plans left this month' : 'The AI chef is busy',
               used ? 'Here is a plan from the recipe library instead — those are always unlimited.' : 'Here is a plan from the recipe library instead.'
             );
@@ -142,20 +143,20 @@ export function PlanView() {
         }
         const id = await saveWeekPlan(next, prefs, wk?.id ?? null);
         patchKitchen({ [weekKey]: { id, plan: next } });
-        Alert.alert('Your new plan is ready', 'Tap any day to see its meals. Use “Swap” on a meal to change just that one. Each Sunday Firdam prepares next week’s plan and lets you know.');
+        showAlert('Your new plan is ready', 'Tap any day to see its meals. Use “Swap” on a meal to change just that one. Each Sunday Firdam prepares next week’s plan and lets you know.');
         askForAlerts()
           .then((ok) => {
             if (ok) return scheduleWeeklyPlanReminder();
           })
           .catch(() => {});
       } catch (e) {
-        Alert.alert('Could not plan your week', e instanceof Error ? e.message : 'Please try again.');
+        showAlert('Could not plan your week', e instanceof Error ? e.message : 'Please try again.');
       } finally {
         setBusy(null);
       }
     };
     if (wk) {
-      Alert.alert(offset ? 'Replace next week’s plan?' : 'Replace this week’s plan?', 'Your family will see the new plan on the website and in the app.', [
+      showAlert(offset ? 'Replace next week’s plan?' : 'Replace this week’s plan?', 'Your family will see the new plan on the website and in the app.', [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Replace', style: 'destructive', onPress: run },
       ]);
@@ -169,9 +170,9 @@ export function PlanView() {
       const needs = shoppingForPlan(plan, k.pantry, offset ? formatDateISO(weekStartDate) : today, k.items);
       const added = await addShoppingItems(k.listId, needs.map((n) => ({ ...n, fromMealPlan: true })), k.items);
       await refreshShopping();
-      Alert.alert(added ? `Updated ${added} item${added === 1 ? '' : 's'}` : 'Nothing to add', added ? 'Amounts for the same food are added together. Find them in Shopping.' : 'Your pantry and list already cover the rest of this week.');
+      showAlert(added ? `Updated ${added} item${added === 1 ? '' : 's'}` : 'Nothing to add', added ? 'Amounts for the same food are added together. Find them in Shopping.' : 'Your pantry and list already cover the rest of this week.');
     } catch (e) {
-      Alert.alert('Could not update the list', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not update the list', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setBusy(null);
     }

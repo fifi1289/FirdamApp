@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/kitchen-ui';
@@ -10,6 +10,7 @@ import { patchKitchen } from '@/lib/kitchen-store';
 import { supabase } from '@/lib/supabase';
 import { formatPortions, portionFor } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 // How much each person eats. "Auto" works it out from their age.
 const PORTIONS: { label: string; value: number | null }[] = [
@@ -51,7 +52,7 @@ export default function FamilyMembers() {
 
   const load = useCallback(async () => {
     const { data, error } = await supabase.from('family_members').select('id, first_name, relationship, birth_date, portion').order('created_at', { ascending: true });
-    if (error) Alert.alert('Could not load your family', error.message);
+    if (error) showAlert('Could not load your family', error.message);
     setMembers((data ?? []) as Member[]);
   }, []);
 
@@ -65,29 +66,29 @@ export default function FamilyMembers() {
   const save = async () => {
     if (!draft) return;
     const name = draft.first_name.trim();
-    if (!name) return Alert.alert('Add a name');
+    if (!name) return showAlert('Add a name');
     const birth = draft.birth_date.trim();
-    if (birth && !/^\d{4}-\d{2}-\d{2}$/.test(birth)) return Alert.alert('Birth date', 'Use the format YYYY-MM-DD, for example 2018-04-21.');
+    if (birth && !/^\d{4}-\d{2}-\d{2}$/.test(birth)) return showAlert('Birth date', 'Use the format YYYY-MM-DD, for example 2018-04-21.');
     setSaving(true);
     const payload = { first_name: name, relationship: draft.relationship, birth_date: birth || null, portion: draft.portion };
     const { error } = draft.id
       ? await supabase.from('family_members').update(payload).eq('id', draft.id)
       : await supabase.from('family_members').insert(payload);
     setSaving(false);
-    if (error) return Alert.alert('Could not save', error.message);
+    if (error) return showAlert('Could not save', error.message);
     setDraft(null);
     await Promise.all([load(), refreshHousehold()]);
   };
 
   const remove = (m: Member) =>
-    Alert.alert(`Remove ${m.first_name}?`, 'Meal plans will cook for one person less.', [
+    showAlert(`Remove ${m.first_name}?`, 'Meal plans will cook for one person less.', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Remove',
         style: 'destructive',
         onPress: async () => {
           const { error } = await supabase.from('family_members').delete().eq('id', m.id);
-          if (error) return Alert.alert('Could not remove', error.message);
+          if (error) return showAlert('Could not remove', error.message);
           setDraft(null);
           await Promise.all([load(), refreshHousehold()]);
         },

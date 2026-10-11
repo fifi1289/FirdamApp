@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/art';
@@ -11,6 +11,7 @@ import { refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { checkNeeds } from '@/shared/pantry-engine';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 /** A meal the AI chef wrote (not from the recipe library). */
 export default function MealScreen() {
@@ -40,7 +41,7 @@ export default function MealScreen() {
       const added = await addShoppingItems(k.listId, toBuy.map((l) => l.shortfall ?? { name: l.need.name, quantity: l.scaled, unit: l.need.unit }), k.items);
       await refreshShopping();
       setAdded(true);
-      Alert.alert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
+      showAlert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
     } finally {
       setAdding(false);
     }

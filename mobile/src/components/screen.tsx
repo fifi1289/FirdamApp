@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { StarPattern } from '@/components/art';
+import { Logo, StarPattern } from '@/components/art';
 import { Card, T } from '@/components/ui';
 import { colors } from '@/theme';
 
@@ -11,6 +11,12 @@ export function TabScreen({ title, subtitle, children }: { title: string; subtit
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.brandBar} accessibilityLabel="Firdam">
+          <Logo size={26} />
+          <T weight="extrabold" size={16} color={colors.walnut}>
+            Firdam
+          </T>
+        </View>
         {subtitle ? (
           <T size={14} weight="medium" color={colors.muted}>
             {subtitle}
@@ -46,6 +52,7 @@ export function ComingNext({ step, title, text }: { step: number; title: string;
 }
 
 const styles = StyleSheet.create({
+  brandBar: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   screen: { flex: 1, backgroundColor: colors.linen },
   content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 },
 });

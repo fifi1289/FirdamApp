@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { useMemo, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
@@ -14,6 +14,7 @@ import { haramItemMessage } from '@/shared/halal';
 import { isNonFood, suggestedExpiry } from '@/shared/kitchen-items';
 import { formatAmount } from '@/shared/pantry-units';
 import { colors, fonts } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -90,11 +91,11 @@ export function PantryView() {
         const { error } = await supabase.from('pantry_items').insert(rows);
         if (error) throw error;
       }
-      if (refused.length) Alert.alert('Not added', refused.join('\n\n'));
+      if (refused.length) showAlert('Not added', refused.join('\n\n'));
       setText('');
       await refreshKitchen();
     } catch (e) {
-      Alert.alert('Could not add', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not add', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setBusy(false);
     }
@@ -105,7 +106,7 @@ export function PantryView() {
   const [scanning, setScanning] = useState(false);
   const scanWith = async (source: 'camera' | 'library') => {
     const perm = source === 'camera' ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return Alert.alert('Permission needed', 'Allow access in Settings to scan a receipt.');
+    if (!perm.granted) return showAlert('Permission needed', 'Allow access in Settings to scan a receipt.');
     const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.5, base64: true };
     const shot = source === 'camera' ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
     const asset = shot.canceled ? null : shot.assets[0];
@@ -117,10 +118,10 @@ export function PantryView() {
         skipped?: { name: string }[];
       }>('receipt-scan', undefined, { image: `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` });
       const items = (res.items ?? []).filter((i) => !isNonFood(i.name));
-      if (!items.length) return Alert.alert('No food found', 'Try again with the whole receipt flat and in good light.');
+      if (!items.length) return showAlert('No food found', 'Try again with the whole receipt flat and in good light.');
       const list = items.map((i) => `• ${i.quantity} ${i.unit} ${i.name}`).join('\n');
       const skipped = res.skipped?.length ? `\n\nLeft out (not halal): ${res.skipped.map((x) => x.name).join(', ')}` : '';
-      Alert.alert(`Add ${items.length} item${items.length === 1 ? '' : 's'} to your pantry?`, list + skipped, [
+      showAlert(`Add ${items.length} item${items.length === 1 ? '' : 's'} to your pantry?`, list + skipped, [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Add',
@@ -136,19 +137,19 @@ export function PantryView() {
                 expiration_date: i.staple ? null : suggestedExpiry(i.category),
               })),
             );
-            if (error) Alert.alert('Could not add', error.message);
+            if (error) showAlert('Could not add', error.message);
             await refreshKitchen();
           },
         },
       ]);
     } catch (e) {
-      Alert.alert('Could not read the receipt', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not read the receipt', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setScanning(false);
     }
   };
   const scanReceipt = () =>
-    Alert.alert('Scan a receipt', 'Food on the receipt goes into your pantry. The free plan includes one scan a month.', [
+    showAlert('Scan a receipt', 'Food on the receipt goes into your pantry. The free plan includes one scan a month.', [
       { text: 'Take a photo', onPress: () => scanWith('camera') },
       { text: 'Choose a photo', onPress: () => scanWith('library') },
       { text: 'Cancel', style: 'cancel' },
@@ -268,6 +269,7 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
   const [qty, setQty] = useState('');
   const [expiry, setExpiry] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
   const [lastId, setLastId] = useState<string | null>(null);
   if (item && item.id !== lastId) {
     setLastId(item.id);
@@ -278,15 +280,15 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
 
   const save = async () => {
     const n = Number(qty.replace(',', '.'));
-    if (item.tracking !== 'level' && (!Number.isFinite(n) || n < 0)) return Alert.alert('Amount', 'Enter a number, for example 2 or 0.5.');
-    if (expiry && !/^\d{4}-\d{2}-\d{2}$/.test(expiry)) return Alert.alert('Expiry date', 'Use the format YYYY-MM-DD, for example 2026-10-20.');
+    if (item.tracking !== 'level' && (!Number.isFinite(n) || n < 0)) return setProblem('Enter an amount as a number, for example 2 or 0.5.');
+    if (expiry && !/^\d{4}-\d{2}-\d{2}$/.test(expiry)) return setProblem('Type the date as YYYY-MM-DD, for example 2026-10-20.');
     setSaving(true);
     const patch = { expiration_date: expiry || null, ...(item.tracking === 'level' ? {} : { quantity: n }), updated_at: new Date().toISOString() };
     const { error } = n === 0 && item.tracking !== 'level'
       ? await supabase.from('pantry_items').delete().eq('id', item.id)
       : await supabase.from('pantry_items').update(patch).eq('id', item.id);
     setSaving(false);
-    if (error) return Alert.alert('Could not save', error.message);
+    if (error) return setProblem(`Could not save: ${error.message}`);
     onClose();
     await refreshKitchen();
   };
@@ -349,6 +351,11 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
                 accessibilityLabel="Expiry date"
               />
             </View>
+            {problem ? (
+              <T size={13.5} color={colors.brickText}>
+                {problem}
+              </T>
+            ) : null}
             <Button label="Save" onPress={save} busy={saving} />
             <Button label="Used it all — remove" variant="secondary" onPress={usedUp} />
             <Button label="Cancel" variant="text" onPress={onClose} />

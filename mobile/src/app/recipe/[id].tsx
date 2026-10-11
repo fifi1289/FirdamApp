@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/art';
@@ -10,6 +10,7 @@ import { addShoppingItems, checkRecipe, fitsDiets, isSafeFor, loadRecipes, recip
 import { refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
 
@@ -79,9 +80,9 @@ export default function RecipeScreen() {
       );
       await refreshShopping();
       setAdded(true);
-      Alert.alert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
+      showAlert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
     } catch (e) {
-      Alert.alert('Could not add', e instanceof Error ? e.message : 'Please try again.');
+      showAlert('Could not add', e instanceof Error ? e.message : 'Please try again.');
     } finally {
       setAdding(false);
     }

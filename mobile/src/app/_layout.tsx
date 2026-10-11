@@ -13,6 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 
 import { BrandSplash } from '@/components/brand-splash';
+import { FirdamAlertHost } from '@/components/firdam-alert';
 
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { colors } from '@/theme';
@@ -72,6 +73,7 @@ export default function RootLayout() {
     <AuthProvider>
       <StatusBar style="dark" />
       <Navigator />
+      <FirdamAlertHost />
     </AuthProvider>
   );
 }

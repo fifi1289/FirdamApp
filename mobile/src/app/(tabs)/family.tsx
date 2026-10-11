@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/art';
 import { TabScreen } from '@/components/screen';
@@ -11,6 +11,7 @@ import { callFunction } from '@/lib/functions';
 import { useKitchen } from '@/lib/kitchen-store';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+import { showAlert } from '@/components/firdam-alert';
 
 const links = [
   { label: 'Help and support', path: '/support' },
@@ -26,7 +27,7 @@ export default function Family() {
 
   // Apple and Google require that people can delete their account from the app.
   const deleteAccount = () => {
-    Alert.alert(
+    showAlert(
       'Delete your account?',
       'This permanently deletes your account and your personal data: pantry, plans, shopping lists, budget and family details. It can’t be undone.',
       [
@@ -40,7 +41,7 @@ export default function Family() {
               await callFunction('delete-account', undefined, { confirm: 'DELETE' });
               await signOut();
             } catch (e) {
-              Alert.alert('Could not delete your account', e instanceof Error ? e.message : 'Please try again, or email support@firdam.com.');
+              showAlert('Could not delete your account', e instanceof Error ? e.message : 'Please try again, or email support@firdam.com.');
             } finally {
               setDeleting(false);
             }

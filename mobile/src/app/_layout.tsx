@@ -10,7 +10,9 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import { BrandSplash } from '@/components/brand-splash';
 
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { colors } from '@/theme';
@@ -27,13 +29,20 @@ function Navigator() {
     PlusJakartaSans_800ExtraBold,
     Amiri_400Regular,
   });
-  const ready = fontsLoaded && !loading;
+  // Keep the logo and slogan on screen for a moment, even on a fast start.
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setShown(true), 1400);
+    return () => clearTimeout(t);
+  }, []);
+  const ready = fontsLoaded && !loading && shown;
 
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync().catch(() => {});
-  }, [ready]);
+    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
+  }, [fontsLoaded]);
 
-  if (!ready) return null;
+  if (!fontsLoaded) return null;
+  if (!ready) return <BrandSplash />;
 
   const signedIn = !!session;
   return (

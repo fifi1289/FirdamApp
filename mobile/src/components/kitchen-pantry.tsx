@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
@@ -11,6 +11,7 @@ import { patchKitchen, refreshKitchen, useKitchen } from '@/lib/kitchen-store';
 import { supabase } from '@/lib/supabase';
 import { groupByAisle, guessCategory, parseQuickAdd, toPantryUnit } from '@/shared/grocery-utils';
 import { haramItemMessage } from '@/shared/halal';
+import { isNonFood, suggestedExpiry } from '@/shared/kitchen-items';
 import { formatAmount } from '@/shared/pantry-units';
 import { colors, fonts } from '@/theme';
 
@@ -20,6 +21,31 @@ function daysLeft(date: string | null): number | null {
   if (!date) return null;
   const d = new Date(`${date}T12:00:00`).getTime();
   return Math.round((d - Date.now()) / DAY);
+}
+
+// One colour per aisle, so the pantry is easy to scan.
+const AISLE_COLORS: Record<string, string> = {
+  Vegetables: '#5E8C4A', Fruits: '#D9822B', Meat: '#B5473A', Poultry: '#C8743C', Seafood: '#3C7DA6',
+  Dairy: '#7FA7C9', Eggs: '#D8B44A', Bakery: '#B7895B', Grains: '#A68A4E', 'Pasta & Rice': '#C9A86A',
+  'Canned Foods': '#8C6D8F', 'Frozen Foods': '#5BA3B5', Spices: '#C0562F', 'Oils & Condiments': '#9A8A3A',
+  Snacks: '#C76B8A', Beverages: '#4F8D8A',
+};
+const aisleColor = (c: string) => AISLE_COLORS[c] ?? '#9C8D84';
+
+/** Expiry label and colour: red when past, amber when close, green when fine. */
+function expiryBadge(date: string | null): { label: string; tone: 'brick' | 'amber' | 'sage' } | null {
+  const d = daysLeft(date);
+  if (d == null) return null;
+  if (d < 0) return { label: 'Expired', tone: 'brick' };
+  if (d === 0) return { label: 'Use today', tone: 'brick' };
+  if (d <= 3) return { label: d === 1 ? 'Use tomorrow' : `Use in ${d} days`, tone: 'amber' };
+  return { label: `Until ${new Date(`${date}T12:00:00`).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}`, tone: 'sage' };
+}
+
+function inDays(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function amount(i: PantryItem): string {
@@ -56,6 +82,7 @@ export function PantryView() {
         quantity: p.quantity ?? 1,
         unit: toPantryUnit(p.unit),
         tracking: 'count' as const,
+        expiration_date: suggestedExpiry(guessCategory(p.name)),
       }));
     setBusy(true);
     try {
@@ -89,7 +116,7 @@ export function PantryView() {
         items: { name: string; quantity: number; unit: string; category: string; staple: boolean }[];
         skipped?: { name: string }[];
       }>('receipt-scan', undefined, { image: `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` });
-      const items = res.items ?? [];
+      const items = (res.items ?? []).filter((i) => !isNonFood(i.name));
       if (!items.length) return Alert.alert('No food found', 'Try again with the whole receipt flat and in good light.');
       const list = items.map((i) => `• ${i.quantity} ${i.unit} ${i.name}`).join('\n');
       const skipped = res.skipped?.length ? `\n\nLeft out (not halal): ${res.skipped.map((x) => x.name).join(', ')}` : '';
@@ -106,6 +133,7 @@ export function PantryView() {
                 unit: i.unit,
                 tracking: i.staple ? 'level' : 'count',
                 ...(i.staple ? { level: 'full' } : {}),
+                expiration_date: i.staple ? null : suggestedExpiry(i.category),
               })),
             );
             if (error) Alert.alert('Could not add', error.message);
@@ -126,22 +154,7 @@ export function PantryView() {
       { text: 'Cancel', style: 'cancel' },
     ]);
 
-  const usedUp = (item: PantryItem) => {
-    Alert.alert(`Used up ${item.name}?`, 'It will be removed from your pantry.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Used up',
-        style: 'destructive',
-        onPress: async () => {
-          Haptics.selectionAsync().catch(() => {});
-          patchKitchen({ pantry: k.pantry.filter((p) => p.id !== item.id) });
-          const { error } = await supabase.from('pantry_items').delete().eq('id', item.id);
-          if (error) await refreshKitchen();
-        },
-      },
-    ]);
-  };
-
+  const [editing, setEditing] = useState<PantryItem | null>(null);
   return (
     <View style={{ gap: 14 }}>
       <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -184,25 +197,31 @@ export function PantryView() {
       ) : (
         groups.map((g) => (
           <View key={g.category} style={{ gap: 6 }}>
-            <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-              {g.category.toUpperCase()}
-            </T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={[styles.dot, { backgroundColor: aisleColor(g.category) }]} />
+              <T size={12.5} weight="bold" color={aisleColor(g.category)} style={{ letterSpacing: 0.4 }}>
+                {`${g.category.toUpperCase()} · ${g.items.length}`}
+              </T>
+            </View>
             <Card style={{ paddingVertical: 2 }}>
               {g.items.map((i, idx) => (
                 <Pressable
                   key={i.id}
                   accessibilityRole="button"
-                  accessibilityHint="Mark as used up"
-                  onLongPress={() => usedUp(i)}
-                  onPress={() => usedUp(i)}
+                  accessibilityHint="Edit amount or expiry date"
+                  onPress={() => setEditing(i)}
                   style={[styles.row, idx < g.items.length - 1 && styles.line]}
                 >
-                  <T size={15} weight="semibold" style={{ flex: 1 }}>
-                    {i.name}
-                  </T>
-                  <T size={13} color={colors.muted}>
-                    {amount(i)}
-                  </T>
+                  <View style={[styles.dot, { backgroundColor: aisleColor(g.category) }]} />
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <T size={15} weight="semibold">
+                      {i.name}
+                    </T>
+                    <T size={12.5} color={colors.muted}>
+                      {amount(i)}
+                    </T>
+                  </View>
+                  {expiryBadge(i.expiration_date) ? <Badge {...expiryBadge(i.expiration_date)!} /> : null}
                 </Pressable>
               ))}
             </Card>
@@ -210,8 +229,9 @@ export function PantryView() {
         ))
       )}
       <T size={12} color={colors.muted} style={{ textAlign: 'center' }}>
-        Tap an item when it’s used up. Receipt scanning and more pantry tools are on firdam.com.
+        Tap an item to change the amount, set its expiry date, or mark it used up.
       </T>
+      <PantryItemSheet item={editing} onClose={() => setEditing(null)} />
     </View>
   );
 }
@@ -221,4 +241,114 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 50 },
   line: { borderBottomWidth: 1, borderBottomColor: colors.line },
   soonRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+  backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: colors.linen, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, gap: 14, paddingBottom: 34 },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });
+
+const EXPIRY_CHOICES: { label: string; days: number | null }[] = [
+  { label: 'Today', days: 0 },
+  { label: '3 days', days: 3 },
+  { label: '1 week', days: 7 },
+  { label: '2 weeks', days: 14 },
+  { label: '1 month', days: 30 },
+  { label: 'No date', days: null },
+];
+
+/** Edit one pantry item: amount, expiry date, or used up. Nothing is removed by a stray tap. */
+function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: () => void }) {
+  const k = useKitchen();
+  const [qty, setQty] = useState('');
+  const [expiry, setExpiry] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [lastId, setLastId] = useState<string | null>(null);
+  if (item && item.id !== lastId) {
+    setLastId(item.id);
+    setQty(item.quantity != null ? String(item.quantity) : '');
+    setExpiry(item.expiration_date ?? null);
+  }
+  if (!item) return null;
+
+  const save = async () => {
+    const n = Number(qty.replace(',', '.'));
+    if (item.tracking !== 'level' && (!Number.isFinite(n) || n < 0)) return Alert.alert('Amount', 'Enter a number, for example 2 or 0.5.');
+    if (expiry && !/^\d{4}-\d{2}-\d{2}$/.test(expiry)) return Alert.alert('Expiry date', 'Use the format YYYY-MM-DD, for example 2026-10-20.');
+    setSaving(true);
+    const patch = { expiration_date: expiry || null, ...(item.tracking === 'level' ? {} : { quantity: n }), updated_at: new Date().toISOString() };
+    const { error } = n === 0 && item.tracking !== 'level'
+      ? await supabase.from('pantry_items').delete().eq('id', item.id)
+      : await supabase.from('pantry_items').update(patch).eq('id', item.id);
+    setSaving(false);
+    if (error) return Alert.alert('Could not save', error.message);
+    onClose();
+    await refreshKitchen();
+  };
+
+  const usedUp = async () => {
+    Haptics.selectionAsync().catch(() => {});
+    patchKitchen({ pantry: k.pantry.filter((p) => p.id !== item.id) });
+    onClose();
+    const { error } = await supabase.from('pantry_items').delete().eq('id', item.id);
+    if (error) await refreshKitchen();
+  };
+
+  const setLevel = async (level: 'full' | 'low' | 'out') => {
+    await supabase.from('pantry_items').update({ level, updated_at: new Date().toISOString() }).eq('id', item.id);
+    await refreshKitchen();
+  };
+
+  return (
+    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
+        <Pressable style={styles.sheet} onPress={() => {}}>
+          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 14 }}>
+            <T weight="extrabold" size={20}>
+              {item.name}
+            </T>
+            {item.tracking === 'level' ? (
+              <View style={styles.wrap}>
+                {(['full', 'low', 'out'] as const).map((l) => (
+                  <Pressable key={l} onPress={() => setLevel(l)} accessibilityRole="button">
+                    <Badge label={l === 'full' ? 'Plenty' : l === 'low' ? 'Running low' : 'Out'} tone={item.level === l ? (l === 'out' ? 'brick' : l === 'low' ? 'amber' : 'sage') : 'walnut'} />
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <View style={{ gap: 6 }}>
+                <T weight="semibold" size={14}>{`Amount (${item.unit === 'Pieces' ? 'pieces' : item.unit})`}</T>
+                <TextInput value={qty} onChangeText={setQty} keyboardType="decimal-pad" style={styles.input} accessibilityLabel="Amount" />
+              </View>
+            )}
+            <View style={{ gap: 6 }}>
+              <T weight="semibold" size={14}>
+                Use by
+              </T>
+              <View style={styles.wrap}>
+                {EXPIRY_CHOICES.map((c) => {
+                  const value = c.days == null ? null : inDays(c.days);
+                  return (
+                    <Pressable key={c.label} onPress={() => setExpiry(value)} accessibilityRole="button">
+                      <Badge label={c.label} tone={expiry === value ? 'sage' : 'walnut'} />
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <TextInput
+                value={expiry ?? ''}
+                onChangeText={(t) => setExpiry(t || null)}
+                placeholder="or type a date: 2026-10-20"
+                placeholderTextColor="#9C8D84"
+                style={styles.input}
+                accessibilityLabel="Expiry date"
+              />
+            </View>
+            <Button label="Save" onPress={save} busy={saving} />
+            <Button label="Used it all — remove" variant="secondary" onPress={usedUp} />
+            <Button label="Cancel" variant="text" onPress={onClose} />
+          </ScrollView>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}

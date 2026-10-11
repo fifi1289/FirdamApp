@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { StarPattern } from '@/components/art';
 import { openMeal } from '@/components/kitchen-plan';
-import { Photo } from '@/components/kitchen-ui';
+import { Badge, Photo } from '@/components/kitchen-ui';
 import { TabScreen } from '@/components/screen';
 import { Button, Card, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
@@ -79,6 +79,37 @@ function PrayerCard() {
   );
 }
 
+/** Food at home that should be eaten soon: expired, today, or within 3 days. */
+function UseSoonCard() {
+  const k = useKitchen();
+  const today = new Date(`${formatDateISO(new Date())}T12:00:00`).getTime();
+  const soon = k.pantry
+    .filter((i) => i.expiration_date)
+    .map((i) => ({ i, d: Math.round((new Date(`${i.expiration_date}T12:00:00`).getTime() - today) / 86_400_000) }))
+    .filter((x) => x.d <= 3)
+    .sort((a, b) => a.d - b.d);
+  if (k.loading || soon.length === 0) return null;
+  const expired = soon.filter((x) => x.d < 0).length;
+  return (
+    <Pressable accessibilityRole="button" onPress={() => router.push('/kitchen')} style={[styles.warn, expired ? styles.warnRed : null]}>
+      <T size={12.5} weight="bold" color={expired ? colors.brickText : '#8A5A16'} style={{ letterSpacing: 0.4 }}>
+        {expired ? `USE SOON · ${expired} EXPIRED` : 'USE SOON'}
+      </T>
+      {soon.slice(0, 4).map(({ i, d }) => (
+        <View key={i.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <T size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
+            {i.name}
+          </T>
+          <Badge label={d < 0 ? 'Expired' : d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : `${d} days`} tone={d <= 0 ? 'brick' : 'amber'} />
+        </View>
+      ))}
+      <T size={12.5} color={colors.muted}>
+        {soon.length > 4 ? `+ ${soon.length - 4} more · ` : ''}Tap to see recipes that use them in Kitchen.
+      </T>
+    </Pressable>
+  );
+}
+
 function TonightCard() {
   const k = useKitchen();
   const today = formatDateISO(new Date());
@@ -130,6 +161,7 @@ export default function Today() {
   return (
     <TabScreen title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
       <PrayerCard />
+      <UseSoonCard />
       <TonightCard />
       <Card style={{ gap: 6 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
@@ -143,6 +175,8 @@ export default function Today() {
 }
 
 const styles = StyleSheet.create({
+  warn: { gap: 8, backgroundColor: '#FFF4E0', borderWidth: 1, borderColor: '#F0D29A', borderRadius: 20, padding: 16 },
+  warnRed: { backgroundColor: '#FCEAE6', borderColor: '#EDB9AE' },
   prayer: { backgroundColor: colors.espresso, borderRadius: 24, padding: 20, overflow: 'hidden' },
   star: { position: 'absolute', right: -50, top: -40, opacity: 0.35 },
   row: { flexDirection: 'row', gap: 6, marginTop: 18 },

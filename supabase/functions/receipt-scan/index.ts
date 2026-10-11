@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { haramItemReason } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
+import { isNonFood } from "../_shared/kitchen-items.ts";
 import { countUsageThisMonth, FREE_RECEIPT_SCANS_PER_MONTH, getPlan, getUser, PAID_RECEIPT_SCANS_PER_MONTH, recordUsage } from "../_shared/plan.ts";
 
 /**
@@ -103,7 +104,8 @@ Deno.serve(async (req) => {
         const category = CATEGORIES.includes(String(i.category)) ? String(i.category) : "Other";
         return { name, quantity, unit, category, staple: i.staple === true };
       })
-      .filter((i) => i.name)
+      // Kitchen only: soap, bags, batteries and the like are dropped.
+      .filter((i) => i.name && !isNonFood(i.name))
       .slice(0, 80);
     // Halal only: haram lines on a receipt are not offered for the pantry.
     const skipped = items.filter((i) => haramItemReason(i.name)).map((i) => ({ name: i.name, reason: haramItemReason(i.name) }));

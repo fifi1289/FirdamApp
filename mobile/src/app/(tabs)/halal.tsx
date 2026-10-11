@@ -115,7 +115,7 @@ export default function Halal() {
     setError(null);
     setNotice(null);
     const [osm, community] = await Promise.allSettled([
-      callFunction<{ places: Place[]; stale?: boolean }>('halal-places', {
+      callFunction<{ places: Place[]; pending?: boolean }>('halal-places', {
         lat: place.latitude,
         lng: place.longitude,
         radius: km * 1000,
@@ -124,14 +124,11 @@ export default function Halal() {
       communityPlaces(place.latitude, place.longitude, km),
     ]);
     const mine = community.status === 'fulfilled' ? community.value : [];
-    if (osm.status === 'fulfilled') {
-      setPlaces([...mine, ...(osm.value.places ?? [])]);
-      if (osm.value.stale) setNotice('The map service is busy, so these results may be a little old.');
-    } else if (mine.length) {
-      setPlaces(mine);
-      setNotice('The map service is busy right now. Showing places added by Firdam families — try again in a minute for more.');
-    } else {
-      setError('The map service is busy right now. Please try again in a minute.');
+    const found = osm.status === 'fulfilled' ? osm.value.places ?? [] : [];
+    setPlaces([...mine, ...found]);
+    // A brand-new area is filled in by Firdam within a few minutes.
+    if (osm.status === 'rejected' || osm.value.pending) {
+      setNotice(found.length ? 'Adding more places around you — pull back in a few minutes for the full list.' : 'Firdam is gathering halal places for your area. Check back in a few minutes.');
     }
   }, [place, km, stores]);
 

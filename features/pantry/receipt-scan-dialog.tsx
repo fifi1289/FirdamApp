@@ -23,6 +23,7 @@ import { matchScore } from '@/lib/pantry/units';
 import { undoToast } from '@/features/pantry/cook-dialog';
 import { PANTRY_UNITS, type PantryCategory, type PantryItem, type PantryUnit } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { isNonFood } from '@/supabase/functions/_shared/kitchen-items';
 
 interface ScannedItem {
   name: string;
@@ -105,7 +106,7 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
         });
       }
       setResult(res);
-      setItems(res.items.map((i) => ({ ...i, keep: true })));
+      setItems(res.items.filter((i) => !isNonFood(i.name)).map((i) => ({ ...i, keep: true })));
       const { data: list } = await supabase.from('grocery_items').select('name').eq('checked', false);
       setOnListCount((list ?? []).filter((g) => res.items.some((i) => matchScore(g.name, i.name) >= 2 || matchScore(i.name, g.name) >= 2)).length);
       setStep('review');

@@ -1,0 +1,29 @@
+import { StyleSheet, View } from 'react-native';
+
+import { Logo, StarPattern } from '@/components/art';
+import { T } from '@/components/ui';
+import { colors } from '@/theme';
+
+/** Shown while the app starts: the logo, the name and the slogan. */
+export function BrandSplash() {
+  return (
+    <View style={styles.screen} accessibilityLabel="Firdam. Your halal kitchen, planned for the whole family.">
+      <View style={styles.star} pointerEvents="none">
+        <StarPattern size={460} />
+      </View>
+      <Logo size={88} />
+      <T weight="extrabold" size={34} style={{ marginTop: 18 }}>
+        Firdam
+      </T>
+      <T size={16} color="#5F5048" style={styles.slogan}>
+        Your halal kitchen, planned for the whole family.
+      </T>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.linen, padding: 32 },
+  star: { position: 'absolute', top: -120, right: -140, opacity: 0.7 },
+  slogan: { marginTop: 10, textAlign: 'center', lineHeight: 23, maxWidth: 280 },
+});

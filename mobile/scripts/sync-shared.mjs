@@ -23,6 +23,7 @@ const FILES = {
   'supabase/functions/_shared/pantry-engine.ts': 'pantry-engine.ts',
   'supabase/functions/_shared/pantry-portions.ts': 'pantry-portions.ts',
   'supabase/functions/_shared/halal.ts': 'halal.ts',
+  'supabase/functions/_shared/kitchen-items.ts': 'kitchen-items.ts',
 };
 
 const REWRITES = [

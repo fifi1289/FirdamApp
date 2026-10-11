@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge, Chip, Photo } from '@/components/kitchen-ui';
 import { Button, T } from '@/components/ui';
@@ -26,6 +26,7 @@ export function RecipesView() {
   const [meal, setMeal] = useState<string | null>(null);
   const [cuisine, setCuisine] = useState<string | null>(null);
   const [diet, setDiet] = useState<string | null>(null);
+  const [sheet, setSheet] = useState(false);
   // A new search or filter starts again from the top.
   useEffect(() => setLimit(PAGE_SIZE), [query, filters, meal, cuisine, diet]);
 
@@ -69,40 +70,88 @@ export function RecipesView() {
       return next;
     });
 
+  const active = [
+    ...(filters.has('safe') ? [{ label: allergies.length ? 'Safe for my family' : 'Fits my diet', clear: () => toggle('safe') }] : []),
+    ...(filters.has('quick') ? [{ label: '30 min or less', clear: () => toggle('quick') }] : []),
+    ...(filters.has('cook') ? [{ label: 'Cook with what I have', clear: () => toggle('cook') }] : []),
+    ...(meal ? [{ label: meal[0].toUpperCase() + meal.slice(1), clear: () => setMeal(null) }] : []),
+    ...(diet ? [{ label: diet, clear: () => setDiet(null) }] : []),
+    ...(cuisine ? [{ label: cuisine, clear: () => setCuisine(null) }] : []),
+  ];
+  const activeCount = active.length;
+
   if (error) return <T color={colors.brickText}>{error}</T>;
   if (!recipes) return <ActivityIndicator color={colors.walnut} style={{ marginTop: 24 }} />;
 
   return (
     <View style={{ gap: 12 }}>
-      <TextInput
-        value={query}
-        onChangeText={setQuery}
-        placeholder={`Search ${recipes.length} halal recipes or a cuisine`}
-        placeholderTextColor="#9C8D84"
-        accessibilityLabel="Search recipes"
-        style={styles.search}
-        returnKeyType="search"
-      />
-      <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-        <Chip label={allergies.length ? 'Safe for my family' : 'Fits my diet'} selected={filters.has('safe')} onPress={() => toggle('safe')} tone="sage" />
-        <Chip label="30 min or less" selected={filters.has('quick')} onPress={() => toggle('quick')} />
-        {k.pantry.length ? <Chip label="Cook with what I have" selected={filters.has('cook')} onPress={() => toggle('cook')} /> : null}
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder={`Search ${recipes.length} halal recipes`}
+          placeholderTextColor="#9C8D84"
+          accessibilityLabel="Search recipes"
+          style={[styles.search, { flex: 1 }]}
+          returnKeyType="search"
+          clearButtonMode="while-editing"
+        />
+        <Pressable accessibilityRole="button" accessibilityLabel="Filters" onPress={() => setSheet(true)} style={styles.filterBtn}>
+          <T size={14} weight="bold" color={colors.linen}>
+            {activeCount ? `Filters · ${activeCount}` : 'Filters'}
+          </T>
+        </Pressable>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-        {MEALS.map((m) => (
-          <Chip key={m} label={m[0].toUpperCase() + m.slice(1)} selected={meal === m} onPress={() => setMeal(meal === m ? null : m)} />
-        ))}
-      </ScrollView>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-        {cuisines.map((c) => (
-          <Chip key={c} label={c} selected={cuisine === c} onPress={() => setCuisine(cuisine === c ? null : c)} />
-        ))}
-      </ScrollView>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-        {DIETS.map((d) => (
-          <Chip key={d} label={d} selected={diet === d} onPress={() => setDiet(diet === d ? null : d)} tone="sage" />
-        ))}
-      </ScrollView>
+      {activeCount ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          {active.map((f) => (
+            <Chip key={f.label} label={`${f.label}  ✕`} selected onPress={f.clear} />
+          ))}
+        </ScrollView>
+      ) : null}
+
+      <Modal visible={sheet} transparent animationType="slide" onRequestClose={() => setSheet(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setSheet(false)} accessibilityLabel="Close filters">
+          <Pressable style={styles.sheet} onPress={() => {}}>
+            <ScrollView contentContainerStyle={{ gap: 16 }}>
+              <T weight="extrabold" size={20}>
+                Filters
+              </T>
+              <Section title="For">
+                <Chip label={allergies.length ? 'Safe for my family' : 'Fits my diet'} selected={filters.has('safe')} onPress={() => toggle('safe')} tone="sage" />
+                <Chip label="30 min or less" selected={filters.has('quick')} onPress={() => toggle('quick')} />
+                {k.pantry.length ? <Chip label="Cook with what I have" selected={filters.has('cook')} onPress={() => toggle('cook')} /> : null}
+              </Section>
+              <Section title="Meal">
+                {MEALS.map((m) => (
+                  <Chip key={m} label={m[0].toUpperCase() + m.slice(1)} selected={meal === m} onPress={() => setMeal(meal === m ? null : m)} />
+                ))}
+              </Section>
+              <Section title="Diet">
+                {DIETS.map((d) => (
+                  <Chip key={d} label={d} selected={diet === d} onPress={() => setDiet(diet === d ? null : d)} tone="sage" />
+                ))}
+              </Section>
+              <Section title="Cuisine">
+                {cuisines.map((c) => (
+                  <Chip key={c} label={c} selected={cuisine === c} onPress={() => setCuisine(cuisine === c ? null : c)} />
+                ))}
+              </Section>
+              <Button label={`Show ${shown.length} recipe${shown.length === 1 ? '' : 's'}`} onPress={() => setSheet(false)} />
+              <Button
+                label="Clear all"
+                variant="text"
+                onPress={() => {
+                  setMeal(null);
+                  setCuisine(null);
+                  setDiet(null);
+                  setFilters(new Set());
+                }}
+              />
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
       <T size={12.5} color={colors.muted}>
         {shown.length > limit ? `Showing ${limit} of ${shown.length} recipes` : `${shown.length} recipe${shown.length === 1 ? '' : 's'}`}
         {filters.has('safe') && allergies.length ? ` · without ${allergies.join(', ').toLowerCase()}` : ''}
@@ -144,7 +193,21 @@ export function RecipesView() {
   );
 }
 
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View style={{ gap: 8 }}>
+      <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+        {title.toUpperCase()}
+      </T>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{children}</View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  filterBtn: { height: 48, paddingHorizontal: 16, borderRadius: 16, backgroundColor: colors.espresso, alignItems: 'center', justifyContent: 'center' },
+  backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },
+  sheet: { maxHeight: '85%', backgroundColor: colors.linen, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 34 },
   search: { height: 48, borderRadius: 16, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontFamily: fonts.regular, fontSize: 15, color: colors.espresso },
   card: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 10 },
 });

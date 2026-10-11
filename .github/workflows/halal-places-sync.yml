@@ -1,0 +1,30 @@
+# Keeps Firdam's halal places up to date: fetches the map areas people search
+# in from OpenStreetMap and stores them in the database, so the app can always
+# show places instantly. Needs the repository secret PLACES_SYNC_TOKEN (the same
+# value as the Supabase Edge Function secret of that name).
+name: Halal places sync
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: halal-places-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/sync-halal-places.mjs
+        env:
+          SUPABASE_URL: https://psxwslmsjdtfzneoujea.supabase.co
+          # Public anon key (safe to share; the website uses it too).
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzeHdzbG1zamR0ZnpuZW91amVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNDI2NTgsImV4cCI6MjA5OTcxODY1OH0.PwBjPd9BcHll38hjGaCMR6JVdwPulpApFsPokx0IpCQ
+          PLACES_SYNC_TOKEN: ${{ secrets.PLACES_SYNC_TOKEN }}

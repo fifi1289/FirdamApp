@@ -13,14 +13,15 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, X-Sync-Token",
 };
 
 const USER_AGENT = "Firdam/1.0 (https://firdam.com)";
 
 const OVERPASS_ENDPOINTS = [
   "https://overpass-api.de/api/interpreter",
+  "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
 ];
@@ -74,34 +75,93 @@ function remember(key: string, body: unknown) {
   cache.set(key, { at: Date.now(), body });
 }
 
-// ---- Persistent cache in the database (last good answer per area) ----
-const DB_FRESH_MS = 24 * 3600_000;
-function dbHeaders(): Record<string, string> | null {
-  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  return key ? { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" } : null;
+// ---- Our own store of places (osm_places), filled per 0.2° map tile ----
+const TILE = 0.2;
+const REFRESH_MS = 14 * 24 * 3600_000;
+
+interface Tile { tile: string; south: number; west: number; north: number; east: number }
+
+function tilesFor(lat: number, lng: number, radius: number): { tiles: Tile[]; box: [number, number, number, number] } {
+  const dLat = radius / 111_320;
+  const dLng = radius / (111_320 * Math.max(0.2, Math.cos((lat * Math.PI) / 180)));
+  const box: [number, number, number, number] = [lat - dLat, lng - dLng, lat + dLat, lng + dLng];
+  const tiles: Tile[] = [];
+  for (let y = Math.floor(box[0] / TILE); y <= Math.floor(box[2] / TILE); y++) {
+    for (let x = Math.floor(box[1] / TILE); x <= Math.floor(box[3] / TILE); x++) {
+      tiles.push({ tile: `${y}:${x}`, south: +(y * TILE).toFixed(4), west: +(x * TILE).toFixed(4), north: +((y + 1) * TILE).toFixed(4), east: +((x + 1) * TILE).toFixed(4) });
+    }
+  }
+  return { tiles, box };
 }
-async function dbGet(key: string): Promise<{ body: unknown; fresh: boolean } | null> {
+
+function tileQuery(t: Tile): string {
+  return `
+    [out:json][timeout:60][bbox:${t.south},${t.west},${t.north},${t.east}];
+    (
+      nwr["diet:halal"~"^(yes|only|limited)$"];
+      nwr["halal"="yes"];
+      nwr["cuisine"~"halal",i];
+      nwr["amenity"="place_of_worship"]["religion"="muslim"];
+      nwr["shop"]["name"~"halal",i];
+      nwr["amenity"~"^(restaurant|fast_food|cafe)$"]["name"~"halal",i];
+    )->.halal;
+    .halal out center tags;
+    (nwr["shop"~"^(supermarket|grocery|butcher|deli|spices|food|greengrocer)$"]; - .halal;)->.stores;
+    .stores out center tags 600;
+  `;
+}
+
+async function rest<T>(path: string, init: RequestInit = {}): Promise<T | null> {
   const url = Deno.env.get("SUPABASE_URL");
-  const headers = dbHeaders();
-  if (!url || !headers) return null;
-  try {
-    const res = await fetch(`${url}/rest/v1/osm_place_cache?key=eq.${encodeURIComponent(key)}&select=body,fetched_at`, { headers });
-    if (!res.ok) return null;
-    const row = ((await res.json()) as { body: unknown; fetched_at: string }[])[0];
-    return row ? { body: row.body, fresh: Date.now() - new Date(row.fetched_at).getTime() < DB_FRESH_MS } : null;
-  } catch {
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return null;
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    ...init,
+    headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", ...(init.headers ?? {}) },
+  });
+  if (!res.ok) {
+    console.error(`rest ${path.split("?")[0]} ${res.status}: ${(await res.text()).slice(0, 300)}`);
     return null;
   }
+  const text = await res.text();
+  return (text ? JSON.parse(text) : null) as T;
 }
-async function dbPut(key: string, body: unknown) {
-  const url = Deno.env.get("SUPABASE_URL");
-  const headers = dbHeaders();
-  if (!url || !headers) return;
-  await fetch(`${url}/rest/v1/osm_place_cache?on_conflict=key`, {
+
+/** Stores one tile's places (replacing what was there) and marks it fetched. */
+async function ingestTile(t: Tile, elements: OsmElement[]): Promise<number> {
+  const started = new Date().toISOString();
+  const seen = new Set<string>();
+  const rows = [];
+  for (const el of elements) {
+    const p = normalize(el);
+    if (!p || seen.has(p.key)) continue;
+    seen.add(p.key);
+    rows.push({
+      key: p.key, tile: t.tile, name: p.name, category: p.category, latitude: p.latitude, longitude: p.longitude,
+      address: p.address, phone: p.phone, website: p.website, opening_hours: p.openingHours,
+      halal_status: p.halalStatus, certification: p.certification, cuisine: p.cuisine, updated_at: started,
+    });
+  }
+  for (let i = 0; i < rows.length; i += 500) {
+    await rest("osm_places?on_conflict=key", {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(rows.slice(i, i + 500)),
+    });
+  }
+  await rest(`osm_places?tile=eq.${encodeURIComponent(t.tile)}&updated_at=lt.${encodeURIComponent(started)}`, { method: "DELETE" });
+  await rest("place_areas?on_conflict=tile", {
     method: "POST",
-    headers: { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" },
-    body: JSON.stringify({ key, body, fetched_at: new Date().toISOString() }),
-  }).catch(() => {});
+    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify({ ...t, fetched_at: new Date().toISOString(), attempts: 0 }),
+  });
+  return rows.length;
+}
+
+interface PlaceRow {
+  key: string; name: string; category: Category; latitude: number; longitude: number; address: string | null;
+  phone: string | null; website: string | null; opening_hours: string | null; halal_status: NormalizedPlace["halalStatus"];
+  certification: string | null; cuisine: string | null;
 }
 
 function json(body: unknown, status = 200) {
@@ -228,7 +288,7 @@ function normalizeAgency(el: OsmElement): TravelAgency | null {
   };
 }
 
-async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?: string, stores = false): Promise<OsmElement[]> {
+async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?: string, stores = false, budgetMs = 55_000): Promise<OsmElement[]> {
   // A bounding box with tag filters is far lighter for the public servers than
   // collecting every shop and amenity in the area first.
   const dLat = radius / 111_320;
@@ -252,8 +312,8 @@ async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?
   // Hedged requests: ask the main server first, and if it hasn't answered after
   // a few seconds also ask the mirrors. The first good answer wins; the rest are
   // cancelled. This keeps searches fast when one public server is overloaded.
-  const STAGGER_MS = 6_000;
-  const deadline = Date.now() + 55_000;
+  const STAGGER_MS = budgetMs < 30_000 ? 3_000 : 6_000;
+  const deadline = Date.now() + budgetMs;
   const controllers = OVERPASS_ENDPOINTS.map(() => new AbortController());
   const attempt = async (endpoint: string, i: number): Promise<OsmElement[]> => {
     if (i > 0) await new Promise((r) => setTimeout(r, i * STAGGER_MS));
@@ -388,39 +448,65 @@ Deno.serve(async (req: Request) => {
       return json(body);
     }
 
-    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
-      // Round so nearby searches share a cache entry (~1 km grid).
-      // stores=1 also lists food shops that often stock halal products.
-      const stores = url.searchParams.get("stores") === "1";
-      const key = `p:${lat.toFixed(2)}:${lng.toFixed(2)}:${radius}:${stores ? 1 : 0}`;
-      const hit = cached<unknown>(key);
-      if (hit) return json(hit);
-      const stored = await dbGet(key);
-      if (stored?.fresh) {
-        remember(key, stored.body);
-        return json(stored.body);
+    // Background sync (GitHub job): list tiles to fetch, and store fetched ones.
+    const sync = url.searchParams.get("sync");
+    if (sync) {
+      const token = Deno.env.get("PLACES_SYNC_TOKEN");
+      if (!token || req.headers.get("x-sync-token") !== token) return json({ error: "Not allowed." }, 403);
+      if (sync === "pending") {
+        const stale = new Date(Date.now() - REFRESH_MS).toISOString();
+        const recent = new Date(Date.now() - 60 * 24 * 3600_000).toISOString();
+        const tiles = await rest<Tile[]>(
+          `place_areas?select=tile,south,west,north,east&requested_at=gte.${encodeURIComponent(recent)}&or=(fetched_at.is.null,fetched_at.lt.${encodeURIComponent(stale)})&order=fetched_at.nullsfirst,requested_at.desc&limit=25`,
+        );
+        return json({ tiles: (tiles ?? []).map((t) => ({ ...t, query: tileQuery(t) })) });
       }
+      if (sync === "ingest" && req.method === "POST") {
+        const body = (await req.json().catch(() => ({}))) as { tile?: Tile; elements?: OsmElement[] };
+        if (!body.tile?.tile || !Array.isArray(body.elements)) return json({ error: "Send tile and elements." }, 400);
+        return json({ stored: await ingestTile(body.tile, body.elements) });
+      }
+      return json({ error: "Unknown sync action." }, 400);
+    }
 
-      let elements: OsmElement[];
-      try {
-        elements = await queryOverpass(lat, lng, radius, undefined, stores);
-      } catch (err) {
-        // Map servers busy: an older answer for this area beats an empty screen.
-        if (stored) return json({ ...(stored.body as Record<string, unknown>), stale: true });
-        throw err;
+    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      // Places always come from our own store, so the app never waits on the
+      // public map servers. New areas are queued for the background job and,
+      // when possible, fetched right away too.
+      const stores = url.searchParams.get("stores") === "1";
+      const { tiles, box } = tilesFor(lat, lng, radius);
+      const known = (await rest<{ tile: string; fetched_at: string | null }[]>(
+        `place_areas?select=tile,fetched_at&tile=in.(${tiles.map((t) => `"${t.tile}"`).join(",")})`,
+      )) ?? [];
+      const fetched = new Map(known.map((k) => [k.tile, k.fetched_at]));
+      const now = new Date().toISOString();
+      await rest("place_areas?on_conflict=tile", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(tiles.map((t) => ({ ...t, requested_at: now }))),
+      });
+      const neverFetched = tiles.filter((t) => !fetched.get(t.tile));
+      // Try the nearest new tile live (short budget); the background job does the rest.
+      const centre = neverFetched.find((t) => lat >= t.south && lat < t.north && lng >= t.west && lng < t.east) ?? neverFetched[0];
+      if (centre) {
+        try {
+          const els = await queryOverpass(lat, lng, radius, tileQuery(centre), false, 15_000);
+          await ingestTile(centre, els);
+          fetched.set(centre.tile, now);
+        } catch (err) {
+          console.error(`live fetch ${centre.tile}: ${err instanceof Error ? err.message : err}`);
+        }
       }
-      const seen = new Set<string>();
-      const places: NormalizedPlace[] = [];
-      for (const el of elements) {
-        const place = normalize(el);
-        if (!place || seen.has(place.key)) continue;
-        seen.add(place.key);
-        places.push(place);
-      }
-      const body = { places, attribution: "© OpenStreetMap contributors" };
-      remember(key, body);
-      await dbPut(key, body);
-      return json(body);
+      const rows = (await rest<PlaceRow[]>(
+        `osm_places?select=*&latitude=gte.${box[0]}&latitude=lte.${box[2]}&longitude=gte.${box[1]}&longitude=lte.${box[3]}${stores ? "" : "&halal_status=neq.may_sell"}&limit=2000`,
+      )) ?? [];
+      const places: NormalizedPlace[] = rows.map((r) => ({
+        key: r.key, source: "osm", name: r.name, category: r.category, latitude: r.latitude, longitude: r.longitude,
+        address: r.address, phone: r.phone, website: r.website, openingHours: r.opening_hours,
+        halalStatus: r.halal_status, certification: r.certification, cuisine: r.cuisine,
+      }));
+      const pending = tiles.some((t) => !fetched.get(t.tile));
+      return json({ places, pending, attribution: "© OpenStreetMap contributors" });
     }
 
     return json({ error: "Provide lat+lng, q, or address." }, 400);

@@ -232,8 +232,6 @@ function normalizeAgency(el: OsmElement): TravelAgency | null {
 }
 
 async function queryOverpass(lat: number, lng: number, radius: number, rawQuery?: string, stores = false): Promise<OsmElement[]> {
-  // Gather shops and amenities in the area once, then filter that set in
-  // memory — far cheaper than one spatial query per condition in dense cities.
   // A bounding box with tag filters is far lighter for the public servers than
   // collecting every shop and amenity in the area first.
   const dLat = radius / 111_320;

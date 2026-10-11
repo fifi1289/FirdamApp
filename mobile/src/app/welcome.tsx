@@ -8,7 +8,7 @@ import { colors } from '@/theme';
 
 const points: { icon: IconName; bg: string; color: string; title: string; text: string }[] = [
   { icon: 'kitchen', bg: colors.tint, color: colors.walnut, title: 'Plans built from your pantry', text: 'Sized for adults and kids, ready in seconds' },
-  { icon: 'shield', bg: colors.sageTint, color: colors.sage, title: 'Safe for every allergy', text: '204 halal recipes from 60 cuisines' },
+  { icon: 'shield', bg: colors.sageTint, color: colors.sage, title: 'Safe for every allergy', text: '1,300+ halal recipes from 60+ cuisines' },
   { icon: 'prayer', bg: colors.amberTint, color: '#9A6A2F', title: 'Adhan alerts for every prayer', text: 'Works offline, wherever you are' },
 ];
 

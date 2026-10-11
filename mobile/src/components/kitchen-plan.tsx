@@ -143,7 +143,11 @@ export function PlanView() {
         const id = await saveWeekPlan(next, prefs, wk?.id ?? null);
         patchKitchen({ [weekKey]: { id, plan: next } });
         Alert.alert('Your new plan is ready', 'Tap any day to see its meals. Use “Swap” on a meal to change just that one. Each Sunday Firdam prepares next week’s plan and lets you know.');
-        askForAlerts().then((ok) => ok && scheduleWeeklyPlanReminder()).catch(() => {});
+        askForAlerts()
+          .then((ok) => {
+            if (ok) return scheduleWeeklyPlanReminder();
+          })
+          .catch(() => {});
       } catch (e) {
         Alert.alert('Could not plan your week', e instanceof Error ? e.message : 'Please try again.');
       } finally {

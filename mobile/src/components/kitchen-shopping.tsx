@@ -5,8 +5,10 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Checkbox } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
 import type { GroceryItem } from '@/lib/db-types';
-import { addShoppingItems, removeCheckedItems, setItemChecked } from '@/lib/kitchen';
-import { patchKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
+import { addShoppingItems, markHave, removeCheckedItems, setItemChecked } from '@/lib/kitchen';
+import { ingredientKey } from '@/shared/pantry-units';
+import type { Line } from '@/shared/pantry-engine';
+import { patchKitchen, refreshKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { formatQty, groupByAisle, needsHalalSource, parseQuickAdd } from '@/shared/grocery-utils';
 import { haramItemMessage } from '@/shared/halal';
 import { colors, fonts } from '@/theme';
@@ -48,6 +50,16 @@ export function ShoppingView() {
     patchKitchen({ items: k.items.map((i) => (i.id === item.id ? { ...i, checked: !i.checked } : i)) });
     try {
       await setItemChecked(item.id, !item.checked);
+      // Ticked = the family has it now: put it in the pantry too.
+      if (!item.checked) {
+        const existing = k.pantry.find((p) => ingredientKey(p.name) === ingredientKey(item.name)) ?? null;
+        await markHave({
+          need: { name: item.name, quantity: item.quantity, unit: item.unit ?? '' },
+          scaled: item.quantity,
+          item: existing,
+        } as unknown as Line);
+        refreshKitchen().catch(() => {});
+      }
     } catch {
       await refreshShopping();
     }

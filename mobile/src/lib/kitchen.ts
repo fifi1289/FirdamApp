@@ -8,10 +8,11 @@ import type { GroceryItem, MealPreferencesRow, PantryItem } from './db-types';
 import { supabase } from './supabase';
 import { conflictsWithAllergies, detectAllergens, fitsDiet } from '@/shared/allergens';
 import { mealHaramReason } from '@/shared/halal';
-import { guessCategory } from '@/shared/grocery-utils';
+import { guessCategory, toPantryUnit } from '@/shared/grocery-utils';
+import { suggestedExpiry } from '@/shared/kitchen-items';
 import { getMealImage } from '@/shared/meal-images';
 import { DEFAULT_PREFERENCES, type MealPreferencesState } from '@/shared/meals-config';
-import { checkNeeds, Ledger, mergeShortfalls, type Need } from '@/shared/pantry-engine';
+import { checkNeeds, Ledger, mergeShortfalls, type Line, type Need } from '@/shared/pantry-engine';
 import { householdFrom, type Household } from '@/shared/pantry-portions';
 import { addAmounts, convertBase, ingredientKey, toBase } from '@/shared/pantry-units';
 import {
@@ -349,6 +350,50 @@ async function withoutAllergies(plan: GeneratedMealPlan, prefs: MealPreferencesS
       }),
     })),
   };
+}
+
+// ---------- "I have it" ----------
+
+const STAPLES = ['Spices', 'Oils & Condiments', 'Grains', 'Pasta & Rice', 'Canned Foods'];
+
+/**
+ * The family says they already have an ingredient the pantry didn't know
+ * about: add it (or top up what's there) so plans and shopping see it.
+ */
+export async function markHave(line: Line): Promise<void> {
+  const name = line.need.name.trim().replace(/^\w/, (c) => c.toUpperCase());
+  const item = line.item as (PantryItem & { id?: string }) | null;
+  const now = new Date().toISOString();
+  if (item?.id) {
+    if (item.tracking === 'level') {
+      const { error } = await supabase.from('pantry_items').update({ level: 'full', updated_at: now }).eq('id', item.id);
+      if (error) throw error;
+      return;
+    }
+    // Top up by what the recipe needs, in the pantry item's own unit.
+    const need = line.scaled != null ? toBase(line.scaled, line.need.unit || 'pieces', name) : null;
+    const per = toBase(1, item.unit || 'pieces', name);
+    const add = need && per ? convertBase(need.amount, need.base, per.base, name) : null;
+    const quantity = add != null && per ? +(Number(item.quantity ?? 0) + add / per.amount).toFixed(2) : Number(item.quantity ?? 0) + 1;
+    const { error } = await supabase.from('pantry_items').update({ quantity, updated_at: now }).eq('id', item.id);
+    if (error) throw error;
+    return;
+  }
+  const category = guessCategory(name);
+  const mapped = toPantryUnit(line.need.unit || null);
+  const unit = line.need.unit && mapped.toLowerCase() === line.need.unit.toLowerCase() ? mapped : null;
+  // Spoons and cups of cupboard basics are tracked as "have it", not counted.
+  const level = STAPLES.includes(category) || !unit || line.scaled == null;
+  const { error } = await supabase.from('pantry_items').insert({
+    name,
+    category,
+    tracking: level ? 'level' : 'count',
+    level: level ? 'full' : null,
+    quantity: level ? 1 : line.scaled,
+    unit: level ? 'Pack' : unit,
+    expiration_date: suggestedExpiry(category),
+  });
+  if (error) throw error;
 }
 
 // ---------- Shopping list ----------

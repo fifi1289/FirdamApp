@@ -3,6 +3,10 @@ import { useCallback, useEffect, useState } from 'react';
 import type { GroceryItem, PantryItem } from './db-types';
 import {
   aiPlansUsedThisMonth,
+  buildLibraryPlan,
+  formatDateISO,
+  getStartOfWeek,
+  saveWeekPlan,
   getShoppingList,
   isPaidPlan,
   loadHousehold,
@@ -23,6 +27,8 @@ export interface KitchenState {
   household: Household | null;
   pantry: PantryItem[];
   week: WeekPlan | null;
+  /** Next week's plan (made automatically at the end of the week). */
+  nextWeek: WeekPlan | null;
   listId: string | null;
   items: GroceryItem[];
   paid: boolean;
@@ -36,6 +42,7 @@ const initial: KitchenState = {
   household: null,
   pantry: [],
   week: null,
+  nextWeek: null,
   listId: null,
   items: [],
   paid: false,
@@ -51,21 +58,46 @@ function set(patch: Partial<KitchenState>) {
   listeners.forEach((l) => l(state));
 }
 
+/** Monday of next week, as YYYY-MM-DD. */
+export function nextWeekStart(): string {
+  const d = getStartOfWeek();
+  d.setDate(d.getDate() + 7);
+  return formatDateISO(d);
+}
+
+/**
+ * At the end of the week (Saturday and Sunday) next week's plan is made
+ * automatically from the recipe library with the family's plan filters, so
+ * it's ready when the weekly reminder arrives. Only for families who already
+ * plan their weeks, and never over a plan they made themselves.
+ */
+async function ensureNextWeekPlan() {
+  const day = new Date().getDay();
+  if (day !== 6 && day !== 0) return;
+  if (state.nextWeek || !state.week || !state.prefs) return;
+  const prefs = { ...state.prefs, planningDuration: 7 };
+  const plan = await buildLibraryPlan(prefs, state.household?.portions ?? 2, state.pantry, nextWeekStart());
+  const id = await saveWeekPlan(plan, prefs, null);
+  set({ nextWeek: { id, plan } });
+}
+
 export async function refreshKitchen(): Promise<void> {
   if (inflight) return inflight;
   inflight = (async () => {
     try {
-      const [prefs, household, pantry, week, list, paid, aiUsed] = await Promise.all([
+      const [prefs, household, pantry, week, nextWeekPlan, list, paid, aiUsed] = await Promise.all([
         loadPreferences(),
         loadHousehold(),
         loadPantry(),
         loadWeekPlan(),
+        loadWeekPlan(nextWeekStart()),
         getShoppingList(),
         isPaidPlan(),
         aiPlansUsedThisMonth(),
       ]);
       const items = await loadShoppingItems(list.id);
-      set({ loading: false, error: null, prefs, household, pantry, week, listId: list.id, items, paid, aiUsed });
+      set({ loading: false, error: null, prefs, household, pantry, week, nextWeek: nextWeekPlan, listId: list.id, items, paid, aiUsed });
+      ensureNextWeekPlan().catch(() => {});
     } catch (e) {
       set({ loading: false, error: e instanceof Error ? e.message : 'Could not load your kitchen.' });
     } finally {

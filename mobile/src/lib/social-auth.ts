@@ -39,7 +39,9 @@ export async function signInWithGoogle(): Promise<boolean> {
     options: { redirectTo, skipBrowserRedirect: true },
   });
   if (error || !data.url) throw error ?? new Error('Google sign-in is not available right now.');
-  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  // Start on firdam.com (it forwards to the sign-in), so the iPhone prompt names firdam.com.
+  const start = `https://firdam.com/auth/mobile?to=${encodeURIComponent(data.url)}`;
+  const result = await WebBrowser.openAuthSessionAsync(start, redirectTo);
   if (result.type !== 'success') return false;
   const url = new URL(result.url);
   const code = url.searchParams.get('code');

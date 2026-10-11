@@ -243,6 +243,8 @@ END $$;
 RESET ROLE;
 
 -- A free household holds 2 people; a third needs a paid plan.
+-- (Checked with the free launch switched off.)
+CREATE OR REPLACE FUNCTION public.free_launch() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT false $$;
 INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-000000000005', 'd@example.com');
 SET ROLE authenticated;
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000004';
@@ -267,6 +269,7 @@ DO $$ BEGIN
   END;
 END $$;
 RESET ROLE;
+CREATE OR REPLACE FUNCTION public.free_launch() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT true $$;
 
 -- Pantry tracking: cooking log and pantry history are private to the household.
 SET ROLE authenticated;

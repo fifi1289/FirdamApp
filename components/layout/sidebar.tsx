@@ -14,7 +14,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/brand/logo';
-import { PLAN_NAMES, usePlan } from '@/lib/plan/plan';
+import { FREE_LAUNCH, PLAN_NAMES, usePlan } from '@/lib/plan/plan';
 import {
   VISIBLE_MODULE_GROUPS,
   lifeModules,
@@ -105,6 +105,7 @@ function NavSection({
 
 function PlanCard() {
   const { plan, loading } = usePlan();
+  if (FREE_LAUNCH) return null;
   if (loading) return <div className="h-[74px]" />;
   if (plan !== 'free') {
     return (

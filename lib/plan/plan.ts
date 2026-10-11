@@ -60,6 +60,10 @@ export const LIMIT_LABELS: Record<LimitKey, string> = {
   shoppingLists: 'shopping lists',
 };
 
+import { FREE_LAUNCH } from '@/lib/plan/launch';
+
+export { FREE_LAUNCH };
+
 /** Firdam Family prices, in Canadian dollars. */
 export const PRICES = {
   month: { amount: 'CA$4.99', note: 'a month' },
@@ -114,6 +118,7 @@ function loadSubscription(): Promise<Subscription | null> {
 }
 
 function effectivePlan(sub: Subscription | null): PlanId {
+  if (FREE_LAUNCH) return 'family';
   if (!sub) return 'free';
   const live = sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due';
   const notExpired = !sub.current_period_end || new Date(sub.current_period_end) > new Date();

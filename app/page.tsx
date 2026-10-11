@@ -4,6 +4,7 @@ import { Hero } from '@/components/landing/hero';
 import { ModulesShowcase } from '@/components/landing/modules-showcase';
 import { Features } from '@/components/landing/features';
 import { Pricing } from '@/components/landing/pricing';
+import { FREE_LAUNCH } from '@/lib/plan/launch';
 import { FAQ } from '@/components/landing/faq';
 import { CTA } from '@/components/landing/cta';
 
@@ -15,7 +16,7 @@ export default function HomePage() {
         <Hero />
         <ModulesShowcase />
         <Features />
-        <Pricing />
+        {!FREE_LAUNCH && <Pricing />}
         <FAQ />
         <CTA />
       </main>

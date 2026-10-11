@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Bell, Menu } from 'lucide-react';
+import { FREE_LAUNCH } from '@/lib/plan/plan';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,7 +53,7 @@ const SEARCH_EXTRAS = [
   { name: 'Profile', href: '/profile', keywords: 'account name' },
   { name: 'Support', href: '/support', keywords: 'help faq contact' },
   { name: 'Family Companion', href: '/dashboard/companion', keywords: 'ai assistant chat ask help' },
-  { name: 'Plans & billing', href: '/dashboard/upgrade', keywords: 'premium subscription upgrade pricing' },
+  ...(FREE_LAUNCH ? [] : [{ name: 'Plans & billing', href: '/dashboard/upgrade', keywords: 'premium subscription upgrade pricing' }]),
 ];
 
 function ModuleSearch() {
@@ -228,9 +229,11 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                 <DropdownMenuItem onClick={() => router.push('/settings')}>
                   Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/dashboard/upgrade')}>
-                  Plans &amp; billing
-                </DropdownMenuItem>
+                {!FREE_LAUNCH && (
+                  <DropdownMenuItem onClick={() => router.push('/dashboard/upgrade')}>
+                    Plans &amp; billing
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} disabled={signingOut}>
                   {signingOut ? 'Signing out…' : 'Sign out'}

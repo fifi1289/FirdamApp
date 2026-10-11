@@ -1,4 +1,4 @@
-# Temporary helper (last run 5: webview + image picker — done): runs package commands for mobile/ (npm isn't reachable from
+# Temporary helper (run 6: sign in with Apple/Google): runs package commands for mobile/ (npm isn't reachable from
 # the coding session) and commits the updated package files back.
 name: mobile-deps
 on:
@@ -22,9 +22,9 @@ jobs:
         run: |
           {
             npm ci --no-audit --no-fund > /dev/null 2>&1
-            echo "== install"; npx expo install react-native-webview expo-image-picker 2>&1 | tail -8
+            echo "== install"; npx expo install expo-apple-authentication expo-web-browser 2>&1 | tail -8
             echo "== expo check"; npx expo install --check 2>&1 | tail -10
-            echo "== deps"; node -p 'JSON.stringify([require("./package.json").dependencies["react-native-webview"], require("./package.json").dependencies["expo-image-picker"]])'
+            echo "== deps"; node -p 'JSON.stringify([require("./package.json").dependencies["expo-apple-authentication"], require("./package.json").dependencies["expo-web-browser"]])'
           } > ../deps-report.txt
       - name: Save
         if: always()

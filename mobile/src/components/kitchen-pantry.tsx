@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
@@ -308,6 +308,7 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
         <Pressable style={styles.sheet} onPress={() => {}}>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 14 }}>
@@ -362,6 +363,7 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
           </ScrollView>
         </Pressable>
       </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

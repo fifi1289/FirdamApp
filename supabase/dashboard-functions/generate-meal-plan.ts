@@ -498,7 +498,12 @@ async function saveToLibrary(meals: PlannedMeal[]): Promise<void> {
     const photo = new Map(rows.filter((r) => r.image_path).map((r) => [r.id, r.image_path as string]));
     for (const m of meals) if (m.id && photo.has(m.id)) m.image = photo.get(m.id)!;
     const missing = ids.filter((id) => !photo.has(id));
-    if (missing.length) EdgeRuntime.waitUntil(photographRecipes(missing));
+    if (missing.length) {
+      // Keep working after the reply is sent (Supabase's EdgeRuntime.waitUntil).
+      const task = photographRecipes(missing).catch((e) => console.error(e));
+      const runtime = (globalThis as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime;
+      runtime?.waitUntil(task);
+    }
   } catch {
     // Photos are a bonus; the plan is already saved.
   }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Linking, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import * as Location from 'expo-location';
+import { ActivityIndicator, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { Badge, Chip } from '@/components/kitchen-ui';
 import { PlacesMap, type MapPin } from '@/components/places-map';
@@ -248,7 +249,7 @@ export default function Halal() {
           )}
 
           <Button label="Add a halal place you know" variant="secondary" onPress={() => setAdding(true)} />
-          <AddPlaceSheet open={adding} onClose={() => setAdding(false)} onAdded={load} />
+          <AddPlaceSheet open={adding} near={place} onClose={() => setAdding(false)} onAdded={load} />
           <Button label="Update my location" variant="text" onPress={useMyLocation} busy={locating} />
           <T size={11.5} color={colors.muted} style={{ textAlign: 'center' }}>
             Places from © OpenStreetMap contributors and Firdam families. Always check halal certification with the place.
@@ -268,7 +269,41 @@ const ADD_CATEGORIES: { key: Category; label: string }[] = [
 ];
 
 /** Families add places the map doesn't know yet, by name and street address. */
-function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () => void; onAdded: () => void }) {
+type Spot = { latitude: number; longitude: number; label: string; city: string | null; country: string | null };
+
+/** Finds an address with the phone's own geocoder (Apple / Google), then Firdam's server. */
+async function findAddress(address: string): Promise<Spot | null> {
+  try {
+    const [hit] = await Location.geocodeAsync(address);
+    if (hit) {
+      const [r] = await Location.reverseGeocodeAsync(hit).catch(() => []);
+      return { latitude: hit.latitude, longitude: hit.longitude, label: address, city: r?.city ?? null, country: r?.country ?? null };
+    }
+  } catch {
+    // Fall through to the server.
+  }
+  try {
+    const res = await callFunction<{ results: Spot[] }>('halal-places', { address });
+    const hit = res.results?.[0];
+    if (hit) return { ...hit, label: address };
+  } catch {
+    // Not found anywhere.
+  }
+  return null;
+}
+
+/** Families add places the map doesn't know yet, by name and address, typed however they like. */
+function AddPlaceSheet({
+  open,
+  near,
+  onClose,
+  onAdded,
+}: {
+  open: boolean;
+  near: { latitude: number; longitude: number; label?: string } | null;
+  onClose: () => void;
+  onAdded: () => void;
+}) {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [category, setCategory] = useState<Category>('restaurant');
@@ -276,23 +311,22 @@ function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () 
   const [problem, setProblem] = useState<string | null>(null);
 
   const save = async () => {
-    if (name.trim().length < 2 || address.trim().length < 6) return setProblem('Add the name and the full street address.');
+    if (name.trim().length < 2 || address.trim().length < 3) return setProblem('Add the name and the address.');
     setProblem(null);
     setSaving(true);
     try {
-      const res = await callFunction<{ results: { latitude: number; longitude: number; label: string; city: string | null; country: string | null }[] }>(
-        'halal-places',
-        { address: address.trim() },
-      );
-      const hit = res.results?.[0];
+      // The address is kept exactly as typed. If no map service finds it, the place is pinned
+      // near you for now and the admin fixes the pin when approving it.
+      const hit = (await findAddress(address.trim())) ??
+        (near ? { latitude: near.latitude, longitude: near.longitude, label: address.trim(), city: null, country: null } : null);
       if (!hit) {
-        setProblem('Address not found. Check the street number and city, for example “123 Bank St, Ottawa”.');
+        setProblem('Turn on location or choose your city first, then try again.');
         return;
       }
       const { error } = await supabase.from('halal_places').insert({
         name: name.trim(),
         category,
-        address: hit.label,
+        address: address.trim(),
         city: hit.city,
         country: hit.country,
         latitude: hit.latitude,
@@ -314,8 +348,10 @@ function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () 
 
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
-        <Pressable style={styles.sheet} onPress={() => {}}>
+        <Pressable style={styles.sheetWrap} onPress={() => {}}>
+          <ScrollView contentContainerStyle={styles.sheet} keyboardShouldPersistTaps="handled" bounces={false}>
           <T weight="extrabold" size={20}>
             Add a halal place
           </T>
@@ -323,7 +359,7 @@ function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () 
           <TextInput
             value={address}
             onChangeText={setAddress}
-            placeholder="Street address, e.g. 464 Rideau St, Ottawa"
+            placeholder="Address, e.g. 464 Rideau St, Ottawa"
             placeholderTextColor="#9C8D84"
             style={styles.input}
           />
@@ -339,15 +375,18 @@ function AddPlaceSheet({ open, onClose, onAdded }: { open: boolean; onClose: () 
           ) : null}
           <Button label="Add the place" onPress={save} busy={saving} />
           <Button label="Cancel" variant="text" onPress={onClose} />
+          </ScrollView>
         </Pressable>
       </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: colors.linen, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, gap: 12, paddingBottom: 34 },
+  sheetWrap: { backgroundColor: colors.linen, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '90%' },
+  sheet: { padding: 20, gap: 12, paddingBottom: 34 },
   input: { height: 48, borderRadius: 14, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontSize: 15, color: colors.espresso },
   card: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 14 },
 });

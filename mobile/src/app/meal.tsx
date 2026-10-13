@@ -6,7 +6,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from '@/components/art';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
-import { addShoppingItems, markHave, mealConflicts, mealNeeds } from '@/lib/kitchen';
+import { addShoppingItems, markHave, mealConflicts, mealImage, mealNeeds } from '@/lib/kitchen';
 import { refreshKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { checkNeeds, type Line } from '@/shared/pantry-engine';
 import { formatPortions } from '@/shared/pantry-portions';
@@ -66,7 +66,7 @@ export default function MealScreen() {
   return (
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
-        <Photo uri={meal.image} height={240} radius={0} />
+        <Photo uri={mealImage(meal)} height={240} radius={0} />
         <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={[styles.back, { top: insets.top + 8 }]}>
           <Icon name="back" size={20} color={colors.espresso} />
         </Pressable>

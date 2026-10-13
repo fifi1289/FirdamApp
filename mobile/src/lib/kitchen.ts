@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 /**
  * Kitchen data for the app: recipes, the week's meal plan, preferences,
  * household portions, the pantry and the shopping list. Reads and writes the
@@ -177,6 +178,40 @@ export async function loadRecipes(force = false): Promise<RecipeRow[]> {
 }
 
 /** True when a meal id is a recipe in the library (as far as the loaded list knows). */
+/** A planned meal's photo: its library recipe's AI photo once there is one. */
+export function mealImage(meal: { id?: string; name: string; type: string; image?: string }): string {
+  const r = meal.id ? recipeCache?.find((x) => x.id === meal.id) : undefined;
+  return r?.image_path || meal.image || getMealImage(meal.name, meal.type);
+}
+
+let lastPhotoRefresh = 0;
+let photoRefreshes = 0;
+/**
+ * New AI dishes get their photo a minute or two after the plan is made.
+ * Reloads the recipe library (at most every 90 s) while a planned meal is
+ * still waiting for its photo; returns a counter that changes on reload.
+ */
+export function useFreshMealPhotos(meals: { id?: string }[] | undefined): number {
+  const [tick, setTick] = useState(0);
+  const key = (meals ?? []).map((m) => m.id ?? '').join(',');
+  useEffect(() => {
+    const ids = key.split(',').filter((id) => /^[0-9a-f-]{36}$/i.test(id));
+    const waiting = ids.some((id) => !recipeCache?.find((r) => r.id === id)?.image_path);
+    // A few tries per app session; library recipes without a photo yet don't keep it busy.
+    if (!waiting || photoRefreshes >= 5) return;
+    const wait = Math.max(0, 90_000 - (Date.now() - lastPhotoRefresh));
+    const t = setTimeout(() => {
+      lastPhotoRefresh = Date.now();
+      photoRefreshes += 1;
+      loadRecipes(true)
+        .then(() => setTick((n) => n + 1))
+        .catch(() => {});
+    }, wait);
+    return () => clearTimeout(t);
+  }, [key, tick]);
+  return tick;
+}
+
 export function isLibraryRecipe(id: string): boolean {
   return recipeCache ? recipeCache.some((r) => r.id === id) : true;
 }

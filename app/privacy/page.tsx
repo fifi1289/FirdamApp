@@ -244,7 +244,7 @@ const sections: LegalSection[] = [
             <strong>Correct</strong> it in the app, or ask us to.
           </li>
           <li>
-            <strong>Delete</strong> your account and data: Settings → Account → Delete my account, or email {email}.
+            <strong>Delete</strong> your account and data: on the website, go to Settings → Account → Delete my account; in the mobile app, go to Family → Delete my account; or email {email}.
           </li>
           <li>
             <strong>Withdraw consent</strong> to optional features — for example turn off location, or stop using the

@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { HALAL_RULES, mealHaramReason } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
+import { photographRecipes } from "../_shared/recipe-image.ts";
 import {
   FREE_AI_PLANS_PER_MONTH,
   FREE_AI_SWAPS_PER_MONTH,
@@ -49,6 +50,8 @@ interface PlannedMeal {
   cookTime: number;
   servings: number;
   difficulty: string;
+  /** The library recipe's photo, when it has one. */
+  image?: string;
 }
 
 interface PlannedDay {
@@ -79,19 +82,18 @@ interface GenerateRequest {
 /**
  * Saves AI-written meals in the recipe library (halal-checked by the database;
  * a dish already in the library is reused) and gives each meal its recipe id.
+ * Meals use the library photo when there is one; new dishes get their own AI
+ * photo in the background (the app shows it as soon as it's ready).
  */
 async function saveToLibrary(meals: PlannedMeal[]): Promise<void> {
   const url = Deno.env.get("SUPABASE_URL");
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!url || !key) return;
+  const headers = { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
   await Promise.all(
     meals.map(async (meal) => {
       try {
-        const res = await fetch(`${url}/rest/v1/rpc/save_ai_recipe`, {
-          method: "POST",
-          headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ meal }),
-        });
+        const res = await fetch(`${url}/rest/v1/rpc/save_ai_recipe`, { method: "POST", headers, body: JSON.stringify({ meal }) });
         const id = res.ok ? ((await res.json()) as string | null) : null;
         if (id) meal.id = id;
       } catch {
@@ -99,6 +101,23 @@ async function saveToLibrary(meals: PlannedMeal[]): Promise<void> {
       }
     }),
   );
+  const ids = [...new Set(meals.map((m) => m.id).filter((id): id is string => typeof id === "string" && /^[0-9a-f-]{36}$/i.test(id)))];
+  if (!ids.length) return;
+  try {
+    const res = await fetch(`${url}/rest/v1/recipes?select=id,image_path&id=in.(${ids.join(",")})`, { headers });
+    const rows = res.ok ? ((await res.json()) as { id: string; image_path: string | null }[]) : [];
+    const photo = new Map(rows.filter((r) => r.image_path).map((r) => [r.id, r.image_path as string]));
+    for (const m of meals) if (m.id && photo.has(m.id)) m.image = photo.get(m.id)!;
+    const missing = ids.filter((id) => !photo.has(id));
+    if (missing.length) {
+      // Keep working after the reply is sent (Supabase's EdgeRuntime.waitUntil).
+      const task = photographRecipes(missing).catch((e) => console.error(e));
+      const runtime = (globalThis as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime;
+      runtime?.waitUntil(task);
+    }
+  } catch {
+    // Photos are a bonus; the plan is already saved.
+  }
 }
 
 const json = (body: unknown, status = 200) =>

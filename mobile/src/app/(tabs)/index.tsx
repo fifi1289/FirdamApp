@@ -7,7 +7,7 @@ import { Badge, Photo } from '@/components/kitchen-ui';
 import { TabScreen } from '@/components/screen';
 import { Button, Card, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
-import { formatDateISO } from '@/lib/kitchen';
+import { formatDateISO, mealImage, useFreshMealPhotos } from '@/lib/kitchen';
 import { useKitchen } from '@/lib/kitchen-store';
 import { formatPortions } from '@/shared/pantry-portions';
 import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
@@ -150,6 +150,7 @@ function TonightCard() {
   // Skip meals still waiting for the AI chef (no recipe yet).
   const meals = (k.week?.plan.days.find((d) => d.date === today)?.meals ?? []).filter((m) => !m.needsAI);
   const meal = meals.find((m) => m.type === 'dinner') ?? meals[meals.length - 1];
+  useFreshMealPhotos(meal ? [meal] : undefined);
   const openItems = k.items.filter((i) => !i.checked).length;
 
   if (k.loading) return null;
@@ -157,7 +158,7 @@ function TonightCard() {
     <>
       {meal ? (
         <Card style={styles.dinner}>
-          <Photo uri={meal.image} size={92} radius={18} />
+          <Photo uri={mealImage(meal)} size={92} radius={18} />
           <View style={{ flex: 1, minWidth: 0 }}>
             <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
               {meal.type === 'dinner' ? 'TONIGHT’S DINNER' : `TODAY · ${meal.type.toUpperCase()}`}

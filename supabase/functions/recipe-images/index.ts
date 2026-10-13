@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { getUser, isAdminUser } from "../_shared/plan.ts";
+import { buildImagePrompt, generateFoodImage, imageSlug, uploadFoodImage } from "../_shared/recipe-image.ts";
 
 /**
  * Admin tool: generates a photo for library recipes that don't have one,
@@ -20,8 +21,6 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
-const BUCKET = "recipe-images";
-const SIZE = "1536x1024";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -69,67 +68,6 @@ async function count(filter: string): Promise<number> {
   return Number(range.split("/")[1] ?? 0) || 0;
 }
 
-function buildPrompt(r: { name: string; cuisine?: string | null; details?: string | null }): string {
-  return [
-    `Professional overhead-angle food photograph of ${r.name}${r.cuisine ? `, a ${r.cuisine} dish` : ""}, freshly made at home.`,
-    r.details ? `The dish: ${r.details}` : "",
-    "Served in a handmade ceramic dish on a warm walnut wooden table with a soft linen napkin;",
-    "warm natural window light, soft shadows, shallow depth of field, rich appetising colours, realistic textures,",
-    "earthy warm palette of walnut brown, soft linen beige, sage green and muted gold.",
-    "Halal food only: no pork, no wine or alcohol in the scene.",
-    "No text, no logos, no watermark, no people, no hands.",
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
-
-function slugify(s: string) {
-  return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
-}
-
-async function generate(apiKey: string, prompt: string, model: string, quality: string): Promise<ArrayBuffer> {
-  const body: Record<string, unknown> = { model, prompt, size: SIZE, quality, n: 1 };
-  // gpt-image models can return compressed WebP directly (much smaller files).
-  body.output_format = "webp";
-  body.output_compression = 82;
-  const res = await fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    console.error(`OpenAI images ${res.status}: ${text.slice(0, 500)}`);
-    const err = new Error(
-      res.status === 429 && /quota|billing/i.test(text)
-        ? "The OpenAI account is out of credit."
-        : res.status === 429
-          ? "OpenAI rate limit — waiting a moment."
-          : res.status === 400 && /safety|moderation/i.test(text)
-            ? "OpenAI declined this prompt."
-            : `OpenAI error ${res.status}.`,
-    ) as Error & { status?: number };
-    err.status = res.status;
-    throw err;
-  }
-  const data = (await res.json()) as { data?: { b64_json?: string }[] };
-  const b64 = data.data?.[0]?.b64_json;
-  if (!b64) throw new Error("OpenAI returned no image.");
-  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer as ArrayBuffer;
-}
-
-async function upload(path: string, bytes: ArrayBuffer): Promise<string> {
-  const url = env("SUPABASE_URL")!;
-  const key = env("SUPABASE_SERVICE_ROLE_KEY")!;
-  const res = await fetch(`${url}/storage/v1/object/${BUCKET}/${path}`, {
-    method: "POST",
-    headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "image/webp", "x-upsert": "true", "Cache-Control": "31536000" },
-    body: bytes,
-  });
-  if (!res.ok) throw new Error(`Upload failed ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  return `${url}/storage/v1/object/public/${BUCKET}/${path}`;
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   try {
@@ -162,10 +100,10 @@ Deno.serve(async (req) => {
     const failed: { id: string; name: string; error: string }[] = [];
     for (const r of rows) {
       try {
-        const prompt = buildPrompt({ name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description });
-        const bytes = await generate(apiKey, prompt, model, quality);
-        const path = `${slugify(r.name)}-${r.id.slice(0, 8)}-${Date.now().toString(36)}.webp`;
-        const url = await upload(path, bytes);
+        const prompt = buildImagePrompt({ name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description });
+        const bytes = await generateFoodImage(apiKey, prompt, model, quality);
+        const path = `${imageSlug(r.name)}-${r.id.slice(0, 8)}-${Date.now().toString(36)}.webp`;
+        const url = await uploadFoodImage(path, bytes);
         await rest(`recipes?id=eq.${r.id}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ image_path: url }) });
         done.push({ id: r.id, name: r.name, url });
       } catch (err) {

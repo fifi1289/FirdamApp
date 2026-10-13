@@ -16,8 +16,10 @@ import {
   formatDateISO,
   getStartOfWeek,
   loadRecipes,
+  mealImage,
   mealNeeds,
   saveWeekPlan,
+  useFreshMealPhotos,
   shoppingForPlan,
   type MockMeal,
 } from '@/lib/kitchen';
@@ -61,6 +63,8 @@ export function PlanView() {
   const days = useMemo(() => weekDays(weekStartDate), [weekStartDate]);
   const [selected, setSelected] = useState(offset ? formatDateISO(weekStartDate) : today);
   const wk = offset ? k.nextWeek : k.week;
+  // New AI dishes get their photo shortly after the plan is made.
+  useFreshMealPhotos(wk?.plan.days.flatMap((d) => d.meals));
   const weekKey = offset ? 'nextWeek' : 'week';
   const switchWeek = (o: 0 | 1) => {
     setOffset(o);
@@ -243,7 +247,7 @@ export function PlanView() {
             const missing = check.missingCount + check.shortCount;
             return (
               <Pressable key={`${m.type}-${m.id}`} accessibilityRole="button" onPress={() => openMeal(m, selected)} style={styles.meal}>
-                <Photo uri={m.image} size={64} />
+                <Photo uri={mealImage(m)} size={64} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <T size={11.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
                     {TYPE_LABEL[m.type] ?? m.type.toUpperCase()}

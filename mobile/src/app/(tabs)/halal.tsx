@@ -121,6 +121,7 @@ export default function Halal() {
   const [view, setView] = useState<'list' | 'map'>('list');
   const [notice, setNotice] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [reporting, setReporting] = useState<Place | null>(null);
 
   const load = useCallback(async () => {
     if (!place) return;
@@ -241,15 +242,25 @@ export default function Halal() {
                     {p.pending ? <Badge label="Waiting for approval" tone="amber" /> : p.community ? <Badge label="Added by families" tone="walnut" /> : null}
                   </View>
                 </View>
-                <T size={13} weight="bold" color={colors.walnut}>
-                  Directions
-                </T>
+                <View style={{ alignItems: 'flex-end', gap: 6 }}>
+                  <T size={13} weight="bold" color={colors.walnut}>
+                    Directions
+                  </T>
+                  {p.key.startsWith('db:') ? (
+                    <Pressable accessibilityRole="button" onPress={() => setReporting(p)} hitSlop={8}>
+                      <T size={12} color={colors.muted} style={{ textDecorationLine: 'underline' }}>
+                        Report
+                      </T>
+                    </Pressable>
+                  ) : null}
+                </View>
               </Pressable>
             ))
           )}
 
           <Button label="Add a halal place you know" variant="secondary" onPress={() => setAdding(true)} />
           <AddPlaceSheet open={adding} near={place} onClose={() => setAdding(false)} onAdded={load} />
+          <ReportPlaceSheet place={reporting} onClose={() => setReporting(null)} />
           <Button label="Update my location" variant="text" onPress={useMyLocation} busy={locating} />
           <T size={11.5} color={colors.muted} style={{ textAlign: 'center' }}>
             Places from © OpenStreetMap contributors and Firdam families. Always check halal certification with the place.
@@ -378,6 +389,105 @@ function AddPlaceSheet({
           </ScrollView>
         </Pressable>
       </Pressable>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+const REPORT_REASONS = [
+  { key: 'not_halal', label: 'Not halal' },
+  { key: 'closed', label: 'Closed down' },
+  { key: 'wrong_info', label: 'Wrong information' },
+  { key: 'spam', label: 'Spam / inappropriate' },
+  { key: 'other', label: 'Something else' },
+] as const;
+
+/** Families can flag a community-added place so Firdam can review it. */
+function ReportPlaceSheet({ place, onClose }: { place: Place | null; onClose: () => void }) {
+  const [reason, setReason] = useState<string>('not_halal');
+  const [details, setDetails] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const submit = async () => {
+    if (!place) return;
+    const id = place.key.startsWith('db:') ? place.key.slice(3) : null;
+    if (!id) {
+      setProblem('Only places added by families can be reported.');
+      return;
+    }
+    setProblem(null);
+    setSaving(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('Sign in to report a place.');
+      const { error } = await supabase.from('place_reports').insert({
+        place_id: id,
+        reporter_id: user.id,
+        reason,
+        details: details.trim() || null,
+      });
+      if (error) {
+        // Already reported and still open: the unique index rejects the duplicate.
+        if ((error as { code?: string }).code === '23505') {
+          onClose();
+          setReason('not_halal');
+          setDetails('');
+          setTimeout(() => showAlert('Already reported', 'Thank you — we are already reviewing this place.'), 400);
+          return;
+        }
+        throw error;
+      }
+      onClose();
+      setReason('not_halal');
+      setDetails('');
+      setTimeout(() => showAlert('Thank you', 'We will review this place, usually within a day.'), 400);
+    } catch (e) {
+      setProblem(e instanceof Error ? e.message : 'Could not send the report. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal visible={!!place} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
+          <Pressable style={styles.sheetWrap} onPress={() => {}}>
+            <ScrollView contentContainerStyle={styles.sheet} keyboardShouldPersistTaps="handled" bounces={false}>
+              <T weight="extrabold" size={20}>
+                Report this place
+              </T>
+              {place ? (
+                <T size={14} color={colors.muted} numberOfLines={2}>
+                  {place.name}
+                </T>
+              ) : null}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {REPORT_REASONS.map((r) => (
+                  <Chip key={r.key} label={r.label} selected={reason === r.key} onPress={() => setReason(r.key)} />
+                ))}
+              </View>
+              <TextInput
+                value={details}
+                onChangeText={setDetails}
+                placeholder="Anything we should know? (optional)"
+                placeholderTextColor="#9C8D84"
+                style={[styles.input, { height: 88, textAlignVertical: 'top', paddingTop: 12 }]}
+                multiline
+              />
+              {problem ? (
+                <T size={13.5} color={colors.brickText}>
+                  {problem}
+                </T>
+              ) : null}
+              <Button label="Send report" onPress={submit} busy={saving} />
+              <Button label="Cancel" variant="text" onPress={onClose} />
+            </ScrollView>
+          </Pressable>
+        </Pressable>
       </KeyboardAvoidingView>
     </Modal>
   );

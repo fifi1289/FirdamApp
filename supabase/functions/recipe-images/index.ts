@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { getUser, isAdminUser } from "../_shared/plan.ts";
-import { buildImagePrompt, generateFoodImage, imageSlug, uploadFoodImage } from "../_shared/recipe-image.ts";
+import { generateVerifiedFoodImage, imageSlug, uploadFoodImage } from "../_shared/recipe-image.ts";
 
 /**
  * Admin tool: generates a photo for library recipes that don't have one,
@@ -100,8 +100,8 @@ Deno.serve(async (req) => {
     const failed: { id: string; name: string; error: string }[] = [];
     for (const r of rows) {
       try {
-        const prompt = buildImagePrompt({ name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description });
-        const bytes = await generateFoodImage(apiKey, prompt, model, quality);
+        const dish = { name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description };
+        const bytes = await generateVerifiedFoodImage(apiKey, model, quality, dish);
         const path = `${imageSlug(r.name)}-${r.id.slice(0, 8)}-${Date.now().toString(36)}.webp`;
         const url = await uploadFoodImage(path, bytes);
         await rest(`recipes?id=eq.${r.id}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ image_path: url }) });

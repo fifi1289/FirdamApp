@@ -13,15 +13,10 @@ interface ModuleCardProps {
 
 export function ModuleCard({ module, className }: ModuleCardProps) {
   const Icon = moduleIconMap[module.icon];
+  const comingSoon = module.status === 'planned';
 
-  return (
-    <Link
-      href={module.href}
-      className={cn(
-        'group relative flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card p-6 transition-all duration-300 ease-out-expo hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg',
-        className
-      )}
-    >
+  const body = (
+    <>
       <div
         className={cn(
           'pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-20',
@@ -53,9 +48,38 @@ export function ModuleCard({ module, className }: ModuleCardProps) {
       </p>
 
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
-        Open module
-        <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        {comingSoon ? 'Coming soon' : 'Open module'}
+        {!comingSoon && (
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        )}
       </span>
+    </>
+  );
+
+  if (comingSoon) {
+    return (
+      <div
+        aria-disabled="true"
+        title="Coming soon"
+        className={cn(
+          'group relative flex cursor-not-allowed flex-col overflow-hidden rounded-xl border border-border/60 bg-card p-6 opacity-75',
+          className
+        )}
+      >
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={module.href}
+      className={cn(
+        'group relative flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card p-6 transition-all duration-300 ease-out-expo hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg',
+        className
+      )}
+    >
+      {body}
     </Link>
   );
 }

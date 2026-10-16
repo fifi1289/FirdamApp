@@ -184,6 +184,88 @@ async function generateFoodImage(apiKey: string, prompt: string, model: string, 
   return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer as ArrayBuffer;
 }
 
+function toBase64(bytes: ArrayBuffer): string {
+  const arr = new Uint8Array(bytes);
+  let binary = "";
+  const CHUNK = 0x8000;
+  for (let i = 0; i < arr.length; i += CHUNK) {
+    binary += String.fromCharCode(...arr.subarray(i, i + CHUNK));
+  }
+  return btoa(binary);
+}
+
+/**
+ * Asks a vision model whether the generated photo plausibly shows the dish.
+ * Returns ok=false with a short reason when it clearly does not (for example
+ * a beef stew rendered with shrimp). Throws when the check itself cannot run,
+ * so callers can decide whether to keep the photo or not.
+ */
+async function photoMatchesDish(
+  apiKey: string,
+  imageBytes: ArrayBuffer,
+  dishName: string,
+): Promise<{ ok: boolean; reason: string }> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      max_tokens: 40,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `This photo was generated for a recipe called "${dishName}". Does the photo plausibly show this dish? Reply with exactly one line: YES or NO, followed by a very short reason (max 10 words).`,
+            },
+            { type: "image_url", image_url: { url: `data:image/webp;base64,${toBase64(imageBytes)}` } },
+          ],
+        },
+      ],
+    }),
+  });
+  if (!res.ok) throw new Error(`Vision check failed ${res.status}`);
+  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const text = (data.choices?.[0]?.message?.content ?? "").trim();
+  return { ok: /^yes\b/i.test(text), reason: text.slice(0, 120) || "no reason given" };
+}
+
+/**
+ * Generates a food photo and verifies it shows the right dish, retrying with
+ * a corrected prompt when the vision check says it does not. Throws when no
+ * attempt passes, so a wrong photo is never saved (the recipe simply keeps
+ * no photo and can be retried later). When the vision check itself errors,
+ * the photo is kept rather than blocking generation.
+ */
+async function generateVerifiedFoodImage(
+  apiKey: string,
+  model: string,
+  quality: string,
+  dish: { name: string; cuisine?: string | null; details?: string | null },
+  maxAttempts = 3,
+): Promise<ArrayBuffer> {
+  let lastReason = "";
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const prompt =
+      buildImagePrompt(dish) +
+      (attempt > 1 && lastReason
+        ? ` IMPORTANT: the previous attempt was wrong (${lastReason}). Show exactly the dish described above and nothing else.`
+        : "");
+    const bytes = await generateFoodImage(apiKey, prompt, model, quality);
+    try {
+      const check = await photoMatchesDish(apiKey, bytes, dish.name);
+      if (check.ok) return bytes;
+      lastReason = check.reason;
+      console.error(`Photo check failed for "${dish.name}" (attempt ${attempt}/${maxAttempts}): ${check.reason}`);
+    } catch (err) {
+      console.error(`Photo check unavailable for "${dish.name}": ${err instanceof Error ? err.message : err}`);
+      return bytes;
+    }
+  }
+  throw new Error(`No correct photo for "${dish.name}" after ${maxAttempts} attempts (last: ${lastReason}).`);
+}
+
 async function uploadFoodImage(path: string, bytes: ArrayBuffer): Promise<string> {
   const url = secret("SUPABASE_URL")!;
   const key = secret("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -219,8 +301,8 @@ async function photographRecipes(ids: string[], budgetMs = 120_000): Promise<voi
   for (const r of rows) {
     if (Date.now() > stopAt) break;
     try {
-      const prompt = buildImagePrompt({ name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description });
-      const bytes = await generateFoodImage(apiKey, prompt, model, quality);
+      const dish = { name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description };
+      const bytes = await generateVerifiedFoodImage(apiKey, model, quality, dish);
       const path = `${imageSlug(r.name)}-${r.id.slice(0, 8)}-${Date.now().toString(36)}.webp`;
       const image = await uploadFoodImage(path, bytes);
       await fetch(`${url}/rest/v1/recipes?id=eq.${r.id}&image_path=is.null`, {
@@ -335,8 +417,8 @@ Deno.serve(async (req) => {
     const failed: { id: string; name: string; error: string }[] = [];
     for (const r of rows) {
       try {
-        const prompt = buildImagePrompt({ name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description });
-        const bytes = await generateFoodImage(apiKey, prompt, model, quality);
+        const dish = { name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description };
+        const bytes = await generateVerifiedFoodImage(apiKey, model, quality, dish);
         const path = `${imageSlug(r.name)}-${r.id.slice(0, 8)}-${Date.now().toString(36)}.webp`;
         const url = await uploadFoodImage(path, bytes);
         await rest(`recipes?id=eq.${r.id}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ image_path: url }) });

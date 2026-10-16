@@ -168,7 +168,7 @@ function CategoryChip({
 }
 
 export function HalalPlacesDashboard() {
-  const { location, ready, save: saveLocation } = useSavedLocation();
+  const { location, ready } = useSavedLocation();
   const [radius, setRadius] = useState<RadiusKm>(5);
   const [category, setCategory] = useState<HalalPlaceCategory | 'all'>('all');
   const [query, setQuery] = useState('');
@@ -182,7 +182,9 @@ export function HalalPlacesDashboard() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
 
-  // Temporary location from a deep link (e.g. a trip destination) — not saved.
+  // Temporary location: a manual city search or a deep link (e.g. a trip
+  // destination). Never saved — exploring halal places elsewhere must not
+  // silently move the shared home location used by prayer times & Ramadan.
   const [override, setOverride] = useState<SavedLocation | null>(null);
 
   // Deep links: ?category=butcher, ?lat=..&lng=..&label=..
@@ -301,8 +303,9 @@ export function HalalPlacesDashboard() {
           <LocationPicker
             value={activeLocation}
             onChange={(loc) => {
-              setOverride(null);
-              saveLocation(loc);
+              // A city search here is exploratory ("wherever you live or travel"):
+              // keep it local so the home prayer location never moves silently.
+              setOverride(loc);
             }}
           />
 

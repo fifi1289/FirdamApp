@@ -45,6 +45,7 @@ export function ReminderManager() {
         const now = new Date();
         const today = isoDay(now);
         for (const p of PRAYER_ORDER) {
+          if (!day.timings[p.key]) continue;
           const at = timeOnDate(day.timings[p.key], now);
           const fireAt = at.getTime() - settings.prayerLeadMinutes * 60_000;
           const delay = fireAt - now.getTime();

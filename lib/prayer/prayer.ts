@@ -151,13 +151,18 @@ export async function fetchPrayerMonth(
 }
 
 export function toMinutes(t: string): number {
+  if (!t) return NaN;
   const [h, m] = t.split(':').map((n) => parseInt(n, 10));
-  return (h || 0) * 60 + (m || 0);
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return NaN;
+  return h * 60 + m;
 }
 
 export function timeOnDate(t: string, base: Date = new Date()): Date {
   const d = new Date(base);
   const mins = toMinutes(t);
+  // Never produce an Invalid Date: fall back to the base date when the
+  // time is missing or malformed.
+  if (!Number.isFinite(mins)) return d;
   d.setHours(Math.floor(mins / 60), mins % 60, 0, 0);
   return d;
 }
@@ -165,6 +170,7 @@ export function timeOnDate(t: string, base: Date = new Date()): Date {
 export function format12h(t: string): string {
   if (!t) return '—';
   const mins = toMinutes(t);
+  if (!Number.isFinite(mins)) return '—';
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   const period = h >= 12 ? 'PM' : 'AM';
@@ -181,7 +187,12 @@ export interface CurrentPrayer {
 
 export function computeCurrentPrayer(timings: PrayerTimings, now: Date): CurrentPrayer {
   const nowMin = now.getHours() * 60 + now.getMinutes();
-  const prayers = PRAYER_ORDER.map((p) => ({ key: p.key, min: toMinutes(timings[p.key]) }));
+  // Skip prayers whose times are missing or malformed: treating them as
+  // midnight corrupted the current/next computation (e.g. Fajr shown as
+  // next in the late morning).
+  const prayers = PRAYER_ORDER.map((p) => ({ key: p.key, min: toMinutes(timings[p.key]) })).filter((p) =>
+    Number.isFinite(p.min)
+  );
 
   let currentKey: PrayerKey | null = null;
   for (const p of prayers) if (nowMin >= p.min) currentKey = p.key;
@@ -197,11 +208,12 @@ export function computeCurrentPrayer(timings: PrayerTimings, now: Date): Current
   }
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
+  const fajrMin = toMinutes(timings.Fajr);
   return {
     // After Isha and before midnight, Isha is still current.
-    currentKey: 'Isha',
+    currentKey: currentKey ?? (prayers.length > 0 ? 'Isha' : null),
     nextKey: 'Fajr',
-    nextDate: timeOnDate(timings.Fajr, tomorrow),
+    nextDate: Number.isFinite(fajrMin) ? timeOnDate(timings.Fajr, tomorrow) : tomorrow,
     isNextTomorrow: true,
   };
 }

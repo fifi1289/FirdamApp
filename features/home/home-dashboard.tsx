@@ -220,7 +220,9 @@ export function HomeDashboard() {
           <Card className="h-full transition-all group-hover:border-primary/30 group-hover:shadow-md">
             <CardContent className="flex h-full flex-col p-6">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">Next prayer</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Next prayer{location?.name ? ` · ${location.name}` : ''}
+                </p>
                 <Moon className="h-5 w-5 text-primary" />
               </div>
               {current && prayer ? (

@@ -18,6 +18,7 @@ import { BUSINESS_CATEGORIES } from '@/features/directory/directory-config';
 import { CommunityModeration } from '@/features/community/community-moderation';
 import { HalalPlaceReview } from '@/features/admin/halal-place-review';
 import { RecipeFill } from '@/features/admin/recipe-fill';
+import { RecipePhotoRegenerate } from '@/features/admin/recipe-photo-regenerate';
 import { RecipePhotos } from '@/features/admin/recipe-photos';
 import { RecipePhotoUpload } from '@/features/admin/recipe-photo-upload';
 
@@ -194,6 +195,7 @@ export function AdminDashboard() {
         </TabsContent>
         <TabsContent value="photos" className="mt-0 space-y-5">
           <RecipePhotoUpload />
+          <RecipePhotoRegenerate />
           <RecipePhotos />
         </TabsContent>
         <TabsContent value="places" className="mt-0">

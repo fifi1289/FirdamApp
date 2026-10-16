@@ -97,8 +97,9 @@ const sections: LegalSection[] = [
           <li>reply when you contact us, keep the app secure and fix problems.</li>
         </ul>
         <p>
-          We <strong>do not sell</strong> your information, we <strong>do not show ads</strong>, and we do not use
-          advertising or tracking cookies. We will ask for your consent before using your information for any new purpose.
+          We <strong>do not sell</strong> your information and we <strong>do not show ads</strong>. We use Google
+          Analytics to understand how the site is used — see “Cookies and storage on your device” below. We do not use
+          advertising cookies. We will ask for your consent before using your information for any new purpose.
         </p>
       </>
     ),
@@ -268,8 +269,14 @@ const sections: LegalSection[] = [
     body: (
       <p>
         We use only the cookies needed to keep you signed in. The app also saves a few settings on your device — your
-        location, prayer-time settings, reminders and Companion chat history — so they’re there next time. We don’t use
-        analytics, advertising or tracking cookies.
+        location, prayer-time settings, reminders and Companion chat history — so they’re there next time.
+      </p>
+      <p>
+        We also use Google Analytics to understand how the site is used, for example which pages are visited and how
+        people find us. It sets its own cookies and collects anonymized usage data; it doesn’t collect your name, email
+        or anything you type into the app. You can opt out anytime with the{' '}
+        <a href="https://tools.google.com/dlpage/gaoptout">Google Analytics opt-out browser add-on</a>. We don’t use
+        advertising cookies.
       </p>
     ),
   },
@@ -306,7 +313,7 @@ export default function PrivacyPage() {
       }
       summary={[
         'We collect only what the app needs, mostly what you choose to enter.',
-        'We don’t sell your data, show ads or use tracking cookies.',
+        'We don’t sell your data or show ads. We use Google Analytics to understand how the site is used.',
         'Your private data is visible only to you and the household you choose to share with.',
         'AI features send the minimum needed to OpenAI, only when you use them.',
         'You can export or delete everything at any time.',

@@ -33,6 +33,7 @@ export default function RegisterPage() {
   const [agreed, setAgreed] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [loading, setLoading] = React.useState(false);
+  const [googleLoading, setGoogleLoading] = React.useState(false);
   const [captcha, setCaptcha] = React.useState<string | null>(null);
   const [captchaReset, setCaptchaReset] = React.useState(0);
 
@@ -77,6 +78,23 @@ export default function RegisterPage() {
       setCaptchaReset((n) => n + 1);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    setGoogleLoading(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      toast.error(getAuthErrorMessage(error));
+      setGoogleLoading(false);
     }
   };
 
@@ -259,8 +277,21 @@ export default function RegisterPage() {
         <Separator className="flex-1" />
       </div>
 
-      <Button variant="outline" className="w-full" size="lg" disabled>
-        Sign up with Google
+      <Button
+        variant="outline"
+        className="w-full"
+        size="lg"
+        onClick={handleGoogleSignUp}
+        disabled={loading || googleLoading}
+      >
+        {googleLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Connecting…
+          </>
+        ) : (
+          'Sign up with Google'
+        )}
       </Button>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">

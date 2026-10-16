@@ -32,6 +32,7 @@ function LoginForm() {
   const [password, setPassword] = React.useState('');
   const [errors, setErrors] = React.useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = React.useState(false);
+  const [googleLoading, setGoogleLoading] = React.useState(false);
   const [captcha, setCaptcha] = React.useState<string | null>(null);
   const [captchaReset, setCaptchaReset] = React.useState(0);
 
@@ -77,6 +78,24 @@ function LoginForm() {
       setCaptchaReset((n) => n + 1);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const redirect = searchParams.get('redirect') ?? '/dashboard';
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      toast.error(getAuthErrorMessage(error));
+      setGoogleLoading(false);
     }
   };
 
@@ -161,8 +180,21 @@ function LoginForm() {
         <Separator className="flex-1" />
       </div>
 
-      <Button variant="outline" className="w-full" size="lg" disabled>
-        Continue with Google
+      <Button
+        variant="outline"
+        className="w-full"
+        size="lg"
+        onClick={handleGoogleSignIn}
+        disabled={loading || googleLoading}
+      >
+        {googleLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Connecting…
+          </>
+        ) : (
+          'Continue with Google'
+        )}
       </Button>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">

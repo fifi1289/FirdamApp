@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { IBM_Plex_Sans_Arabic, Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import { ThemeProvider } from '@/components/theme/theme-provider';
@@ -77,6 +78,10 @@ export const metadata: Metadata = {
   },
 };
 
+// Google Analytics 4 for firdam.com (account: Firdam, stream: firdam.com).
+// The Measurement ID is public by design (it ships in the page source).
+const GA_MEASUREMENT_ID = 'G-4NF423ZQLB';
+
 export default function RootLayout({
   children,
 }: {
@@ -84,6 +89,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_MEASUREMENT_ID}');
+        `}
+      </Script>
       <body
         className={`${jakarta.variable} ${display.variable} ${inter.variable} ${arabic.variable} font-sans antialiased`}
       >

@@ -12,6 +12,7 @@ export const HALAL_PLACES_CHANGED = 'halal-places-changed';
 
 interface OsmResponse {
   places: Omit<HalalPlace, 'distanceKm'>[];
+  pending?: boolean;
 }
 
 export function communityToPlace(r: HalalPlaceRecord): HalalPlace {
@@ -48,13 +49,16 @@ function dedupe(places: HalalPlace[]): HalalPlace[] {
 
 export function useHalalPlaces(
   center: { latitude: number; longitude: number } | null,
-  radiusKm: number
+  radiusKm: number,
+  /** Matches the mobile app's "Also show shops that may stock halal food" toggle (on by default). */
+  includeStores = true
 ) {
   const supabase = createSupabaseBrowserClient();
   const [places, setPlaces] = useState<HalalPlace[]>([]);
   const [ratings, setRatings] = useState<Record<string, PlaceRating>>({});
   const [loading, setLoading] = useState(false);
   const [osmError, setOsmError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
   const [version, setVersion] = useState(0);
 
   useEffect(() => {
@@ -69,6 +73,7 @@ export function useHalalPlaces(
     const { latitude, longitude } = center;
     setLoading(true);
     setOsmError(null);
+    setPending(false);
 
     const dLat = radiusKm / 111;
     const dLng = radiusKm / (111 * Math.max(0.2, Math.cos((latitude * Math.PI) / 180)));
@@ -77,8 +82,12 @@ export function useHalalPlaces(
       lat: latitude.toFixed(5),
       lng: longitude.toFixed(5),
       radius: Math.round(radiusKm * 1000),
+      ...(includeStores ? { stores: 1 } : {}),
     })
-      .then((r) => r.places.map((p) => ({ ...p, source: 'osm' as const })))
+      .then((r) => {
+        if (!cancelled) setPending(!!r.pending);
+        return r.places.map((p) => ({ ...p, source: 'osm' as const }));
+      })
       .catch((err: unknown) => {
         if (!cancelled) {
           setOsmError(
@@ -138,9 +147,9 @@ export function useHalalPlaces(
     };
     // `center` is compared by value to avoid refetching on identical objects.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [center?.latitude, center?.longitude, radiusKm, version, supabase]);
+  }, [center?.latitude, center?.longitude, radiusKm, includeStores, version, supabase]);
 
-  return { places, ratings, loading, osmError };
+  return { places, ratings, loading, osmError, pending };
 }
 
 /** The signed-in user's saved (favourite) places. */

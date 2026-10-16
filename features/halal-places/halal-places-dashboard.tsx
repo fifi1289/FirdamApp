@@ -173,6 +173,8 @@ export function HalalPlacesDashboard() {
   const [category, setCategory] = useState<HalalPlaceCategory | 'all'>('all');
   const [query, setQuery] = useState('');
   const [certifiedOnly, setCertifiedOnly] = useState(false);
+  /** Same as the mobile app's toggle: also list food shops that may stock halal products. */
+  const [includeStores, setIncludeStores] = useState(true);
   const [sort, setSort] = useState<SortKey>('distance');
   const [tab, setTab] = useState<Tab>('nearby');
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
@@ -203,7 +205,7 @@ export function HalalPlacesDashboard() {
     () => (activeLocation ? { latitude: activeLocation.latitude, longitude: activeLocation.longitude } : null),
     [activeLocation]
   );
-  const { places, ratings, loading, osmError } = useHalalPlaces(center, radius);
+  const { places, ratings, loading, osmError, pending } = useHalalPlaces(center, radius, includeStores);
   const { saved, list: savedList, toggle } = useSavedPlaces();
 
   const counts = useMemo(() => {
@@ -330,6 +332,12 @@ export function HalalPlacesDashboard() {
                     Certified only
                   </Label>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Switch id="include-stores" checked={includeStores} onCheckedChange={setIncludeStores} />
+                  <Label htmlFor="include-stores" className="text-xs font-medium text-muted-foreground">
+                    Also show shops that may stock halal food
+                  </Label>
+                </div>
                 <Select value={String(radius)} onValueChange={(v) => setRadius(Number(v) as RadiusKm)}>
                   <SelectTrigger className="h-9 w-[120px]" aria-label="Search radius">
                     <SelectValue />
@@ -441,6 +449,13 @@ export function HalalPlacesDashboard() {
             <p className="mb-3 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground">
               Map data is temporarily unavailable ({osmError}). Showing places added by the
               Firdam community only.
+            </p>
+          )}
+
+          {pending && tab === 'nearby' && !loading && (
+            <p className="mb-3 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-foreground">
+              Firdam is gathering halal places for your area. Check back in a few minutes
+              for the full list.
             </p>
           )}
 

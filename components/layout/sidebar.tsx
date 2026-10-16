@@ -26,6 +26,8 @@ interface NavItem {
   href: string;
   icon: LucideIcon;
   badge?: string;
+  /** Planned ("coming soon") modules are shown but not clickable. */
+  disabled?: boolean;
 }
 
 const mainNav: NavItem[] = [
@@ -42,6 +44,7 @@ const groupedNav = VISIBLE_MODULE_GROUPS.map((group) => ({
       href: m.href,
       icon: moduleIconMap[m.icon],
       badge: m.status === 'beta' ? 'Beta' : m.status === 'planned' ? 'Soon' : undefined,
+      disabled: m.status === 'planned',
     })),
 }));
 
@@ -70,17 +73,8 @@ function NavSection({
           (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
         const Icon = item.icon;
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-              isActive
-                ? 'bg-accent text-accent-foreground'
-                : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
-            )}
-          >
+        const inner = (
+          <>
             <Icon
               className={cn(
                 'h-4.5 w-4.5 shrink-0 transition-colors',
@@ -96,6 +90,32 @@ function NavSection({
                 {item.badge}
               </span>
             )}
+          </>
+        );
+        if (item.disabled) {
+          return (
+            <span
+              key={item.href}
+              aria-disabled="true"
+              title="Coming soon"
+              className="group flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/60"
+            >
+              {inner}
+            </span>
+          );
+        }
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-accent text-accent-foreground'
+                : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
+            )}
+          >
+            {inner}
           </Link>
         );
       })}

@@ -15,6 +15,7 @@ import { readSavedLocation } from '@/lib/geo/location';
 import { fetchPrayerDay, format12h, PRAYER_ORDER, usePrayerSettings } from '@/lib/prayer/prayer';
 import { firstNameFor } from '@/lib/auth/display-name';
 import { FAIR_USE, usePlan } from '@/lib/plan/plan';
+import { FREE_LAUNCH } from '@/lib/plan/launch';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -311,11 +312,19 @@ function CompanionLocked() {
                 </li>
               ))}
             </ul>
-            <Button asChild className="w-full sm:w-auto">
-              <Link href="/dashboard/upgrade">
-                <Crown className="mr-2 h-4 w-4" /> Start 14-day free trial
-              </Link>
-            </Button>
+            {FREE_LAUNCH ? (
+              // Nothing is sold yet: no trial button that leads nowhere.
+              <p className="text-sm text-muted-foreground">
+                <Crown className="mr-1.5 inline h-4 w-4 align-[-3px] text-primary" />
+                The Companion is coming with Firdam Family. We&rsquo;ll let you know when it opens.
+              </p>
+            ) : (
+              <Button asChild className="w-full sm:w-auto">
+                <Link href="/dashboard/upgrade">
+                  <Crown className="mr-2 h-4 w-4" /> Start 14-day free trial
+                </Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
 

@@ -92,12 +92,16 @@ async function visit(context, path, label) {
   await page.close();
 }
 
+let failPage = null;
 async function action(name, fn) {
   try {
     const note = await fn();
     results.actions.push({ name, ok: true, note: note ?? '' });
   } catch (e) {
-    results.actions.push({ name, ok: false, note: String(e.message ?? e).split('\n')[0].slice(0, 300) });
+    const file = `${OUT}/shots/FAILED-${slug('/' + name)}.png`;
+    if (failPage) await failPage.screenshot({ path: file }).catch(() => {});
+    const url = failPage ? failPage.url().replace(SITE, '') : '';
+    results.actions.push({ name, ok: false, note: `${String(e.message ?? e).split('\n')[0].slice(0, 300)} (at ${url})` });
   }
 }
 
@@ -138,6 +142,7 @@ if (session) {
   const ctx = await browser.newContext(laptop);
   await ctx.addCookies(sessionCookies(session));
   const page = await ctx.newPage();
+  failPage = page;
   const slug2 = slug;
   const go = async (p) => { await page.goto(SITE + p, { waitUntil: 'networkidle', timeout: 45000 }); await page.waitForTimeout(1200); };
   const shot = (n) => page.screenshot({ path: `${OUT}/shots/action-${n}.png` }).catch(() => {});

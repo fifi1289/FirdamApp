@@ -25,17 +25,15 @@ const ICONS: Record<HomeFeatureId, IconName> = {
 /*
  * Layout at full size (366 px wide, scaled down on smaller phones):
  * hub 76, bubbles 66, inner ring radius 76, outer ring radius 148. The rings
- * are far enough apart that their bubbles never touch, so each ring can turn
- * on its own.
+ * are far enough apart that their bubbles never touch.
  */
 const BASE = 366;
 const HUB = 76;
 const BUBBLE = 66;
 const INNER_R = 76;
 const OUTER_R = 148;
-/** One slow turn, in ms; the rings turn in opposite directions. */
-const INNER_TURN = 90_000;
-const OUTER_TURN = 140_000;
+/** One slow turn, in ms. Both rings turn together, the same way, so it stays calm. */
+const TURN_MS = 180_000;
 
 const inner = HOME_FEATURES.filter((f) => f.ring === 'inner');
 const outer = HOME_FEATURES.filter((f) => f.ring === 'outer');
@@ -62,7 +60,7 @@ function useSpin(duration: number) {
 }
 
 /**
- * Home: every feature in two slowly turning rings around the Firdam logo —
+ * Home: every feature in two rings turning slowly together around the Firdam logo —
  * faith and family close in, everyday living around them.
  */
 export function FeatureRing() {
@@ -70,6 +68,7 @@ export function FeatureRing() {
   const size = Math.min(width - 24, BASE);
   const k = size / BASE;
   const center = size / 2;
+  const spin = useSpin(TURN_MS);
 
   return (
     <View style={{ width: size, height: size, alignSelf: 'center' }} accessibilityLabel="Firdam features">
@@ -78,8 +77,8 @@ export function FeatureRing() {
         <Circle cx={center} cy={center} r={INNER_R * k} stroke={colors.gold} strokeWidth={1} strokeDasharray="2 6" fill="none" opacity={0.7} />
       </Svg>
 
-      <Ring items={outer} radius={OUTER_R * k} bubble={BUBBLE * k} size={size} duration={OUTER_TURN} reverse tone="outer" />
-      <Ring items={inner} radius={INNER_R * k} bubble={BUBBLE * k} size={size} duration={INNER_TURN} tone="inner" />
+      <Ring items={outer} radius={OUTER_R * k} bubble={BUBBLE * k} size={size} spin={spin} tone="outer" />
+      <Ring items={inner} radius={INNER_R * k} bubble={BUBBLE * k} size={size} spin={spin} tone="inner" />
 
       <View
         style={[styles.hub, { width: HUB * k, height: HUB * k, borderRadius: (HUB * k) / 2, left: center - (HUB * k) / 2, top: center - (HUB * k) / 2 }]}
@@ -100,21 +99,18 @@ function Ring({
   radius,
   bubble,
   size,
-  duration,
-  reverse = false,
+  spin,
   tone,
 }: {
   items: typeof HOME_FEATURES;
   radius: number;
   bubble: number;
   size: number;
-  duration: number;
-  reverse?: boolean;
+  spin: Animated.Value;
   tone: 'inner' | 'outer';
 }) {
-  const spin = useSpin(duration);
-  const turn = spin.interpolate({ inputRange: [0, 1], outputRange: reverse ? ['0deg', '-360deg'] : ['0deg', '360deg'] });
-  const upright = spin.interpolate({ inputRange: [0, 1], outputRange: reverse ? ['0deg', '360deg'] : ['0deg', '-360deg'] });
+  const turn = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+  const upright = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-360deg'] });
   const center = size / 2;
   const scale = bubble / BUBBLE;
 

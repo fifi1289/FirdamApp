@@ -6,14 +6,14 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { readSavedLocation } from '@/lib/geo/location';
 import { fetchPrayerMonth, parseGregorian, DEFAULT_PRAYER_SETTINGS } from '@/lib/prayer/prayer';
 import type { FamilyEvent, FamilyMember } from '@/types/database';
-import { buildCalendarItems, iso, parseISODate, type CalendarItem as SharedItem, type HijriLabel } from '@/features/calendar/calendar-core';
+import { buildCalendarItems, iso, parseISODate, type CalendarItem as SharedItem, type FastingOptions, type HijriLabel } from '@/features/calendar/calendar-core';
 
 export const FAMILY_EVENTS_CHANGED = 'family-events-changed';
 
 export type CalendarItem = SharedItem<FamilyEvent>;
 export type { HijriLabel };
 
-export function useCalendarData(rangeStart: Date, rangeEnd: Date) {
+export function useCalendarData(rangeStart: Date, rangeEnd: Date, fasting: FastingOptions = {}) {
   const supabase = createSupabaseBrowserClient();
   const [events, setEvents] = useState<FamilyEvent[]>([]);
   const [members, setMembers] = useState<FamilyMember[]>([]);
@@ -80,8 +80,9 @@ export function useCalendarData(rangeStart: Date, rangeEnd: Date) {
   }, [startKey, endKey]);
 
   const items = useMemo(
-    () => buildCalendarItems(events, members, hijri, parseISODate(startKey), parseISODate(endKey)),
-    [events, members, hijri, startKey, endKey]
+    () => buildCalendarItems(events, members, hijri, parseISODate(startKey), parseISODate(endKey), fasting),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [events, members, hijri, startKey, endKey, fasting.sunnahFasts, fasting.mondaysThursdays]
   );
 
   return { items, hijri, members, loading, reload: load };

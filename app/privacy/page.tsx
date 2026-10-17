@@ -41,7 +41,7 @@ const sections: LegalSection[] = [
           </li>
           <li>
             <strong>Your family:</strong> names, relationships and dates of birth of family members you add (used to plan
-            meals for the right portions and to remember birthdays), and the people you invite to share your household.
+            meals for the right portions), and the people you invite to share your household.
           </li>
           <li>
             <strong>Food and plans:</strong> your pantry, shopping lists, meal plans, recipes you write, what you cooked,

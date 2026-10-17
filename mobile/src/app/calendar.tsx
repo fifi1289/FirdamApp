@@ -6,7 +6,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Badge, Chip } from '@/components/kitchen-ui';
 import { HomeButton } from '@/components/screen';
 import { Button, Card, Field, T } from '@/components/ui';
-import { deleteEvent, loadEvents, loadHijriMonth, loadMembers, saveEvent, type FamilyEvent } from '@/lib/calendar';
+import { askForAlerts } from '@/lib/adhan-alerts';
+import {
+  deleteEvent,
+  getFastingOptions,
+  getRemindersOn,
+  loadEvents,
+  loadHijriMonth,
+  loadMembers,
+  saveEvent,
+  setFastingOptions,
+  setRemindersOn,
+  type FamilyEvent,
+} from '@/lib/calendar';
+import { scheduleEventAlerts } from '@/lib/event-alerts';
 import {
   EDITABLE_KINDS,
   EVENT_KIND_LABELS,
@@ -20,6 +33,7 @@ import {
   type CalendarEventKind,
   type CalendarItem,
   type CalendarMemberRow,
+  type FastingOptions,
   type HijriLabel,
 } from '@/shared/calendar-core';
 import { colors } from '@/theme';
@@ -40,7 +54,7 @@ const KIND_COLOR: Record<CalendarEventKind, string> = {
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-/** Family calendar: Eid, Aqiqah, Nikah, birthdays, school and appointments, with Hijri dates. */
+/** Family calendar: Eid, Aqiqah, Nikah, school and appointments, with Hijri dates. */
 export default function Calendar() {
   const today = iso(new Date());
   const [month, setMonth] = useState(() => {
@@ -53,6 +67,26 @@ export default function Calendar() {
   const [hijri, setHijri] = useState<Map<string, HijriLabel>>(new Map());
   const [problem, setProblem] = useState<string | null>(null);
   const [editing, setEditing] = useState<{ event: FamilyEvent | null; date: string } | null>(null);
+  const [fasting, setFasting] = useState<FastingOptions>({});
+  const [reminders, setReminders] = useState(true);
+  useEffect(() => {
+    getFastingOptions().then(setFasting);
+    getRemindersOn().then(setReminders);
+  }, []);
+  const changeFasting = (next: FastingOptions) => {
+    setFasting(next);
+    setFastingOptions(next).then(() => scheduleEventAlerts()).catch(() => {});
+  };
+  const toggleReminders = async () => {
+    const next = !reminders;
+    if (next && !(await askForAlerts())) {
+      setProblem('Allow notifications for Firdam in your phone’s Settings to get reminders.');
+      return;
+    }
+    setReminders(next);
+    await setRemindersOn(next);
+    scheduleEventAlerts().catch(() => {});
+  };
 
   const load = useCallback(() => {
     Promise.all([loadEvents(), loadMembers()])
@@ -81,7 +115,7 @@ export default function Calendar() {
 
   const first = new Date(month.year, month.month - 1, 1);
   const last = new Date(month.year, month.month, 0);
-  const items = useMemo(() => buildCalendarItems(events ?? [], members, hijri, first, last), [events, members, hijri, month]); // eslint-disable-line react-hooks/exhaustive-deps
+  const items = useMemo(() => buildCalendarItems(events ?? [], members, hijri, first, last, fasting), [events, members, hijri, month, fasting]); // eslint-disable-line react-hooks/exhaustive-deps
   const byDate = useMemo(() => {
     const map = new Map<string, CalendarItem<FamilyEvent>[]>();
     for (const it of items) map.set(it.date, [...(map.get(it.date) ?? []), it]);
@@ -184,8 +218,23 @@ export default function Calendar() {
           </Card>
         ) : null}
 
+        <Card style={{ gap: 10 }}>
+          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+            SHOW AND REMIND
+          </T>
+          <View style={styles.wrap}>
+            <Chip label="Sunnah fasts" selected={!!fasting.sunnahFasts} onPress={() => changeFasting({ ...fasting, sunnahFasts: !fasting.sunnahFasts })} tone="sage" />
+            <Chip label="Mondays & Thursdays" selected={!!fasting.mondaysThursdays} onPress={() => changeFasting({ ...fasting, mondaysThursdays: !fasting.mondaysThursdays })} tone="sage" />
+            <Chip label="Reminders" selected={reminders} onPress={toggleReminders} />
+          </View>
+          <T size={12.5} color={colors.muted} style={{ lineHeight: 18 }}>
+            Sunnah fasts are the white days (13th–15th of each Hijri month), the 9th of Muharram and the six days of Shawwal. Reminders come the evening
+            before and on the day (an hour before timed events), with a suhoor reminder before a fast you chose.
+          </T>
+        </Card>
+
         <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18 }}>
-          Birthdays come from Family members. Islamic dates may differ by a day from your local moon sighting.
+          Islamic dates may differ by a day from your local moon sighting.
         </T>
       </ScrollView>
 
@@ -203,6 +252,7 @@ export default function Calendar() {
               setMonth({ year: d.getFullYear(), month: d.getMonth() + 1 });
             }
             load();
+            scheduleEventAlerts().catch(() => {});
           }}
         />
       ) : null}
@@ -271,7 +321,7 @@ function MonthGrid({
               </View>
               <View style={styles.dots}>
                 {dots.slice(0, 3).map((it) => (
-                  <View key={it.id} style={[styles.dot, { backgroundColor: KIND_COLOR[it.kind] }]} />
+                  <View key={it.id} style={[styles.dot, { backgroundColor: it.source === 'fasting' ? colors.sage : KIND_COLOR[it.kind] }]} />
                 ))}
               </View>
             </Pressable>
@@ -294,7 +344,7 @@ function ItemRow({ item, showDate, last, onEdit }: { item: CalendarItem<FamilyEv
     .join(' · ');
   const content = (
     <View style={[styles.item, !last && styles.itemLine]}>
-      <View style={[styles.kindBar, { backgroundColor: KIND_COLOR[item.kind] }]} />
+      <View style={[styles.kindBar, { backgroundColor: item.source === 'fasting' ? colors.sage : KIND_COLOR[item.kind] }]} />
       <View style={{ flex: 1, gap: 2 }}>
         <T weight="semibold" size={15} numberOfLines={2}>
           {item.title}
@@ -358,14 +408,14 @@ function EventSheet({
   const [location, setLocation] = useState(event?.location ?? '');
   const [notes, setNotes] = useState(event?.notes ?? '');
   const [who, setWho] = useState<string[]>(event?.member_ids ?? []);
-  const [yearly, setYearly] = useState(event?.repeats_yearly ?? false);
+  const [repeat, setRepeat] = useState<'once' | 'weekly' | 'yearly'>(event?.repeats_weekly ? 'weekly' : event?.repeats_yearly ? 'yearly' : 'once');
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const pickKind = (k: CalendarEventKind) => {
     setKind(k);
-    if (!event && YEARLY_KINDS.includes(k)) setYearly(true);
+    if (!event && YEARLY_KINDS.includes(k)) setRepeat('yearly');
   };
 
   const save = async () => {
@@ -388,7 +438,8 @@ function EventSheet({
           location: location.trim() || null,
           notes: notes.trim() || null,
           member_ids: who,
-          repeats_yearly: yearly,
+          repeats_yearly: repeat === 'yearly',
+          repeats_weekly: repeat === 'weekly',
         },
         event?.id,
       );
@@ -424,7 +475,11 @@ function EventSheet({
       <View style={styles.wrap}>
         <Chip label="All day" selected={allDay} onPress={() => setAllDay(true)} />
         <Chip label="At a time" selected={!allDay} onPress={() => setAllDay(false)} />
-        <Chip label="Every year" selected={yearly} onPress={() => setYearly(!yearly)} tone="sage" />
+      </View>
+      <View style={styles.wrap}>
+        <Chip label="Once" selected={repeat === 'once'} onPress={() => setRepeat('once')} tone="sage" />
+        <Chip label="Every week" selected={repeat === 'weekly'} onPress={() => setRepeat('weekly')} tone="sage" />
+        <Chip label="Every year" selected={repeat === 'yearly'} onPress={() => setRepeat('yearly')} tone="sage" />
       </View>
       {!allDay ? (
         <View style={{ flexDirection: 'row', gap: 10 }}>

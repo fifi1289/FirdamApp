@@ -139,7 +139,7 @@ export const allModules: LifeModule[] = [
   {
     id: 'calendar',
     name: 'Family Calendar',
-    description: 'Eid, Aqiqah, Nikah, birthdays and school events — one shared calendar.',
+    description: 'Eid, Aqiqah, Nikah, school events and appointments — one shared calendar.',
     status: 'active',
     accent: 'from-brand-mid to-brand-light',
     icon: 'calendar-heart',

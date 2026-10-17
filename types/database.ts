@@ -959,6 +959,7 @@ export type Database = {
           notes: string | null;
           member_ids: string[];
           repeats_yearly: boolean;
+          repeats_weekly: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -974,6 +975,7 @@ export type Database = {
           notes?: string | null;
           member_ids?: string[];
           repeats_yearly?: boolean;
+          repeats_weekly?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -987,6 +989,7 @@ export type Database = {
           notes?: string | null;
           member_ids?: string[];
           repeats_yearly?: boolean;
+          repeats_weekly?: boolean;
           updated_at?: string;
         };
         Relationships: [];

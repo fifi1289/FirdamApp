@@ -49,7 +49,7 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
   const [location, setLocation] = useState('');
   const [notes, setNotes] = useState('');
   const [memberIds, setMemberIds] = useState<string[]>([]);
-  const [yearly, setYearly] = useState(false);
+  const [repeat, setRepeat] = useState<'once' | 'weekly' | 'yearly'>('once');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -63,11 +63,11 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
     setLocation(event?.location ?? '');
     setNotes(event?.notes ?? '');
     setMemberIds(event?.member_ids ?? []);
-    setYearly(event?.repeats_yearly ?? false);
+    setRepeat(event?.repeats_weekly ? 'weekly' : event?.repeats_yearly ? 'yearly' : 'once');
   }, [open, event, defaultDate]);
 
   useEffect(() => {
-    if (!event && (kind === 'anniversary' || kind === 'birthday')) setYearly(true);
+    if (!event && kind === 'anniversary') setRepeat('yearly');
   }, [kind, event]);
 
   const save = async () => {
@@ -88,7 +88,8 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
       location: location.trim() || null,
       notes: notes.trim() || null,
       member_ids: memberIds,
-      repeats_yearly: yearly,
+      repeats_yearly: repeat === 'yearly',
+      repeats_weekly: repeat === 'weekly',
       updated_at: new Date().toISOString(),
     };
     setSaving(true);
@@ -219,11 +220,31 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
             </div>
           )}
 
-          <div className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5">
-            <Label htmlFor="ev-yearly" className="text-sm">
-              Repeats every year
-            </Label>
-            <Switch id="ev-yearly" checked={yearly} onCheckedChange={setYearly} />
+          <div className="space-y-1.5">
+            <Label>Repeats</Label>
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Repeats">
+              {(
+                [
+                  ['once', 'Once'],
+                  ['weekly', 'Every week'],
+                  ['yearly', 'Every year'],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={repeat === value}
+                  onClick={() => setRepeat(value)}
+                  className={cn(
+                    'rounded-xl border px-3 py-2 text-sm font-medium transition-colors',
+                    repeat === value ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary/40'
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-1.5">

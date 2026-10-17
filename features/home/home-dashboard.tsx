@@ -326,7 +326,7 @@ export function HomeDashboard() {
             </div>
             {upcoming.length === 0 ? (
               <p className="py-6 text-sm text-muted-foreground">
-                Nothing on the calendar. Add Eid plans, birthdays or school events.
+                Nothing on the calendar. Add Eid plans, family gatherings or school events.
               </p>
             ) : (
               <ul className="mt-3 space-y-1">

@@ -63,6 +63,7 @@ function Navigator() {
         <Stack.Screen name="family-members" options={{ presentation: 'modal' }} />
         <Stack.Screen name="recipe/[id]" />
         <Stack.Screen name="meal" />
+        <Stack.Screen name="finance" />
       </Stack.Protected>
     </Stack>
   );

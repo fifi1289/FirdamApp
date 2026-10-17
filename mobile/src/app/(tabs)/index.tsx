@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { StarPattern } from '@/components/art';
@@ -8,6 +9,8 @@ import { TabScreen } from '@/components/screen';
 import { Button, Card, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { formatDateISO, mealImage, useFreshMealPhotos } from '@/lib/kitchen';
+import { getCurrency, loadMonth } from '@/lib/finance';
+import { formatMoney, monthTotals } from '@/shared/finance-core';
 import { useKitchen } from '@/lib/kitchen-store';
 import { formatPortions } from '@/shared/pantry-portions';
 import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
@@ -112,13 +115,47 @@ function UseSoonCard() {
 
 // Modules on firdam.com that are coming to the app.
 const COMING = [
-  { title: 'Finance', text: 'Budget, savings goals, sadaqah and a zakat calculator' },
   { title: 'Ramadan', text: 'Suhoor and iftar times and a fasting tracker' },
   { title: 'Travel', text: 'Halal-friendly trips, Umrah and Hajj with trusted agencies' },
   { title: 'Family Calendar', text: 'Eid, Aqiqah, Nikah, birthdays and school events' },
   { title: 'Community', text: 'Halaqas, iftars, Eid prayers and fundraisers near you' },
   { title: 'Health', text: 'Sunnah habits, appointments and vaccinations' },
 ];
+
+/** Finance & zakat: this month at a glance, opens the Finance screen. */
+function MoneyCard() {
+  const [month, setMonth] = useState<{ spent: number; giving: number; currency: string } | null>(null);
+  useEffect(() => {
+    const now = new Date();
+    Promise.all([loadMonth(now.getFullYear(), now.getMonth() + 1), getCurrency()])
+      .then(([rows, currency]) => {
+        const t = monthTotals(rows, []);
+        setMonth({ spent: t.expense, giving: t.giving, currency });
+      })
+      .catch(() => setMonth(null));
+  }, []);
+  return (
+    <Pressable accessibilityRole="button" accessibilityHint="Opens Finance and zakat" onPress={() => router.push('/finance')}>
+      <Card style={{ gap: 8 }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          FINANCE & ZAKAT
+        </T>
+        {month && (month.spent > 0 || month.giving > 0) ? (
+          <T size={15} weight="semibold">
+            {`${formatMoney(month.spent, month.currency)} spent · ${formatMoney(month.giving, month.currency)} given this month`}
+          </T>
+        ) : (
+          <T size={15} weight="semibold">
+            Budget, savings goals, sadaqah, and zakat al-mal and al-fitr
+          </T>
+        )}
+        <T size={14} weight="bold" color={colors.walnut}>
+          Open Finance ›
+        </T>
+      </Card>
+    </Pressable>
+  );
+}
 
 function ComingSoonCard() {
   return (
@@ -232,6 +269,7 @@ export default function Today() {
         <T size={15}>Restaurants, butchers, groceries and mosques around you, with directions.</T>
         <Button label="Find halal places" variant="secondary" onPress={() => router.push('/halal')} />
       </Card>
+      <MoneyCard />
       <ComingSoonCard />
     </TabScreen>
   );

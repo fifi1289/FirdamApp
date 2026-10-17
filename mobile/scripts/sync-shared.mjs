@@ -25,6 +25,7 @@ const FILES = {
   'supabase/functions/_shared/halal.ts': 'halal.ts',
   'supabase/functions/_shared/kitchen-items.ts': 'kitchen-items.ts',
   'features/meals/have-it.ts': 'have-it.ts',
+  'features/budget/finance-core.ts': 'finance-core.ts',
 };
 
 const REWRITES = [

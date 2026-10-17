@@ -18,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { Receipt } from 'lucide-react';
+import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
 import { toast } from 'sonner';
 import { haramItemMessage } from '@/lib/recipes/halal';
 import { applyPantryChanges, changesForAdding } from '@/lib/pantry/store';
@@ -375,7 +376,7 @@ export function GroceriesDashboard() {
     <AppShell>
       <PageHeader
         title="Shopping"
-        description="Smart shopping lists that fill themselves from your meal plan — minus what's already in your pantry."
+        description="Everything your family buys, by department. Groceries fill themselves from your meal plan, minus what's already in your pantry."
       >
         <Button variant="outline" size="sm" onClick={shareList} disabled={!activeList || remaining.length === 0}>
           <Share2 className="mr-2 h-4 w-4" />
@@ -386,6 +387,30 @@ export function GroceriesDashboard() {
           Add from meal plan
         </Button>
       </PageHeader>
+
+      {/* Departments: Groceries now; the rest arrive with partner stores. */}
+      <nav aria-label="Shopping departments" className="mb-5 flex flex-wrap gap-2">
+        {SHOPPING_DEPARTMENTS.map((d) =>
+          d.live ? (
+            <span
+              key={d.id}
+              aria-current="page"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-foreground"
+            >
+              {d.label}
+            </span>
+          ) : (
+            <span
+              key={d.id}
+              title={`${d.note}. Coming with partner stores.`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3.5 py-1.5 text-sm text-muted-foreground"
+            >
+              {d.label}
+              <span className="rounded-full bg-brand-gold/15 px-1.5 text-[10px] font-semibold uppercase tracking-wide text-brand-dark">Soon</span>
+            </span>
+          )
+        )}
+      </nav>
 
       {loading ? (
         <Card>

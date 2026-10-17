@@ -7,8 +7,10 @@ import { PlanView } from '@/components/kitchen-plan';
 import { RecipesView } from '@/components/kitchen-recipes';
 import { ShoppingView } from '@/components/kitchen-shopping';
 import { PantryView } from '@/components/kitchen-pantry';
+import { Badge } from '@/components/kitchen-ui';
 import { HomeButton } from '@/components/screen';
-import { Button, T } from '@/components/ui';
+import { UPCOMING_DEPARTMENTS } from '@/shared/shopping-departments';
+import { Button, Card, T } from '@/components/ui';
 import { useKitchen } from '@/lib/kitchen-store';
 import { colors } from '@/theme';
 
@@ -59,12 +61,50 @@ export default function Kitchen() {
         ) : section === 'recipes' ? (
           <RecipesView />
         ) : section === 'shopping' ? (
-          <ShoppingView />
+          <>
+            <View style={{ gap: 2 }}>
+              <T weight="extrabold" size={19}>
+                Groceries
+              </T>
+              <T size={13.5} color={colors.muted}>
+                Food and kitchen basics. Fills itself from your meal plan, minus what’s in your pantry.
+              </T>
+            </View>
+            <ShoppingView />
+            <MoreDepartments />
+          </>
         ) : (
           <PantryView />
         )}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+/** The departments arriving with partner stores. */
+function MoreDepartments() {
+  return (
+    <Card style={{ gap: 10 }}>
+      <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+        MORE SHOPPING SOON
+      </T>
+      {UPCOMING_DEPARTMENTS.map((d) => (
+        <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={{ flex: 1 }}>
+            <T size={14.5} weight="semibold">
+              {d.label}
+            </T>
+            <T size={12.5} color={colors.muted}>
+              {d.note}
+            </T>
+          </View>
+          <Badge label="Soon" tone="amber" />
+        </View>
+      ))}
+      <T size={12.5} color={colors.muted}>
+        With trusted Muslim-owned and partner stores.
+      </T>
+    </Card>
   );
 }
 

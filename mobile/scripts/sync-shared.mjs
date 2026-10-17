@@ -27,6 +27,7 @@ const FILES = {
   'features/meals/have-it.ts': 'have-it.ts',
   'features/budget/finance-core.ts': 'finance-core.ts',
   'features/home/home-features.ts': 'home-features.ts',
+  'features/groceries/shopping-departments.ts': 'shopping-departments.ts',
 };
 
 const REWRITES = [

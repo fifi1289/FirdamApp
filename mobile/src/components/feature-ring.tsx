@@ -68,7 +68,6 @@ export function FeatureRing() {
         </Svg>
         {HOME_FEATURES.map((f, i) => {
           const p = ringPoint(i, HOME_FEATURES.length);
-          const finance = f.id === 'finance';
           return (
             // The box is centred on the circle, so turning it back keeps the label below.
             <Animated.View
@@ -80,8 +79,8 @@ export function FeatureRing() {
             >
               <Pressable accessibilityRole="button" accessibilityLabel={f.label} onPress={() => router.push(f.app as Href)} hitSlop={6}>
                 {({ pressed }) => (
-                  <View style={[styles.dot, finance && styles.dotSage, pressed && styles.dotPressed]}>
-                    <Icon name={ICONS[f.id]} size={26} color={finance ? colors.sageDark : colors.walnut} />
+                  <View style={[styles.dot, pressed && styles.dotPressed]}>
+                    <Icon name={ICONS[f.id]} size={26} color={colors.walnut} />
                   </View>
                 )}
               </Pressable>
@@ -127,7 +126,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dotSage: { backgroundColor: colors.sageTint, borderColor: '#CFE0C6' },
   dotPressed: { backgroundColor: colors.sand, transform: [{ scale: 0.95 }] },
   label: { position: 'absolute', top: DOT + 4, width: LABEL_W, textAlign: 'center', lineHeight: 14, color: colors.espresso },
 });

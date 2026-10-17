@@ -13,6 +13,8 @@ import { formatDateISO, mealImage, useFreshMealPhotos } from '@/lib/kitchen';
 import { getCurrency, loadMonth } from '@/lib/finance';
 import { formatMoney, monthTotals } from '@/shared/finance-core';
 import { useKitchen } from '@/lib/kitchen-store';
+import { loadEvents, loadMembers } from '@/lib/calendar';
+import { buildCalendarItems, iso, parseISODate, type CalendarItem } from '@/shared/calendar-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
 import { colors } from '@/theme';
@@ -118,7 +120,6 @@ function UseSoonCard() {
 const COMING = [
   { title: 'Ramadan', text: 'Suhoor and iftar times and a fasting tracker' },
   { title: 'Travel', text: 'Halal-friendly trips, Umrah and Hajj with trusted agencies' },
-  { title: 'Family Calendar', text: 'Eid, Aqiqah, Nikah, birthdays and school events' },
   { title: 'Community', text: 'Halaqas, iftars, Eid prayers and fundraisers near you' },
   { title: 'Health', text: 'Sunnah habits, appointments and vaccinations' },
 ];
@@ -152,6 +153,44 @@ function MoneyCard() {
         )}
         <T size={14} weight="bold" color={colors.walnut}>
           Open Finance ›
+        </T>
+      </Card>
+    </Pressable>
+  );
+}
+
+/** The next family events in the coming month; opens the Calendar. */
+function UpcomingCard() {
+  const [items, setItems] = useState<CalendarItem[] | null>(null);
+  useEffect(() => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 30);
+    Promise.all([loadEvents(), loadMembers()])
+      .then(([events, members]) => setItems(buildCalendarItems(events, members, new Map(), start, end).slice(0, 3)))
+      .catch(() => setItems([]));
+  }, []);
+  if (!items || items.length === 0) return null;
+  const today = iso(new Date());
+  return (
+    <Pressable accessibilityRole="button" accessibilityHint="Opens the family calendar" onPress={() => router.push('/calendar')}>
+      <Card style={{ gap: 8 }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          COMING UP
+        </T>
+        {items.map((it) => (
+          <View key={it.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <T size={13} weight="bold" color={colors.walnut} style={{ width: 64 }}>
+              {it.date === today ? 'Today' : parseISODate(it.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' })}
+            </T>
+            <T size={14.5} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
+              {it.title}
+            </T>
+          </View>
+        ))}
+        <T size={13.5} weight="bold" color={colors.walnut}>
+          Open the calendar ›
         </T>
       </Card>
     </Pressable>
@@ -264,6 +303,7 @@ export default function Today() {
       <PrayerCard />
       <UseSoonCard />
       <TonightCard />
+      <UpcomingCard />
       <MoneyCard />
       <ComingSoonCard />
     </TabScreen>

@@ -93,42 +93,5 @@ export const EVENT_KINDS: Record<FamilyEventKind, EventKindMeta> = {
   },
 };
 
-export const EDITABLE_KINDS: FamilyEventKind[] = [
-  'eid',
-  'aqiqah',
-  'nikah',
-  'walima',
-  'birthday',
-  'anniversary',
-  'school',
-  'appointment',
-  'gathering',
-  'other',
-];
-
-/** Key Islamic dates by Hijri month/day. */
-export const ISLAMIC_DATES: { month: number; day: number; title: string }[] = [
-  { month: 1, day: 1, title: 'Islamic New Year' },
-  { month: 1, day: 10, title: 'Day of Ashura' },
-  { month: 9, day: 1, title: 'First day of Ramadan' },
-  { month: 10, day: 1, title: 'Eid al-Fitr' },
-  { month: 12, day: 9, title: 'Day of Arafah' },
-  { month: 12, day: 10, title: 'Eid al-Adha' },
-];
-
-export function iso(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-export function parseISODate(s: string): Date {
-  const [y, m, d] = s.split('-').map(Number);
-  return new Date(y!, m! - 1, d!);
-}
-
-export function formatTime(t: string | null): string | null {
-  if (!t) return null;
-  const [h, m] = t.split(':').map(Number);
-  const d = new Date();
-  d.setHours(h ?? 0, m ?? 0, 0, 0);
-  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-}
+// Shared with the phone app.
+export { EDITABLE_KINDS, ISLAMIC_DATES, formatTime, iso, parseISODate } from '@/features/calendar/calendar-core';

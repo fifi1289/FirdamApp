@@ -28,6 +28,7 @@ const FILES = {
   'features/budget/finance-core.ts': 'finance-core.ts',
   'features/home/home-features.ts': 'home-features.ts',
   'features/groceries/shopping-departments.ts': 'shopping-departments.ts',
+  'features/calendar/calendar-core.ts': 'calendar-core.ts',
 };
 
 const REWRITES = [

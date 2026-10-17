@@ -65,6 +65,7 @@ function Navigator() {
         <Stack.Screen name="meal" />
         <Stack.Screen name="finance" />
         <Stack.Screen name="qibla" />
+        <Stack.Screen name="calendar" />
       </Stack.Protected>
     </Stack>
   );

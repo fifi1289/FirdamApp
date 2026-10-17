@@ -4,7 +4,7 @@
  * doesn't show the ring because its sidebar already lists every feature; the
  * web paths are kept so both stay pointed at the same places.
  */
-export type HomeFeatureId = 'prayer' | 'qibla' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'family';
+export type HomeFeatureId = 'prayer' | 'qibla' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'calendar' | 'family';
 
 export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app: string }[] = [
   { id: 'prayer', label: 'Prayer', web: '/dashboard/prayer-times', app: '/prayer' },
@@ -15,6 +15,7 @@ export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app
   { id: 'shopping', label: 'Shopping', web: '/dashboard/shopping', app: '/kitchen?section=shopping' },
   { id: 'pantry', label: 'Pantry', web: '/dashboard/pantry', app: '/kitchen?section=pantry' },
   { id: 'finance', label: 'Finance & zakat', web: '/dashboard/finance', app: '/finance' },
+  { id: 'calendar', label: 'Calendar', web: '/dashboard/calendar', app: '/calendar' },
   { id: 'family', label: 'Family', web: '/dashboard/family', app: '/family' },
 ];
 

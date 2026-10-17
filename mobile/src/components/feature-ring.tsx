@@ -17,11 +17,12 @@ const ICONS: Record<HomeFeatureId, IconName> = {
   shopping: 'cart',
   pantry: 'pantry',
   finance: 'money',
+  calendar: 'calendar',
   family: 'family',
 };
 
-const DOT = 54; // feature circle
-const LABEL_W = 76;
+const DOT = 50; // feature circle
+const LABEL_W = 72;
 /** One slow turn of the ring, in ms: a gentle drift, easy to tap. */
 const TURN_MS = 120_000;
 
@@ -81,7 +82,7 @@ export function FeatureRing() {
               <Pressable accessibilityRole="button" accessibilityLabel={f.label} onPress={() => router.push(f.app as Href)} hitSlop={6}>
                 {({ pressed }) => (
                   <View style={[styles.dot, pressed && styles.dotPressed]}>
-                    <Icon name={ICONS[f.id]} size={26} color={colors.walnut} />
+                    <Icon name={ICONS[f.id]} size={24} color={colors.walnut} />
                   </View>
                 )}
               </Pressable>

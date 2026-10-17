@@ -144,7 +144,8 @@ if (session) {
   const page = await ctx.newPage();
   failPage = page;
   const slug2 = slug;
-  const go = async (p) => { await page.goto(SITE + p, { waitUntil: 'networkidle', timeout: 45000 }); await page.waitForTimeout(1200); };
+  // 'load', not 'networkidle': pages with live updates (shopping) keep a connection open.
+  const go = async (p) => { await page.goto(SITE + p, { waitUntil: 'load', timeout: 45000 }); await page.waitForTimeout(3500); };
   const shot = (n) => page.screenshot({ path: `${OUT}/shots/action-${n}.png` }).catch(() => {});
 
   await action('Shopping: add an item', async () => {
@@ -181,14 +182,20 @@ if (session) {
     return page.url().replace(SITE, '');
   });
 
-  await action('Meal planner: quick plan from the library', async () => {
+  await action('Meal planner: plan a week from the recipe library', async () => {
     await go('/dashboard/meals');
-    const btn = page.getByRole('button', { name: /library|quick plan|plan my week/i }).first();
-    await btn.click({ timeout: 8000 });
-    await page.waitForTimeout(6000);
+    await page.getByRole('button', { name: /generate new meal plan/i }).first().click({ timeout: 8000 });
+    await page.waitForTimeout(1500);
+    await shot('meal-preferences');
+    // Use the free recipe library, not the AI chef (saves AI credit).
+    const ai = page.getByRole('switch').filter({ hasText: /ai/i }).first();
+    const aiAny = (await ai.count()) ? ai : page.getByRole('switch', { name: /ai|chef/i }).first();
+    if ((await aiAny.count()) && (await aiAny.getAttribute('aria-checked')) === 'true') await aiAny.click();
+    await page.getByRole('button', { name: /generate|create (my )?plan|plan my week/i }).last().click({ timeout: 8000 });
+    await page.waitForTimeout(8000);
     await shot('meal-plan');
     const meals = await page.getByText(/breakfast|lunch|dinner/i).count();
-    if (!meals) throw new Error('no meals shown after planning');
+    if (meals < 3) throw new Error(`only ${meals} meal labels after planning`);
     return `${meals} meal labels shown`;
   });
 
@@ -219,9 +226,9 @@ if (session) {
   const opens = [
     ['Planner: new task form', '/dashboard/planner', /new task|add task/i],
     ['Family: add member form', '/dashboard/family', /add (a )?(family )?member/i],
-    ['Finance: add transaction form', '/dashboard/finance', /add (a )?transaction|new transaction|add expense|add income/i],
+    ['Finance: add transaction form', '/dashboard/finance', /add entry|add (a )?transaction/i],
     ['Travel: new trip form', '/dashboard/travel', /new trip|plan a trip|add (a )?trip|create (a )?trip/i],
-    ['Community: new event form', '/dashboard/community', /new event|add (an )?event|create (an )?event|post/i],
+    ['Community: new event form', '/dashboard/community', /share an event|new event/i],
     ['Directory: add business form', '/dashboard/directory', /add (your |a )?business|list (your )?business/i],
     ['Halal places: add place form', '/dashboard/halal-places', /add (a )?(halal )?place|suggest/i],
   ];

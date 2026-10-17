@@ -8,6 +8,7 @@ import { RecipesView } from '@/components/kitchen-recipes';
 import { ShoppingView } from '@/components/kitchen-shopping';
 import { Segmented } from '@/components/kitchen-ui';
 import { PantryView } from '@/components/kitchen-pantry';
+import { HomeButton } from '@/components/screen';
 import { Button, T } from '@/components/ui';
 import { useKitchen } from '@/lib/kitchen-store';
 import { colors } from '@/theme';
@@ -16,9 +17,11 @@ type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
 
 export default function Kitchen() {
   const k = useKitchen();
-  const [section, setSection] = useState<Section>('plan');
   // Home and notifications can open a section directly: /kitchen?section=shopping
   const params = useLocalSearchParams<{ section?: string }>();
+  const [section, setSection] = useState<Section>(
+    params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section) ? (params.section as Section) : 'plan'
+  );
   useEffect(() => {
     if (params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section)) setSection(params.section as Section);
   }, [params.section]);
@@ -39,6 +42,9 @@ export default function Kitchen() {
         keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.walnut} />}
       >
+        <View style={{ alignSelf: 'flex-start' }}>
+          <HomeButton />
+        </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
           Kitchen
         </T>

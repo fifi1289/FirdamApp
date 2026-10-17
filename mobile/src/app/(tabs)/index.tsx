@@ -259,7 +259,7 @@ export default function Today() {
   const { firstName } = useAuth();
   const now = useNow(60000);
   return (
-    <TabScreen title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
+    <TabScreen home title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
       <FeatureRing />
       <PrayerCard />
       <UseSoonCard />

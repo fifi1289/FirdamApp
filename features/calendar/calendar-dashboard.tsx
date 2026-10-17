@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Clock, MapPin, Plus, Users } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
@@ -166,7 +165,7 @@ export function CalendarDashboard() {
     <AppShell>
       <PageHeader
         title="Family Calendar"
-        description="Eid, Aqiqah, Nikah, birthdays and school events — everything your family has coming up."
+        description="Eid, Aqiqah, Nikah, school events and appointments — everything your family has coming up."
       >
         <Button size="sm" onClick={openNew}>
           <Plus className="mr-2 h-4 w-4" />
@@ -312,16 +311,7 @@ export function CalendarDashboard() {
                 <p className="px-2 py-4 text-sm text-muted-foreground">Loading…</p>
               ) : upcoming.length === 0 ? (
                 <div className="px-2 py-4 text-sm text-muted-foreground">
-                  No upcoming events.{' '}
-                  {members.length === 0 && (
-                    <>
-                      Add your{' '}
-                      <Link href="/dashboard/family" className="text-primary hover:underline">
-                        family members
-                      </Link>{' '}
-                      to see their birthdays here.
-                    </>
-                  )}
+                  No upcoming events.
                 </div>
               ) : (
                 <ul className="mt-1">

@@ -1,7 +1,7 @@
 /**
  * Family calendar rules shared by the website and the phone app (the app gets
  * a copy via mobile/scripts/sync-shared.mjs): event kinds, Islamic dates,
- * yearly repeats and birthdays. Plain TypeScript, no React or browser APIs.
+ * yearly repeats. No birthdays: Firdam doesn't celebrate them. Plain TypeScript, no React or browser APIs.
  */
 
 export type CalendarEventKind =
@@ -24,11 +24,11 @@ export const EVENT_KIND_LABELS: Record<CalendarEventKind, string> = {
 
 /** Kinds a family can pick for its own events (Islamic dates are added automatically). */
 export const EDITABLE_KINDS: CalendarEventKind[] = [
-  'eid', 'aqiqah', 'nikah', 'walima', 'birthday', 'anniversary', 'school', 'appointment', 'gathering', 'other',
+  'eid', 'aqiqah', 'nikah', 'walima', 'anniversary', 'school', 'appointment', 'gathering', 'other',
 ];
 
 /** Kinds that usually come back every year. */
-export const YEARLY_KINDS: CalendarEventKind[] = ['birthday', 'anniversary'];
+export const YEARLY_KINDS: CalendarEventKind[] = ['anniversary'];
 
 /** Key Islamic dates by Hijri month/day. */
 export const ISLAMIC_DATES: { month: number; day: number; title: string }[] = [
@@ -118,7 +118,7 @@ export function occurrences(base: string, repeats: boolean, start: Date, end: Da
   return out;
 }
 
-/** Everything on the calendar between start and end: events, birthdays and Islamic dates. */
+/** Everything on the calendar between start and end: family events and Islamic dates. */
 export function buildCalendarItems<E extends CalendarEventRow>(
   events: E[],
   members: CalendarMemberRow[],
@@ -142,21 +142,6 @@ export function buildCalendarItems<E extends CalendarEventRow>(
         location: e.location,
         event: e,
         memberNames: (e.member_ids ?? []).map((id) => memberName.get(id)).filter(Boolean) as string[],
-      });
-    }
-  }
-
-  for (const m of members) {
-    if (!m.birth_date) continue;
-    const born = parseISODate(m.birth_date);
-    for (const date of occurrences(m.birth_date, true, start, end)) {
-      const age = parseISODate(date).getFullYear() - born.getFullYear();
-      out.push({
-        id: `birthday:${m.id}:${date}`,
-        date,
-        title: age > 0 ? `${m.first_name}'s birthday (${age})` : `${m.first_name} was born`,
-        kind: 'birthday',
-        source: 'birthday',
       });
     }
   }

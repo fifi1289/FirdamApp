@@ -67,7 +67,7 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
   }, [open, event, defaultDate]);
 
   useEffect(() => {
-    if (!event && (kind === 'anniversary' || kind === 'birthday')) setYearly(true);
+    if (!event && kind === 'anniversary') setYearly(true);
   }, [kind, event]);
 
   const save = async () => {

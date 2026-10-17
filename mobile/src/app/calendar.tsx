@@ -40,7 +40,7 @@ const KIND_COLOR: Record<CalendarEventKind, string> = {
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-/** Family calendar: Eid, Aqiqah, Nikah, birthdays, school and appointments, with Hijri dates. */
+/** Family calendar: Eid, Aqiqah, Nikah, school and appointments, with Hijri dates. */
 export default function Calendar() {
   const today = iso(new Date());
   const [month, setMonth] = useState(() => {
@@ -185,7 +185,7 @@ export default function Calendar() {
         ) : null}
 
         <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18 }}>
-          Birthdays come from Family members. Islamic dates may differ by a day from your local moon sighting.
+          Islamic dates may differ by a day from your local moon sighting.
         </T>
       </ScrollView>
 

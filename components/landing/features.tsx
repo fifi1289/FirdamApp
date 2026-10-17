@@ -24,7 +24,7 @@ const features = [
     icon: Users,
     title: 'Built for the whole family',
     description:
-      'Family profiles, a shared calendar with Eid, Aqiqah and birthdays, household tasks and meal plans that feed the whole home.',
+      'Family profiles, a shared calendar with Eid, Aqiqah and Nikah, household tasks and meal plans that feed the whole home.',
   },
   {
     icon: HandHeart,

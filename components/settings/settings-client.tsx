@@ -336,7 +336,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                 <div className="space-y-0.5">
                   <Label className="text-sm font-medium">Family events</Label>
                   <p className="text-xs text-muted-foreground">
-                    Birthdays, ceremonies and events — the day before and on the day.
+                    Ceremonies, gatherings and events — the day before and on the day.
                   </p>
                 </div>
                 <Switch

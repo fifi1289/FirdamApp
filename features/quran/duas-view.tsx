@@ -13,6 +13,7 @@ import {
   DUAS,
   DUA_CATEGORIES,
   duaOfTheDay,
+  filterDuas,
   type Dua,
   type DuaCategory,
 } from '@/features/quran/duas';
@@ -129,15 +130,7 @@ export function DuasView() {
   const { favs, toggle } = useFavourites();
   const today = useMemo(() => duaOfTheDay(), []);
 
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return DUAS.filter((d) => {
-      if (category === 'favourites' && !favs.has(d.id)) return false;
-      if (category !== 'all' && category !== 'favourites' && d.category !== category) return false;
-      if (q && !`${d.title} ${d.translation} ${d.transliteration}`.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [category, query, favs]);
+  const visible = useMemo(() => filterDuas(DUAS, category, query, favs), [category, query, favs]);
 
   const chips: { value: typeof category; label: string }[] = [
     { value: 'all', label: 'All' },

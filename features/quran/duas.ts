@@ -345,3 +345,19 @@ export function duaOfTheDay(date: Date = new Date()): Dua {
   const day = Math.floor((date.getTime() - start.getTime()) / 86_400_000);
   return DUAS[day % DUAS.length]!;
 }
+
+/** The duas to show for a chosen category ("all", "favourites" or one category) and search. */
+export function filterDuas(
+  duas: Dua[],
+  category: DuaCategory | 'all' | 'favourites',
+  query: string,
+  favourites: Set<string>
+): Dua[] {
+  const q = query.trim().toLowerCase();
+  return duas.filter((d) => {
+    if (category === 'favourites' && !favourites.has(d.id)) return false;
+    if (category !== 'all' && category !== 'favourites' && d.category !== category) return false;
+    if (q && !`${d.title} ${d.translation} ${d.transliteration}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}

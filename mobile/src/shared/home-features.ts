@@ -5,11 +5,12 @@
  * doesn't show the ring because its sidebar already lists every feature; the
  * web paths are kept so both stay pointed at the same places.
  */
-export type HomeFeatureId = 'prayer' | 'qibla' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'calendar' | 'family';
+export type HomeFeatureId = 'prayer' | 'qibla' | 'quran' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'calendar' | 'family';
 
 export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app: string }[] = [
   { id: 'prayer', label: 'Prayer', web: '/dashboard/prayer-times', app: '/prayer' },
   { id: 'qibla', label: 'Qibla', web: '/dashboard/prayer-times#qibla', app: '/qibla' },
+  { id: 'quran', label: 'Quran & Duas', web: '/dashboard/quran', app: '/quran' },
   { id: 'halal', label: 'Halal places', web: '/dashboard/halal-places', app: '/halal' },
   { id: 'meals', label: 'Meal plan', web: '/dashboard/meals', app: '/kitchen?section=plan' },
   { id: 'recipes', label: 'Recipes', web: '/dashboard/recipes', app: '/kitchen?section=recipes' },

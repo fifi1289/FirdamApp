@@ -11,6 +11,7 @@ import { colors } from '@/theme';
 const ICONS: Record<HomeFeatureId, IconName> = {
   prayer: 'prayer',
   qibla: 'qibla',
+  quran: 'quran',
   halal: 'halal',
   meals: 'kitchen',
   recipes: 'recipes',
@@ -21,8 +22,8 @@ const ICONS: Record<HomeFeatureId, IconName> = {
   family: 'family',
 };
 
-const DOT = 50; // feature circle
-const LABEL_W = 72;
+const DOT = 48; // feature circle
+const LABEL_W = 68;
 /** One slow turn of the ring, in ms: a gentle drift, easy to tap. */
 const TURN_MS = 120_000;
 
@@ -82,11 +83,11 @@ export function FeatureRing() {
               <Pressable accessibilityRole="button" accessibilityLabel={f.label} onPress={() => router.push(f.app as Href)} hitSlop={6}>
                 {({ pressed }) => (
                   <View style={[styles.dot, pressed && styles.dotPressed]}>
-                    <Icon name={ICONS[f.id]} size={24} color={colors.walnut} />
+                    <Icon name={ICONS[f.id]} size={23} color={colors.walnut} />
                   </View>
                 )}
               </Pressable>
-              <T size={11.5} weight="semibold" style={styles.label} numberOfLines={2}>
+              <T size={11} weight="semibold" style={styles.label} numberOfLines={2}>
                 {f.label}
               </T>
             </Animated.View>
@@ -129,5 +130,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dotPressed: { backgroundColor: colors.sand, transform: [{ scale: 0.95 }] },
-  label: { position: 'absolute', top: DOT + 4, width: LABEL_W, textAlign: 'center', lineHeight: 14, color: colors.espresso },
+  label: { position: 'absolute', top: DOT + 4, width: LABEL_W, textAlign: 'center', lineHeight: 13, color: colors.espresso },
 });

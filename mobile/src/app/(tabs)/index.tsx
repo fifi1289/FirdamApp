@@ -14,10 +14,11 @@ import { getCurrency, loadMonth } from '@/lib/finance';
 import { formatMoney, monthTotals } from '@/shared/finance-core';
 import { useKitchen } from '@/lib/kitchen-store';
 import { loadEvents, loadMembers } from '@/lib/calendar';
+import { duaOfTheDay } from '@/shared/duas';
 import { buildCalendarItems, iso, parseISODate, type CalendarItem } from '@/shared/calendar-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
-import { colors } from '@/theme';
+import { colors, fonts } from '@/theme';
 
 function todayLabel(now: Date) {
   return now.toLocaleDateString('en-CA', { weekday: 'long', day: 'numeric', month: 'short' });
@@ -197,6 +198,29 @@ function UpcomingCard() {
   );
 }
 
+/** Today's dua, as on the website's Home; opens Quran & Duas. */
+function DuaCard() {
+  const dua = duaOfTheDay();
+  return (
+    <Pressable accessibilityRole="button" accessibilityHint="Opens Quran and Duas" onPress={() => router.push('/quran')}>
+      <Card style={{ gap: 8 }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          {`DUA OF THE DAY · ${dua.title.toUpperCase()}`}
+        </T>
+        <T style={{ fontFamily: fonts.arabic, textAlign: 'right', writingDirection: 'rtl', lineHeight: 40 }} size={21}>
+          {dua.arabic}
+        </T>
+        <T size={14} style={{ lineHeight: 20 }} numberOfLines={3}>
+          {dua.translation}
+        </T>
+        <T size={13.5} weight="bold" color={colors.walnut}>
+          More duas ›
+        </T>
+      </Card>
+    </Pressable>
+  );
+}
+
 function ComingSoonCard() {
   return (
     <Card style={{ gap: 10 }}>
@@ -304,6 +328,7 @@ export default function Today() {
       <UseSoonCard />
       <TonightCard />
       <UpcomingCard />
+      <DuaCard />
       <MoneyCard />
       <ComingSoonCard />
     </TabScreen>

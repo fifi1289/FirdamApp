@@ -509,7 +509,7 @@ export function BudgetDashboard() {
         <TabsContent value="zakat" className="mt-0">
           <ZakatCalculator
             currency={currency}
-            onRecord={(amount) => openNew({ type: 'zakat', amount, description: 'Zakat' })}
+            onRecord={(amount, description) => openNew({ type: 'zakat', amount, description })}
           />
         </TabsContent>
       </Tabs>

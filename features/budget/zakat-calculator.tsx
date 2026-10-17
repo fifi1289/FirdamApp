@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Info, Lock, Scale } from 'lucide-react';
+import { Info, Lock, Moon, Scale } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,61 +9,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { formatMoney } from '@/features/budget/budget-config';
+import {
+  EMPTY_ZAKAT,
+  GOLD_NISAB_GRAMS,
+  SILVER_NISAB_GRAMS,
+  ZAKAT_AL_FITR_NOTE,
+  ZAKAT_ASSETS,
+  ZAKAT_DESCRIPTIONS,
+  computeZakatAlFitr,
+  computeZakatAlMal,
+  parseAmount,
+  type ZakatField,
+  type ZakatValues,
+} from '@/features/budget/finance-core';
+import { useHousehold } from '@/lib/pantry/portions';
 
 const STORAGE_KEY = 'firdam.zakat.inputs';
 
-const GOLD_NISAB_GRAMS = 85;
-const SILVER_NISAB_GRAMS = 595;
-const ZAKAT_RATE = 0.025;
+const FITR_KEY = 'firdam.zakat.fitr';
 
-type Field =
-  | 'cash'
-  | 'bank'
-  | 'goldValue'
-  | 'silverValue'
-  | 'investments'
-  | 'business'
-  | 'receivables'
-  | 'debts'
-  | 'goldPrice'
-  | 'silverPrice';
-
-const ASSETS: { key: Field; label: string; hint?: string }[] = [
-  { key: 'cash', label: 'Cash at home' },
-  { key: 'bank', label: 'Bank accounts', hint: 'Current and savings balances' },
-  { key: 'goldValue', label: 'Gold you own', hint: 'Current market value' },
-  { key: 'silverValue', label: 'Silver you own', hint: 'Current market value' },
-  { key: 'investments', label: 'Shares & investments', hint: 'Zakatable portion' },
-  { key: 'business', label: 'Business stock & cash' },
-  { key: 'receivables', label: 'Money owed to you', hint: 'That you expect to receive' },
-];
-
-type Values = Record<Field, string>;
-
-const EMPTY: Values = {
-  cash: '',
-  bank: '',
-  goldValue: '',
-  silverValue: '',
-  investments: '',
-  business: '',
-  receivables: '',
-  debts: '',
-  goldPrice: '',
-  silverPrice: '',
-};
-
-function num(v: string): number {
-  const n = Number(v.replace(/,/g, ''));
-  return Number.isFinite(n) && n > 0 ? n : 0;
-}
+const num = parseAmount;
+const ASSETS = ZAKAT_ASSETS;
+type Field = ZakatField;
+type Values = ZakatValues;
+const EMPTY = EMPTY_ZAKAT;
 
 export function ZakatCalculator({
   currency,
   onRecord,
 }: {
   currency: string;
-  onRecord: (amount: number) => void;
+  /** Opens the entry form prefilled with a zakat payment. */
+  onRecord: (amount: number, description: string) => void;
 }) {
   const [values, setValues] = useState<Values>(EMPTY);
   const [basis, setBasis] = useState<'silver' | 'gold'>('silver');
@@ -89,18 +66,10 @@ export function ZakatCalculator({
     });
   };
 
-  const result = useMemo(() => {
-    const assets = ASSETS.reduce((sum, a) => sum + num(values[a.key]), 0);
-    const net = Math.max(0, assets - num(values.debts));
-    const goldNisab = num(values.goldPrice) * GOLD_NISAB_GRAMS;
-    const silverNisab = num(values.silverPrice) * SILVER_NISAB_GRAMS;
-    const nisab = basis === 'gold' ? goldNisab : silverNisab;
-    const hasNisab = nisab > 0;
-    const due = hasNisab && net >= nisab ? net * ZAKAT_RATE : 0;
-    return { assets, net, nisab, hasNisab, due, goldNisab, silverNisab };
-  }, [values, basis]);
+  const result = useMemo(() => computeZakatAlMal(values, basis), [values, basis]);
 
   return (
+    <div className="space-y-5">
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
       <Card>
         <CardContent className="space-y-6 p-5">
@@ -205,7 +174,7 @@ export function ZakatCalculator({
           <div className="bg-girih bg-gradient-to-br from-brand-espresso to-brand-mid p-5 text-brand-linen">
             <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-brand-linen/75">
               <Scale className="h-4 w-4" />
-              Zakat due
+              Zakat al-mal due
             </p>
             <p className="mt-2 font-display text-4xl font-bold tabular-nums">
               {formatMoney(result.due, currency)}
@@ -238,7 +207,7 @@ export function ZakatCalculator({
               </span>
             </div>
             {result.due > 0 && (
-              <Button className="mt-3 w-full" onClick={() => onRecord(Math.round(result.due * 100) / 100)}>
+              <Button className="mt-3 w-full" onClick={() => onRecord(Math.round(result.due * 100) / 100, ZAKAT_DESCRIPTIONS.mal)}>
                 Record as zakat paid
               </Button>
             )}
@@ -251,5 +220,97 @@ export function ZakatCalculator({
         </p>
       </div>
     </div>
+    <ZakatAlFitr currency={currency} onRecord={onRecord} />
+    </div>
+  );
+}
+
+/** Zakat al-fitr: an amount per person, for everyone the family provides for. */
+function ZakatAlFitr({ currency, onRecord }: { currency: string; onRecord: (amount: number, description: string) => void }) {
+  const { household } = useHousehold();
+  const [people, setPeople] = useState('');
+  const [perPerson, setPerPerson] = useState('');
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(FITR_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw) as { people?: string; perPerson?: string };
+        if (saved.people) setPeople(saved.people);
+        if (saved.perPerson) setPerPerson(saved.perPerson);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+  // Everyone in the family by default (the user can change it).
+  useEffect(() => {
+    if (!people && household?.people) setPeople(String(household.people));
+  }, [household, people]);
+
+  const save = (next: { people: string; perPerson: string }) => {
+    try {
+      window.localStorage.setItem(FITR_KEY, JSON.stringify(next));
+    } catch {
+      // ignore
+    }
+  };
+  const fitr = computeZakatAlFitr(Number(people), perPerson);
+
+  return (
+    <Card>
+      <CardContent className="grid grid-cols-1 gap-5 p-5 lg:grid-cols-[1fr_340px]">
+        <section>
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Moon className="h-4 w-4 text-primary" /> Zakat al-fitr
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">{ZAKAT_AL_FITR_NOTE}</p>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-md">
+            <div className="space-y-1.5">
+              <Label htmlFor="fitr-people">People</Label>
+              <Input
+                id="fitr-people"
+                inputMode="numeric"
+                value={people}
+                onChange={(e) => {
+                  setPeople(e.target.value);
+                  save({ people: e.target.value, perPerson });
+                }}
+                placeholder="0"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="fitr-each">Per person ({currency})</Label>
+              <Input
+                id="fitr-each"
+                inputMode="decimal"
+                value={perPerson}
+                onChange={(e) => {
+                  setPerPerson(e.target.value);
+                  save({ people, perPerson: e.target.value });
+                }}
+                placeholder="e.g. 15"
+              />
+            </div>
+          </div>
+        </section>
+        <div className="rounded-2xl bg-muted/60 p-4">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Zakat al-fitr due</p>
+          <p className="mt-1 font-display text-3xl font-bold tabular-nums text-foreground">
+            {formatMoney(fitr.total, currency)}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {fitr.total > 0
+              ? `${fitr.people} × ${formatMoney(fitr.perPerson, currency)} · pay before the Eid prayer`
+              : 'Enter the number of people and the amount per person.'}
+          </p>
+          {fitr.total > 0 && (
+            <Button className="mt-3 w-full" variant="outline" onClick={() => onRecord(Math.round(fitr.total * 100) / 100, ZAKAT_DESCRIPTIONS.fitr)}>
+              Record as zakat al-fitr paid
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

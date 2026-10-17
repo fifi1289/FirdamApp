@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { StarPattern } from '@/components/art';
+import { FeatureRing } from '@/components/feature-ring';
 import { openMeal } from '@/components/kitchen-plan';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { TabScreen } from '@/components/screen';
@@ -259,16 +260,10 @@ export default function Today() {
   const now = useNow(60000);
   return (
     <TabScreen title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
+      <FeatureRing />
       <PrayerCard />
       <UseSoonCard />
       <TonightCard />
-      <Card style={{ gap: 6 }}>
-        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          HALAL NEAR YOU
-        </T>
-        <T size={15}>Restaurants, butchers, groceries and mosques around you, with directions.</T>
-        <Button label="Find halal places" variant="secondary" onPress={() => router.push('/halal')} />
-      </Card>
       <MoneyCard />
       <ComingSoonCard />
     </TabScreen>

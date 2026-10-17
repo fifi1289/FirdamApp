@@ -49,6 +49,20 @@ export async function loadCategories(): Promise<BudgetCategory[]> {
   return created;
 }
 
+/** Adds a category (no id) or renames it / changes its limit. */
+export async function saveCategory(values: { name: string; monthly_limit: number | null }, id?: string, position = 0): Promise<void> {
+  const { error } = id
+    ? await supabase.from('budget_categories').update(values).eq('id', id)
+    : await supabase.from('budget_categories').insert({ ...values, icon: 'wallet', position });
+  if (error) throw error;
+}
+
+/** Removes a category; its entries stay, without a category. */
+export async function deleteCategory(id: string): Promise<void> {
+  const { error } = await supabase.from('budget_categories').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function setCategoryLimit(id: string, limit: number | null): Promise<void> {
   const { error } = await supabase.from('budget_categories').update({ monthly_limit: limit }).eq('id', id);
   if (error) throw error;

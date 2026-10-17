@@ -20,7 +20,6 @@ import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -51,6 +50,7 @@ import {
   monthBounds,
   useCurrency,
 } from '@/features/budget/budget-config';
+import { CategoryDialog } from '@/features/budget/category-dialog';
 import { TransactionDialog } from '@/features/budget/transaction-dialog';
 import { ZakatCalculator } from '@/features/budget/zakat-calculator';
 import { SavingsGoals } from '@/features/budget/savings-goals';
@@ -101,15 +101,13 @@ function CategoryBudgetRow({
   category,
   spent,
   currency,
-  onSetLimit,
+  onOpen,
 }: {
   category: BudgetCategory;
   spent: number;
   currency: string;
-  onSetLimit: (c: BudgetCategory, limit: number | null) => void;
+  onOpen: (c: BudgetCategory) => void;
 }) {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(category.monthly_limit ? String(category.monthly_limit) : '');
   const Icon = CATEGORY_ICON_MAP[category.icon] ?? Wallet;
   const limit = category.monthly_limit ? Number(category.monthly_limit) : null;
   const pct = limit ? Math.min(100, (spent / limit) * 100) : 0;
@@ -117,47 +115,24 @@ function CategoryBudgetRow({
   const near = limit !== null && !over && spent >= limit * 0.85;
 
   return (
-    <div className="flex items-center gap-3 py-3">
+    <button
+      type="button"
+      onClick={() => onOpen(category)}
+      className="flex w-full items-center gap-3 rounded-lg py-3 text-left transition-colors hover:bg-muted/40"
+      aria-label={`Edit ${category.name}`}
+    >
       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
         <Icon className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
           <p className="truncate text-sm font-medium text-foreground">{category.name}</p>
-          {editing ? (
-            <form
-              className="flex items-center gap-1"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const n = Number(value);
-                onSetLimit(category, Number.isFinite(n) && n > 0 ? n : null);
-                setEditing(false);
-              }}
-            >
-              <Input
-                autoFocus
-                inputMode="decimal"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                className="h-7 w-24 text-xs"
-                placeholder="Limit"
-              />
-              <Button type="submit" size="sm" className="h-7 px-2 text-xs">
-                Save
-              </Button>
-            </form>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              className="shrink-0 text-xs tabular-nums text-muted-foreground hover:text-foreground"
-            >
-              <span className={cn('font-medium', over ? 'text-destructive' : 'text-foreground')}>
-                {formatMoney(spent, currency)}
-              </span>
-              {limit ? ` / ${formatMoney(limit, currency)}` : ' · set limit'}
-            </button>
-          )}
+          <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+            <span className={cn('font-medium', over ? 'text-destructive' : 'text-foreground')}>
+              {formatMoney(spent, currency)}
+            </span>
+            {limit ? ` / ${formatMoney(limit, currency)}` : ' · set limit'}
+          </span>
         </div>
         {limit !== null && (
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -171,7 +146,7 @@ function CategoryBudgetRow({
           </div>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -259,16 +234,25 @@ export function BudgetDashboard() {
     return { income, expense, giving, byCategory, plannedLimit };
   }, [transactions, categories]);
 
-  const setLimit = async (category: BudgetCategory, limit: number | null) => {
-    setCategories((prev) => prev.map((c) => (c.id === category.id ? { ...c, monthly_limit: limit } : c)));
-    const { error } = await supabase
-      .from('budget_categories')
-      .update({ monthly_limit: limit })
-      .eq('id', category.id);
-    if (error) {
-      toast.error('Could not update the limit');
-      loadCategories();
-    }
+  const [categoryDialog, setCategoryDialog] = useState<{ open: boolean; category: BudgetCategory | null }>({ open: false, category: null });
+
+  const saveCategory = async (values: { name: string; monthly_limit: number | null }) => {
+    const editing = categoryDialog.category;
+    const { error } = editing
+      ? await supabase.from('budget_categories').update(values).eq('id', editing.id)
+      : await supabase
+          .from('budget_categories')
+          .insert({ ...values, icon: 'wallet', position: categories.reduce((m, c) => Math.max(m, c.position), 0) + 1 });
+    if (error) throw new Error(error.message);
+    await loadCategories();
+  };
+
+  const deleteCategory = async () => {
+    const c = categoryDialog.category;
+    if (!c) return;
+    const { error } = await supabase.from('budget_categories').delete().eq('id', c.id);
+    if (error) throw new Error(error.message);
+    await Promise.all([loadCategories(), loadTransactions()]);
   };
 
   const deleteTransaction = async (t: BudgetTransaction) => {
@@ -331,9 +315,13 @@ export function BudgetDashboard() {
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Button size="sm" onClick={() => openNew()}>
+        <Button size="sm" variant="outline" onClick={() => openNew({ type: 'income' })}>
+          <ArrowDownLeft className="mr-2 h-4 w-4" />
+          Add income
+        </Button>
+        <Button size="sm" onClick={() => openNew({ type: 'expense' })}>
           <Plus className="mr-2 h-4 w-4" />
-          Add entry
+          Add expense
         </Button>
       </PageHeader>
 
@@ -395,8 +383,14 @@ export function BudgetDashboard() {
             <Card>
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-foreground">Category budgets</h2>
-                  <p className="text-xs text-muted-foreground">Tap an amount to set a monthly limit</p>
+                  <div>
+                    <h2 className="text-sm font-semibold text-foreground">Category budgets</h2>
+                    <p className="text-xs text-muted-foreground">Click a category to rename it, set a limit or remove it</p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setCategoryDialog({ open: true, category: null })}>
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    Add category
+                  </Button>
                 </div>
                 <div className="mt-2 divide-y divide-border/70">
                   {categories.map((c) => (
@@ -405,7 +399,7 @@ export function BudgetDashboard() {
                       category={c}
                       spent={totals.byCategory.get(c.id) ?? 0}
                       currency={currency}
-                      onSetLimit={setLimit}
+                      onOpen={(category) => setCategoryDialog({ open: true, category })}
                     />
                   ))}
                 </div>
@@ -531,6 +525,15 @@ export function BudgetDashboard() {
         </TabsContent>
       </Tabs>
 
+      <CategoryDialog
+        open={categoryDialog.open}
+        category={categoryDialog.category}
+        currency={currency}
+        onOpenChange={(open) => setCategoryDialog((d) => ({ ...d, open }))}
+        onSave={saveCategory}
+        onDelete={deleteCategory}
+        onAddExpense={() => categoryDialog.category && openNew({ type: 'expense', category_id: categoryDialog.category.id })}
+      />
       <TransactionDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}

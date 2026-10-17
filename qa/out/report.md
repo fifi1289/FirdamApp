@@ -1,57 +1,37 @@
-# Firdam site check — 2026-10-17T16:25:36.454Z
+# Firdam site check — 2026-10-17T16:32:50.024Z
 
-- Test account qa.1792253836963@firdam.com created.
+- Test account qa.1792254452286@firdam.com created.
 
-## Pages: 58/60 clean
+## Pages: 60/60 clean
 
-### app-laptop /dashboard/halal-places → /dashboard/halal-places (HTTP null, 46501 ms)
-- console: Failed to load resource: the server responded with a status of 503 ()
-- console: Failed to load resource: the server responded with a status of 503 ()
-- console: Failed to load resource: the server responded with a status of 503 ()
-- console: Failed to load resource: the server responded with a status of 503 ()
-- load: page.goto: Timeout 45000ms exceeded.
-- request failed: 503 GET https://firdam.com/dashboard/shopping?_rsc=gxeze
-- request failed: 503 GET https://firdam.com/dashboard/prayer-times?_rsc=gxeze
-- request failed: 503 GET https://firdam.com/dashboard/pantry?_rsc=gxeze
-- request failed: 503 GET https://firdam.com/dashboard/family?_rsc=gxeze
-### app-laptop /dashboard/pantry → /dashboard/pantry (HTTP null, 46500 ms)
-- console: Failed to load resource: the server responded with a status of 503 ()
-- console: Failed to load resource: the server responded with a status of 503 ()
-- console: Failed to load resource: the server responded with a status of 503 ()
-- console: Failed to load resource: the server responded with a status of 503 ()
-- load: page.goto: Timeout 45000ms exceeded.
-- request failed: 503 GET https://firdam.com/dashboard/shopping?_rsc=vdp9g
-- request failed: 503 GET https://firdam.com/dashboard/quran?_rsc=vdp9g
-- request failed: 503 GET https://firdam.com/dashboard/ramadan?_rsc=vdp9g
-- request failed: 503 GET https://firdam.com/dashboard/family?_rsc=vdp9g
 
 ## Redirects
 - app-laptop /dashboard/upgrade → /dashboard
 - app-phone /dashboard/upgrade → /dashboard
 
 ## Actions
-- ❌ Shopping: add an item: page.goto: Timeout 45000ms exceeded. (at /dashboard/shopping)
+- ✅ Shopping: add an item: item appears in the list
 - ✅ Pantry: add an item: item appears in the pantry
 - ✅ Recipes: open a recipe: /dashboard/recipes/c-504bf9f0-5b7a-4e9f-a26c-a8b7c302218f
-- ❌ Meal planner: quick plan from the library: locator.click: Timeout 8000ms exceeded. (at /dashboard/meals)
+- ❌ Meal planner: plan a week from the recipe library: only 0 meal labels after planning (at /dashboard/meals)
 - ✅ Prayer times: choose a city, times shown: all five prayers listed for Ottawa
 - ✅ Quran: surah list: surah list shown
 - ✅ Planner: new task form: form opens
 - ✅ Family: add member form: form opens
-- ❌ Finance: add transaction form: locator.click: Timeout 6000ms exceeded. (at /dashboard/finance)
+- ✅ Finance: add transaction form: form opens
 - ✅ Travel: new trip form: form opens
-- ❌ Community: new event form: locator.click: Timeout 6000ms exceeded. (at /dashboard/community)
+- ✅ Community: new event form: form opens
 - ✅ Directory: add business form: form opens
 - ✅ Halal places: add place form: form opens
 - ✅ Planner: add a task: task appears
-- ✅ Family: add a member: member appears
+- ❌ Family: add a member: locator.click: Timeout 6000ms exceeded. (at /dashboard)
 - ✅ Companion: page answers: opened (no message sent, to save AI credit)
 - ✅ Delete the test account: deleted
 
 ## Slowest pages
-- app-laptop /dashboard/halal-places: 46501 ms
-- app-laptop /dashboard/pantry: 46500 ms
-- app-laptop /dashboard/upgrade: 32490 ms
-- app-phone /dashboard/upgrade: 32482 ms
-- app-laptop /dashboard/recipes: 11264 ms
-- app-phone /dashboard/recipes: 10781 ms
+- app-phone /dashboard/upgrade: 32443 ms
+- app-laptop /dashboard/upgrade: 32414 ms
+- app-laptop /dashboard/recipes: 10701 ms
+- app-phone /dashboard/recipes: 10316 ms
+- app-laptop /dashboard: 5184 ms
+- public-laptop /: 4304 ms

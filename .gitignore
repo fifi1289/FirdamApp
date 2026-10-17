@@ -39,3 +39,6 @@ next-env.d.ts
 /.open-next/
 /.wrangler/
 .dev.vars*
+qa/out/
+qa/node_modules/
+qa/package*.json

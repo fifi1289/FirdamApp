@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
 import { scheduleAdhanAlerts } from '@/lib/adhan-alerts';
+import { isEventAlertTap, scheduleEventAlerts } from '@/lib/event-alerts';
 import { loadPrayerSettings, usePrayerSettings } from '@/lib/prayer';
 import { isWeeklyPlanTap, scheduleWeeklyPlanReminder } from '@/lib/weekly-plan-alert';
 import { colors } from '@/theme';
@@ -19,6 +20,28 @@ function useAdhanAlerts() {
       if (state === 'active') loadPrayerSettings().then((s) => scheduleAdhanAlerts(s)).catch(() => {});
     });
     return () => sub.remove();
+  }, []);
+}
+
+/** Family-calendar reminders: refreshed on open and on return; tapping one opens the Calendar. */
+function useEventAlerts() {
+  useEffect(() => {
+    scheduleEventAlerts().catch(() => {});
+    const app = AppState.addEventListener('change', (state) => {
+      if (state === 'active') scheduleEventAlerts().catch(() => {});
+    });
+    Notifications.getLastNotificationResponseAsync()
+      .then((r) => {
+        if (isEventAlertTap(r)) router.push('/calendar');
+      })
+      .catch(() => {});
+    const tap = Notifications.addNotificationResponseReceivedListener((r) => {
+      if (isEventAlertTap(r)) router.push('/calendar');
+    });
+    return () => {
+      app.remove();
+      tap.remove();
+    };
   }, []);
 }
 
@@ -48,5 +71,6 @@ export const unstable_settings = { initialRouteName: 'index' };
 export default function FeaturesLayout() {
   useAdhanAlerts();
   useWeeklyPlanReminder();
+  useEventAlerts();
   return <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.linen } }} />;
 }

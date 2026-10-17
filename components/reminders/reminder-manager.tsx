@@ -86,18 +86,22 @@ export function ReminderManager() {
     tomorrowDate.setDate(now.getDate() + 1);
     const tomorrow = isoDay(tomorrowDate);
 
-    Promise.all([supabase.from('family_events').select('id,title,starts_on,repeats_yearly,start_time')]).then(([events]) => {
+    Promise.all([supabase.from('family_events').select('id,title,starts_on,repeats_yearly,repeats_weekly,start_time')]).then(([events]) => {
       if (cancelled) return;
-      const check = (id: string, title: string, base: string, yearly: boolean) => {
+      const check = (id: string, title: string, base: string, yearly: boolean, weekly = false) => {
         for (const [date, label] of [
           [today, 'Today'],
           [tomorrow, 'Tomorrow'],
         ] as const) {
-          const match = yearly ? sameDayThisYear(base, Number(date.slice(0, 4))) === date : base === date;
+          const match = weekly
+            ? date >= base && (Date.parse(`${date}T12:00:00Z`) - Date.parse(`${base}T12:00:00Z`)) % (7 * 86_400_000) === 0
+            : yearly
+              ? sameDayThisYear(base, Number(date.slice(0, 4))) === date
+              : base === date;
           if (match) notifyOnce(`event-${id}-${date}-${label}`, `${label}: ${title}`, 'From your family calendar');
         }
       };
-      for (const e of events.data ?? []) check(e.id, e.title, e.starts_on, e.repeats_yearly);
+      for (const e of events.data ?? []) check(e.id, e.title, e.starts_on, e.repeats_yearly, e.repeats_weekly);
     });
 
     return () => {

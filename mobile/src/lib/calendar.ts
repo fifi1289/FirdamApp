@@ -1,7 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { callFunction } from './functions';
 import { loadPrayerSettings } from './prayer';
 import { supabase } from './supabase';
-import { iso, type CalendarEventKind, type CalendarEventRow, type CalendarMemberRow, type HijriLabel } from '@/shared/calendar-core';
+import { iso, type CalendarEventKind, type CalendarEventRow, type CalendarMemberRow, type FastingOptions, type HijriLabel } from '@/shared/calendar-core';
 
 /** Same tables as the website's Family calendar, so events show up in both. */
 export type FamilyEvent = CalendarEventRow;
@@ -28,6 +30,7 @@ export interface EventDraft {
   notes: string | null;
   member_ids: string[];
   repeats_yearly: boolean;
+  repeats_weekly: boolean;
 }
 
 export async function saveEvent(draft: EventDraft, id?: string): Promise<void> {
@@ -77,4 +80,30 @@ export async function loadHijriMonth(year: number, month: number): Promise<Map<s
     entry.catch(() => hijriCache.delete(key));
   }
   return new Map(await entry);
+}
+
+// ---------- Choices kept on this phone ----------
+
+const FASTING_KEY = 'firdam.calendar.fasting';
+const REMINDERS_KEY = 'firdam.calendar.reminders';
+
+export async function getFastingOptions(): Promise<FastingOptions> {
+  try {
+    return JSON.parse((await AsyncStorage.getItem(FASTING_KEY)) ?? '{}') as FastingOptions;
+  } catch {
+    return {};
+  }
+}
+
+export async function setFastingOptions(o: FastingOptions): Promise<void> {
+  await AsyncStorage.setItem(FASTING_KEY, JSON.stringify(o)).catch(() => {});
+}
+
+/** Event reminders are on unless the family turned them off. */
+export async function getRemindersOn(): Promise<boolean> {
+  return (await AsyncStorage.getItem(REMINDERS_KEY).catch(() => null)) !== 'off';
+}
+
+export async function setRemindersOn(on: boolean): Promise<void> {
+  await AsyncStorage.setItem(REMINDERS_KEY, on ? 'on' : 'off').catch(() => {});
 }

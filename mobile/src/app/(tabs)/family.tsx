@@ -88,16 +88,6 @@ export default function Family() {
         </View>
       </Card>
 
-      <Card style={{ gap: 8 }}>
-        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          FAMILY FINANCES
-        </T>
-        <T size={14} color={colors.muted}>
-          Monthly budget, sadaqah, savings goals for Hajj or Eid, and zakat al-mal and al-fitr.
-        </T>
-        <Button label="Finance & zakat" variant="secondary" onPress={() => router.push('/finance')} />
-      </Card>
-
       <Card style={{ paddingVertical: 4 }}>
         {links.map((l, i) => (
           <Pressable

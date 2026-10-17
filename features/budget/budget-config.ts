@@ -40,7 +40,10 @@ export const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
 
 // Shared with the phone app.
 export {
+  COMMON_CURRENCIES,
   CURRENCIES,
+  CURRENCY_LIST,
+  currencyName,
   DEFAULT_CATEGORIES,
   GOAL_KINDS,
   TRANSACTION_TYPES,

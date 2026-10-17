@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { StarPattern } from '@/components/art';
+import { FeatureRing } from '@/components/feature-ring';
 import { openMeal } from '@/components/kitchen-plan';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { TabScreen } from '@/components/screen';
@@ -94,7 +95,7 @@ function UseSoonCard() {
   if (k.loading || soon.length === 0) return null;
   const expired = soon.filter((x) => x.d < 0).length;
   return (
-    <Pressable accessibilityRole="button" onPress={() => router.push('/kitchen')} style={[styles.warn, expired ? styles.warnRed : null]}>
+    <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/kitchen', params: { section: 'pantry' } })} style={[styles.warn, expired ? styles.warnRed : null]}>
       <T size={12.5} weight="bold" color={expired ? colors.brickText : '#8A5A16'} style={{ letterSpacing: 0.4 }}>
         {expired ? `USE SOON · ${expired} EXPIRED` : 'USE SOON'}
       </T>
@@ -107,7 +108,7 @@ function UseSoonCard() {
         </View>
       ))}
       <T size={12.5} color={colors.muted}>
-        {soon.length > 4 ? `+ ${soon.length - 4} more · ` : ''}Tap to see recipes that use them in Kitchen.
+        {soon.length > 4 ? `+ ${soon.length - 4} more · ` : ''}Tap to see them in your pantry.
       </T>
     </Pressable>
   );
@@ -258,17 +259,11 @@ export default function Today() {
   const { firstName } = useAuth();
   const now = useNow(60000);
   return (
-    <TabScreen title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
+    <TabScreen home title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
+      <FeatureRing />
       <PrayerCard />
       <UseSoonCard />
       <TonightCard />
-      <Card style={{ gap: 6 }}>
-        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          HALAL NEAR YOU
-        </T>
-        <T size={15}>Restaurants, butchers, groceries and mosques around you, with directions.</T>
-        <Button label="Find halal places" variant="secondary" onPress={() => router.push('/halal')} />
-      </Card>
       <MoneyCard />
       <ComingSoonCard />
     </TabScreen>

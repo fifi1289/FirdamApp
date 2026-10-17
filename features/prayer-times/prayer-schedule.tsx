@@ -463,7 +463,9 @@ export function PrayerSchedule() {
                 )}
               </div>
 
-              <QiblaCompass latitude={location.latitude} longitude={location.longitude} />
+              <div id="qibla" className="scroll-mt-24">
+                <QiblaCompass latitude={location.latitude} longitude={location.longitude} />
+              </div>
             </div>
           )}
         </>

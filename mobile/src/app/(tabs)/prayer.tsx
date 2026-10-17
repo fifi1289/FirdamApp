@@ -6,6 +6,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import { StarPattern } from '@/components/art';
 import { QiblaCompass } from '@/components/qibla';
+import { HomeButton } from '@/components/screen';
 import { Button, Card, T } from '@/components/ui';
 import { askForAlerts } from '@/lib/adhan-alerts';
 import { placeFromDevice } from '@/lib/location';
@@ -92,6 +93,9 @@ export default function Prayer() {
     return (
       <SafeAreaView edges={['top']} style={styles.screen}>
         <ScrollView contentContainerStyle={{ padding: 20, gap: 16 }}>
+          <View style={{ alignSelf: 'flex-start' }}>
+            <HomeButton />
+          </View>
           <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
             Prayer
           </T>
@@ -114,9 +118,7 @@ export default function Prayer() {
             <StarPattern size={300} color={colors.gold} />
           </View>
           <View style={styles.heroTop}>
-            <T size={14} weight="semibold" color={colors.goldText}>
-              {`${place.label} · ${method.name}`}
-            </T>
+            <HomeButton onDark />
             <Pressable accessibilityRole="button" accessibilityLabel="Prayer settings" onPress={() => router.push('/prayer-settings')} style={styles.gear}>
               <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
                 <Path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke={colors.goldText} strokeWidth={1.8} strokeLinecap="round" />
@@ -124,7 +126,10 @@ export default function Prayer() {
               </Svg>
             </Pressable>
           </View>
-          <T style={{ fontFamily: fonts.arabic, marginTop: 8 }} size={22} color={colors.gold}>
+          <T size={14} weight="semibold" color={colors.goldText} style={{ marginTop: 10 }}>
+            {`${place.label} · ${method.name}`}
+          </T>
+          <T style={{ fontFamily: fonts.arabic, marginTop: 4 }} size={22} color={colors.gold}>
             {nextInfo.arabic}
           </T>
           <T weight="extrabold" size={44} color={colors.linen} style={{ letterSpacing: -1 }}>

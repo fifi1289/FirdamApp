@@ -1,13 +1,12 @@
 import * as Notifications from 'expo-notifications';
-import { router, Tabs } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
-import { Icon, type IconName } from '@/components/art';
 import { scheduleAdhanAlerts } from '@/lib/adhan-alerts';
 import { loadPrayerSettings, usePrayerSettings } from '@/lib/prayer';
 import { isWeeklyPlanTap, scheduleWeeklyPlanReminder } from '@/lib/weekly-plan-alert';
-import { colors, fonts } from '@/theme';
+import { colors } from '@/theme';
 
 /** Keeps a week of adhan alerts scheduled: on open, on return to the app, and when settings change. */
 function useAdhanAlerts() {
@@ -39,40 +38,15 @@ function useWeeklyPlanReminder() {
   }, []);
 }
 
-const tabs: { name: string; title: string; icon: IconName }[] = [
-  { name: 'index', title: 'Today', icon: 'today' },
-  { name: 'kitchen', title: 'Kitchen', icon: 'kitchen' },
-  { name: 'prayer', title: 'Prayer', icon: 'prayer' },
-  { name: 'halal', title: 'Halal', icon: 'halal' },
-  { name: 'family', title: 'Family', icon: 'family' },
-];
+/** Home (the ring) is always the screen underneath. */
+export const unstable_settings = { initialRouteName: 'index' };
 
-export default function TabsLayout() {
+/**
+ * Home is the ring of features; each feature opens on top of it and the Home
+ * button (or a swipe back) returns to the ring. No bottom tab bar.
+ */
+export default function FeaturesLayout() {
   useAdhanAlerts();
   useWeeklyPlanReminder();
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.walnut,
-        tabBarInactiveTintColor: colors.tabInactive,
-        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.line, height: 84, paddingTop: 8 },
-        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
-        sceneStyle: { backgroundColor: colors.linen },
-      }}
-    >
-      {tabs.map((t) => (
-        <Tabs.Screen
-          key={t.name}
-          name={t.name}
-          options={{
-            title: t.title,
-            tabBarIcon: ({ focused, color }) => (
-              <Icon name={t.icon} size={24} color={color} fill={focused ? colors.tint : 'none'} />
-            ),
-          }}
-        />
-      ))}
-    </Tabs>
-  );
+  return <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.linen } }} />;
 }

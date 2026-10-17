@@ -21,12 +21,13 @@ import {
   saveGoal,
   saveTransaction,
   saveZakatInputs,
-  setCategoryLimit,
+  deleteCategory,
+  saveCategory,
   setCurrency as storeCurrency,
 } from '@/lib/finance';
 import { useKitchen } from '@/lib/kitchen-store';
 import {
-  CURRENCIES,
+  searchCurrencies,
   EMPTY_ZAKAT,
   GOAL_KINDS,
   GOLD_NISAB_GRAMS,
@@ -122,20 +123,14 @@ export default function FinanceScreen() {
       ) : null}
 
       <Sheet open={currencyOpen} onClose={() => setCurrencyOpen(false)} title="Currency">
-        <View style={styles.wrap}>
-          {CURRENCIES.map((c) => (
-            <Chip
-              key={c}
-              label={c}
-              selected={c === currency}
-              onPress={() => {
-                setCurrencyState(c);
-                storeCurrency(c);
-                setCurrencyOpen(false);
-              }}
-            />
-          ))}
-        </View>
+        <CurrencyPicker
+          value={currency}
+          onPick={(c) => {
+            setCurrencyState(c);
+            storeCurrency(c);
+            setCurrencyOpen(false);
+          }}
+        />
       </Sheet>
     </SafeAreaView>
   );
@@ -159,7 +154,7 @@ function Overview({
   const now = new Date();
   const [period, setPeriod] = useState({ year: now.getFullYear(), month: now.getMonth() + 1 });
   const [rows, setRows] = useState<BudgetTransaction[] | null>(null);
-  const [limitFor, setLimitFor] = useState<BudgetCategory | null>(null);
+  const [categoryFor, setCategoryFor] = useState<BudgetCategory | 'new' | null>(null);
 
   const load = useCallback(() => {
     setRows(null);
@@ -202,18 +197,21 @@ function Overview({
         <Stat label="Balance" value={formatMoney(totals.balance, currency)} tone={colors.espresso} />
       </View>
 
-      <Button label="Add entry" onPress={() => onNew()} />
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flex: 1 }}>
+          <Button label="+ Income" variant="secondary" onPress={() => onNew({ type: 'income' })} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button label="+ Expense" onPress={() => onNew({ type: 'expense' })} />
+        </View>
+      </View>
+      <Button label="+ Sadaqah or zakat" variant="secondary" onPress={() => onNew({ type: 'sadaqah' })} />
 
       <Card style={{ gap: 4 }}>
         <View style={styles.cardHead}>
           <T weight="bold" size={16}>
             This month&apos;s entries
           </T>
-          <Pressable accessibilityRole="button" onPress={() => onNew({ type: 'sadaqah' })} hitSlop={8}>
-            <T size={13} weight="bold" color={colors.walnut}>
-              + Log sadaqah
-            </T>
-          </Pressable>
         </View>
         {!rows ? (
           <ActivityIndicator color={colors.walnut} style={{ marginVertical: 16 }} />
@@ -249,17 +247,22 @@ function Overview({
           <T weight="bold" size={16}>
             Category budgets
           </T>
-          <T size={12} color={colors.muted}>
-            Tap to set a monthly limit
-          </T>
+          <Pressable accessibilityRole="button" onPress={() => setCategoryFor('new')} hitSlop={8}>
+            <T size={13} weight="bold" color={colors.walnut}>
+              + Add category
+            </T>
+          </Pressable>
         </View>
+        <T size={12} color={colors.muted}>
+          Tap a category to rename it, set a monthly limit, add an expense or remove it.
+        </T>
         {categories.map((c, i) => {
           const spent = totals.byCategory.get(c.id) ?? 0;
           const limit = c.monthly_limit ? Number(c.monthly_limit) : null;
           const pct = limit ? Math.min(100, (spent / limit) * 100) : 0;
           const over = limit != null && spent > limit;
           return (
-            <Pressable key={c.id} accessibilityRole="button" onPress={() => setLimitFor(c)} style={[{ paddingVertical: 10, gap: 6 }, i < categories.length - 1 && styles.rowLine]}>
+            <Pressable key={c.id} accessibilityRole="button" onPress={() => setCategoryFor(c)} style={[{ paddingVertical: 10, gap: 6 }, i < categories.length - 1 && styles.rowLine]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <T size={14.5} weight="semibold">
                   {c.name}
@@ -279,17 +282,30 @@ function Overview({
         })}
       </Card>
 
-      <LimitSheet
-        category={limitFor}
-        currency={currency}
-        onClose={() => setLimitFor(null)}
-        onSave={async (limit) => {
-          const c = limitFor!;
-          setCategories(categories.map((x) => (x.id === c.id ? { ...x, monthly_limit: limit } : x)));
-          setLimitFor(null);
-          await setCategoryLimit(c.id, limit).catch(() => showAlert('Could not update the limit'));
-        }}
-      />
+      {categoryFor ? (
+        <CategorySheet
+          category={categoryFor === 'new' ? null : categoryFor}
+          currency={currency}
+          onClose={() => setCategoryFor(null)}
+          onAddExpense={(id) => {
+            setCategoryFor(null);
+            onNew({ type: 'expense', category_id: id });
+          }}
+          onSave={async (values) => {
+            const c = categoryFor === 'new' ? null : categoryFor;
+            await saveCategory(values, c?.id, categories.reduce((m, x) => Math.max(m, x.position), 0) + 1);
+            setCategories(await loadCategories());
+            setCategoryFor(null);
+          }}
+          onDelete={async () => {
+            if (categoryFor === 'new') return;
+            await deleteCategory(categoryFor.id);
+            setCategories(await loadCategories());
+            setCategoryFor(null);
+            load();
+          }}
+        />
+      ) : null}
     </>
   );
 }
@@ -560,6 +576,58 @@ function Zakat({ currency, onRecord }: { currency: string; onRecord: (amount: nu
 
 // ---------- Sheets ----------
 
+/** Every currency, searchable by code or name; common ones first. */
+function CurrencyPicker({ value, onPick }: { value: string; onPick: (code: string) => void }) {
+  const [query, setQuery] = useState('');
+  const list = useMemo(() => searchCurrencies(query), [query]);
+  return (
+    <View style={{ gap: 10 }}>
+      <TextInput
+        value={query}
+        onChangeText={setQuery}
+        placeholder="Search: dirham, MAD, pound…"
+        placeholderTextColor={colors.muted}
+        autoCorrect={false}
+        autoCapitalize="none"
+        style={styles.input}
+        accessibilityLabel="Search currencies"
+      />
+      {list.length === 0 ? (
+        <T size={14} color={colors.muted}>
+          No currency matches that.
+        </T>
+      ) : (
+        <View>
+          {list.map((c, i) => {
+            const selected = c.code === value;
+            return (
+              <Pressable
+                key={c.code}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                onPress={() => onPick(c.code)}
+                style={[styles.currencyRow, i < list.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.line }]}
+              >
+                <T weight="bold" size={15} color={selected ? colors.walnut : colors.espresso} style={{ width: 52 }}>
+                  {c.code}
+                </T>
+                <T size={14.5} color={selected ? colors.walnut : colors.muted} style={{ flex: 1 }} numberOfLines={1}>
+                  {c.name}
+                </T>
+                {selected ? (
+                  <T weight="bold" color={colors.walnut}>
+                    ✓
+                  </T>
+                ) : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
+}
+
 function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
@@ -649,14 +717,72 @@ function EntrySheet({ draft, categories, currency, onClose, onSaved }: { draft: 
   );
 }
 
-function LimitSheet({ category, currency, onClose, onSave }: { category: BudgetCategory | null; currency: string; onClose: () => void; onSave: (limit: number | null) => void }) {
-  const [value, setValue] = useState('');
-  useEffect(() => setValue(category?.monthly_limit ? String(category.monthly_limit) : ''), [category]);
+/** Add, rename or remove a category, set its limit, or add an expense in it. */
+function CategorySheet({
+  category,
+  currency,
+  onClose,
+  onSave,
+  onDelete,
+  onAddExpense,
+}: {
+  category: BudgetCategory | null;
+  currency: string;
+  onClose: () => void;
+  onSave: (values: { name: string; monthly_limit: number | null }) => Promise<void>;
+  onDelete: () => Promise<void>;
+  onAddExpense: (categoryId: string) => void;
+}) {
+  const [name, setName] = useState(category?.name ?? '');
+  const [limit, setLimit] = useState(category?.monthly_limit ? String(category.monthly_limit) : '');
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const save = async () => {
+    if (!name.trim()) return setProblem('Give the category a name.');
+    setBusy(true);
+    try {
+      await onSave({ name: name.trim(), monthly_limit: parseAmount(limit) || null });
+    } catch (e) {
+      setProblem(e instanceof Error ? e.message : 'Could not save the category.');
+      setBusy(false);
+    }
+  };
+  const remove = async () => {
+    if (!confirmDelete) return setConfirmDelete(true);
+    setBusy(true);
+    try {
+      await onDelete();
+    } catch (e) {
+      setProblem(e instanceof Error ? e.message : 'Could not delete the category.');
+      setBusy(false);
+    }
+  };
+
   return (
-    <Sheet open={!!category} onClose={onClose} title={category ? `${category.name}: monthly limit` : ''}>
-      <Field label={`Limit (${currency}), empty for none`} value={value} onChangeText={setValue} keyboardType="decimal-pad" placeholder="e.g. 600" autoFocus />
-      <Button label="Save" onPress={() => onSave(parseAmount(value) || null)} />
-      <Button label="Cancel" variant="secondary" onPress={onClose} />
+    <Sheet open onClose={onClose} title={category ? 'Edit category' : 'New category'}>
+      <Field label="Name" value={name} onChangeText={(v) => { setName(v); setProblem(null); }} placeholder="Car" autoFocus={!category} />
+      <Field label={`Monthly limit (${currency}), optional`} value={limit} onChangeText={setLimit} keyboardType="decimal-pad" placeholder="600" />
+      {problem ? (
+        <T size={13.5} color={colors.brickText}>
+          {problem}
+        </T>
+      ) : null}
+      <Button label="Save" onPress={save} busy={busy} />
+      {category ? <Button label={`+ Add an expense in ${category.name}`} variant="secondary" onPress={() => onAddExpense(category.id)} /> : null}
+      {category ? (
+        <>
+          <Button label={confirmDelete ? 'Tap again to delete' : 'Delete category'} variant="text" onPress={remove} />
+          {confirmDelete ? (
+            <T size={12.5} color={colors.muted} style={{ textAlign: 'center' }}>
+              Its entries stay in your history, without a category.
+            </T>
+          ) : null}
+        </>
+      ) : (
+        <Button label="Cancel" variant="text" onPress={onClose} />
+      )}
     </Sheet>
   );
 }
@@ -735,6 +861,7 @@ const styles = StyleSheet.create({
   bar: { height: 8, borderRadius: 4, backgroundColor: colors.tint, overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 4 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  currencyRow: { minHeight: 46, flexDirection: 'row', alignItems: 'center', gap: 8 },
   input: { height: 48, borderRadius: 14, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontSize: 15, color: colors.espresso },
   smallBtn: { height: 48, paddingHorizontal: 18, borderRadius: 14, backgroundColor: colors.walnut, alignItems: 'center', justifyContent: 'center' },
   private: { backgroundColor: colors.sageTint, borderRadius: 14, padding: 12 },

@@ -27,7 +27,9 @@ export function StarPattern({ size, color = colors.sand, strokeWidth = 0.6 }: { 
   );
 }
 
-export type IconName = 'today' | 'kitchen' | 'prayer' | 'halal' | 'family' | 'shield' | 'chevron' | 'cart' | 'back';
+export type IconName =
+  | 'today' | 'kitchen' | 'prayer' | 'halal' | 'family' | 'shield' | 'chevron' | 'cart' | 'back'
+  | 'qibla' | 'money' | 'recipes' | 'pantry';
 
 /** Line icons drawn to match the design. */
 export function Icon({ name, size = 24, color = colors.walnut, fill = 'none' }: { name: IconName; size?: number; color?: ColorValue; fill?: ColorValue }) {
@@ -67,6 +69,30 @@ export function Icon({ name, size = 24, color = colors.walnut, fill = 'none' }: 
           <Path d="M6 6h15l-1.5 9h-12zM6 6 5 3H2" {...common} />
           <Circle cx={9} cy={20} r={1.5} {...common} />
           <Circle cx={18} cy={20} r={1.5} {...common} />
+        </>
+      )}
+      {name === 'qibla' && (
+        <>
+          <Circle cx={12} cy={12} r={9} fill={fill} {...common} />
+          <Path d="M15.5 8.5l-2 5-5 2 2-5z" {...common} />
+        </>
+      )}
+      {name === 'money' && (
+        <>
+          <Circle cx={12} cy={12} r={9} fill={fill} {...common} />
+          <Path d="M14.6 9.2C14.1 8.5 13.1 8 12 8c-1.5 0-2.6.8-2.6 1.9 0 2.6 5.2 1.5 5.2 4.2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.2-.5-2.7-1.3M12 6.5V8M12 16v1.5" {...common} />
+        </>
+      )}
+      {name === 'recipes' && (
+        <>
+          <Path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z" fill={fill} {...common} />
+          <Path d="M12 6.5v13" {...common} />
+        </>
+      )}
+      {name === 'pantry' && (
+        <>
+          <Path d="M7 8h10v11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill={fill} {...common} />
+          <Path d="M8 4h8v4H8zM10 13h4" {...common} />
         </>
       )}
       {name === 'chevron' && <Path d="M9 6l6 6-6 6" {...common} strokeWidth={2} />}

@@ -1,22 +1,50 @@
+import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Logo, StarPattern } from '@/components/art';
+import { Icon, Logo, StarPattern } from '@/components/art';
 import { Card, T } from '@/components/ui';
 import { colors } from '@/theme';
 
-/** A tab screen: linen background, a large title and scrolling content. */
-export function TabScreen({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
+/** Back to the Home ring, from any feature. */
+export function HomeButton({ onDark = false }: { onDark?: boolean }) {
+  const color = onDark ? colors.goldText : colors.walnut;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Back to Home"
+      hitSlop={8}
+      onPress={() => router.dismissTo('/')}
+      style={[styles.home, onDark && styles.homeDark]}
+    >
+      <Icon name="back" size={18} color={color} />
+      <T size={14} weight="bold" color={color}>
+        Home
+      </T>
+    </Pressable>
+  );
+}
+
+/**
+ * A feature screen: linen background, a large title and scrolling content.
+ * Home itself passes `home` and shows no back button.
+ */
+export function TabScreen({ title, subtitle, home = false, children }: { title: string; subtitle?: string; home?: boolean; children: ReactNode }) {
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.brandBar} accessibilityLabel="Firdam">
-          <Logo size={26} />
-          <T weight="extrabold" size={16} color={colors.walnut}>
-            Firdam
-          </T>
-        </View>
+        {home ? null : (
+          <View style={styles.brandBar}>
+            <HomeButton />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} accessibilityLabel="Firdam">
+              <Logo size={22} />
+              <T weight="extrabold" size={15} color={colors.walnut}>
+                Firdam
+              </T>
+            </View>
+          </View>
+        )}
         {subtitle ? (
           <T size={14} weight="medium" color={colors.muted}>
             {subtitle}
@@ -52,7 +80,9 @@ export function ComingNext({ step, title, text }: { step: number; title: string;
 }
 
 const styles = StyleSheet.create({
-  brandBar: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  brandBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  home: { flexDirection: 'row', alignItems: 'center', gap: 2, height: 36, paddingLeft: 6, paddingRight: 12, borderRadius: 18, backgroundColor: colors.tint },
+  homeDark: { backgroundColor: '#4A372F' },
   screen: { flex: 1, backgroundColor: colors.linen },
   content: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 },
 });

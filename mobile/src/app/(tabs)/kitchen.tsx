@@ -6,19 +6,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PlanView } from '@/components/kitchen-plan';
 import { RecipesView } from '@/components/kitchen-recipes';
 import { ShoppingView } from '@/components/kitchen-shopping';
-import { Segmented } from '@/components/kitchen-ui';
 import { PantryView } from '@/components/kitchen-pantry';
-import { Button, T } from '@/components/ui';
+import { Badge } from '@/components/kitchen-ui';
+import { HomeButton } from '@/components/screen';
+import { UPCOMING_DEPARTMENTS } from '@/shared/shopping-departments';
+import { Button, Card, T } from '@/components/ui';
 import { useKitchen } from '@/lib/kitchen-store';
 import { colors } from '@/theme';
 
 type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
 
+const TITLES: Record<Section, string> = { plan: 'Meal plan', recipes: 'Recipes', shopping: 'Shopping', pantry: 'Pantry' };
+
 export default function Kitchen() {
   const k = useKitchen();
-  const [section, setSection] = useState<Section>('plan');
-  // Home and notifications can open a section directly: /kitchen?section=shopping
+  // Each kitchen feature on the Home ring opens its own screen: /kitchen?section=shopping
   const params = useLocalSearchParams<{ section?: string }>();
+  const [section, setSection] = useState<Section>(
+    params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section) ? (params.section as Section) : 'plan'
+  );
   useEffect(() => {
     if (params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section)) setSection(params.section as Section);
   }, [params.section]);
@@ -30,8 +36,6 @@ export default function Kitchen() {
     setRefreshing(false);
   };
 
-  const openCount = k.items.filter((i) => !i.checked).length;
-
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <ScrollView
@@ -39,19 +43,12 @@ export default function Kitchen() {
         keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.walnut} />}
       >
+        <View style={{ alignSelf: 'flex-start' }}>
+          <HomeButton />
+        </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          Kitchen
+          {TITLES[section]}
         </T>
-        <Segmented<Section>
-          value={section}
-          onChange={setSection}
-          options={[
-            { key: 'plan', label: 'Plan' },
-            { key: 'recipes', label: 'Recipes' },
-            { key: 'shopping', label: openCount ? `Shopping · ${openCount}` : 'Shopping' },
-            { key: 'pantry', label: 'Pantry' },
-          ]}
-        />
         {k.loading ? (
           <ActivityIndicator color={colors.walnut} style={{ marginTop: 32 }} />
         ) : k.error ? (
@@ -64,12 +61,50 @@ export default function Kitchen() {
         ) : section === 'recipes' ? (
           <RecipesView />
         ) : section === 'shopping' ? (
-          <ShoppingView />
+          <>
+            <View style={{ gap: 2 }}>
+              <T weight="extrabold" size={19}>
+                Groceries
+              </T>
+              <T size={13.5} color={colors.muted}>
+                Food and kitchen basics. Fills itself from your meal plan, minus what’s in your pantry.
+              </T>
+            </View>
+            <ShoppingView />
+            <MoreDepartments />
+          </>
         ) : (
           <PantryView />
         )}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+/** The departments arriving with partner stores. */
+function MoreDepartments() {
+  return (
+    <Card style={{ gap: 10 }}>
+      <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+        MORE SHOPPING SOON
+      </T>
+      {UPCOMING_DEPARTMENTS.map((d) => (
+        <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={{ flex: 1 }}>
+            <T size={14.5} weight="semibold">
+              {d.label}
+            </T>
+            <T size={12.5} color={colors.muted}>
+              {d.note}
+            </T>
+          </View>
+          <Badge label="Soon" tone="amber" />
+        </View>
+      ))}
+      <T size={12.5} color={colors.muted}>
+        With trusted Muslim-owned and partner stores.
+      </T>
+    </Card>
   );
 }
 

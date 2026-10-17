@@ -325,10 +325,10 @@ export default function Today() {
     <TabScreen home title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
       <FeatureRing />
       <PrayerCard />
+      <DuaCard />
       <UseSoonCard />
       <TonightCard />
       <UpcomingCard />
-      <DuaCard />
       <MoneyCard />
       <ComingSoonCard />
     </TabScreen>

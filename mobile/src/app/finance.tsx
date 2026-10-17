@@ -26,7 +26,7 @@ import {
 } from '@/lib/finance';
 import { useKitchen } from '@/lib/kitchen-store';
 import {
-  CURRENCIES,
+  searchCurrencies,
   EMPTY_ZAKAT,
   GOAL_KINDS,
   GOLD_NISAB_GRAMS,
@@ -122,20 +122,14 @@ export default function FinanceScreen() {
       ) : null}
 
       <Sheet open={currencyOpen} onClose={() => setCurrencyOpen(false)} title="Currency">
-        <View style={styles.wrap}>
-          {CURRENCIES.map((c) => (
-            <Chip
-              key={c}
-              label={c}
-              selected={c === currency}
-              onPress={() => {
-                setCurrencyState(c);
-                storeCurrency(c);
-                setCurrencyOpen(false);
-              }}
-            />
-          ))}
-        </View>
+        <CurrencyPicker
+          value={currency}
+          onPick={(c) => {
+            setCurrencyState(c);
+            storeCurrency(c);
+            setCurrencyOpen(false);
+          }}
+        />
       </Sheet>
     </SafeAreaView>
   );
@@ -560,6 +554,58 @@ function Zakat({ currency, onRecord }: { currency: string; onRecord: (amount: nu
 
 // ---------- Sheets ----------
 
+/** Every currency, searchable by code or name; common ones first. */
+function CurrencyPicker({ value, onPick }: { value: string; onPick: (code: string) => void }) {
+  const [query, setQuery] = useState('');
+  const list = useMemo(() => searchCurrencies(query), [query]);
+  return (
+    <View style={{ gap: 10 }}>
+      <TextInput
+        value={query}
+        onChangeText={setQuery}
+        placeholder="Search: dirham, MAD, pound…"
+        placeholderTextColor={colors.muted}
+        autoCorrect={false}
+        autoCapitalize="none"
+        style={styles.input}
+        accessibilityLabel="Search currencies"
+      />
+      {list.length === 0 ? (
+        <T size={14} color={colors.muted}>
+          No currency matches that.
+        </T>
+      ) : (
+        <View>
+          {list.map((c, i) => {
+            const selected = c.code === value;
+            return (
+              <Pressable
+                key={c.code}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                onPress={() => onPick(c.code)}
+                style={[styles.currencyRow, i < list.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.line }]}
+              >
+                <T weight="bold" size={15} color={selected ? colors.walnut : colors.espresso} style={{ width: 52 }}>
+                  {c.code}
+                </T>
+                <T size={14.5} color={selected ? colors.walnut : colors.muted} style={{ flex: 1 }} numberOfLines={1}>
+                  {c.name}
+                </T>
+                {selected ? (
+                  <T weight="bold" color={colors.walnut}>
+                    ✓
+                  </T>
+                ) : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
+}
+
 function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
@@ -735,6 +781,7 @@ const styles = StyleSheet.create({
   bar: { height: 8, borderRadius: 4, backgroundColor: colors.tint, overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 4 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  currencyRow: { minHeight: 46, flexDirection: 'row', alignItems: 'center', gap: 8 },
   input: { height: 48, borderRadius: 14, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontSize: 15, color: colors.espresso },
   smallBtn: { height: 48, paddingHorizontal: 18, borderRadius: 14, backgroundColor: colors.walnut, alignItems: 'center', justifyContent: 'center' },
   private: { backgroundColor: colors.sageTint, borderRadius: 14, padding: 12 },

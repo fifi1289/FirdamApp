@@ -95,7 +95,7 @@ function UseSoonCard() {
   if (k.loading || soon.length === 0) return null;
   const expired = soon.filter((x) => x.d < 0).length;
   return (
-    <Pressable accessibilityRole="button" onPress={() => router.push('/kitchen')} style={[styles.warn, expired ? styles.warnRed : null]}>
+    <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/kitchen', params: { section: 'pantry' } })} style={[styles.warn, expired ? styles.warnRed : null]}>
       <T size={12.5} weight="bold" color={expired ? colors.brickText : '#8A5A16'} style={{ letterSpacing: 0.4 }}>
         {expired ? `USE SOON · ${expired} EXPIRED` : 'USE SOON'}
       </T>
@@ -108,7 +108,7 @@ function UseSoonCard() {
         </View>
       ))}
       <T size={12.5} color={colors.muted}>
-        {soon.length > 4 ? `+ ${soon.length - 4} more · ` : ''}Tap to see recipes that use them in Kitchen.
+        {soon.length > 4 ? `+ ${soon.length - 4} more · ` : ''}Tap to see them in your pantry.
       </T>
     </Pressable>
   );

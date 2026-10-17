@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PlanView } from '@/components/kitchen-plan';
 import { RecipesView } from '@/components/kitchen-recipes';
 import { ShoppingView } from '@/components/kitchen-shopping';
-import { Segmented } from '@/components/kitchen-ui';
 import { PantryView } from '@/components/kitchen-pantry';
 import { HomeButton } from '@/components/screen';
 import { Button, T } from '@/components/ui';
@@ -15,9 +14,11 @@ import { colors } from '@/theme';
 
 type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
 
+const TITLES: Record<Section, string> = { plan: 'Meal plan', recipes: 'Recipes', shopping: 'Shopping', pantry: 'Pantry' };
+
 export default function Kitchen() {
   const k = useKitchen();
-  // Home and notifications can open a section directly: /kitchen?section=shopping
+  // Each kitchen feature on the Home ring opens its own screen: /kitchen?section=shopping
   const params = useLocalSearchParams<{ section?: string }>();
   const [section, setSection] = useState<Section>(
     params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section) ? (params.section as Section) : 'plan'
@@ -33,8 +34,6 @@ export default function Kitchen() {
     setRefreshing(false);
   };
 
-  const openCount = k.items.filter((i) => !i.checked).length;
-
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <ScrollView
@@ -46,18 +45,8 @@ export default function Kitchen() {
           <HomeButton />
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          Kitchen
+          {TITLES[section]}
         </T>
-        <Segmented<Section>
-          value={section}
-          onChange={setSection}
-          options={[
-            { key: 'plan', label: 'Plan' },
-            { key: 'recipes', label: 'Recipes' },
-            { key: 'shopping', label: openCount ? `Shopping · ${openCount}` : 'Shopping' },
-            { key: 'pantry', label: 'Pantry' },
-          ]}
-        />
         {k.loading ? (
           <ActivityIndicator color={colors.walnut} style={{ marginTop: 32 }} />
         ) : k.error ? (

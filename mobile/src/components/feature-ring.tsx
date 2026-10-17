@@ -15,12 +15,13 @@ const ICONS: Record<HomeFeatureId, IconName> = {
   meals: 'kitchen',
   recipes: 'recipes',
   shopping: 'cart',
+  pantry: 'pantry',
   finance: 'money',
   family: 'family',
 };
 
-const DOT = 56; // feature circle
-const LABEL_W = 80;
+const DOT = 54; // feature circle
+const LABEL_W = 76;
 /** One slow turn of the ring, in ms: a gentle drift, easy to tap. */
 const TURN_MS = 120_000;
 

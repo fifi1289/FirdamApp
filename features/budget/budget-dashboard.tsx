@@ -25,7 +25,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -40,7 +43,9 @@ import { cn } from '@/lib/utils';
 import type { BudgetCategory, BudgetTransaction } from '@/types/database';
 import {
   CATEGORY_ICON_MAP,
-  CURRENCIES,
+  COMMON_CURRENCIES,
+  CURRENCY_LIST,
+  currencyName,
   DEFAULT_CATEGORIES,
   formatMoney,
   monthBounds,
@@ -303,15 +308,27 @@ export function BudgetDashboard() {
         description="Spend with intention, save for what matters, and keep track of your giving."
       >
         <Select value={currency} onValueChange={setCurrency}>
-          <SelectTrigger className="h-9 w-[96px]" aria-label="Currency">
-            <SelectValue />
+          <SelectTrigger className="h-9 w-[96px]" aria-label={`Currency: ${currencyName(currency)}`}>
+            <SelectValue>{currency}</SelectValue>
           </SelectTrigger>
-          <SelectContent>
-            {CURRENCIES.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
+          <SelectContent className="max-h-80">
+            <SelectGroup>
+              <SelectLabel>Common</SelectLabel>
+              {COMMON_CURRENCIES.map((c) => (
+                <SelectItem key={`common-${c}`} value={c}>
+                  {c} · {currencyName(c)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+            <SelectSeparator />
+            <SelectGroup>
+              <SelectLabel>All currencies</SelectLabel>
+              {CURRENCY_LIST.filter((c) => !COMMON_CURRENCIES.includes(c.code)).map((c) => (
+                <SelectItem key={c.code} value={c.code}>
+                  {c.code} · {c.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
           </SelectContent>
         </Select>
         <Button size="sm" onClick={() => openNew()}>

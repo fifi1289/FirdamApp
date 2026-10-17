@@ -22,13 +22,26 @@ const ICONS: Record<HomeFeatureId, IconName> = {
   family: 'family',
 };
 
-const DOT = 48; // feature circle
-const LABEL_W = 68;
-/** One slow turn of the ring, in ms: a gentle drift, easy to tap. */
-const TURN_MS = 120_000;
+/*
+ * Layout at full size (366 px wide, scaled down on smaller phones):
+ * hub 76, bubbles 66, inner ring radius 76, outer ring radius 148. The rings
+ * are far enough apart that their bubbles never touch, so each ring can turn
+ * on its own.
+ */
+const BASE = 366;
+const HUB = 76;
+const BUBBLE = 66;
+const INNER_R = 76;
+const OUTER_R = 148;
+/** One slow turn, in ms; the rings turn in opposite directions. */
+const INNER_TURN = 90_000;
+const OUTER_TURN = 140_000;
 
-/** Turns 0 → 1 forever unless the phone asks for reduced motion. */
-function useSlowSpin() {
+const inner = HOME_FEATURES.filter((f) => f.ring === 'inner');
+const outer = HOME_FEATURES.filter((f) => f.ring === 'outer');
+
+/** 0 → 1 forever, unless the phone asks for reduced motion. */
+function useSpin(duration: number) {
   const spin = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     let anim: Animated.CompositeAnimation | null = null;
@@ -37,71 +50,44 @@ function useSlowSpin() {
       .catch(() => false)
       .then((reduce) => {
         if (reduce || cancelled) return;
-        anim = Animated.loop(Animated.timing(spin, { toValue: 1, duration: TURN_MS, easing: Easing.linear, useNativeDriver: true }));
+        anim = Animated.loop(Animated.timing(spin, { toValue: 1, duration, easing: Easing.linear, useNativeDriver: true }));
         anim.start();
       });
     return () => {
       cancelled = true;
       anim?.stop();
     };
-  }, [spin]);
+  }, [spin, duration]);
   return spin;
 }
 
 /**
- * Home: every feature around a slowly turning ring with the Firdam logo in the
- * middle. The labels stay upright while the ring turns.
+ * Home: every feature in two slowly turning rings around the Firdam logo —
+ * faith and family close in, everyday living around them.
  */
 export function FeatureRing() {
   const { width } = useWindowDimensions();
-  const size = Math.min(width - 40, 340);
-  const radius = size / 2 - DOT / 2 - 18;
+  const size = Math.min(width - 24, BASE);
+  const k = size / BASE;
   const center = size / 2;
-  const hub = Math.round(size * 0.36);
-
-  const spin = useSlowSpin();
-  const turn = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-  const upright = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-360deg'] });
 
   return (
-    <View style={{ width: size, height: size, alignSelf: 'center', marginBottom: 8 }} accessibilityLabel="Firdam features">
-      <Animated.View style={[StyleSheet.absoluteFill, { transform: [{ rotate: turn }] }]}>
-        <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Circle cx={center} cy={center} r={radius} stroke={colors.sand} strokeWidth={1.2} strokeDasharray="3 6" fill="none" />
-        </Svg>
-        {HOME_FEATURES.map((f, i) => {
-          const p = ringPoint(i, HOME_FEATURES.length);
-          return (
-            // The box is centred on the circle, so turning it back keeps the label below.
-            <Animated.View
-              key={f.id}
-              style={[
-                styles.item,
-                { left: center + p.x * radius - LABEL_W / 2, top: center + p.y * radius - DOT / 2, transform: [{ rotate: upright }] },
-              ]}
-            >
-              <Pressable accessibilityRole="button" accessibilityLabel={f.label} onPress={() => router.push(f.app as Href)} hitSlop={6}>
-                {({ pressed }) => (
-                  <View style={[styles.dot, pressed && styles.dotPressed]}>
-                    <Icon name={ICONS[f.id]} size={23} color={colors.walnut} />
-                  </View>
-                )}
-              </Pressable>
-              <T size={11} weight="semibold" style={styles.label} numberOfLines={2}>
-                {f.label}
-              </T>
-            </Animated.View>
-          );
-        })}
-      </Animated.View>
+    <View style={{ width: size, height: size, alignSelf: 'center' }} accessibilityLabel="Firdam features">
+      <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Circle cx={center} cy={center} r={OUTER_R * k} stroke={colors.sand} strokeWidth={1} strokeDasharray="2 7" fill="none" />
+        <Circle cx={center} cy={center} r={INNER_R * k} stroke={colors.gold} strokeWidth={1} strokeDasharray="2 6" fill="none" opacity={0.7} />
+      </Svg>
+
+      <Ring items={outer} radius={OUTER_R * k} bubble={BUBBLE * k} size={size} duration={OUTER_TURN} reverse tone="outer" />
+      <Ring items={inner} radius={INNER_R * k} bubble={BUBBLE * k} size={size} duration={INNER_TURN} tone="inner" />
 
       <View
-        style={[styles.hub, { width: hub, height: hub, borderRadius: hub / 2, left: center - hub / 2, top: center - hub / 2 }]}
+        style={[styles.hub, { width: HUB * k, height: HUB * k, borderRadius: (HUB * k) / 2, left: center - (HUB * k) / 2, top: center - (HUB * k) / 2 }]}
         accessibilityRole="image"
         accessibilityLabel="Firdam"
       >
-        <Logo size={Math.round(hub * 0.36)} />
-        <T weight="extrabold" size={Math.round(hub * 0.16)} color={colors.walnut} style={{ marginTop: 4, letterSpacing: -0.2 }}>
+        <Logo size={Math.round(26 * k)} />
+        <T weight="extrabold" size={Math.round(12.5 * k)} color={colors.walnut} style={{ marginTop: 2 }}>
           Firdam
         </T>
       </View>
@@ -109,26 +95,86 @@ export function FeatureRing() {
   );
 }
 
+function Ring({
+  items,
+  radius,
+  bubble,
+  size,
+  duration,
+  reverse = false,
+  tone,
+}: {
+  items: typeof HOME_FEATURES;
+  radius: number;
+  bubble: number;
+  size: number;
+  duration: number;
+  reverse?: boolean;
+  tone: 'inner' | 'outer';
+}) {
+  const spin = useSpin(duration);
+  const turn = spin.interpolate({ inputRange: [0, 1], outputRange: reverse ? ['0deg', '-360deg'] : ['0deg', '360deg'] });
+  const upright = spin.interpolate({ inputRange: [0, 1], outputRange: reverse ? ['0deg', '360deg'] : ['0deg', '-360deg'] });
+  const center = size / 2;
+  const scale = bubble / BUBBLE;
+
+  return (
+    <Animated.View style={[StyleSheet.absoluteFill, { transform: [{ rotate: turn }] }]} pointerEvents="box-none">
+      {items.map((f, i) => {
+        const p = ringPoint(i, items.length);
+        return (
+          <Animated.View
+            key={f.id}
+            style={{
+              position: 'absolute',
+              left: center + p.x * radius - bubble / 2,
+              top: center + p.y * radius - bubble / 2,
+              width: bubble,
+              height: bubble,
+              transform: [{ rotate: upright }],
+            }}
+          >
+            <Pressable accessibilityRole="button" accessibilityLabel={f.label} onPress={() => router.push(f.app as Href)}>
+              {({ pressed }) => (
+                <View
+                  style={[
+                    styles.bubble,
+                    { width: bubble, height: bubble, borderRadius: bubble / 2 },
+                    tone === 'inner' ? styles.inner : styles.outer,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Icon name={ICONS[f.id]} size={Math.round(21 * scale)} color={colors.walnut} />
+                  <T
+                    size={Math.max(8.5, Math.round(10 * scale * 10) / 10)}
+                    weight="bold"
+                    color={colors.espresso}
+                    numberOfLines={2}
+                    style={{ textAlign: 'center', lineHeight: Math.round(11 * scale), marginTop: 2, paddingHorizontal: 5 }}
+                  >
+                    {f.label}
+                  </T>
+                </View>
+              )}
+            </Pressable>
+          </Animated.View>
+        );
+      })}
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
   hub: {
     position: 'absolute',
     backgroundColor: colors.card,
-    borderWidth: 3,
+    borderWidth: 2.5,
     borderColor: colors.gold,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  item: { position: 'absolute', width: LABEL_W, height: DOT, alignItems: 'center' },
-  dot: {
-    width: DOT,
-    height: DOT,
-    borderRadius: DOT / 2,
-    backgroundColor: colors.tint,
-    borderWidth: 1,
-    borderColor: colors.line,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dotPressed: { backgroundColor: colors.sand, transform: [{ scale: 0.95 }] },
-  label: { position: 'absolute', top: DOT + 4, width: LABEL_W, textAlign: 'center', lineHeight: 13, color: colors.espresso },
+  bubble: { alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  inner: { backgroundColor: colors.tint, borderColor: '#E2D2C1' },
+  outer: { backgroundColor: colors.card, borderColor: colors.line },
+  pressed: { backgroundColor: colors.sand, transform: [{ scale: 0.95 }] },
 });

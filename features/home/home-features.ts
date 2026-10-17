@@ -6,18 +6,21 @@
  */
 export type HomeFeatureId = 'prayer' | 'qibla' | 'quran' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'calendar' | 'family';
 
-export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app: string }[] = [
-  { id: 'prayer', label: 'Prayer', web: '/dashboard/prayer-times', app: '/prayer' },
-  { id: 'qibla', label: 'Qibla', web: '/dashboard/prayer-times#qibla', app: '/qibla' },
-  { id: 'quran', label: 'Quran & Duas', web: '/dashboard/quran', app: '/quran' },
-  { id: 'halal', label: 'Halal places', web: '/dashboard/halal-places', app: '/halal' },
-  { id: 'meals', label: 'Meal plan', web: '/dashboard/meals', app: '/kitchen?section=plan' },
-  { id: 'recipes', label: 'Recipes', web: '/dashboard/recipes', app: '/kitchen?section=recipes' },
-  { id: 'shopping', label: 'Shopping', web: '/dashboard/shopping', app: '/kitchen?section=shopping' },
-  { id: 'pantry', label: 'Pantry', web: '/dashboard/pantry', app: '/kitchen?section=pantry' },
-  { id: 'finance', label: 'Finance & zakat', web: '/dashboard/finance', app: '/finance' },
-  { id: 'calendar', label: 'Calendar', web: '/dashboard/calendar', app: '/calendar' },
-  { id: 'family', label: 'Family', web: '/dashboard/family', app: '/family' },
+/**
+ * Two rings: faith and family close to the centre, everyday living around them.
+ */
+export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app: string; ring: 'inner' | 'outer' }[] = [
+  { id: 'prayer', label: 'Prayer', web: '/dashboard/prayer-times', app: '/prayer', ring: 'inner' },
+  { id: 'qibla', label: 'Qibla', web: '/dashboard/prayer-times#qibla', app: '/qibla', ring: 'inner' },
+  { id: 'quran', label: 'Quran & Duas', web: '/dashboard/quran', app: '/quran', ring: 'inner' },
+  { id: 'calendar', label: 'Calendar', web: '/dashboard/calendar', app: '/calendar', ring: 'inner' },
+  { id: 'family', label: 'Family', web: '/dashboard/family', app: '/family', ring: 'inner' },
+  { id: 'halal', label: 'Halal places', web: '/dashboard/halal-places', app: '/halal', ring: 'outer' },
+  { id: 'meals', label: 'Meal plan', web: '/dashboard/meals', app: '/kitchen?section=plan', ring: 'outer' },
+  { id: 'recipes', label: 'Recipes', web: '/dashboard/recipes', app: '/kitchen?section=recipes', ring: 'outer' },
+  { id: 'shopping', label: 'Shopping', web: '/dashboard/shopping', app: '/kitchen?section=shopping', ring: 'outer' },
+  { id: 'pantry', label: 'Pantry', web: '/dashboard/pantry', app: '/kitchen?section=pantry', ring: 'outer' },
+  { id: 'finance', label: 'Finance & zakat', web: '/dashboard/finance', app: '/finance', ring: 'outer' },
 ];
 
 /** Where item i of n sits on the ring, as a fraction of the radius (0 = top, clockwise). */

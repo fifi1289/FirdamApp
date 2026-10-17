@@ -1,8 +1,9 @@
 // GENERATED from features/home/home-features.ts by mobile/scripts/sync-shared.mjs — do not edit here.
 /**
- * The features shown in the ring on Home, in order clockwise from the top.
- * The website and the phone app both read this list (the app gets a copy via
- * mobile/scripts/sync-shared.mjs), so the two rings always match.
+ * The features shown in the ring on the phone app's Home, clockwise from the
+ * top (the app gets a copy via mobile/scripts/sync-shared.mjs). The website
+ * doesn't show the ring because its sidebar already lists every feature; the
+ * web paths are kept so both stay pointed at the same places.
  */
 export type HomeFeatureId = 'prayer' | 'qibla' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'finance' | 'family';
 

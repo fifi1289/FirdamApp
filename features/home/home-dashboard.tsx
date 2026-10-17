@@ -36,7 +36,6 @@ import {
 import { cn } from '@/lib/utils';
 import { usePlan } from '@/lib/plan/plan';
 import { TodayCookingCard } from '@/features/home/today-cooking-card';
-import { FeatureRing } from '@/features/home/feature-ring';
 import { VISIBLE_MODULE_GROUPS, lifeModules } from '@/features/modules/module-config';
 import { ModuleCard } from '@/features/modules/module-card';
 import { DuaCard } from '@/features/quran/duas-view';
@@ -268,9 +267,6 @@ export function HomeDashboard() {
           </Card>
         </Link>
       </div>
-
-      {/* Every feature, one tap away (same ring as the phone app) */}
-      <FeatureRing className="mt-8" />
 
       {/* Today at a glance */}
       <h2 className="mb-3 mt-8 text-lg font-semibold tracking-tight text-foreground">Today at a glance</h2>

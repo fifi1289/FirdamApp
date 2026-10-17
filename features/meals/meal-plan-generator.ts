@@ -12,22 +12,32 @@ import {
 
 export * from '@/features/meals/plan-core';
 
+let libraryCache: Promise<RecipeRow[]> | null = null;
+
+/** The whole recipe library, loaded once per visit (it's ~1,400 recipes). */
+export function loadLibraryRecipes(force = false): Promise<RecipeRow[]> {
+  if (!libraryCache || force) {
+    const supabase = createSupabaseBrowserClient();
+    libraryCache = fetchAllPages<RecipeRow>((from, to) =>
+      supabase
+        .from('recipes')
+        .select(RECIPE_SELECT)
+        .eq('is_active', true)
+        .order('created_at', { ascending: true })
+        .order('id')
+        .range(from, to)
+    ).catch((e: Error) => {
+      libraryCache = null;
+      throw new Error(`Failed to load recipes: ${e.message}`);
+    });
+  }
+  return libraryCache;
+}
+
 export async function generateMealPlanFromSupabase(
   input: MealPlanGeneratorInput
 ): Promise<GeneratedMealPlan> {
-  const supabase = createSupabaseBrowserClient();
-  const data = await fetchAllPages<RecipeRow>((from, to) =>
-    supabase
-      .from('recipes')
-      .select(RECIPE_SELECT)
-      .eq('is_active', true)
-      .order('created_at', { ascending: true })
-      .order('id')
-      .range(from, to)
-  ).catch((e: Error) => {
-    throw new Error(`Failed to load recipes: ${e.message}`);
-  });
-  return buildPlanFromRecipes(data, input);
+  return buildPlanFromRecipes(await loadLibraryRecipes(), input);
 }
 
 /**

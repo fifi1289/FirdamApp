@@ -10,6 +10,8 @@ import type {
   MockMeal,
 } from '@/features/meals/meal-plan-generator';
 import type { MealPreferencesState } from '@/features/meals/meals-config';
+import { newPlanId, normalizeMeal } from '@/features/meals/plan-core';
+import { conflictsWithAllergies } from '@/lib/recipes/allergens';
 
 const FUNCTION_SLUG = 'generate-meal-plan';
 const VALID_DIFFICULTIES: MealDifficulty[] = ['Easy', 'Medium', 'Hard'];
@@ -204,4 +206,43 @@ export async function requestGeneratedMealPlan(
   }
 
   return mapEdgeResponse(planData, input);
+}
+
+/**
+ * One new meal from the AI chef for a plan slot (counts as an AI swap, not a
+ * plan). The server saves the dish in the recipe library and returns its id,
+ * the same as the phone app.
+ */
+export async function requestAISwapMeal(input: {
+  preferences: MealPreferencesState;
+  householdSize: number;
+  type: string;
+  avoid: string[];
+}): Promise<MockMeal> {
+  const accessToken = await getSessionToken();
+  const res = await fetch(buildFunctionUrl(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    },
+    body: JSON.stringify({
+      householdSize: input.householdSize,
+      dietaryPreferences: input.preferences.dietaryPreferences,
+      allergies: input.preferences.allergies,
+      cuisinePreferences: input.preferences.cuisinePreferences,
+      swap: { type: input.type, avoid: input.avoid.slice(0, 40) },
+    }),
+  });
+  const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string } | null;
+  if (!res.ok || !json?.meal) {
+    throw new GenerateMealPlanError(json?.error ?? `The AI chef could not swap this meal (${res.status}).`, res.status);
+  }
+  const meal = normalizeMeal({ ...json.meal, id: (json.meal.id as string | undefined) ?? newPlanId(), type: input.type });
+  const allergies = input.preferences.allergies ?? [];
+  if (allergies.length && conflictsWithAllergies(meal.ingredients.map((i) => i.name), allergies)) {
+    throw new GenerateMealPlanError('The AI chef suggested something with a family allergy. Please try again.', 422);
+  }
+  return meal;
 }

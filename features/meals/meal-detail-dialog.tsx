@@ -31,6 +31,7 @@ import {
   type IngredientCheck,
   type IngredientStatus,
 } from '@/features/meals/pantry-check';
+import { IngredientActions } from '@/features/meals/ingredient-actions';
 import type { PantryItem } from '@/types/database';
 
 interface MealDetailDialogProps {
@@ -339,6 +340,7 @@ function PantryStatusRow({ check }: { check: IngredientCheck }) {
           </div>
         )}
       </div>
+      <IngredientActions check={check} className="mt-2 justify-end" />
     </div>
   );
 }

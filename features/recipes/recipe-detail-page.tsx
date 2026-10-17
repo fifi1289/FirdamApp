@@ -47,6 +47,7 @@ import {
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { MealImage } from '@/features/meals/meal-image';
+import { IngredientActions } from '@/features/meals/ingredient-actions';
 import { checkMealIngredients } from '@/features/meals/pantry-check';
 import { formatDateISO } from '@/features/meals/meal-plan-generator';
 import type { PantryItem } from '@/types/database';
@@ -210,12 +211,15 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
     setLoading(false);
   };
 
-  useEffect(() => {
-    load();
+  const loadPantry = () =>
     supabase
       .from('pantry_items')
       .select('*')
       .then(({ data }) => setPantry(data ?? []));
+
+  useEffect(() => {
+    load();
+    loadPantry();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipeKey]);
 
@@ -443,8 +447,13 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
                         {ing.optional && <span className="text-muted-foreground"> (optional)</span>}
                       </span>
                     </span>
-                    <span className="shrink-0 text-right tabular-nums text-muted-foreground">
-                      {formatScaled(ing.quantity, factor)} {ing.unit}
+                    <span className="flex shrink-0 flex-col items-end gap-1">
+                      <span className="text-right tabular-nums text-muted-foreground">
+                        {formatScaled(ing.quantity, factor)} {ing.unit}
+                      </span>
+                      {checks[i] && !ing.optional && (
+                        <IngredientActions check={checks[i]!} onPantryChange={loadPantry} />
+                      )}
                     </span>
                   </li>
                 );

@@ -24,13 +24,15 @@ const FILES = {
   'supabase/functions/_shared/pantry-portions.ts': 'pantry-portions.ts',
   'supabase/functions/_shared/halal.ts': 'halal.ts',
   'supabase/functions/_shared/kitchen-items.ts': 'kitchen-items.ts',
+  'features/meals/have-it.ts': 'have-it.ts',
 };
 
 const REWRITES = [
   [/'@\/lib\/recipes\/allergens'/g, "'./allergens'"],
   [/'@\/features\/meals\/meals-config'/g, "'./meals-config'"],
   [/'@\/features\/meals\/meal-images'/g, "'./meal-images'"],
-  [/'@\/supabase\/functions\/_shared\/(pantry-[a-z]+)'/g, "'./$1'"],
+  [/'@\/supabase\/functions\/_shared\/(pantry-[a-z]+|kitchen-items)'/g, "'./$1'"],
+  [/'@\/features\/groceries\/grocery-utils'/g, "'./grocery-utils'"],
   [/'@\/types\/database'/g, "'../lib/db-types'"],
   [/(from\s+["']\.\/[a-z-]+)\.ts(["'])/g, '$1$2'],
 ];

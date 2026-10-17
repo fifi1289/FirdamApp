@@ -22,6 +22,8 @@ export interface IngredientCheck {
   status: IngredientStatus;
   /** Plain-language note, e.g. "need 4 pieces · have 1 piece" or "running low". */
   note: string;
+  /** The engine's line (used by "I have it" and "+ to buy"). */
+  line: Line;
 }
 
 function toNeed(i: MealIngredient): Need {
@@ -48,6 +50,7 @@ function toCheck(ingredient: MealIngredient, line: Line): IngredientCheck {
     remainingQuantity: short != null ? -short : line.item ? Number(line.item.quantity) - (line.use ?? 0) : 0,
     remainingUnit: short != null ? line.shortfall!.unit : line.item?.unit ?? ingredient.unit,
     status: statusOf(line),
+    line,
     note:
       line.status === 'basic'
         ? 'kitchen basic'

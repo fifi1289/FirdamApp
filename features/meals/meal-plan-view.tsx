@@ -11,6 +11,8 @@ import {
   Pencil,
   RefreshCw,
   Replace,
+  BookOpen,
+  Sparkles,
   Save,
   Utensils,
   Users,
@@ -37,6 +39,13 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { GenerateMealPlanError, requestAISwapMeal } from '@/features/meals/generate-meal-plan-service';
 import { toast } from 'sonner';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getMealTypeLabel } from '@/features/meals/meals-config';
@@ -51,7 +60,8 @@ import {
   type MealPantrySummary,
 } from '@/features/meals/pantry-check';
 import {
-  generateMealPlanFromSupabase,
+  loadLibraryRecipes,
+  swapPlanMeal,
   formatWeekRange,
 } from '@/features/meals/meal-plan-generator';
 import { PlanPantrySummary } from '@/features/meals/plan-pantry-summary';
@@ -204,62 +214,43 @@ export function MealPlanView({
     }
   };
 
-  const handleReplaceMeal = async (
-    meal: MockMeal,
-    dayIndex: number,
-    mealIndex: number
-  ) => {
+  /** Replace one meal: from the recipe library, or a new dish from the AI chef (same as the phone app). */
+  const handleReplaceMeal = async (meal: MockMeal, date: string, source: 'library' | 'ai') => {
     setReplaceMealId(meal.id);
-
     try {
-      const candidate = await generateMealPlanFromSupabase({
-        preferences,
-        householdSize: meal.servings,
-        weekStartDate: currentPlan.weekStartDate,
-      });
-
-      const existingNames = new Set(
-        currentPlan.days.flatMap((d) => d.meals.map((m) => m.name))
-      );
-      const sameTypeMeals = candidate.days
-        .flatMap((d) => d.meals)
-        .filter(
-          (m) => m.type === meal.type && !existingNames.has(m.name)
-        );
-      const replacement = sameTypeMeals.length > 0 ? sameTypeMeals[0] : null;
-
-      if (!replacement) {
-        setReplaceMealId(null);
-        toast.error('No alternative meal found for this slot.');
-        return;
+      let next: GeneratedMealPlan | null = null;
+      let note: string | null = null;
+      if (source === 'library') {
+        const res = swapPlanMeal(currentPlan, date, meal.type, await loadLibraryRecipes(), preferences, meal.servings);
+        if (!res) {
+          toast.message(`No other ${getMealTypeLabel(meal.type).toLowerCase()} in the library fits your family`, {
+            description: 'The AI chef can create a new one, and it joins the recipe library.',
+            action: { label: 'Create with the AI chef', onClick: () => handleReplaceMeal(meal, date, 'ai') },
+          });
+          return;
+        }
+        next = res.plan;
+        note = res.note;
+      } else {
+        const avoid = currentPlan.days.flatMap((d) => d.meals.map((m) => m.name));
+        const fresh = await requestAISwapMeal({ preferences, householdSize: meal.servings, type: meal.type, avoid });
+        next = {
+          ...currentPlan,
+          days: currentPlan.days.map((d) =>
+            d.date !== date ? d : { ...d, meals: d.meals.map((m) => (m.id === meal.id && m.type === meal.type ? fresh : m)) }
+          ),
+        };
+        // The new dish joined the library: reload it next time.
+        loadLibraryRecipes(true).catch(() => {});
       }
-
-      const newMeal: MockMeal = {
-        ...replacement,
-        id: meal.id,
-        type: meal.type,
-        servings: meal.servings,
-      };
-
-      const newPlan: GeneratedMealPlan = {
-        ...currentPlan,
-        days: currentPlan.days.map((day) =>
-          day.dayIndex === dayIndex
-            ? {
-                ...day,
-                meals: day.meals.map((m, idx) =>
-                  idx === mealIndex ? newMeal : m
-                ),
-              }
-            : day
-        ),
-      };
-
-      setCurrentPlan(newPlan);
-      await silentSave(newPlan);
-      toast.success('Meal replaced.');
-    } catch {
-      toast.error('Could not replace this meal. Please try again.');
+      setCurrentPlan(next);
+      await silentSave(next);
+      toast.success('Meal replaced', note ? { description: note } : undefined);
+    } catch (err) {
+      const limit = err instanceof GenerateMealPlanError && (err.status === 402 || err.status === 429);
+      toast.error(limit ? err.message : 'Could not replace this meal. Please try again.', {
+        description: limit ? 'Replacing from the recipe library is unlimited.' : undefined,
+      });
     } finally {
       setReplaceMealId(null);
     }
@@ -538,23 +529,32 @@ export function MealPlanView({
                         <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" />
                         Swap
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                        disabled={replaceMealId === meal.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleReplaceMeal(meal, day.dayIndex, mealIndex);
-                        }}
-                      >
-                        {replaceMealId === meal.id ? (
-                          <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Replace className="mr-1.5 h-3.5 w-3.5" />
-                        )}
-                        Replace
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+                            disabled={replaceMealId === meal.id}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {replaceMealId === meal.id ? (
+                              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Replace className="mr-1.5 h-3.5 w-3.5" />
+                            )}
+                            Replace
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenuItem onSelect={() => handleReplaceMeal(meal, day.date, 'library')}>
+                            <BookOpen className="mr-2 h-4 w-4" /> From the recipe library
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => handleReplaceMeal(meal, day.date, 'ai')}>
+                            <Sparkles className="mr-2 h-4 w-4" /> New dish from the AI chef
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </CardContent>
                 </Card>

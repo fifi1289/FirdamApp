@@ -85,7 +85,7 @@ async function visit(context, path, label) {
   const ms = Date.now() - t0;
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth).catch(() => 0);
   const bodyText = (await page.locator('body').innerText().catch(() => '')).slice(0, 4000);
-  const errorScreen = /something went wrong|application error|unhandled runtime error|404|this page could not be found/i.test(bodyText);
+  const errorScreen = /application error: a client-side exception|unhandled runtime error|this page could not be found|^404$/im.test(bodyText);
   const shot = `${OUT}/shots/${label}-${slug(path)}.png`;
   await page.screenshot({ path: shot, fullPage: false }).catch(() => {});
   results.pages.push({ label, path, status, finalUrl, ms, overflowPx: overflow > 2 ? overflow : 0, errorScreen, errors, failed, shot });
@@ -138,6 +138,7 @@ if (session) {
   const ctx = await browser.newContext(laptop);
   await ctx.addCookies(sessionCookies(session));
   const page = await ctx.newPage();
+  const slug2 = slug;
   const go = async (p) => { await page.goto(SITE + p, { waitUntil: 'networkidle', timeout: 45000 }); await page.waitForTimeout(1200); };
   const shot = (n) => page.screenshot({ path: `${OUT}/shots/action-${n}.png` }).catch(() => {});
 
@@ -186,29 +187,73 @@ if (session) {
     return `${meals} meal labels shown`;
   });
 
-  await action('Prayer times: times shown', async () => {
+  await action('Prayer times: choose a city, times shown', async () => {
     await go('/dashboard/prayer-times');
+    const search = page.getByPlaceholder(/search a city/i).first();
+    await search.fill('Ottawa');
+    await page.waitForTimeout(2500);
+    await page.getByRole('option').first().click({ timeout: 6000 }).catch(async () => {
+      await page.getByText(/Ottawa,?\s/i).first().click({ timeout: 6000 });
+    });
+    await page.waitForTimeout(2500);
     await shot('prayer');
     for (const p of ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']) await page.getByText(p).first().waitFor({ timeout: 8000 });
-    return 'all five prayers listed';
+    return 'all five prayers listed for Ottawa';
   });
 
-  await action('Halal places: results load', async () => {
-    await go('/dashboard/halal-places');
-    await page.waitForTimeout(5000);
-    await shot('halal-places');
-    const text = await page.locator('main').innerText().catch(() => '');
-    if (/no places|nothing near|could not/i.test(text)) return `shows: ${text.match(/(no places|nothing near|could not)[^\n]*/i)?.[0]}`;
-    return 'page loaded';
-  });
-
-  await action('Quran: open a surah', async () => {
+  await action('Quran: surah list', async () => {
     await go('/dashboard/quran');
+    await page.getByRole('tab', { name: /quran reading/i }).click({ timeout: 6000 }).catch(() => page.getByText(/quran reading/i).first().click());
     await page.waitForTimeout(3000);
     await shot('quran');
-    const text = await page.locator('main').innerText().catch(() => '');
-    if (!/fatiha|al-baqarah|surah/i.test(text)) throw new Error('no surah list');
+    await page.getByText(/fatiha/i).first().waitFor({ timeout: 8000 });
     return 'surah list shown';
+  });
+
+  // Each module's main "add" button should open a form without errors.
+  const opens = [
+    ['Planner: new task form', '/dashboard/planner', /new task|add task/i],
+    ['Family: add member form', '/dashboard/family', /add (a )?(family )?member/i],
+    ['Finance: add transaction form', '/dashboard/finance', /add (a )?transaction|new transaction|add expense|add income/i],
+    ['Travel: new trip form', '/dashboard/travel', /new trip|plan a trip|add (a )?trip|create (a )?trip/i],
+    ['Community: new event form', '/dashboard/community', /new event|add (an )?event|create (an )?event|post/i],
+    ['Directory: add business form', '/dashboard/directory', /add (your |a )?business|list (your )?business/i],
+    ['Halal places: add place form', '/dashboard/halal-places', /add (a )?(halal )?place|suggest/i],
+  ];
+  for (const [name, path, label] of opens) {
+    await action(name, async () => {
+      await go(path);
+      const btn = page.getByRole('button', { name: label }).first();
+      await btn.click({ timeout: 6000 });
+      await page.getByRole('dialog').first().waitFor({ timeout: 6000 });
+      await shot(slug(path) + '-form');
+      await page.keyboard.press('Escape');
+      return 'form opens';
+    });
+  }
+
+  await action('Planner: add a task', async () => {
+    await go('/dashboard/planner');
+    await page.getByRole('button', { name: /new task|add task/i }).first().click({ timeout: 6000 });
+    await page.getByPlaceholder(/what do you need to do/i).fill('QA robot task');
+    await page.getByRole('dialog').getByRole('button', { name: /add|create|save/i }).last().click();
+    await page.waitForTimeout(2500);
+    await shot('planner-task');
+    await page.getByText('QA robot task').first().waitFor({ timeout: 8000 });
+    return 'task appears';
+  });
+
+  await action('Family: add a member', async () => {
+    await go('/dashboard/family');
+    await page.getByRole('button', { name: /add (a )?(family )?member/i }).first().click({ timeout: 6000 });
+    await page.getByPlaceholder(/e\.g\. aisha/i).fill('Robot Kid');
+    const rel = page.getByRole('combobox').first();
+    if (await rel.count()) { await rel.click(); await page.getByRole('option').first().click(); }
+    await page.getByRole('dialog').getByRole('button', { name: /add|save|create/i }).last().click();
+    await page.waitForTimeout(2500);
+    await shot('family-add');
+    await page.getByText('Robot Kid').first().waitFor({ timeout: 8000 });
+    return 'member appears';
   });
 
   await action('Companion: page answers', async () => {

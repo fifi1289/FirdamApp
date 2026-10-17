@@ -28,6 +28,10 @@ const FILES = {
   'features/budget/finance-core.ts': 'finance-core.ts',
   'features/home/home-features.ts': 'home-features.ts',
   'features/groceries/shopping-departments.ts': 'shopping-departments.ts',
+  'features/calendar/calendar-core.ts': 'calendar-core.ts',
+  'features/quran/duas.ts': 'duas.ts',
+  'features/quran/surahs.ts': 'surahs.ts',
+  'features/quran/quran-core.ts': 'quran-core.ts',
 };
 
 const REWRITES = [
@@ -36,6 +40,7 @@ const REWRITES = [
   [/'@\/features\/meals\/meal-images'/g, "'./meal-images'"],
   [/'@\/supabase\/functions\/_shared\/(pantry-[a-z]+|kitchen-items)'/g, "'./$1'"],
   [/'@\/features\/groceries\/grocery-utils'/g, "'./grocery-utils'"],
+  [/'@\/features\/quran\/surahs'/g, "'./surahs'"],
   [/'@\/types\/database'/g, "'../lib/db-types'"],
   [/(from\s+["']\.\/[a-z-]+)\.ts(["'])/g, '$1$2'],
 ];

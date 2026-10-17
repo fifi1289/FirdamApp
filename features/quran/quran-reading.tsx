@@ -29,32 +29,12 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import type { QuranReadingSession } from '@/types/database';
 import { QURAN_PAGES, SURAHS } from '@/features/quran/surahs';
+import { GOAL_OPTIONS, isoDate, loggedMessage, matchSurah, parsePages, readingStats } from '@/features/quran/quran-core';
 
 const GOAL_KEY = 'firdam.quran.dailyGoal';
 
-const GOAL_OPTIONS = [
-  { pages: 1, label: '1 page a day', hint: 'Khatm in about 20 months' },
-  { pages: 2, label: '2 pages a day', hint: 'Khatm in about 10 months' },
-  { pages: 4, label: '4 pages a day', hint: 'Khatm in about 5 months' },
-  { pages: 10, label: 'Half a juz a day', hint: 'Khatm in 2 months' },
-  { pages: 20, label: 'One juz a day', hint: 'Khatm in a month' },
-];
-
-export function isoDate(d: Date = new Date()): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-export function readingStreak(sessions: { read_on: string }[]): number {
-  const days = new Set(sessions.map((s) => s.read_on));
-  const cursor = new Date();
-  if (!days.has(isoDate(cursor))) cursor.setDate(cursor.getDate() - 1);
-  let streak = 0;
-  while (days.has(isoDate(cursor))) {
-    streak++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return streak;
-}
+// Shared with the phone app.
+export { isoDate, readingStreak } from '@/features/quran/quran-core';
 
 function Stat({
   icon: Icon,
@@ -116,33 +96,12 @@ export function QuranReading() {
     load();
   }, [load]);
 
-  const stats = useMemo(() => {
-    const today = isoDate();
-    const monthPrefix = today.slice(0, 7);
-    let total = 0;
-    let todayPages = 0;
-    let monthPages = 0;
-    for (const s of sessions) {
-      total += s.pages;
-      if (s.read_on === today) todayPages += s.pages;
-      if (s.read_on.startsWith(monthPrefix)) monthPages += s.pages;
-    }
-    const khatms = Math.floor(total / QURAN_PAGES);
-    const intoKhatm = total % QURAN_PAGES;
-    return {
-      total,
-      todayPages,
-      monthPages,
-      khatms,
-      intoKhatm,
-      streak: readingStreak(sessions),
-    };
-  }, [sessions]);
+  const stats = useMemo(() => readingStats(sessions), [sessions]);
 
   const logReading = async (e: React.FormEvent) => {
     e.preventDefault();
-    const n = Math.round(Number(pages));
-    if (!Number.isFinite(n) || n < 1 || n > QURAN_PAGES) {
+    const n = parsePages(pages);
+    if (n == null) {
       toast.error('Enter how many pages you read (1–604).');
       return;
     }
@@ -157,17 +116,10 @@ export function QuranReading() {
       toast.error('Could not save', { description: error.message });
       return;
     }
-    const before = stats.intoKhatm;
     setSessions((prev) => [data, ...prev]);
     setPages('');
     setNote('');
-    if (before + n >= QURAN_PAGES) {
-      toast.success('MashaAllah — you completed a khatm of the Quran!');
-    } else if (stats.todayPages < goal && stats.todayPages + n >= goal) {
-      toast.success("Today's goal reached. May Allah reward you.");
-    } else {
-      toast.success('Reading logged');
-    }
+    toast.success(loggedMessage(stats, n, goal));
   };
 
   const remove = async (s: QuranReadingSession) => {
@@ -190,10 +142,7 @@ export function QuranReading() {
   };
 
   const todayPct = Math.min(100, Math.round((stats.todayPages / goal) * 100));
-  const surahs = SURAHS.filter((s) => {
-    const q = surahQuery.trim().toLowerCase();
-    return !q || s.name.toLowerCase().includes(q) || String(s.number) === q;
-  });
+  const surahs = SURAHS.filter((s) => matchSurah(s, surahQuery));
 
   return (
     <div className="space-y-5">

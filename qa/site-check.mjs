@@ -170,6 +170,20 @@ if (session) {
     return 'item appears in the pantry';
   });
 
+  await action('Recipes: photo weight on the list page', async () => {
+    let bytes = 0, count = 0;
+    const onResp = async (r) => {
+      if (r.request().resourceType() !== 'image') return;
+      const len = Number(r.headers()['content-length'] ?? 0) || (await r.body().catch(() => Buffer.alloc(0))).length;
+      bytes += len; count += 1;
+    };
+    page.on('response', onResp);
+    await page.goto(SITE + '/dashboard/recipes', { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
+    page.off('response', onResp);
+    const probe = await fetch(`${SUPABASE_URL}/storage/v1/render/image/public/recipe-images/does-not-exist.webp?width=400`);
+    return `${count} images, ${(bytes / 1048576).toFixed(1)} MB; image resizing endpoint answers ${probe.status}`;
+  });
+
   await action('Recipes: open a recipe', async () => {
     await go('/dashboard/recipes');
     const card = page.locator('a[href*="/dashboard/recipes/"]').first();
@@ -191,12 +205,15 @@ if (session) {
     const ai = page.getByRole('switch').filter({ hasText: /ai/i }).first();
     const aiAny = (await ai.count()) ? ai : page.getByRole('switch', { name: /ai|chef/i }).first();
     if ((await aiAny.count()) && (await aiAny.getAttribute('aria-checked')) === 'true') await aiAny.click();
+    const t0 = Date.now();
     await page.getByRole('button', { name: /generate|create (my )?plan|plan my week/i }).last().click({ timeout: 8000 });
-    await page.waitForTimeout(8000);
+    await page.getByText(/generating your meal plan/i).first().waitFor({ state: 'detached', timeout: 90000 }).catch(() => {});
+    const secs = ((Date.now() - t0) / 1000).toFixed(1);
+    await page.waitForTimeout(2000);
     await shot('meal-plan');
     const meals = await page.getByText(/breakfast|lunch|dinner/i).count();
-    if (meals < 3) throw new Error(`only ${meals} meal labels after planning`);
-    return `${meals} meal labels shown`;
+    if (meals < 3) throw new Error(`only ${meals} meal labels after ${secs}s`);
+    return `${meals} meal labels shown after ${secs}s`;
   });
 
   await action('Prayer times: choose a city, times shown', async () => {

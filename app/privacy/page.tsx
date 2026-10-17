@@ -267,6 +267,7 @@ const sections: LegalSection[] = [
     id: 'cookies',
     title: 'Cookies and storage on your device',
     body: (
+      <>
       <p>
         We use only the cookies needed to keep you signed in. The app also saves a few settings on your device — your
         location, prayer-time settings, reminders and Companion chat history — so they’re there next time.
@@ -278,6 +279,7 @@ const sections: LegalSection[] = [
         <a href="https://tools.google.com/dlpage/gaoptout">Google Analytics opt-out browser add-on</a>. We don’t use
         advertising cookies.
       </p>
+      </>
     ),
   },
   {

@@ -47,6 +47,9 @@ export function MealImage({ src, alt, category, className }: MealImageProps) {
       alt={alt}
       className={className}
       onError={handleError}
+      // Recipe lists show dozens of photos: only fetch the ones near the screen.
+      loading="lazy"
+      decoding="async"
     />
   );
 }

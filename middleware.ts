@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { FREE_LAUNCH } from '@/lib/plan/launch';
 
 const PUBLIC_PATHS = ['/privacy', '/terms', '/security', '/support', '/auth', '/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email'];
 
@@ -11,6 +12,15 @@ function isPublicPath(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  // Nothing is sold yet: send the plans page straight home (the page's own
+  // redirect took ~30 s on Cloudflare).
+  if (FREE_LAUNCH && request.nextUrl.pathname.startsWith('/dashboard/upgrade')) {
+    const home = request.nextUrl.clone();
+    home.pathname = '/dashboard';
+    home.search = '';
+    return NextResponse.redirect(home);
+  }
+
   const response = NextResponse.next({ request });
 
   const supabase = createServerClient(

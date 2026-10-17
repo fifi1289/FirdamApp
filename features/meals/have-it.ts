@@ -18,11 +18,11 @@ export type HaveItChange =
       kind: 'insert';
       row: {
         name: string;
-        category: string;
+        category: ReturnType<typeof guessCategory>;
         tracking: 'level' | 'count';
         level: 'full' | null;
         quantity: number;
-        unit: string;
+        unit: ReturnType<typeof toPantryUnit>;
         expiration_date: string | null;
       };
     };
@@ -53,7 +53,7 @@ export function haveItChange(line: Line, now = new Date()): HaveItChange {
       tracking: level ? 'level' : 'count',
       level: level ? 'full' : null,
       quantity: level ? 1 : (line.scaled as number),
-      unit: level ? 'Pack' : (unit as string),
+      unit: level ? 'Pack' : (mapped as ReturnType<typeof toPantryUnit>),
       expiration_date: suggestedExpiry(category, now),
     },
   };

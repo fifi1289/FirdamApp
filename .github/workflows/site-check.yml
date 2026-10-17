@@ -1,0 +1,42 @@
+# Opens firdam.com in a real browser (laptop and phone sizes), signs in with a
+# throwaway account, visits every page, tries the main actions, deletes the
+# account, and saves a report + screenshots in qa/out on the branch.
+# Run it from Actions → "Site check" → Run workflow, or push to a qa/* branch.
+name: Site check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['qa/**']
+    paths: ['qa/site-check.mjs', '.github/workflows/site-check.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install a browser
+        working-directory: qa
+        run: |
+          npm init -y > /dev/null
+          npm i --no-audit --no-fund playwright@1.49.1 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+      - name: Check the site
+        env:
+          # Public anon key (safe to share; the website uses it too).
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzeHdzbG1zamR0ZnpuZW91amVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNDI2NTgsImV4cCI6MjA5OTcxODY1OH0.PwBjPd9BcHll38hjGaCMR6JVdwPulpApFsPokx0IpCQ
+        run: node qa/site-check.mjs | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save the report on the branch
+        if: always() && github.ref != 'refs/heads/main'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add -f qa/out
+          git commit -m "Site check report [skip ci]" && git push || true

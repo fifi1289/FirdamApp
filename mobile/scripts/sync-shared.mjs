@@ -26,6 +26,7 @@ const FILES = {
   'supabase/functions/_shared/kitchen-items.ts': 'kitchen-items.ts',
   'features/meals/have-it.ts': 'have-it.ts',
   'features/budget/finance-core.ts': 'finance-core.ts',
+  'features/home/home-features.ts': 'home-features.ts',
 };
 
 const REWRITES = [

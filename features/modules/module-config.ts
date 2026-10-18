@@ -8,6 +8,7 @@ import {
   HeartPulse,
   Plane,
   Store,
+  Sunrise,
   CalendarHeart,
   ListChecks,
   MapPin,
@@ -38,6 +39,7 @@ export const moduleIconMap: Record<ModuleIconName, LucideIcon> = {
   handshake: Handshake,
   plane: Plane,
   store: Store,
+  sunrise: Sunrise,
 };
 
 export const MODULE_GROUPS: ModuleGroup[] = ['Halal living', 'Faith', 'Family', 'Community & travel', 'Money'];
@@ -124,6 +126,16 @@ export const allModules: LifeModule[] = [
     accent: 'from-brand-dark to-brand-light',
     icon: 'book-open',
     href: '/dashboard/quran',
+    group: 'Faith',
+  },
+  {
+    id: 'fasting',
+    name: 'Fasting',
+    description: 'The Sunnah fasts coming up — Arafah, Ashura, the white days and Shawwal — with suhoor reminders.',
+    status: 'active',
+    accent: 'from-brand-mid to-brand-dark',
+    icon: 'sunrise',
+    href: '/dashboard/fasting',
     group: 'Faith',
   },
   {

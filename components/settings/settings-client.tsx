@@ -181,7 +181,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
         <TabsList className="grid w-full max-w-lg grid-cols-4">
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="prayer">Prayer</TabsTrigger>
-          <TabsTrigger value="notifications">Reminders</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
@@ -288,7 +288,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Bell className="h-4 w-4" />
-                Reminders
+                Notifications
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -343,6 +343,19 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                   checked={reminders.events}
                   disabled={permission === 'unsupported' || permission === 'denied'}
                   onCheckedChange={(v) => updateReminders({ ...reminders, events: v })}
+                />
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-medium">Suhoor reminders</Label>
+                  <p className="text-xs text-muted-foreground">
+                    The evening before each Sunnah fast (Arafah, Ashura, the white days, and Mondays and Thursdays if you chose them in Fasting).
+                  </p>
+                </div>
+                <Switch
+                  checked={reminders.fasting}
+                  disabled={permission === 'unsupported' || permission === 'denied'}
+                  onCheckedChange={(v) => updateReminders({ ...reminders, fasting: v })}
                 />
               </div>
               <p className="text-xs text-muted-foreground">

@@ -30,11 +30,24 @@ export function HomeButton({ onDark = false }: { onDark?: boolean }) {
  * A feature screen: linen background, a large title and scrolling content.
  * Home itself passes `home` and shows no back button.
  */
-export function TabScreen({ title, subtitle, home = false, children }: { title: string; subtitle?: string; home?: boolean; children: ReactNode }) {
+export function TabScreen({
+  title,
+  subtitle,
+  home = false,
+  action,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  home?: boolean;
+  /** Shown at the top right (Home's notification bell). */
+  action?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        {home ? null : (
+        {home ? (action ? <View style={styles.actionRow}>{action}</View> : null) : (
           <View style={styles.brandBar}>
             <HomeButton />
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} accessibilityLabel="Firdam">
@@ -80,6 +93,7 @@ export function ComingNext({ step, title, text }: { step: number; title: string;
 }
 
 const styles = StyleSheet.create({
+  actionRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 4 },
   brandBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   home: { flexDirection: 'row', alignItems: 'center', gap: 2, height: 36, paddingLeft: 6, paddingRight: 12, borderRadius: 18, backgroundColor: colors.tint },
   homeDark: { backgroundColor: '#4A372F' },

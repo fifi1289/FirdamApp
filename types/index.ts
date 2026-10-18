@@ -7,6 +7,7 @@ export type ModuleId =
   | 'prayer-times'
   | 'ramadan'
   | 'quran'
+  | 'fasting'
   | 'family'
   | 'calendar'
   | 'planner'
@@ -54,6 +55,7 @@ export type ModuleIconName =
   | 'heart-pulse'
   | 'handshake'
   | 'plane'
-  | 'store';
+  | 'store'
+  | 'sunrise';
 
 export type Theme = 'light' | 'dark' | 'system';

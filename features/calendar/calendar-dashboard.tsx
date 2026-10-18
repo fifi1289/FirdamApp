@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Clock, MapPin, Plus, Users } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
@@ -10,7 +10,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { FamilyEvent } from '@/types/database';
 import { EVENT_KINDS, formatTime, iso, parseISODate } from '@/features/calendar/calendar-config';
-import type { FastingOptions } from '@/features/calendar/calendar-core';
 import { useCalendarData, type CalendarItem } from '@/features/calendar/use-calendar';
 import { EventDialog } from '@/features/calendar/event-dialog';
 
@@ -87,8 +86,6 @@ function ItemLine({ item, onEdit }: { item: CalendarItem; onEdit: (e: FamilyEven
   return <div className="flex items-start gap-3 p-2">{content}</div>;
 }
 
-const FASTING_KEY = 'firdam.calendar.fasting';
-
 export function CalendarDashboard() {
   const today = new Date();
   const todayKey = iso(today);
@@ -116,23 +113,7 @@ export function CalendarDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gridStart]);
 
-  const [fasting, setFasting] = useState<FastingOptions>({});
-  useEffect(() => {
-    try {
-      setFasting(JSON.parse(window.localStorage.getItem(FASTING_KEY) ?? '{}') as FastingOptions);
-    } catch {
-      // ignore
-    }
-  }, []);
-  const changeFasting = (next: FastingOptions) => {
-    setFasting(next);
-    try {
-      window.localStorage.setItem(FASTING_KEY, JSON.stringify(next));
-    } catch {
-      // ignore
-    }
-  };
-  const { items, hijri, members, loading } = useCalendarData(rangeStart, rangeEnd, fasting);
+  const { items, hijri, members, loading } = useCalendarData(rangeStart, rangeEnd);
 
   const byDate = useMemo(() => {
     const map = new Map<string, CalendarItem[]>();
@@ -191,30 +172,6 @@ export function CalendarDashboard() {
           New event
         </Button>
       </PageHeader>
-
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground">Show:</span>
-        {(
-          [
-            { key: 'sunnahFasts', label: 'Sunnah fasts', hint: 'White days (13th–15th of each Hijri month), the 9th of Muharram and the six days of Shawwal' },
-            { key: 'mondaysThursdays', label: 'Mondays & Thursdays', hint: 'The Sunnah fasts of Monday and Thursday' },
-          ] as const
-        ).map((o) => (
-          <button
-            key={o.key}
-            type="button"
-            title={o.hint}
-            aria-pressed={!!fasting[o.key]}
-            onClick={() => changeFasting({ ...fasting, [o.key]: !fasting[o.key] })}
-            className={cn(
-              'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
-              fasting[o.key] ? 'border-brand-sage bg-brand-sage text-white' : 'border-border text-muted-foreground hover:border-brand-sage/50'
-            )}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_340px]">
         <Card className="overflow-hidden">

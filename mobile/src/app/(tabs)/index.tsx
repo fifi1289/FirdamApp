@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { StarPattern } from '@/components/art';
+import { Icon, StarPattern } from '@/components/art';
 import { FeatureRing } from '@/components/feature-ring';
 import { openMeal } from '@/components/kitchen-plan';
 import { Badge, Photo } from '@/components/kitchen-ui';
@@ -318,11 +318,20 @@ function TonightCard() {
   );
 }
 
+/** Opens Notifications: every reminder Firdam sends, in one place. */
+function BellButton() {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel="Notifications" onPress={() => router.push('/notifications')} hitSlop={8} style={styles.bell}>
+      <Icon name="bell" size={22} color={colors.walnut} />
+    </Pressable>
+  );
+}
+
 export default function Today() {
   const { firstName } = useAuth();
   const now = useNow(60000);
   return (
-    <TabScreen home title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
+    <TabScreen home action={<BellButton />} title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
       <FeatureRing />
       <PrayerCard />
       <DuaCard />
@@ -336,6 +345,7 @@ export default function Today() {
 }
 
 const styles = StyleSheet.create({
+  bell: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
   shopCard: { gap: 10, backgroundColor: '#EEF4EA', borderWidth: 1, borderColor: '#CFE0C6', borderRadius: 20, padding: 16 },
   shopItem: { backgroundColor: colors.card, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: '#CFE0C6' },
   soonDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.gold },

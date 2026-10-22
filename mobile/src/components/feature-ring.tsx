@@ -12,6 +12,7 @@ const ICONS: Record<HomeFeatureId, IconName> = {
   prayer: 'prayer',
   qibla: 'qibla',
   quran: 'quran',
+  fasting: 'fasting',
   halal: 'halal',
   meals: 'kitchen',
   recipes: 'recipes',

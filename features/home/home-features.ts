@@ -4,7 +4,7 @@
  * doesn't show the ring because its sidebar already lists every feature; the
  * web paths are kept so both stay pointed at the same places.
  */
-export type HomeFeatureId = 'prayer' | 'qibla' | 'quran' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'calendar' | 'family';
+export type HomeFeatureId = 'prayer' | 'qibla' | 'quran' | 'fasting' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'calendar' | 'family';
 
 /**
  * Two rings: faith and family close to the centre, everyday living around them.
@@ -13,6 +13,7 @@ export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app
   { id: 'prayer', label: 'Prayer', web: '/dashboard/prayer-times', app: '/prayer', ring: 'inner' },
   { id: 'qibla', label: 'Qibla', web: '/dashboard/prayer-times#qibla', app: '/qibla', ring: 'inner' },
   { id: 'quran', label: 'Quran & Duas', web: '/dashboard/quran', app: '/quran', ring: 'inner' },
+  { id: 'fasting', label: 'Fasting', web: '/dashboard/fasting', app: '/fasting', ring: 'inner' },
   { id: 'calendar', label: 'Calendar', web: '/dashboard/calendar', app: '/calendar', ring: 'inner' },
   { id: 'family', label: 'Family', web: '/dashboard/family', app: '/family', ring: 'inner' },
   { id: 'halal', label: 'Halal places', web: '/dashboard/halal-places', app: '/halal', ring: 'outer' },

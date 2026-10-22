@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
 import { scheduleAdhanAlerts } from '@/lib/adhan-alerts';
-import { isEventAlertTap, scheduleEventAlerts } from '@/lib/event-alerts';
+import { eventAlertTarget, scheduleEventAlerts } from '@/lib/event-alerts';
 import { loadPrayerSettings, usePrayerSettings } from '@/lib/prayer';
 import { isWeeklyPlanTap, scheduleWeeklyPlanReminder } from '@/lib/weekly-plan-alert';
 import { colors } from '@/theme';
@@ -32,11 +32,13 @@ function useEventAlerts() {
     });
     Notifications.getLastNotificationResponseAsync()
       .then((r) => {
-        if (isEventAlertTap(r)) router.push('/calendar');
+        const to = eventAlertTarget(r);
+        if (to) router.push(to);
       })
       .catch(() => {});
     const tap = Notifications.addNotificationResponseReceivedListener((r) => {
-      if (isEventAlertTap(r)) router.push('/calendar');
+      const to = eventAlertTarget(r);
+      if (to) router.push(to);
     });
     return () => {
       app.remove();

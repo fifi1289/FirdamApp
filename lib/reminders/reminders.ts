@@ -12,11 +12,13 @@ export interface ReminderSettings {
   /** Minutes before each prayer. 0 = at prayer time. */
   prayerLeadMinutes: number;
   events: boolean;
+  /** Suhoor reminder the evening before a Sunnah fast. */
+  fasting: boolean;
 }
 
 const KEY = 'firdam.reminders';
 const EVENT = 'firdam-reminders-changed';
-export const DEFAULT_REMINDERS: ReminderSettings = { prayers: false, prayerLeadMinutes: 10, events: false };
+export const DEFAULT_REMINDERS: ReminderSettings = { prayers: false, prayerLeadMinutes: 10, events: false, fasting: false };
 
 function read(): ReminderSettings {
   try {
@@ -45,12 +47,12 @@ export function useReminderSettings() {
   }, []);
 
   const update = useCallback(async (next: ReminderSettings) => {
-    const wantsAny = next.prayers || next.events;
+    const wantsAny = next.prayers || next.events || next.fasting;
     if (wantsAny && notificationsSupported() && Notification.permission === 'default') {
       const result = await Notification.requestPermission();
       setPermission(result);
       if (result !== 'granted') {
-        next = { ...next, prayers: false, events: false };
+        next = { ...next, prayers: false, events: false, fasting: false };
       }
     }
     setSettings(next);

@@ -12,6 +12,7 @@ import {
   usePrayerSettings,
 } from '@/lib/prayer/prayer';
 import { notifyOnce, useReminderSettings } from '@/lib/reminders/reminders';
+import { sunnahFastingDays, type HijriLabel } from '@/features/calendar/calendar-core';
 
 function isoDay(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -108,6 +109,47 @@ export function ReminderManager() {
       cancelled = true;
     };
   }, [settings.events]);
+
+  // Suhoor reminder: the evening before a Sunnah fast (from 8 pm, while the site is open).
+  useEffect(() => {
+    if (!settings.fasting || !ready) return;
+    const location = readSavedLocation();
+    const lat = location?.latitude ?? 21.4225;
+    const lng = location?.longitude ?? 39.8262;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    let monThu = false;
+    try {
+      monThu = Boolean((JSON.parse(window.localStorage.getItem('firdam.fasting') ?? '{}') as { mondaysThursdays?: boolean }).mondaysThursdays);
+    } catch {
+      // ignore
+    }
+    fetchPrayerDay(lat, lng, prayerSettings, tomorrow)
+      .then((day) => {
+        if (cancelled) return;
+        const key = isoDay(tomorrow);
+        const hijri = new Map<string, HijriLabel>([
+          [key, { day: Number(day.hijri.day), month: day.hijri.month, monthNumber: day.hijri.monthNumber ?? 0, year: Number(day.hijri.year) }],
+        ]);
+        const fast = sunnahFastingDays(hijri, tomorrow, tomorrow, { sunnahFasts: true, mondaysThursdays: monThu })[0];
+        if (!fast) return;
+        const eight = new Date(now);
+        eight.setHours(20, 0, 0, 0);
+        timer = setTimeout(
+          () => notifyOnce(`fast-${key}`, `Fast tomorrow: ${fast.title}`, 'Remember your suhoor. May Allah accept it from you.'),
+          Math.max(0, eight.getTime() - Date.now())
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [settings.fasting, prayerSettings, ready]);
 
   return null;
 }

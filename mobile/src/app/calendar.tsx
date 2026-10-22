@@ -6,17 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Badge, Chip } from '@/components/kitchen-ui';
 import { HomeButton } from '@/components/screen';
 import { Button, Card, Field, T } from '@/components/ui';
-import { askForAlerts } from '@/lib/adhan-alerts';
 import {
   deleteEvent,
-  getFastingOptions,
-  getRemindersOn,
   loadEvents,
   loadHijriMonth,
   loadMembers,
   saveEvent,
-  setFastingOptions,
-  setRemindersOn,
   type FamilyEvent,
 } from '@/lib/calendar';
 import { scheduleEventAlerts } from '@/lib/event-alerts';
@@ -33,7 +28,6 @@ import {
   type CalendarEventKind,
   type CalendarItem,
   type CalendarMemberRow,
-  type FastingOptions,
   type HijriLabel,
 } from '@/shared/calendar-core';
 import { colors } from '@/theme';
@@ -67,26 +61,6 @@ export default function Calendar() {
   const [hijri, setHijri] = useState<Map<string, HijriLabel>>(new Map());
   const [problem, setProblem] = useState<string | null>(null);
   const [editing, setEditing] = useState<{ event: FamilyEvent | null; date: string } | null>(null);
-  const [fasting, setFasting] = useState<FastingOptions>({});
-  const [reminders, setReminders] = useState(true);
-  useEffect(() => {
-    getFastingOptions().then(setFasting);
-    getRemindersOn().then(setReminders);
-  }, []);
-  const changeFasting = (next: FastingOptions) => {
-    setFasting(next);
-    setFastingOptions(next).then(() => scheduleEventAlerts()).catch(() => {});
-  };
-  const toggleReminders = async () => {
-    const next = !reminders;
-    if (next && !(await askForAlerts())) {
-      setProblem('Allow notifications for Firdam in your phone’s Settings to get reminders.');
-      return;
-    }
-    setReminders(next);
-    await setRemindersOn(next);
-    scheduleEventAlerts().catch(() => {});
-  };
 
   const load = useCallback(() => {
     Promise.all([loadEvents(), loadMembers()])
@@ -115,7 +89,7 @@ export default function Calendar() {
 
   const first = new Date(month.year, month.month - 1, 1);
   const last = new Date(month.year, month.month, 0);
-  const items = useMemo(() => buildCalendarItems(events ?? [], members, hijri, first, last, fasting), [events, members, hijri, month, fasting]); // eslint-disable-line react-hooks/exhaustive-deps
+  const items = useMemo(() => buildCalendarItems(events ?? [], members, hijri, first, last), [events, members, hijri, month]); // eslint-disable-line react-hooks/exhaustive-deps
   const byDate = useMemo(() => {
     const map = new Map<string, CalendarItem<FamilyEvent>[]>();
     for (const it of items) map.set(it.date, [...(map.get(it.date) ?? []), it]);
@@ -217,21 +191,6 @@ export default function Calendar() {
             ))}
           </Card>
         ) : null}
-
-        <Card style={{ gap: 10 }}>
-          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            SHOW AND REMIND
-          </T>
-          <View style={styles.wrap}>
-            <Chip label="Sunnah fasts" selected={!!fasting.sunnahFasts} onPress={() => changeFasting({ ...fasting, sunnahFasts: !fasting.sunnahFasts })} tone="sage" />
-            <Chip label="Mondays & Thursdays" selected={!!fasting.mondaysThursdays} onPress={() => changeFasting({ ...fasting, mondaysThursdays: !fasting.mondaysThursdays })} tone="sage" />
-            <Chip label="Reminders" selected={reminders} onPress={toggleReminders} />
-          </View>
-          <T size={12.5} color={colors.muted} style={{ lineHeight: 18 }}>
-            Sunnah fasts are the white days (13th–15th of each Hijri month), the 9th of Muharram and the six days of Shawwal. Reminders come the evening
-            before and on the day (an hour before timed events), with a suhoor reminder before a fast you chose.
-          </T>
-        </Card>
 
         <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18 }}>
           Islamic dates may differ by a day from your local moon sighting.

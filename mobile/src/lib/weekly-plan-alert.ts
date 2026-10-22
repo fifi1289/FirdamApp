@@ -1,9 +1,20 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import { alertsAllowed } from './adhan-alerts';
 
 const KIND = 'weekly-plan';
+const ON_KEY = 'firdam.notify.weeklyPlan';
+
+/** The Sunday reminder is on unless the family turned it off. */
+export async function getWeeklyPlanOn(): Promise<boolean> {
+  return (await AsyncStorage.getItem(ON_KEY).catch(() => null)) !== 'off';
+}
+
+export async function setWeeklyPlanOn(on: boolean): Promise<void> {
+  await AsyncStorage.setItem(ON_KEY, on ? 'on' : 'off').catch(() => {});
+}
 
 /**
  * Every Sunday at 5 pm: "Your plan for next week is ready". The plan itself is
@@ -16,7 +27,7 @@ export async function scheduleWeeklyPlanReminder(): Promise<void> {
       .filter((n) => (n.content.data as { kind?: string } | undefined)?.kind === KIND)
       .map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)),
   );
-  if (!(await alertsAllowed())) return;
+  if (!(await alertsAllowed()) || !(await getWeeklyPlanOn())) return;
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(KIND, { name: 'Weekly meal plan', importance: Notifications.AndroidImportance.DEFAULT });
   }

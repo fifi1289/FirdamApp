@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { LegalPage, type LegalSection } from '@/features/legal/legal-page';
 import { SITE } from '@/lib/site';
+import { CookieChoiceButton } from '@/components/consent/analytics';
 
 export const metadata = {
   title: 'Privacy Policy',
@@ -97,8 +98,8 @@ const sections: LegalSection[] = [
           <li>reply when you contact us, keep the app secure and fix problems.</li>
         </ul>
         <p>
-          We <strong>do not sell</strong> your information and we <strong>do not show ads</strong>. We use Google
-          Analytics to understand how the site is used — see “Cookies and storage on your device” below. We do not use
+          We <strong>do not sell</strong> your information and we <strong>do not show ads</strong>. With your
+          permission, we use Google Analytics to understand how the site is used — see “Cookies and storage on your device” below. We do not use
           advertising cookies. We will ask for your consent before using your information for any new purpose.
         </p>
       </>
@@ -273,11 +274,15 @@ const sections: LegalSection[] = [
         location, prayer-time settings, reminders and Companion chat history — so they’re there next time.
       </p>
       <p>
-        We also use Google Analytics to understand how the site is used, for example which pages are visited and how
-        people find us. It sets its own cookies and collects anonymized usage data; it doesn’t collect your name, email
-        or anything you type into the app. You can opt out anytime with the{' '}
-        <a href="https://tools.google.com/dlpage/gaoptout">Google Analytics opt-out browser add-on</a>. We don’t use
-        advertising cookies.
+        With your permission, we also use Google Analytics to understand how the site is used, for example which pages
+        are visited and how people find us. It only starts if you choose “Accept” in the cookie banner; if you choose
+        “Decline”, it never loads. It sets its own cookies and collects usage data; it doesn’t collect your name, email
+        or anything you type into the app. We don’t use advertising cookies, and the phone app doesn’t use Google
+        Analytics.
+      </p>
+      <p>You can change your choice at any time:</p>
+      <p>
+        <CookieChoiceButton />
       </p>
       </>
     ),

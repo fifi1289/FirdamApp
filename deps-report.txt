@@ -1,0 +1,20 @@
+== fix
+
+changed 6 packages, and audited 603 packages in 4s
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+22 vulnerabilities (3 moderate, 19 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+== doctor
+npm warn exec The following package was not found and will be installed: expo-doctor@1.21.5
+Running 21 checks on your project...
+21/21 checks passed. No issues detected!

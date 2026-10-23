@@ -112,6 +112,7 @@ const phone = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isM
 // 1. Public pages
 for (const [label, opts] of [['laptop', laptop], ['phone', phone]]) {
   const ctx = await browser.newContext(opts);
+  await ctx.addInitScript(() => { try { localStorage.setItem('firdam.cookie-consent', 'denied'); } catch {} }); // no cookie banner in the check
   for (const p of PUBLIC) await visit(ctx, p, `public-${label}`);
   await ctx.close();
 }
@@ -133,6 +134,7 @@ if (session) {
   results.notes.push(`Test account ${email} created.`);
   for (const [label, opts] of [['laptop', laptop], ['phone', phone]]) {
     const ctx = await browser.newContext(opts);
+  await ctx.addInitScript(() => { try { localStorage.setItem('firdam.cookie-consent', 'denied'); } catch {} }); // no cookie banner in the check
     await ctx.addCookies(sessionCookies(session));
     for (const p of APP) await visit(ctx, p, `app-${label}`);
     await ctx.close();
@@ -140,6 +142,7 @@ if (session) {
 
   // 3. Main actions, through the website
   const ctx = await browser.newContext(laptop);
+  await ctx.addInitScript(() => { try { localStorage.setItem('firdam.cookie-consent', 'denied'); } catch {} }); // no cookie banner in the check
   await ctx.addCookies(sessionCookies(session));
   const page = await ctx.newPage();
   failPage = page;

@@ -86,11 +86,19 @@ DO $$ BEGIN
   ) THEN RAISE EXCEPTION 'meat recipe tagged vegetarian'; END IF;
   IF (SELECT count(*) FROM public.recipes WHERE image_prompt IS NULL) > 0 THEN RAISE EXCEPTION 'image prompts missing'; END IF;
 END $$;
-INSERT INTO public.user_recipes (name, is_public) VALUES ('My private stew', false), ('Shared cake', true);
+INSERT INTO public.user_recipes (name, is_public) VALUES ('My private stew', false), ('Family cake', false);
+-- Family recipes can't be shared with other families.
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO public.user_recipes (name, is_public) VALUES ('Shared cake', true);
+    RAISE EXCEPTION 'public user recipe accepted';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+END $$;
 INSERT INTO public.recipe_favorites (recipe_key) VALUES ('catalog:x');
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
 DO $$ BEGIN
-  IF (SELECT count(*) FROM public.user_recipes) <> 1 THEN RAISE EXCEPTION 'private user recipe leaked or public one hidden'; END IF;
+  IF (SELECT count(*) FROM public.user_recipes) <> 0 THEN RAISE EXCEPTION 'another family''s recipe is visible'; END IF;
   IF (SELECT count(*) FROM public.recipe_favorites) <> 0 THEN RAISE EXCEPTION 'favourites leaked'; END IF;
   IF (SELECT count(*) FROM public.subscriptions) <> 0 THEN RAISE EXCEPTION 'subscriptions leaked'; END IF;
   IF public.is_admin() THEN RAISE EXCEPTION 'non-admin reported as admin'; END IF;

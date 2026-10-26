@@ -22,8 +22,10 @@ jobs:
         run: |
           {
             npm ci --no-audit --no-fund > /dev/null 2>&1
-            echo "== upgrade"; npx expo install expo@^58.0.0 --fix 2>&1 | tail -25
-            echo "== fix again"; npx expo install --fix 2>&1 | tail -10
+            echo "== upgrade"; npx expo install expo@^58.0.0 2>&1 | tail -8
+            echo "== conflict"; cat ~/.npm/_logs/*eresolve-report.txt 2>/dev/null | head -40
+            echo "== fix"; npx expo install --fix -- --legacy-peer-deps 2>&1 | tail -15
+            echo "== check"; npx expo install --check 2>&1 | tail -15
             echo "== doctor"; npx expo-doctor@latest 2>&1 | tail -25
             echo "== typecheck"; npx tsc --noEmit 2>&1 | tail -60
           } > ../deps-report.txt

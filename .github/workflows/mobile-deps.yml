@@ -20,8 +20,9 @@ jobs:
           node-version: 22
       - name: Update packages
         run: |
+          set +e
           {
-            npm ci --no-audit --no-fund > /dev/null 2>&1
+            npm install --no-audit --no-fund --legacy-peer-deps > /dev/null 2>&1
             echo "== upgrade"; npx expo install expo@^58.0.0 2>&1 | tail -8
             echo "== conflict"; cat ~/.npm/_logs/*eresolve-report.txt 2>/dev/null | head -40
             echo "== fix"; npx expo install --fix -- --legacy-peer-deps 2>&1 | tail -15

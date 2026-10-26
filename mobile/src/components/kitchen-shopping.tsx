@@ -13,7 +13,7 @@ import { formatQty, groupByAisle, needsHalalSource, parseQuickAdd } from '@/shar
 import { haramItemMessage } from '@/shared/halal';
 import { getCurrency } from '@/lib/finance';
 import { router, type Href } from 'expo-router';
-import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, listNames, nearYouHint, shopsAvailable } from '@/shared/shop-links';
+import { AFFILIATE_NOTE, amazonFoodUrl, canBuyOnline, listNames, needsHalalCheck, nearYouHint, shopsAvailable } from '@/shared/shop-links';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 
@@ -148,13 +148,20 @@ export function ShoppingView() {
           <Card style={{ paddingVertical: 2 }}>
             {onAmazon.map((i, idx) => (
               <View key={i.id} style={[styles.row, idx < onAmazon.length - 1 && styles.line]}>
-                <T size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
-                  {i.name}
-                </T>
+                <View style={{ flex: 1 }}>
+                  <T size={15} weight="semibold" numberOfLines={1}>
+                    {i.name}
+                  </T>
+                  {needsHalalCheck(i.name) ? (
+                    <T size={12} color={colors.muted}>
+                      Halal options shown · check the label
+                    </T>
+                  ) : null}
+                </View>
                 <Pressable
                   accessibilityRole="link"
                   accessibilityLabel={`See ${i.name} on Amazon.ca`}
-                  onPress={() => Linking.openURL(amazonSearchUrl(i.name))}
+                  onPress={() => Linking.openURL(amazonFoodUrl(i.name))}
                   hitSlop={6}
                   style={styles.buy}
                 >

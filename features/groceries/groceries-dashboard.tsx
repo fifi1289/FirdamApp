@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { ExternalLink, Receipt } from 'lucide-react';
 import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
-import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, listNames, nearYouHint, shopsAvailable } from '@/features/groceries/shop-links';
+import { AFFILIATE_NOTE, amazonFoodUrl, canBuyOnline, listNames, nearYouHint, needsHalalCheck, shopsAvailable } from '@/features/groceries/shop-links';
 import { ShopDepartment } from '@/features/groceries/shop-department';
 import { useCurrency } from '@/features/budget/budget-config';
 import { toast } from 'sonner';
@@ -685,9 +685,14 @@ export function GroceriesDashboard() {
                     <ul className="divide-y divide-border/60">
                       {onAmazon.map((item) => (
                         <li key={item.id} className="flex items-center gap-3 px-4 py-2.5">
-                          <p className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{item.name}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-foreground">{item.name}</p>
+                            {needsHalalCheck(item.name) && (
+                              <p className="text-xs text-muted-foreground">Halal options shown · check the label for a halal certificate</p>
+                            )}
+                          </div>
                           <a
-                            href={amazonSearchUrl(item.name)}
+                            href={amazonFoodUrl(item.name)}
                             target="_blank"
                             rel="sponsored noopener noreferrer"
                             className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-primary hover:bg-muted"

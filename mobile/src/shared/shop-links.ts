@@ -119,3 +119,22 @@ export function listNames(names: string[]): string {
   if (lower.length <= 3) return `${lower.slice(0, -1).join(', ')} and ${lower[lower.length - 1]}`;
   return `${lower.slice(0, 3).join(', ')} and ${lower.length - 3} more`;
 }
+
+/**
+ * Foods where halal really matters: they can contain pork, gelatin, animal
+ * rennet, alcohol or non-halal meat. Their Amazon search asks for halal
+ * products, and families are reminded to check the label. Plain staples
+ * (rice, pasta, flour, lentils, spices…) are halal by nature and searched as is.
+ */
+const HALAL_SENSITIVE =
+  /\b(sauce|sauces|ketchup|mayo|mayonnaise|dressing|teriyaki|worcestershire|bbq|barbecue|gravy|marinade|pesto|stock|broth|bouillon|gelatin|gelatine|gummy|gummies|marshmallow|marshmallows|jelly|jello|candy|candies|sweets|chocolate|cookies|biscuits|cake|pudding|custard|yogurt|yoghurt|cheese|parmesan|cream cheese|sausage|sausages|salami|pepperoni|jerky|hot dog|hotdogs|bacon|deli|luncheon|corned|canned chicken|canned beef|meatballs|vanilla extract|extract|flavouring|flavoring|wine vinegar|mirin|cooking wine|soy sauce|fish sauce|oyster sauce|noodles cup|instant noodles|ramen|soup)\b/i;
+
+export function needsHalalCheck(name: string): boolean {
+  return HALAL_SENSITIVE.test(name);
+}
+
+/** Amazon.ca search for a grocery item, asking for halal products where it matters. */
+export function amazonFoodUrl(name: string): string {
+  const clean = name.trim();
+  return amazonSearchUrl(needsHalalCheck(clean) && !/\bhalal\b/i.test(clean) ? `halal ${clean}` : clean);
+}

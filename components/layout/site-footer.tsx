@@ -66,7 +66,7 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-6 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Firdam. All rights reserved.
+            © {new Date().getFullYear()} Firdam. All rights reserved. As an Amazon Associate, Firdam earns from qualifying purchases.
           </p>
           <p className="text-xs text-muted-foreground">
             One home for your Muslim life.

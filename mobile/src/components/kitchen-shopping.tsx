@@ -12,7 +12,8 @@ import { patchKitchen, refreshKitchen, refreshShopping, useKitchen } from '@/lib
 import { formatQty, groupByAisle, needsHalalSource, parseQuickAdd } from '@/shared/grocery-utils';
 import { haramItemMessage } from '@/shared/halal';
 import { getCurrency } from '@/lib/finance';
-import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, shopsAvailable } from '@/shared/shop-links';
+import { router, type Href } from 'expo-router';
+import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, listNames, nearYouHint, shopsAvailable } from '@/shared/shop-links';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 
@@ -26,6 +27,7 @@ export function ShoppingView() {
   const groups = useMemo(() => groupByAisle(open), [open]);
   // Amazon.ca links for families who use Canadian dollars (non-fresh items only).
   const [online, setOnline] = useState(false);
+  const nearYou = useMemo(() => nearYouHint(groups), [groups]);
   const onAmazon = useMemo(() => groups.filter((g) => canBuyOnline(g.category)).flatMap((g) => g.items), [groups]);
   useEffect(() => {
     getCurrency().then((c) => setOnline(shopsAvailable(c))).catch(() => {});
@@ -94,6 +96,28 @@ export function ShoppingView() {
         />
         <Button label="Add" onPress={add} busy={busy} style={{ height: 48, paddingHorizontal: 18 }} />
       </View>
+
+      {nearYou ? (
+        <View style={styles.near}>
+          <T size={15.5} weight="bold">
+            {nearYou.meat.length ? `Your list has ${listNames(nearYou.meat)}` : 'Shopping for this list?'}
+          </T>
+          <T size={13.5} color={colors.muted}>
+            {nearYou.meat.length ? 'Find a halal butcher near you, then a grocery for the rest.' : 'Find a halal grocery near you.'}
+          </T>
+          {nearYou.meat.length ? (
+            <Button label="Halal butchers near me" onPress={() => router.push('/halal?category=butcher' as Href)} style={{ height: 46 }} />
+          ) : null}
+          {nearYou.hasOther ? (
+            <Button
+              label="Groceries near me"
+              variant={nearYou.meat.length ? 'secondary' : 'primary'}
+              onPress={() => router.push('/halal?category=grocery' as Href)}
+              style={{ height: 46 }}
+            />
+          ) : null}
+        </View>
+      ) : null}
 
       {open.length === 0 ? (
         <Card>
@@ -180,6 +204,7 @@ export function ShoppingView() {
 }
 
 const styles = StyleSheet.create({
+  near: { gap: 8, backgroundColor: colors.sageTint, borderWidth: 1, borderColor: '#CFE0C6', borderRadius: 20, padding: 16 },
   buy: { backgroundColor: colors.tint, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6 },
   input: { flex: 1, height: 48, borderRadius: 16, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontFamily: fonts.regular, fontSize: 15, color: colors.espresso },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },

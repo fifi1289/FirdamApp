@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { ExternalLink, Receipt } from 'lucide-react';
 import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
-import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, shopsAvailable } from '@/features/groceries/shop-links';
+import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, listNames, nearYouHint, shopsAvailable } from '@/features/groceries/shop-links';
 import { ShopDepartment } from '@/features/groceries/shop-department';
 import { useCurrency } from '@/features/budget/budget-config';
 import { toast } from 'sonner';
@@ -217,6 +217,7 @@ export function GroceriesDashboard() {
   const remaining = items.filter((i) => !i.checked);
   const checked = items.filter((i) => i.checked);
   const groups = useMemo(() => groupByAisle(remaining), [remaining]);
+  const nearYou = useMemo(() => nearYouHint(groups), [groups]);
   // Non-fresh items families can order on Amazon.ca (Canada only).
   const onAmazon = useMemo(() => groups.filter((g) => canBuyOnline(g.category)).flatMap((g) => g.items), [groups]);
   const progress = items.length ? Math.round((checked.length / items.length) * 100) : 0;
@@ -617,6 +618,42 @@ export function GroceriesDashboard() {
               </Card>
             ) : (
               <>
+                {nearYou && (
+                  <Card className="border-primary/25 bg-primary/5">
+                    <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+                      <MapPin className="hidden h-6 w-6 shrink-0 text-primary sm:block" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-foreground">
+                          {nearYou.meat.length ? `Your list has ${listNames(nearYou.meat)}` : 'Shopping for this list?'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {nearYou.meat.length
+                            ? 'Find a halal butcher near you, then a grocery for the rest.'
+                            : 'Find a halal grocery near you.'}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 flex-wrap gap-2">
+                        {nearYou.meat.length > 0 && (
+                          <Button asChild>
+                            <Link href="/dashboard/halal-places?category=butcher">
+                              <MapPin className="mr-2 h-4 w-4" />
+                              Halal butchers near me
+                            </Link>
+                          </Button>
+                        )}
+                        {nearYou.hasOther && (
+                          <Button asChild variant={nearYou.meat.length ? 'outline' : 'default'}>
+                            <Link href="/dashboard/halal-places?category=grocery">
+                              <MapPin className="mr-2 h-4 w-4" />
+                              Groceries near me
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {groups.map((group) => {
                   const Icon = CATEGORY_ICONS[group.category];
                   return (

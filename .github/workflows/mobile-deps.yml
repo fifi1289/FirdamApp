@@ -1,4 +1,4 @@
-# Temporary helper (run 8: upgrade to Expo SDK 58): runs package commands for mobile/ (npm isn't reachable from
+# Temporary helper (run 9: check SDK 58 types): runs package commands for mobile/ (npm isn't reachable from
 # the coding session) and commits the updated package files back.
 name: mobile-deps
 on:
@@ -23,12 +23,8 @@ jobs:
           set +e
           {
             npm install --no-audit --no-fund --legacy-peer-deps > /dev/null 2>&1
-            echo "== upgrade"; npx expo install expo@^58.0.0 2>&1 | tail -8
-            echo "== conflict"; cat ~/.npm/_logs/*eresolve-report.txt 2>/dev/null | head -40
-            echo "== fix"; npx expo install --fix -- --legacy-peer-deps 2>&1 | tail -15
-            echo "== check"; npx expo install --check 2>&1 | tail -15
-            echo "== doctor"; npx expo-doctor@latest 2>&1 | tail -25
-            echo "== typecheck"; npx tsc --noEmit 2>&1 | tail -60
+            echo "== typecheck"; npx tsc --noEmit 2>&1 | tail -40
+            echo "== doctor"; npx expo-doctor@latest 2>&1 | tail -10
           } > ../deps-report.txt
       - name: Save
         if: always()

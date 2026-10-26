@@ -218,6 +218,9 @@ function buildAddress(tags: Record<string, string>): string | null {
 const LIKELY_HALAL_CUISINE =
   /(lebanese|middle_eastern|shawarma|kebab|afghan|pakistani|turkish|arab|persian|iranian|somali|falafel|moroccan|syrian|yemeni|egyptian|iraqi|palestinian|jordanian|bangladeshi|uyghur|ethiopian|eritrean)/i;
 const LIKELY_HALAL_NAME = /(shawarma|shawerma|kebab|kabob|falafel|halal|zaatar|manakeesh|mandi)/i;
+/** Shops whose name says pork or alcohol are never shown as "may stock halal". */
+const NOT_HALAL_NAME =
+  /\b(pig|pigs|piggy|pork|porc|porchetta|bacon|ham|hams|swine|boar|charcuterie|salumeria|salumi|prosciutto|wine|wines|winery|liquor|beer|beers|brewery|lcbo|saq)\b/i;
 
 function normalize(el: OsmElement): NormalizedPlace | null {
   const tags = el.tags ?? {};
@@ -238,7 +241,10 @@ function normalize(el: OsmElement): NormalizedPlace | null {
     !["yes", "only"].includes(dietHalal) &&
     !/halal/i.test(`${tags.cuisine ?? ""} ${name}`) &&
     (category === "grocery" || category === "butcher")
-  ) halalStatus = "may_sell";
+  ) {
+    if (NOT_HALAL_NAME.test(name)) return null;
+    halalStatus = "may_sell";
+  }
   else if (
     !["yes", "only"].includes(dietHalal) &&
     !/halal/i.test(tags.cuisine ?? "") &&
@@ -521,7 +527,9 @@ Deno.serve(async (req: Request) => {
       const rows = (await rest<PlaceRow[]>(
         `osm_places?select=*&latitude=gte.${box[0]}&latitude=lte.${box[2]}&longitude=gte.${box[1]}&longitude=lte.${box[3]}${stores ? "" : "&halal_status=neq.may_sell"}&limit=2000`,
       )) ?? [];
-      const places: NormalizedPlace[] = rows.map((r) => ({
+      const places: NormalizedPlace[] = rows
+        .filter((r) => !(r.halal_status === "may_sell" && NOT_HALAL_NAME.test(r.name)))
+        .map((r) => ({
         key: r.key, source: "osm", name: r.name, category: r.category, latitude: r.latitude, longitude: r.longitude,
         address: r.address, phone: r.phone, website: r.website, openingHours: r.opening_hours,
         halalStatus: r.halal_status, certification: r.certification, cuisine: r.cuisine,

@@ -97,25 +97,23 @@ export function ShoppingView() {
         <Button label="Add" onPress={add} busy={busy} style={{ height: 48, paddingHorizontal: 18 }} />
       </View>
 
-      {nearYou ? (
-        <View style={styles.near}>
-          <T size={15.5} weight="bold">
-            {nearYou.meat.length ? `Your list has ${listNames(nearYou.meat)}` : 'Shopping for this list?'}
+      {nearYou?.meat.length ? (
+        <Pressable accessibilityRole="link" onPress={() => router.push('/halal?category=butcher' as Href)} style={styles.banner}>
+          <T size={14} style={{ flex: 1 }}>
+            {`Your list has ${listNames(nearYou.meat)}. Find a halal butcher near you.`}
           </T>
-          <T size={13.5} color={colors.muted}>
-            {nearYou.meat.length ? 'Find a halal butcher near you, then a grocery for the rest.' : 'Find a halal grocery near you.'}
+          <T size={13} weight="bold" color={colors.walnut}>
+            Find one ›
           </T>
-          {nearYou.meat.length ? (
-            <Button label="Halal butchers near me" onPress={() => router.push('/halal?category=butcher' as Href)} style={{ height: 46 }} />
-          ) : null}
-          {nearYou.hasOther ? (
-            <Button
-              label="Groceries near me"
-              variant={nearYou.meat.length ? 'secondary' : 'primary'}
-              onPress={() => router.push('/halal?category=grocery' as Href)}
-              style={{ height: 46 }}
-            />
-          ) : null}
+        </Pressable>
+      ) : null}
+      {online && onAmazon.length ? (
+        <View style={styles.banner}>
+          <T size={14} style={{ flex: 1 }}>
+            {onAmazon.length === 1
+              ? `${onAmazon[0]!.name} is available on Amazon.ca, below.`
+              : `${onAmazon.length} items on your list are available on Amazon.ca: ${listNames(onAmazon.map((i) => i.name))}. See them below.`}
+          </T>
         </View>
       ) : null}
 
@@ -204,7 +202,7 @@ export function ShoppingView() {
 }
 
 const styles = StyleSheet.create({
-  near: { gap: 8, backgroundColor: colors.sageTint, borderWidth: 1, borderColor: '#CFE0C6', borderRadius: 20, padding: 16 },
+  banner: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.tint, borderWidth: 1, borderColor: colors.line, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
   buy: { backgroundColor: colors.tint, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6 },
   input: { flex: 1, height: 48, borderRadius: 16, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontFamily: fonts.regular, fontSize: 15, color: colors.espresso },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },

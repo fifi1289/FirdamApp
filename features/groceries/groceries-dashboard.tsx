@@ -585,10 +585,27 @@ export function GroceriesDashboard() {
               >
                 <MapPin className="h-4 w-4 shrink-0 text-primary" />
                 <span className="flex-1 text-foreground">
-                  Your list has meat or poultry. Find a halal butcher near you.
+                  {nearYou?.meat.length
+                    ? `Your list has ${listNames(nearYou.meat)}. Find a halal butcher near you.`
+                    : 'Your list has meat or poultry. Find a halal butcher near you.'}
                 </span>
                 <span className="text-xs font-medium text-primary">Find one →</span>
               </Link>
+            )}
+
+            {online && onAmazon.length > 0 && (
+              <a
+                href="#on-amazon"
+                className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm transition-colors hover:border-primary/40"
+              >
+                <ShoppingCart className="h-4 w-4 shrink-0 text-primary" />
+                <span className="flex-1 text-foreground">
+                  {onAmazon.length === 1
+                    ? `${onAmazon[0]!.name} is available on Amazon.ca.`
+                    : `${onAmazon.length} items on your list are available on Amazon.ca: ${listNames(onAmazon.map((i) => i.name))}.`}
+                </span>
+                <span className="text-xs font-medium text-primary">See them →</span>
+              </a>
             )}
 
             {itemsLoading ? (
@@ -618,42 +635,6 @@ export function GroceriesDashboard() {
               </Card>
             ) : (
               <>
-                {nearYou && (
-                  <Card className="border-primary/25 bg-primary/5">
-                    <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-                      <MapPin className="hidden h-6 w-6 shrink-0 text-primary sm:block" />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-foreground">
-                          {nearYou.meat.length ? `Your list has ${listNames(nearYou.meat)}` : 'Shopping for this list?'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {nearYou.meat.length
-                            ? 'Find a halal butcher near you, then a grocery for the rest.'
-                            : 'Find a halal grocery near you.'}
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 flex-wrap gap-2">
-                        {nearYou.meat.length > 0 && (
-                          <Button asChild>
-                            <Link href="/dashboard/halal-places?category=butcher">
-                              <MapPin className="mr-2 h-4 w-4" />
-                              Halal butchers near me
-                            </Link>
-                          </Button>
-                        )}
-                        {nearYou.hasOther && (
-                          <Button asChild variant={nearYou.meat.length ? 'outline' : 'default'}>
-                            <Link href="/dashboard/halal-places?category=grocery">
-                              <MapPin className="mr-2 h-4 w-4" />
-                              Groceries near me
-                            </Link>
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
                 {groups.map((group) => {
                   const Icon = CATEGORY_ICONS[group.category];
                   return (
@@ -680,7 +661,7 @@ export function GroceriesDashboard() {
                 })}
 
                 {online && onAmazon.length > 0 && (
-                  <Card className="overflow-hidden">
+                  <Card id="on-amazon" className="scroll-mt-24 overflow-hidden">
                     <div className="flex items-center gap-2 border-b border-border/70 bg-muted/40 px-4 py-2">
                       <ShoppingCart className="h-4 w-4 text-primary" />
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

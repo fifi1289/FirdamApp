@@ -98,22 +98,16 @@ export function ShoppingView() {
       </View>
 
       {nearYou?.meat.length ? (
-        <Pressable accessibilityRole="link" onPress={() => router.push('/halal?category=butcher' as Href)} style={styles.banner}>
-          <T size={14} style={{ flex: 1 }}>
-            {`Your list has ${listNames(nearYou.meat)}. Find a halal butcher near you.`}
-          </T>
-          <T size={13} weight="bold" color={colors.walnut}>
-            Find one ›
-          </T>
-        </Pressable>
+        <View style={styles.banner}>
+          <T size={15.5} weight="bold">{`${nearYou.meat.length} meat item${nearYou.meat.length === 1 ? '' : 's'} on your list`}</T>
+          <T size={13.5} color={colors.muted} numberOfLines={2}>{`${listNames(nearYou.meat)}. Buy it from a halal butcher.`}</T>
+          <Button label="Find a halal butcher" onPress={() => router.push('/halal?category=butcher' as Href)} style={{ height: 46 }} />
+        </View>
       ) : null}
       {online && onAmazon.length ? (
         <View style={styles.banner}>
-          <T size={14} style={{ flex: 1 }}>
-            {onAmazon.length === 1
-              ? `${onAmazon[0]!.name} is available on Amazon.ca, below.`
-              : `${onAmazon.length} items on your list are available on Amazon.ca: ${listNames(onAmazon.map((i) => i.name))}. See them below.`}
-          </T>
+          <T size={15.5} weight="bold">{`${onAmazon.length} item${onAmazon.length === 1 ? '' : 's'} available on Amazon.ca`}</T>
+          <T size={13.5} color={colors.muted} numberOfLines={2}>{`${listNames(onAmazon.map((i) => i.name))}. See them below.`}</T>
         </View>
       ) : null}
 
@@ -202,7 +196,7 @@ export function ShoppingView() {
 }
 
 const styles = StyleSheet.create({
-  banner: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.tint, borderWidth: 1, borderColor: colors.line, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
+  banner: { gap: 6, backgroundColor: colors.tint, borderWidth: 1, borderColor: colors.line, borderRadius: 18, padding: 14 },
   buy: { backgroundColor: colors.tint, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6 },
   input: { flex: 1, height: 48, borderRadius: 16, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontFamily: fonts.regular, fontSize: 15, color: colors.espresso },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },

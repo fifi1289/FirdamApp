@@ -116,16 +116,6 @@ export function ShoppingView() {
           </T>
         </View>
       ) : null}
-          {nearYou.hasOther ? (
-            <Button
-              label="Groceries near me"
-              variant={nearYou.meat.length ? 'secondary' : 'primary'}
-              onPress={() => router.push('/halal?category=grocery' as Href)}
-              style={{ height: 46 }}
-            />
-          ) : null}
-        </View>
-      ) : null}
 
       {open.length === 0 ? (
         <Card>

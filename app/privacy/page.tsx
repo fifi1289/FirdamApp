@@ -60,8 +60,8 @@ const sections: LegalSection[] = [
             times, the Qibla direction and halal places near you. Your saved location is kept on your device.
           </li>
           <li>
-            <strong>Things you share with others:</strong> halal places, reviews, public recipes, community events,
-            business listings and RSVPs.
+            <strong>Things you share with others:</strong> halal places, reviews, community events,
+            business listings and RSVPs. Recipes you write stay private to your household.
           </li>
           <li>
             <strong>AI features:</strong> messages you send to the Family Companion and receipt photos you scan (see{' '}
@@ -148,7 +148,7 @@ const sections: LegalSection[] = [
             stay private.
           </li>
           <li>
-            <strong>Other members:</strong> things you choose to share publicly — halal places, reviews, public recipes,
+            <strong>Other members:</strong> things you choose to share publicly — halal places, reviews,
             community events and business listings — can be seen by other {SITE.name} members, together with the display
             name you chose.
           </li>
@@ -271,7 +271,9 @@ const sections: LegalSection[] = [
       <>
       <p>
         We use only the cookies needed to keep you signed in. The app also saves a few settings on your device — your
-        location, prayer-time settings, reminders and Companion chat history — so they’re there next time.
+        location, prayer-time settings, notification and fasting choices, your currency and Companion chat history — so
+        they’re there next time. Your device’s time zone is read on your device only, to decide whether to show Canadian
+        shopping links; it isn’t sent to us.
       </p>
       <p>
         With your permission, we also use Google Analytics to understand how the site is used, for example which pages
@@ -320,7 +322,7 @@ export default function PrivacyPage() {
       }
       summary={[
         'We collect only what the app needs, mostly what you choose to enter.',
-        'We don’t sell your data or show ads. We use Google Analytics to understand how the site is used.',
+        'We don’t sell your data or show ads. With your permission, we use Google Analytics to understand how the site is used.',
         'Your private data is visible only to you and the household you choose to share with.',
         'AI features send the minimum needed to OpenAI, only when you use them.',
         'You can export or delete everything at any time.',

@@ -579,33 +579,47 @@ export function GroceriesDashboard() {
             </Card>
 
             {halalReminder && (
-              <Link
-                href="/dashboard/halal-places?category=butcher"
-                className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm transition-colors hover:border-primary/40"
-              >
-                <MapPin className="h-4 w-4 shrink-0 text-primary" />
-                <span className="flex-1 text-foreground">
-                  {nearYou?.meat.length
-                    ? `Your list has ${listNames(nearYou.meat)}. Find a halal butcher near you.`
-                    : 'Your list has meat or poultry. Find a halal butcher near you.'}
+              <div className="flex flex-col gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-4 sm:flex-row sm:items-center">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <MapPin className="h-5 w-5" />
                 </span>
-                <span className="text-xs font-medium text-primary">Find one →</span>
-              </Link>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-foreground">
+                    {nearYou?.meat.length
+                      ? `${nearYou.meat.length} meat item${nearYou.meat.length === 1 ? '' : 's'} on your list`
+                      : 'Meat on your list'}
+                  </p>
+                  <p className="truncate text-sm text-muted-foreground">
+                    {nearYou?.meat.length ? `${listNames(nearYou.meat)}. ` : ''}Buy it from a halal butcher.
+                  </p>
+                </div>
+                <Button asChild className="shrink-0">
+                  <Link href="/dashboard/halal-places?category=butcher">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Find a halal butcher
+                  </Link>
+                </Button>
+              </div>
             )}
 
             {online && onAmazon.length > 0 && (
-              <a
-                href="#on-amazon"
-                className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm transition-colors hover:border-primary/40"
-              >
-                <ShoppingCart className="h-4 w-4 shrink-0 text-primary" />
-                <span className="flex-1 text-foreground">
-                  {onAmazon.length === 1
-                    ? `${onAmazon[0]!.name} is available on Amazon.ca.`
-                    : `${onAmazon.length} items on your list are available on Amazon.ca: ${listNames(onAmazon.map((i) => i.name))}.`}
+              <div className="flex flex-col gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-4 sm:flex-row sm:items-center">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <ShoppingCart className="h-5 w-5" />
                 </span>
-                <span className="text-xs font-medium text-primary">See them →</span>
-              </a>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-foreground">
+                    {onAmazon.length} item{onAmazon.length === 1 ? '' : 's'} available on Amazon.ca
+                  </p>
+                  <p className="truncate text-sm text-muted-foreground">{listNames(onAmazon.map((i) => i.name))}.</p>
+                </div>
+                <Button asChild variant="outline" className="shrink-0">
+                  <a href="#on-amazon">
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    See on Amazon
+                  </a>
+                </Button>
+              </div>
             )}
 
             {itemsLoading ? (

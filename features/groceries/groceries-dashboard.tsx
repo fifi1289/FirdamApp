@@ -17,9 +17,9 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import { Receipt } from 'lucide-react';
+import { ExternalLink, Receipt } from 'lucide-react';
 import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
-import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, shopsAvailable } from '@/features/groceries/shop-links';
+import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, listNames, nearYouHint, shopsAvailable } from '@/features/groceries/shop-links';
 import { ShopDepartment } from '@/features/groceries/shop-department';
 import { useCurrency } from '@/features/budget/budget-config';
 import { toast } from 'sonner';
@@ -68,13 +68,10 @@ function ItemRow({
   item,
   onToggle,
   onDelete,
-  buyUrl,
 }: {
   item: GroceryItem;
   onToggle: (item: GroceryItem) => void;
   onDelete: (item: GroceryItem) => void;
-  /** Amazon.ca search for this item (Canada, non-fresh items only). */
-  buyUrl?: string;
 }) {
   return (
     <li className="group flex items-center gap-3 px-4 py-2.5">
@@ -109,17 +106,6 @@ function ItemRow({
       <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
         {formatQty(item.quantity, item.unit)}
       </span>
-      {buyUrl && !item.checked && (
-        <a
-          href={buyUrl}
-          target="_blank"
-          rel="sponsored noopener noreferrer"
-          aria-label={`Find ${item.name} on Amazon.ca`}
-          className="shrink-0 rounded-md px-1.5 py-0.5 text-[11px] font-semibold text-primary hover:bg-muted"
-        >
-          Amazon
-        </a>
-      )}
       <button
         type="button"
         onClick={() => onDelete(item)}
@@ -231,6 +217,9 @@ export function GroceriesDashboard() {
   const remaining = items.filter((i) => !i.checked);
   const checked = items.filter((i) => i.checked);
   const groups = useMemo(() => groupByAisle(remaining), [remaining]);
+  const nearYou = useMemo(() => nearYouHint(groups), [groups]);
+  // Non-fresh items families can order on Amazon.ca (Canada only).
+  const onAmazon = useMemo(() => groups.filter((g) => canBuyOnline(g.category)).flatMap((g) => g.items), [groups]);
   const progress = items.length ? Math.round((checked.length / items.length) * 100) : 0;
   const halalReminder = remaining.some((i) => needsHalalSource(asPantryCategory(i.category)));
 
@@ -629,6 +618,42 @@ export function GroceriesDashboard() {
               </Card>
             ) : (
               <>
+                {nearYou && (
+                  <Card className="border-primary/25 bg-primary/5">
+                    <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+                      <MapPin className="hidden h-6 w-6 shrink-0 text-primary sm:block" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-foreground">
+                          {nearYou.meat.length ? `Your list has ${listNames(nearYou.meat)}` : 'Shopping for this list?'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {nearYou.meat.length
+                            ? 'Find a halal butcher near you, then a grocery for the rest.'
+                            : 'Find a halal grocery near you.'}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 flex-wrap gap-2">
+                        {nearYou.meat.length > 0 && (
+                          <Button asChild>
+                            <Link href="/dashboard/halal-places?category=butcher">
+                              <MapPin className="mr-2 h-4 w-4" />
+                              Halal butchers near me
+                            </Link>
+                          </Button>
+                        )}
+                        {nearYou.hasOther && (
+                          <Button asChild variant={nearYou.meat.length ? 'outline' : 'default'}>
+                            <Link href="/dashboard/halal-places?category=grocery">
+                              <MapPin className="mr-2 h-4 w-4" />
+                              Groceries near me
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {groups.map((group) => {
                   const Icon = CATEGORY_ICONS[group.category];
                   return (
@@ -647,7 +672,6 @@ export function GroceriesDashboard() {
                             item={item}
                             onToggle={toggleItem}
                             onDelete={deleteItem}
-                            buyUrl={online && canBuyOnline(group.category) ? amazonSearchUrl(item.name) : undefined}
                           />
                         ))}
                       </ul>
@@ -655,10 +679,33 @@ export function GroceriesDashboard() {
                   );
                 })}
 
-                {online && groups.some((g) => canBuyOnline(g.category)) && (
-                  <p className="px-1 text-xs text-muted-foreground">
-                    “Amazon” opens the item on Amazon.ca. Fresh food isn’t linked: it’s best bought locally. {AFFILIATE_NOTE}
-                  </p>
+                {online && onAmazon.length > 0 && (
+                  <Card className="overflow-hidden">
+                    <div className="flex items-center gap-2 border-b border-border/70 bg-muted/40 px-4 py-2">
+                      <ShoppingCart className="h-4 w-4 text-primary" />
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Available on Amazon.ca ({onAmazon.length})
+                      </p>
+                    </div>
+                    <ul className="divide-y divide-border/60">
+                      {onAmazon.map((item) => (
+                        <li key={item.id} className="flex items-center gap-3 px-4 py-2.5">
+                          <p className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{item.name}</p>
+                          <a
+                            href={amazonSearchUrl(item.name)}
+                            target="_blank"
+                            rel="sponsored noopener noreferrer"
+                            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-primary hover:bg-muted"
+                          >
+                            See on Amazon <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="border-t border-border/60 px-4 py-2 text-xs text-muted-foreground">
+                      {AFFILIATE_NOTE}
+                    </p>
+                  </Card>
                 )}
 
                 {remaining.length === 0 && (

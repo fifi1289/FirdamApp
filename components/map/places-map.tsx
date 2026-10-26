@@ -129,11 +129,10 @@ export function PlacesMap({
           attributionControl: true,
           scrollWheelZoom: true,
         });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        // OpenStreetMap's own tiles (the same as the phone app). CARTO's free tiles now need an API key.
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
-          subdomains: 'abcd',
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
         map.setView([center?.latitude ?? 21.4225, center?.longitude ?? 39.8262], center ? 13 : 3);

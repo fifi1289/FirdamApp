@@ -95,3 +95,27 @@ export function parseBudget(v: string): number | null {
   const n = Number(v.replace(/[$,\s]/g, ''));
   return v.trim() && Number.isFinite(n) && n > 0 ? n : null;
 }
+
+/** Aisles best bought from a halal butcher. */
+const BUTCHER = new Set(['Meat', 'Poultry', 'Seafood']);
+
+/**
+ * "Your list has chicken and lamb: find a halal butcher near you". Works in
+ * every country (it opens Halal places, not a shop).
+ */
+export function nearYouHint(groups: { category: string; items: { name: string }[] }[]): {
+  meat: string[];
+  hasOther: boolean;
+} | null {
+  const meat = groups.filter((g) => BUTCHER.has(g.category)).flatMap((g) => g.items.map((i) => i.name));
+  const hasOther = groups.some((g) => !BUTCHER.has(g.category) && g.items.length > 0);
+  return meat.length || hasOther ? { meat, hasOther } : null;
+}
+
+/** "chicken, lamb and beef" (at most three names, then "and 2 more"). */
+export function listNames(names: string[]): string {
+  const lower = names.map((n) => n.toLowerCase());
+  if (lower.length <= 1) return lower.join('');
+  if (lower.length <= 3) return `${lower.slice(0, -1).join(', ')} and ${lower[lower.length - 1]}`;
+  return `${lower.slice(0, 3).join(', ')} and ${lower.length - 3} more`;
+}

@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
-import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Linking, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { Checkbox } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
@@ -11,6 +11,8 @@ import type { Line } from '@/shared/pantry-engine';
 import { patchKitchen, refreshKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { formatQty, groupByAisle, needsHalalSource, parseQuickAdd } from '@/shared/grocery-utils';
 import { haramItemMessage } from '@/shared/halal';
+import { getCurrency } from '@/lib/finance';
+import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, shopsAvailable } from '@/shared/shop-links';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 
@@ -22,6 +24,11 @@ export function ShoppingView() {
   const open = useMemo(() => k.items.filter((i) => !i.checked), [k.items]);
   const done = useMemo(() => k.items.filter((i) => i.checked), [k.items]);
   const groups = useMemo(() => groupByAisle(open), [open]);
+  // Amazon.ca links for families who use Canadian dollars (non-fresh items only).
+  const [online, setOnline] = useState(false);
+  useEffect(() => {
+    getCurrency().then((c) => setOnline(shopsAvailable(c))).catch(() => {});
+  }, []);
 
   const add = async () => {
     const value = text.trim();
@@ -110,12 +117,30 @@ export function ShoppingView() {
                   <T size={13} color={colors.muted}>
                     {formatQty(i.quantity, i.unit)}
                   </T>
+                  {online && canBuyOnline(g.category) ? (
+                    <Pressable
+                      accessibilityRole="link"
+                      accessibilityLabel={`Find ${i.name} on Amazon.ca`}
+                      onPress={() => Linking.openURL(amazonSearchUrl(i.name))}
+                      hitSlop={8}
+                      style={styles.buy}
+                    >
+                      <T size={11.5} weight="bold" color={colors.walnut}>
+                        Amazon
+                      </T>
+                    </Pressable>
+                  ) : null}
                 </Pressable>
               ))}
             </Card>
           </View>
         ))
       )}
+      {online && groups.some((g) => canBuyOnline(g.category)) ? (
+        <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
+          {`“Amazon” opens the item on Amazon.ca. Fresh food isn’t linked: it’s best bought locally. ${AFFILIATE_NOTE}`}
+        </T>
+      ) : null}
 
       {done.length ? (
         <View style={{ gap: 6 }}>
@@ -142,6 +167,7 @@ export function ShoppingView() {
 }
 
 const styles = StyleSheet.create({
+  buy: { backgroundColor: colors.tint, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
   input: { flex: 1, height: 48, borderRadius: 16, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontFamily: fonts.regular, fontSize: 15, color: colors.espresso },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },
   line: { borderBottomWidth: 1, borderBottomColor: colors.line },

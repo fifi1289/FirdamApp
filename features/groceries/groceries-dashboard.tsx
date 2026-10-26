@@ -19,6 +19,9 @@ import {
 } from 'lucide-react';
 import { Receipt } from 'lucide-react';
 import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
+import { AFFILIATE_NOTE, amazonSearchUrl, canBuyOnline, shopsAvailable } from '@/features/groceries/shop-links';
+import { ShopDepartment } from '@/features/groceries/shop-department';
+import { useCurrency } from '@/features/budget/budget-config';
 import { toast } from 'sonner';
 import { haramItemMessage } from '@/lib/recipes/halal';
 import { applyPantryChanges, changesForAdding } from '@/lib/pantry/store';
@@ -65,10 +68,13 @@ function ItemRow({
   item,
   onToggle,
   onDelete,
+  buyUrl,
 }: {
   item: GroceryItem;
   onToggle: (item: GroceryItem) => void;
   onDelete: (item: GroceryItem) => void;
+  /** Amazon.ca search for this item (Canada, non-fresh items only). */
+  buyUrl?: string;
 }) {
   return (
     <li className="group flex items-center gap-3 px-4 py-2.5">
@@ -103,6 +109,17 @@ function ItemRow({
       <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
         {formatQty(item.quantity, item.unit)}
       </span>
+      {buyUrl && !item.checked && (
+        <a
+          href={buyUrl}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          aria-label={`Find ${item.name} on Amazon.ca`}
+          className="shrink-0 rounded-md px-1.5 py-0.5 text-[11px] font-semibold text-primary hover:bg-muted"
+        >
+          Amazon
+        </a>
+      )}
       <button
         type="button"
         onClick={() => onDelete(item)}
@@ -207,6 +224,10 @@ export function GroceriesDashboard() {
     loadItems(activeId);
   }, [activeId, loadItems]);
 
+  const { currency } = useCurrency();
+  const online = shopsAvailable(currency);
+  const [department, setDepartment] = useState('groceries');
+  const activeDepartment = SHOPPING_DEPARTMENTS.find((d) => d.id === department) ?? SHOPPING_DEPARTMENTS[0]!;
   const remaining = items.filter((i) => !i.checked);
   const checked = items.filter((i) => i.checked);
   const groups = useMemo(() => groupByAisle(remaining), [remaining]);
@@ -388,17 +409,22 @@ export function GroceriesDashboard() {
         </Button>
       </PageHeader>
 
-      {/* Departments: Groceries now; the rest arrive with partner stores. */}
+      {/* Departments: Groceries, plus Household, Clothing, Kids and Eid on Amazon.ca for families in Canada. */}
       <nav aria-label="Shopping departments" className="mb-5 flex flex-wrap gap-2">
         {SHOPPING_DEPARTMENTS.map((d) =>
-          d.live ? (
-            <span
+          d.live || online ? (
+            <button
               key={d.id}
-              aria-current="page"
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-foreground"
+              type="button"
+              onClick={() => setDepartment(d.id)}
+              aria-current={department === d.id ? 'page' : undefined}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors',
+                department === d.id ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
+              )}
             >
               {d.label}
-            </span>
+            </button>
           ) : (
             <span
               key={d.id}
@@ -412,7 +438,9 @@ export function GroceriesDashboard() {
         )}
       </nav>
 
-      {loading ? (
+      {online && department !== 'groceries' ? (
+        <ShopDepartment id={activeDepartment.id} label={activeDepartment.label} note={activeDepartment.note} />
+      ) : loading ? (
         <Card>
           <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -614,12 +642,24 @@ export function GroceriesDashboard() {
                       </div>
                       <ul className="divide-y divide-border/60">
                         {group.items.map((item) => (
-                          <ItemRow key={item.id} item={item} onToggle={toggleItem} onDelete={deleteItem} />
+                          <ItemRow
+                            key={item.id}
+                            item={item}
+                            onToggle={toggleItem}
+                            onDelete={deleteItem}
+                            buyUrl={online && canBuyOnline(group.category) ? amazonSearchUrl(item.name) : undefined}
+                          />
                         ))}
                       </ul>
                     </Card>
                   );
                 })}
+
+                {online && groups.some((g) => canBuyOnline(g.category)) && (
+                  <p className="px-1 text-xs text-muted-foreground">
+                    “Amazon” opens the item on Amazon.ca. Fresh food isn’t linked: it’s best bought locally. {AFFILIATE_NOTE}
+                  </p>
+                )}
 
                 {remaining.length === 0 && (
                   <p className="rounded-2xl bg-brand-sage/10 px-4 py-3 text-center text-sm font-medium text-brand-sage">

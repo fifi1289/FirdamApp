@@ -98,7 +98,7 @@ const sections: LegalSection[] = [
           <li>reply when you contact us, keep the app secure and fix problems.</li>
         </ul>
         <p>
-          We <strong>do not sell</strong> your information and we <strong>do not show ads</strong>. With your
+          We <strong>do not sell</strong> your information and we <strong>do not show ads</strong>. For families in Canada, some shopping items link to Amazon.ca; Firdam earns a small commission on qualifying purchases, and Amazon handles the purchase under its own privacy policy. We don’t share your shopping list with Amazon — only the search you open. With your
           permission, we use Google Analytics to understand how the site is used — see “Cookies and storage on your device” below. We do not use
           advertising cookies. We will ask for your consent before using your information for any new purpose.
         </p>

@@ -26,6 +26,7 @@ export function ShoppingView() {
   const groups = useMemo(() => groupByAisle(open), [open]);
   // Amazon.ca links for families who use Canadian dollars (non-fresh items only).
   const [online, setOnline] = useState(false);
+  const onAmazon = useMemo(() => groups.filter((g) => canBuyOnline(g.category)).flatMap((g) => g.items), [groups]);
   useEffect(() => {
     getCurrency().then((c) => setOnline(shopsAvailable(c))).catch(() => {});
   }, []);
@@ -117,29 +118,41 @@ export function ShoppingView() {
                   <T size={13} color={colors.muted}>
                     {formatQty(i.quantity, i.unit)}
                   </T>
-                  {online && canBuyOnline(g.category) ? (
-                    <Pressable
-                      accessibilityRole="link"
-                      accessibilityLabel={`Find ${i.name} on Amazon.ca`}
-                      onPress={() => Linking.openURL(amazonSearchUrl(i.name))}
-                      hitSlop={8}
-                      style={styles.buy}
-                    >
-                      <T size={11.5} weight="bold" color={colors.walnut}>
-                        Amazon
-                      </T>
-                    </Pressable>
-                  ) : null}
                 </Pressable>
               ))}
             </Card>
           </View>
         ))
       )}
-      {online && groups.some((g) => canBuyOnline(g.category)) ? (
-        <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
-          {`“Amazon” opens the item on Amazon.ca. Fresh food isn’t linked: it’s best bought locally. ${AFFILIATE_NOTE}`}
-        </T>
+      {online && onAmazon.length ? (
+        <View style={{ gap: 6 }}>
+          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+            {`AVAILABLE ON AMAZON.CA · ${onAmazon.length}`}
+          </T>
+          <Card style={{ paddingVertical: 2 }}>
+            {onAmazon.map((i, idx) => (
+              <View key={i.id} style={[styles.row, idx < onAmazon.length - 1 && styles.line]}>
+                <T size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
+                  {i.name}
+                </T>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel={`See ${i.name} on Amazon.ca`}
+                  onPress={() => Linking.openURL(amazonSearchUrl(i.name))}
+                  hitSlop={6}
+                  style={styles.buy}
+                >
+                  <T size={12.5} weight="bold" color={colors.walnut}>
+                    See on Amazon ↗
+                  </T>
+                </Pressable>
+              </View>
+            ))}
+          </Card>
+          <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
+            {`Pantry items you can order online. Fresh food isn’t listed: it’s best bought locally. ${AFFILIATE_NOTE}`}
+          </T>
+        </View>
       ) : null}
 
       {done.length ? (
@@ -167,7 +180,7 @@ export function ShoppingView() {
 }
 
 const styles = StyleSheet.create({
-  buy: { backgroundColor: colors.tint, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
+  buy: { backgroundColor: colors.tint, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6 },
   input: { flex: 1, height: 48, borderRadius: 16, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, paddingHorizontal: 14, fontFamily: fonts.regular, fontSize: 15, color: colors.espresso },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52 },
   line: { borderBottomWidth: 1, borderBottomColor: colors.line },

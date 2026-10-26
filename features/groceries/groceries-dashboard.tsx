@@ -703,7 +703,7 @@ export function GroceriesDashboard() {
                       ))}
                     </ul>
                     <p className="border-t border-border/60 px-4 py-2 text-xs text-muted-foreground">
-                      Pantry items you can order online. Fresh food isn’t listed: it’s best bought locally. {AFFILIATE_NOTE}
+                      {AFFILIATE_NOTE}
                     </p>
                   </Card>
                 )}

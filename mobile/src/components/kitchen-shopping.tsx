@@ -174,7 +174,7 @@ export function ShoppingView() {
             ))}
           </Card>
           <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
-            {`Pantry items you can order online. Fresh food isn’t listed: it’s best bought locally. ${AFFILIATE_NOTE}`}
+            {AFFILIATE_NOTE}
           </T>
         </View>
       ) : null}

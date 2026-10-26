@@ -9,8 +9,7 @@ import {
   type StyleProp,
   type TextInputProps,
   type TextStyle,
-  type ViewStyle,
-} from 'react-native';
+  type ViewStyle, type TextInputInstance } from 'react-native';
 
 import { colors, fonts, radius } from '@/theme';
 
@@ -80,7 +79,7 @@ export function Button({
   );
 }
 
-export const Field = forwardRef<TextInput, TextInputProps & { label: string }>(function Field({ label, style, ...props }, ref) {
+export const Field = forwardRef<TextInputInstance, TextInputProps & { label: string }>(function Field({ label, style, ...props }, ref) {
   return (
     <View style={{ gap: 6 }}>
       <T weight="semibold" size={14}>

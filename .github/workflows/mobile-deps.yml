@@ -1,4 +1,4 @@
-# Temporary helper (run 6: sign in with Apple/Google): runs package commands for mobile/ (npm isn't reachable from
+# Temporary helper (run 10: SDK 58 lock file): runs package commands for mobile/ (npm isn't reachable from
 # the coding session) and commits the updated package files back.
 name: mobile-deps
 on:
@@ -20,11 +20,18 @@ jobs:
           node-version: 22
       - name: Update packages
         run: |
+          set +e
           {
-            npm ci --no-audit --no-fund > /dev/null 2>&1
-            echo "== install"; npx expo install expo-apple-authentication expo-web-browser 2>&1 | tail -8
-            echo "== expo check"; npx expo install --check 2>&1 | tail -10
-            echo "== deps"; node -p 'JSON.stringify([require("./package.json").dependencies["expo-apple-authentication"], require("./package.json").dependencies["expo-web-browser"]])'
+            echo "== plain install"
+            if npm install --no-audit --no-fund 2>&1 | tail -30; then :; fi
+            if ! npm ci --dry-run --no-audit --no-fund > /dev/null 2>&1; then
+              echo "== plain install did not give a clean lock; using legacy-peer-deps"
+              echo "legacy-peer-deps=true" > .npmrc
+              npm install --no-audit --no-fund 2>&1 | tail -10
+            fi
+            echo "== ci check"; rm -rf node_modules; npm ci --no-audit --no-fund 2>&1 | tail -10
+            echo "== typecheck"; npx tsc --noEmit 2>&1 | tail -20
+            echo "== doctor"; npx expo-doctor@latest 2>&1 | tail -8
           } > ../deps-report.txt
       - name: Save
         if: always()
@@ -32,5 +39,5 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@users.noreply.github.com
-          git add mobile/package.json mobile/package-lock.json deps-report.txt
+          git add mobile/package.json mobile/package-lock.json deps-report.txt; git add -f mobile/.npmrc 2>/dev/null || true
           git commit -m "Update mobile packages [skip ci]" && git push

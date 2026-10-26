@@ -84,5 +84,5 @@ jobs:
             echo ""
             echo "Scan this code with the iPhone camera (Expo Go must be installed):"
             echo ""
-            echo "![QR code](https://qr.expo.dev/eas-update?projectId=${PROJECT_ID}&runtimeVersion=exposdk:57.0.0&channel=preview)"
+            echo "![QR code](https://qr.expo.dev/eas-update?projectId=${PROJECT_ID}&runtimeVersion=exposdk:58.0.0&channel=preview)"
           } >> "$GITHUB_STEP_SUMMARY"

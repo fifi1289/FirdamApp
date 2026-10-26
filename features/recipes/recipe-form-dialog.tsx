@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -60,7 +59,6 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
   const [steps, setSteps] = useState('');
   const [tips, setTips] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [isPublic, setIsPublic] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -77,7 +75,6 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
     setSteps((recipe?.steps ?? []).join('\n'));
     setTips(recipe?.tips ?? '');
     setImageUrl(recipe?.image_url ?? '');
-    setIsPublic(recipe?.is_public ?? false);
   }, [open, recipe]);
 
   const updateLine = (i: number, patch: Partial<Line>) =>
@@ -109,7 +106,7 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
       steps: stepList,
       tips: tips.trim() || null,
       image_url: imageUrl.trim() || null,
-      is_public: isPublic,
+      is_public: false,
       author_name: displayNameFor(user),
       updated_at: new Date().toISOString(),
     };
@@ -269,15 +266,7 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
               placeholder="https://…"
             />
           </div>
-          <div className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5">
-            <div>
-              <Label htmlFor="r-public" className="text-sm">
-                Share with the Firdam community
-              </Label>
-              <p className="text-xs text-muted-foreground">Other families can find and cook it.</p>
-            </div>
-            <Switch id="r-public" checked={isPublic} onCheckedChange={setIsPublic} />
-          </div>
+          <p className="text-xs text-muted-foreground">Your recipes are private: only your family sees them.</p>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">

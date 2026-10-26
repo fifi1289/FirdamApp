@@ -39,7 +39,7 @@ import { useRecipeFavorites } from '@/features/recipes/use-favorites';
 import { RecipeFormDialog } from '@/features/recipes/recipe-form-dialog';
 import { CookWithWhatIHave } from '@/features/recipes/cook-with-what-i-have';
 
-type Tab = 'all' | 'cook' | 'favorites' | 'mine' | 'community';
+type Tab = 'all' | 'cook' | 'favorites' | 'mine';
 
 const MEAL_FILTERS: { value: MealTypeKey | 'all'; label: string }[] = [
   { value: 'all', label: 'Any meal' },
@@ -207,7 +207,6 @@ export function RecipesDashboard() {
     return recipes.filter((r) => {
       if (tab === 'favorites' && !favorites.has(r.key)) return false;
       if (tab === 'mine' && r.source !== 'mine') return false;
-      if (tab === 'community' && r.source !== 'community') return false;
       if (meal !== 'all' && r.mealType !== meal) return false;
       if (cuisine !== 'all' && r.cuisine !== cuisine) return false;
       if (time !== 'any' && totalMinutes(r) > Number(time)) return false;
@@ -260,7 +259,6 @@ export function RecipesDashboard() {
     { value: 'cook', label: 'What can I cook?' },
     { value: 'favorites', label: `Favourites${favorites.size ? ` (${favorites.size})` : ''}` },
     { value: 'mine', label: `My recipes${myCount ? ` (${myCount})` : ''}` },
-    { value: 'community', label: 'From the community' },
   ];
 
   return (
@@ -419,22 +417,20 @@ export function RecipesDashboard() {
                 ? 'No favourites yet'
                 : tab === 'mine'
                   ? 'You haven’t added a recipe yet'
-                  : tab === 'community'
-                    ? 'No community recipes yet'
-                    : recipes.length === 0
+                  : recipes.length === 0
                       ? 'The recipe library is empty'
                       : 'No recipes match'}
             </h3>
             <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
               {tab === 'favorites'
                 ? 'Tap the heart on any recipe to keep it here.'
-                : tab === 'mine' || tab === 'community'
-                  ? 'Add a family favourite and choose to share it with the community.'
+                : tab === 'mine'
+                  ? 'Add a family favourite. Your recipes are private: only your family sees them.'
                   : recipes.length === 0
                     ? 'Run the database migrations to add the starter halal recipes.'
                     : 'Try a different search or filter.'}
             </p>
-            {(tab === 'mine' || tab === 'community') && (
+            {tab === 'mine' && (
               <Button size="sm" className="mt-5" onClick={startNew}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add your recipe

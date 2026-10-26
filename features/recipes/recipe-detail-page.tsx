@@ -338,7 +338,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
             {recipe.source !== 'catalog' && (
               <Badge variant="outline" className="gap-1">
                 {recipe.isPublic && <Globe className="h-3 w-3" />}
-                {recipe.isOwn ? (recipe.isPublic ? 'Shared by you' : 'Your private recipe') : `By ${recipe.author ?? 'a Firdam family'}`}
+                {recipe.isOwn ? 'Your private recipe' : `By ${recipe.author ?? 'a Firdam family'}`}
               </Badge>
             )}
           </div>

@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as Location from 'expo-location';
 import { ActivityIndicator, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -114,7 +115,12 @@ export default function Halal() {
   const place = settings?.place ?? null;
   const [places, setPlaces] = useState<Place[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // The shopping list can open a category directly: /halal?category=butcher
+  const params = useLocalSearchParams<{ category?: string }>();
   const [filter, setFilter] = useState<'all' | Category>('all');
+  useEffect(() => {
+    if (params.category && FILTERS.some((f) => f.key === params.category)) setFilter(params.category as Category);
+  }, [params.category]);
   const [locating, setLocating] = useState(false);
   const km = RADIUS_KM;
   const [stores, setStores] = useState(true);

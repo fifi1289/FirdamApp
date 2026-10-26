@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { supabase } from './supabase';
+import { deviceTimeZone, isCanadianTimeZone } from '@/shared/shop-links';
 import { DEFAULT_CATEGORIES, EMPTY_ZAKAT, REGION_CURRENCY, monthBounds, type SavingsGoalKind, type TransactionType, type ZakatValues } from '@/shared/finance-core';
 
 /** Same tables as the website's Finance page, so entries show up in both. */
@@ -123,6 +124,8 @@ const ZAKAT_KEY = 'firdam.zakat.inputs';
 const FITR_KEY = 'firdam.zakat.fitr';
 
 function guessCurrency(): string {
+  // In Canada phones are often set to "English (US)"; the time zone is more reliable.
+  if (isCanadianTimeZone(deviceTimeZone())) return 'CAD';
   try {
     const locale = Intl.DateTimeFormat().resolvedOptions().locale ?? '';
     const region = locale.split(/[-_]/).find((p) => /^[A-Z]{2}$/.test(p));

@@ -11,9 +11,37 @@ export const AMAZON_CA_TAG = 'firdam-20';
 /** Amazon requires this sentence wherever its links appear. */
 export const AFFILIATE_NOTE = 'As an Amazon Associate, Firdam earns from qualifying purchases.';
 
-/** Buy links are shown only where Firdam has a shop partner (Canada for now). */
-export function shopsAvailable(currency: string | null | undefined): boolean {
-  return currency === 'CAD';
+/** True for the phone's or browser's time zone when it is in Canada. */
+export function isCanadianTimeZone(timeZone: string | null | undefined): boolean {
+  return !!timeZone && CANADIAN_TIME_ZONES.has(timeZone);
+}
+
+const CANADIAN_TIME_ZONES = new Set([
+  'America/St_Johns', 'America/Halifax', 'America/Glace_Bay', 'America/Moncton', 'America/Goose_Bay',
+  'America/Toronto', 'America/Montreal', 'America/Nipigon', 'America/Thunder_Bay', 'America/Iqaluit',
+  'America/Winnipeg', 'America/Rainy_River', 'America/Rankin_Inlet', 'America/Resolute', 'America/Regina',
+  'America/Swift_Current', 'America/Edmonton', 'America/Cambridge_Bay', 'America/Yellowknife', 'America/Inuvik',
+  'America/Vancouver', 'America/Whitehorse', 'America/Dawson', 'America/Dawson_Creek', 'America/Fort_Nelson',
+  'America/Creston', 'America/Atikokan', 'America/Blanc-Sablon',
+]);
+
+/** The device's time zone, or null if it can't be read. */
+export function deviceTimeZone(): string | null {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Buy links are shown only where Firdam has a shop partner (Canada for now):
+ * families who chose Canadian dollars, or whose device is set to a Canadian
+ * time zone (browsers often say "English (US)" in Canada, so language alone
+ * isn't enough).
+ */
+export function shopsAvailable(currency: string | null | undefined, timeZone: string | null | undefined = deviceTimeZone()): boolean {
+  return currency === 'CAD' || isCanadianTimeZone(timeZone);
 }
 
 /** Amazon.ca search for `query`, optionally only up to `maxPrice` dollars, with Firdam's tag. */

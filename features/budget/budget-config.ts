@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 
 import { REGION_CURRENCY } from '@/features/budget/finance-core';
+import { deviceTimeZone, isCanadianTimeZone } from '@/features/groceries/shop-links';
 
 export const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
   groceries: ShoppingBasket,
@@ -55,6 +56,8 @@ export {
 const CURRENCY_KEY = 'firdam.currency';
 
 function guessCurrency(): string {
+  // In Canada browsers often say "English (US)"; the time zone is more reliable.
+  if (isCanadianTimeZone(deviceTimeZone())) return 'CAD';
   try {
     const region = new Intl.Locale(navigator.language).maximize().region;
     if (region && REGION_CURRENCY[region]) return REGION_CURRENCY[region]!;

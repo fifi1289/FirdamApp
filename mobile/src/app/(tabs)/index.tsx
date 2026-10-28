@@ -13,6 +13,7 @@ import { formatDateISO, mealImage, useFreshMealPhotos } from '@/lib/kitchen';
 import { getCurrency, loadMonth } from '@/lib/finance';
 import { formatMoney, monthTotals } from '@/shared/finance-core';
 import { useKitchen } from '@/lib/kitchen-store';
+import { markSetupDone, setupDone } from '@/lib/setup';
 import { loadEvents, loadMembers } from '@/lib/calendar';
 import { duaOfTheDay } from '@/shared/duas';
 import { buildCalendarItems, iso, parseISODate, type CalendarItem } from '@/shared/calendar-core';
@@ -328,6 +329,16 @@ function BellButton() {
 }
 
 export default function Today() {
+  // First-time setup for new families; people who already set a location skip it.
+  const { settings: prayerSettings } = usePrayerSettings();
+  useEffect(() => {
+    if (!prayerSettings) return;
+    setupDone().then((done) => {
+      if (done) return;
+      if (prayerSettings.place) markSetupDone();
+      else router.push('/setup');
+    });
+  }, [prayerSettings]);
   const { firstName } = useAuth();
   const now = useNow(60000);
   return (

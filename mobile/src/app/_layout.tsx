@@ -70,6 +70,7 @@ function Navigator() {
         <Stack.Screen name="fasting" />
         <Stack.Screen name="notifications" />
         <Stack.Screen name="household" />
+        <Stack.Screen name="setup" options={{ gestureEnabled: false }} />
       </Stack.Protected>
     </Stack>
   );

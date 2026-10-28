@@ -15,6 +15,7 @@ export interface PartnerShop {
   url: string;
   image_url: string | null;
   photos: string[];
+  topics: string[];
   discount_code: string | null;
   discount_text: string | null;
   position: number;
@@ -22,7 +23,7 @@ export interface PartnerShop {
 
 /** Columns families see (never the admin-only fields). */
 export const PARTNER_COLUMNS =
-  'id, name, department, description, city, ships, how_to_order, url, image_url, photos, discount_code, discount_text, position';
+  'id, name, department, description, city, ships, how_to_order, url, image_url, photos, topics, discount_code, discount_text, position';
 
 /** Partners for one department, in the order the admin set. */
 export function partnersIn(shops: PartnerShop[], department: string): PartnerShop[] {
@@ -44,7 +45,33 @@ export function partnerLinkLabel(url: string): string {
   if (/facebook\.com|fb\.com/i.test(url)) return 'Visit on Facebook';
   if (/instagram\.com/i.test(url)) return 'Visit on Instagram';
   if (/wa\.me|whatsapp\.com/i.test(url)) return 'Message on WhatsApp';
-  return 'Visit shop';
+  return 'Visit website';
 }
+
+/** Every kind of partner: the Shopping departments plus Learning. */
+export const PARTNER_CATEGORIES: { id: string; label: string }[] = [
+  { id: 'groceries', label: 'Groceries' },
+  { id: 'household', label: 'Household' },
+  { id: 'clothing', label: 'Clothing' },
+  { id: 'kids', label: 'Kids & school' },
+  { id: 'gifts', label: 'Eid & gifts' },
+  { id: 'learning', label: 'Learning (Quran, Arabic, classes)' },
+];
+
+/** What learning partners can teach; used as filters in Learning. */
+export const LEARNING_TOPICS = ['Quran', 'Tajweed', 'Hifz', 'Arabic', 'Hadith', 'Islamic studies', 'Kids', 'Sisters'] as const;
+
+/** Learning partners, optionally only those teaching one topic. */
+export function learningPartners(shops: PartnerShop[], topic?: string | null): PartnerShop[] {
+  return partnersIn(shops, 'learning').filter((s) => !topic || s.topics.includes(topic));
+}
+
+/** Topics that at least one learning partner teaches, in the standard order. */
+export function learningTopicsInUse(shops: PartnerShop[]): string[] {
+  const used = new Set(partnersIn(shops, 'learning').flatMap((s) => s.topics));
+  return LEARNING_TOPICS.filter((t) => used.has(t));
+}
+
+export const LEARNING_NOTE = 'Learning partners are independent teachers and schools. Classes, fees and schedules are arranged directly with them.';
 
 export const PARTNER_NOTE = 'Partner shops are independent businesses. Orders, payment and delivery are between you and the shop.';

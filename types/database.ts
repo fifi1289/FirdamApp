@@ -953,7 +953,7 @@ export type Database = {
           owner_name: string;
           email: string;
           phone: string | null;
-          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
           city: string | null;
           link: string;
           description: string | null;
@@ -967,7 +967,7 @@ export type Database = {
           owner_name: string;
           email: string;
           phone?: string | null;
-          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
           city?: string | null;
           link: string;
           description?: string | null;
@@ -982,7 +982,7 @@ export type Database = {
         Row: {
           id: string;
           name: string;
-          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
           description: string | null;
           city: string | null;
           ships: string | null;
@@ -990,6 +990,7 @@ export type Database = {
           url: string;
           image_url: string | null;
           photos: string[];
+          topics: string[];
           discount_code: string | null;
           discount_text: string | null;
           free_until: string | null;
@@ -1001,7 +1002,7 @@ export type Database = {
         Insert: {
           id?: string;
           name: string;
-          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
           description?: string | null;
           city?: string | null;
           ships?: string | null;
@@ -1009,6 +1010,7 @@ export type Database = {
           url: string;
           image_url?: string | null;
           photos?: string[];
+          topics?: string[];
           discount_code?: string | null;
           discount_text?: string | null;
           free_until?: string | null;
@@ -1020,7 +1022,7 @@ export type Database = {
         Update: {
           id?: string;
           name?: string;
-          department?: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          department?: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
           description?: string | null;
           city?: string | null;
           ships?: string | null;
@@ -1028,6 +1030,7 @@ export type Database = {
           url?: string;
           image_url?: string | null;
           photos?: string[];
+          topics?: string[];
           discount_code?: string | null;
           discount_text?: string | null;
           free_until?: string | null;

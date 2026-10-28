@@ -25,7 +25,7 @@ export function PartnerShops({ shops, department }: { shops: PartnerShop[]; depa
   );
 }
 
-function PartnerCard({ shop }: { shop: PartnerShop }) {
+export function PartnerCard({ shop }: { shop: PartnerShop }) {
   const meta = partnerMeta(shop);
   const open = () => {
     recordPartnerClick(shop.id);
@@ -65,6 +65,18 @@ function PartnerCard({ shop }: { shop: PartnerShop }) {
         </T>
       ) : null}
 
+      {shop.topics.length ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+          {shop.topics.map((t) => (
+            <View key={t} style={styles.topic}>
+              <T size={12} weight="semibold">
+                {t}
+              </T>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
       {shop.photos.length ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
           {shop.photos.map((src) => (
@@ -93,6 +105,7 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   logo: { width: 56, height: 56, borderRadius: 28, borderWidth: 1, borderColor: colors.line },
   initial: { backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
+  topic: { backgroundColor: colors.tint, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
   photo: { width: 120, height: 120, borderRadius: 12, backgroundColor: colors.tint },
   code: {
     flexDirection: 'row',

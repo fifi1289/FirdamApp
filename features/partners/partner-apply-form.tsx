@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
+import { PARTNER_CATEGORIES } from '@/features/groceries/partners';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
 
@@ -104,13 +104,13 @@ export function PartnerApplyForm() {
           <Input type="tel" value={f.phone} onChange={set('phone')} maxLength={30} autoComplete="tel" />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground">
-          What do you sell? *
+          What do you offer? *
           <select
             value={f.department}
             onChange={set('department')}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
           >
-            {SHOPPING_DEPARTMENTS.map((d) => (
+            {PARTNER_CATEGORIES.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.label}
               </option>
@@ -126,8 +126,8 @@ export function PartnerApplyForm() {
           <Input value={f.link} onChange={set('link')} maxLength={300} placeholder="Website, Facebook, Instagram or WhatsApp link" />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground sm:col-span-2">
-          Shipping or delivery
-          <Input value={f.ships} onChange={set('ships')} maxLength={120} placeholder="e.g. Ships across Canada, local pickup in Ottawa" />
+          Shipping, delivery or class format
+          <Input value={f.ships} onChange={set('ships')} maxLength={120} placeholder="e.g. Ships across Canada, or Online classes for kids and adults" />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground sm:col-span-2">
           Tell families about your shop

@@ -8,13 +8,14 @@ export function usePartnerShops(): PartnerShop[] {
   const [shops, setShops] = useState<PartnerShop[]>([]);
   useEffect(() => {
     let alive = true;
-    supabase
-      .from('partner_shops')
-      .select(PARTNER_COLUMNS)
-      .eq('active', true)
-      .then(({ data }) => {
-        if (alive) setShops((data as PartnerShop[] | null) ?? []);
-      });
+    type Result = { data: PartnerShop[] | null; error: unknown };
+    const get = async (cols: string) => (await supabase.from('partner_shops').select(cols).eq('active', true)) as unknown as Result;
+    (async () => {
+      let res = await get(PARTNER_COLUMNS);
+      // Before the topics column exists, fall back to the older columns.
+      if (res.error) res = await get(PARTNER_COLUMNS.replace(', topics', ''));
+      if (alive) setShops((res.data ?? []).map((s) => ({ ...s, topics: s.topics ?? [] })));
+    })().catch(() => {});
     return () => {
       alive = false;
     };

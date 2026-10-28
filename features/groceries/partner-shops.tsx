@@ -12,11 +12,15 @@ export function usePartnerShops() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [shops, setShops] = useState<PartnerShop[]>([]);
   useEffect(() => {
-    supabase
-      .from('partner_shops')
-      .select(PARTNER_COLUMNS)
-      .eq('active', true)
-      .then(({ data }) => setShops((data as PartnerShop[] | null) ?? []));
+    type Result = { data: PartnerShop[] | null; error: unknown };
+    const get = async (cols: string) => (await supabase.from('partner_shops').select(cols).eq('active', true)) as unknown as Result;
+    const load = async () => {
+      let res = await get(PARTNER_COLUMNS);
+      // Before the topics column exists, fall back to the older columns.
+      if (res.error) res = await get(PARTNER_COLUMNS.replace(', topics', ''));
+      setShops((res.data ?? []).map((s) => ({ ...s, topics: s.topics ?? [] })));
+    };
+    load();
   }, [supabase]);
   return shops;
 }
@@ -43,7 +47,7 @@ export function PartnerShops({ shops, department }: { shops: PartnerShop[]; depa
   );
 }
 
-function PartnerCard({ shop }: { shop: PartnerShop }) {
+export function PartnerCard({ shop }: { shop: PartnerShop }) {
   const meta = partnerMeta(shop);
   return (
     <Card className="overflow-hidden">
@@ -71,6 +75,15 @@ function PartnerCard({ shop }: { shop: PartnerShop }) {
             )}
             {shop.description && <p className="mt-1.5 text-sm text-foreground">{shop.description}</p>}
             {shop.how_to_order && <p className="mt-1 text-sm text-muted-foreground">{shop.how_to_order}</p>}
+            {shop.topics.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {shop.topics.map((t) => (
+                  <span key={t} className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-foreground">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

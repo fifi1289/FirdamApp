@@ -946,6 +946,38 @@ export type Database = {
         };
         Relationships: [];
       };
+      partner_applications: {
+        Row: {
+          id: string;
+          shop_name: string;
+          owner_name: string;
+          email: string;
+          phone: string | null;
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          city: string | null;
+          link: string;
+          description: string | null;
+          ships: string | null;
+          terms_agreed: boolean;
+          status: 'new' | 'contacted' | 'added' | 'declined';
+          created_at: string;
+        };
+        Insert: {
+          shop_name: string;
+          owner_name: string;
+          email: string;
+          phone?: string | null;
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          city?: string | null;
+          link: string;
+          description?: string | null;
+          ships?: string | null;
+          terms_agreed: boolean;
+          status?: 'new' | 'contacted' | 'added' | 'declined';
+        };
+        Update: { status?: 'new' | 'contacted' | 'added' | 'declined' };
+        Relationships: [];
+      };
       partner_shops: {
         Row: {
           id: string;
@@ -1738,3 +1770,4 @@ export type CommunityEventKind =
 export type CommunityEvent = Database['public']['Tables']['community_events']['Row'];
 
 export type PartnerShopRow = Database['public']['Tables']['partner_shops']['Row'];
+export type PartnerApplication = Database['public']['Tables']['partner_applications']['Row'];

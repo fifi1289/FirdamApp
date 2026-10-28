@@ -12,9 +12,9 @@ import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { useAuth } from '@/components/auth/auth-provider';
 
 const navLinks = [
-  { label: 'Modules', href: '#modules' },
-  { label: 'Features', href: '#features' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Features', href: '/#features' },
+  { label: 'FAQ', href: '/#faq' },
+  { label: 'For shops', href: '/partners' },
 ];
 
 export function SiteHeader() {

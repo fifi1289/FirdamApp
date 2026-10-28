@@ -435,6 +435,13 @@ export function GroceriesDashboard() {
         <div className="space-y-5">
           <PartnerShops shops={partners} department={activeDepartment.id} />
           {online && <ShopDepartment id={activeDepartment.id} label={activeDepartment.label} note={activeDepartment.note} />}
+          <p className="text-sm text-muted-foreground">
+            Run a Muslim-owned shop?{' '}
+            <Link href="/partners" className="font-semibold text-primary underline-offset-2 hover:underline">
+              Become a Firdam partner
+            </Link>
+            , free for founding partners.
+          </p>
         </div>
       ) : loading ? (
         <Card>

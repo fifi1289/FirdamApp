@@ -28,8 +28,9 @@ export function T({
   color?: string;
   style?: StyleProp<TextStyle>;
   numberOfLines?: number;
-  accessibilityRole?: 'header' | 'text';
+  accessibilityRole?: 'header' | 'text' | 'link';
   selectable?: boolean;
+  onPress?: () => void;
 }) {
   return (
     <Text style={[{ fontFamily: fonts[weight], fontSize: size, color }, style]} {...rest}>

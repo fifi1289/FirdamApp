@@ -88,6 +88,16 @@ export default function Family() {
         </View>
       </Card>
 
+      <Card style={{ gap: 8 }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          SHARE WITH YOUR FAMILY
+        </T>
+        <T size={14} color={colors.muted}>
+          Invite your spouse and children to share the family calendar, shopping list, meal plans and pantry.
+        </T>
+        <Button label="Invite your family" onPress={() => router.push('/household')} />
+      </Card>
+
       <Card style={{ paddingVertical: 4 }}>
         {links.map((l, i) => (
           <Pressable

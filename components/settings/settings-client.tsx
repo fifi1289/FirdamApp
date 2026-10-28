@@ -53,6 +53,7 @@ const EXPORT_TABLES = [
   'profiles',
   'family_members',
   'family_events',
+  'fast_makeup',
   'planner_tasks',
   'planner_goals',
   'pantry_items',

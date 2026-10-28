@@ -49,7 +49,7 @@ const sections: LegalSection[] = [
             dietary preferences and allergies, tasks, family calendar events and trips.
           </li>
           <li>
-            <strong>Faith trackers:</strong> Quran reading, Ramadan fasting and other trackers you choose to use.
+            <strong>Faith trackers:</strong> Quran reading, Ramadan fasting, the number of Ramadan days you have to make up (never the reason) and other trackers you choose to use. These stay private to you.
           </li>
           <li>
             <strong>Money:</strong> budgets, spending, sadaqah and zakat records and savings goals you enter. We never ask

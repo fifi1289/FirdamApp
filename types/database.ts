@@ -1047,6 +1047,12 @@ export type Database = {
         Update: { source?: 'web' | 'app' | null };
         Relationships: [];
       };
+      fast_makeup: {
+        Row: { user_id: string; ramadan_year: number; missed: number; made_up: string[]; updated_at: string };
+        Insert: { user_id?: string; ramadan_year: number; missed?: number; made_up?: string[]; updated_at?: string };
+        Update: { missed?: number; made_up?: string[]; updated_at?: string };
+        Relationships: [];
+      };
       family_events: {
         Row: {
           id: string;

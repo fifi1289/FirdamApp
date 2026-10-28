@@ -13,6 +13,7 @@ import {
 } from '@/lib/prayer/prayer';
 import { notifyOnce, useReminderSettings } from '@/lib/reminders/reminders';
 import { sunnahFastingDays, type HijriLabel } from '@/features/calendar/calendar-core';
+import { nextRamadan, totalRemaining, type MakeupRecord } from '@/features/fasting/makeup-core';
 
 function isoDay(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -150,6 +151,29 @@ export function ReminderManager() {
       if (timer) clearTimeout(timer);
     };
   }, [settings.fasting, prayerSettings, ready]);
+
+  // Days to make up: a reminder in the last month (and last week) before Ramadan, while the site is open.
+  useEffect(() => {
+    const next = nextRamadan();
+    if (!next || next.daysAway > 30) return;
+    let cancelled = false;
+    createSupabaseBrowserClient()
+      .from('fast_makeup')
+      .select('ramadan_year, missed, made_up')
+      .then(({ data }) => {
+        const left = totalRemaining((data as MakeupRecord[] | null) ?? []);
+        if (cancelled || !left) return;
+        const stage = next.daysAway <= 7 ? 'week' : 'month';
+        notifyOnce(
+          `makeup-${next.year}-${stage}`,
+          `${left} ${left === 1 ? 'fast' : 'fasts'} to make up before Ramadan`,
+          `Ramadan starts in about ${next.daysAway} ${next.daysAway === 1 ? 'day' : 'days'}. Log each day in Fasting as you make it up.`
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return null;
 }

@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { readSavedLocation } from '@/lib/geo/location';
 import { DEFAULT_PRAYER_SETTINGS, fetchPrayerMonth, parseGregorian } from '@/lib/prayer/prayer';
 import { useReminderSettings } from '@/lib/reminders/reminders';
+import { MakeupCard } from '@/features/fasting/makeup-card';
 import { iso, parseISODate, sunnahFastingDays, type FastingDay, type HijriLabel } from '@/features/calendar/calendar-core';
 
 export const FASTING_PREFS_KEY = 'firdam.fasting';
@@ -95,7 +96,7 @@ export function FastingDashboard() {
     <AppShell>
       <PageHeader
         title="Fasting"
-        description="The Sunnah fasts coming up: Arafah, Ashura, the white days of each month and the six days of Shawwal. Ramadan comes here too, in sha Allah."
+        description="The Sunnah fasts coming up, and the Ramadan days you have to make up, with reminders before the next Ramadan."
       />
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
@@ -134,6 +135,7 @@ export function FastingDashboard() {
         </Card>
 
         <div className="space-y-4">
+          <MakeupCard />
           <Card>
             <CardContent className="space-y-4 p-5">
               <div className="flex items-center justify-between gap-4">

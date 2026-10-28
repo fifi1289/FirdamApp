@@ -4,6 +4,8 @@ import { Platform } from 'react-native';
 import { alertsAllowed } from './adhan-alerts';
 import { getRemindersOn, loadEvents } from './calendar';
 import { getFastingPrefs, upcomingFasts } from './fasting';
+import { loadMakeup } from './makeup';
+import { makeupReminderDates } from '@/shared/makeup-core';
 import { buildCalendarItems, formatTime, parseISODate, type FastingDay } from '@/shared/calendar-core';
 
 const KIND = 'family-event';
@@ -31,13 +33,21 @@ function at(date: string, hour: number, minute = 0, dayOffset = 0): Date {
  * Replaces the scheduled family-calendar reminders with the next month's:
  * the evening before (7 pm) and, for timed events, an hour before; all-day
  * events on the morning itself (8 am). Sunnah fasts the family chose get a
- * reminder at 8 pm the evening before, for suhoor. Safe to call often.
+ * reminder at 8 pm the evening before, for suhoor. Days left to make up get a
+ * reminder a month and a week before the next Ramadan. Safe to call often.
  */
 export async function scheduleEventAlerts(): Promise<number> {
   await clearEventAlerts();
   if (!(await alertsAllowed())) return 0;
-  const [eventsOn, fasting] = await Promise.all([getRemindersOn(), getFastingPrefs()]);
-  if (!eventsOn && !fasting.remind) return 0;
+  const [eventsOn, fasting, makeup] = await Promise.all([getRemindersOn(), getFastingPrefs(), loadMakeup().catch(() => [])]);
+  // Days to make up: a month and a week before the next Ramadan, while any are left.
+  const makeupAlerts = makeupReminderDates(makeup).map((r) => ({
+    when: r.when,
+    title: `${r.left} ${r.left === 1 ? 'fast' : 'fasts'} to make up before Ramadan`,
+    body: r.daysBefore === 30 ? 'Ramadan starts in about a month. Plan your make-up fasts, in sha Allah.' : 'Ramadan starts in a week. Log each day in Fasting as you make it up.',
+    url: '/fasting',
+  }));
+  if (!eventsOn && !fasting.remind && !makeupAlerts.length) return 0;
 
   const start = new Date();
   start.setHours(0, 0, 0, 0);
@@ -64,7 +74,10 @@ export async function scheduleEventAlerts(): Promise<number> {
     }
   }
 
-  const upcoming = alerts.filter((a) => a.when > now).sort((a, b) => a.when.getTime() - b.when.getTime()).slice(0, MAX_ALERTS);
+  const upcoming = [
+    ...makeupAlerts,
+    ...alerts.filter((a) => a.when > now).sort((a, b) => a.when.getTime() - b.when.getTime()).slice(0, MAX_ALERTS - makeupAlerts.length),
+  ];
   if (upcoming.length && Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(KIND, { name: 'Family calendar', importance: Notifications.AndroidImportance.DEFAULT });
   }

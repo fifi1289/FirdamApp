@@ -31,6 +31,7 @@ const FILES = {
   'features/groceries/shop-links.ts': 'shop-links.ts',
   'features/groceries/partners.ts': 'partners.ts',
   'features/calendar/calendar-core.ts': 'calendar-core.ts',
+  'features/fasting/makeup-core.ts': 'makeup-core.ts',
   'features/quran/duas.ts': 'duas.ts',
   'features/quran/surahs.ts': 'surahs.ts',
   'features/quran/quran-core.ts': 'quran-core.ts',

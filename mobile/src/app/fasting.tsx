@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { MakeupCard } from '@/components/makeup-card';
 import { HomeButton } from '@/components/screen';
 import { SwitchRow } from '@/components/switch-row';
 import { Button, Card, T } from '@/components/ui';
@@ -61,8 +62,7 @@ export default function Fasting() {
           Fasting
         </T>
         <T size={14.5} color={colors.muted} style={{ lineHeight: 21 }}>
-          The Sunnah fasts coming up: Arafah, Ashura, the white days of each month and the six days of Shawwal. Ramadan comes here too, in sha
-          Allah.
+          The Sunnah fasts coming up, and the Ramadan days you have to make up, with reminders before the next Ramadan.
         </T>
 
         {prefs ? (
@@ -88,6 +88,8 @@ export default function Fasting() {
             {problem}
           </T>
         ) : null}
+
+        <MakeupCard />
 
         <Card style={{ gap: 2 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4, marginBottom: 4 }}>

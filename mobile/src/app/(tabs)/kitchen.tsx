@@ -8,12 +8,15 @@ import { RecipesView } from '@/components/kitchen-recipes';
 import { ShoppingView } from '@/components/kitchen-shopping';
 import { PantryView } from '@/components/kitchen-pantry';
 import { Badge, Chip } from '@/components/kitchen-ui';
+import { PartnerShops } from '@/components/partner-shops';
 import { HomeButton } from '@/components/screen';
 import { getCurrency } from '@/lib/finance';
 import { AFFILIATE_NOTE, DEPARTMENT_PICKS, amazonSearchUrl, parseBudget, shopsAvailable } from '@/shared/shop-links';
 import { UPCOMING_DEPARTMENTS } from '@/shared/shopping-departments';
 import { Button, Card, T } from '@/components/ui';
 import { useKitchen } from '@/lib/kitchen-store';
+import { usePartnerShops } from '@/lib/partners';
+import { partnerDepartments } from '@/shared/partners';
 import { colors } from '@/theme';
 
 type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
@@ -89,6 +92,8 @@ export default function Kitchen() {
  */
 function MoreDepartments() {
   const [online, setOnline] = useState<boolean | null>(null);
+  const partners = usePartnerShops();
+  const withPartners = partnerDepartments(partners);
   const [dept, setDept] = useState(UPCOMING_DEPARTMENTS[0]!.id);
   const [query, setQuery] = useState('');
   const [max, setMax] = useState('');
@@ -100,33 +105,11 @@ function MoreDepartments() {
   }, []);
   if (online === null) return null;
 
-  if (!online) {
-    return (
-      <Card style={{ gap: 10 }}>
-        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          MORE SHOPPING SOON
-        </T>
-        {UPCOMING_DEPARTMENTS.map((d) => (
-          <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ flex: 1 }}>
-              <T size={14.5} weight="semibold">
-                {d.label}
-              </T>
-              <T size={12.5} color={colors.muted}>
-                {d.note}
-              </T>
-            </View>
-            <Badge label="Soon" tone="amber" />
-          </View>
-        ))}
-        <T size={12.5} color={colors.muted}>
-          With trusted Muslim-owned and partner stores.
-        </T>
-      </Card>
-    );
-  }
+  // Departments you can open: all of them in Canada (Amazon.ca), elsewhere only those with partner shops.
+  const open = online ? UPCOMING_DEPARTMENTS : UPCOMING_DEPARTMENTS.filter((d) => withPartners.has(d.id));
+  const soon = UPCOMING_DEPARTMENTS.filter((d) => !open.includes(d));
+  const current = open.find((d) => d.id === dept) ?? open[0];
 
-  const current = UPCOMING_DEPARTMENTS.find((d) => d.id === dept)!;
   const search = () => {
     if (!query.trim()) return setProblem('Type what you’re looking for.');
     if (max.trim() && parseBudget(max) == null) return setProblem('Enter your budget as a number, for example 40.');
@@ -134,56 +117,96 @@ function MoreDepartments() {
   };
 
   return (
-    <Card style={{ gap: 12 }}>
-      <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-        MORE SHOPPING
-      </T>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-        {UPCOMING_DEPARTMENTS.map((d) => (
-          <Chip key={d.id} label={d.label} selected={dept === d.id} onPress={() => setDept(d.id)} />
-        ))}
-      </ScrollView>
-      <T size={13} color={colors.muted}>{`${current.note}. Opens on Amazon.ca.`}</T>
-      <TextInput
-        value={query}
-        onChangeText={(v) => {
-          setQuery(v);
-          setProblem(null);
-        }}
-        placeholder="What are you looking for?"
-        placeholderTextColor={colors.muted}
-        style={styles.input}
-        returnKeyType="search"
-        onSubmitEditing={search}
-        accessibilityLabel={`Search ${current.label}`}
-      />
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <TextInput
-          value={max}
-          onChangeText={(v) => {
-            setMax(v);
-            setProblem(null);
-          }}
-          placeholder="Max budget ($)"
-          placeholderTextColor={colors.muted}
-          keyboardType="decimal-pad"
-          style={[styles.input, { flex: 1 }]}
-          accessibilityLabel="Maximum budget in Canadian dollars (optional)"
-        />
-        <Button label="Search" onPress={search} style={{ height: 48, paddingHorizontal: 18 }} />
-      </View>
-      {problem ? (
-        <T size={13} color={colors.brickText}>
-          {problem}
-        </T>
+    <>
+      {current ? (
+        <View style={{ gap: 10 }}>
+          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+            MORE SHOPPING
+          </T>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+            {open.map((d) => (
+              <Chip key={d.id} label={d.label} selected={current.id === d.id} onPress={() => setDept(d.id)} />
+            ))}
+          </ScrollView>
+          <T size={13} color={colors.muted}>
+            {current.note}
+          </T>
+        </View>
       ) : null}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-        {(DEPARTMENT_PICKS[dept] ?? []).map((p) => (
-          <Chip key={p.query} label={`${p.label} ↗`} onPress={() => Linking.openURL(amazonSearchUrl(p.query, parseBudget(max)))} />
-        ))}
-      </View>
-      <T size={12} color={colors.muted}>{`${AFFILIATE_NOTE} Prices and availability are shown on Amazon.ca.`}</T>
-    </Card>
+
+      {current ? <PartnerShops shops={partners} department={current.id} /> : null}
+
+      {online && current ? (
+        <Card style={{ gap: 12 }}>
+          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+            {`SEARCH ${current.label.toUpperCase()} ON AMAZON.CA`}
+          </T>
+          <TextInput
+            value={query}
+            onChangeText={(v) => {
+              setQuery(v);
+              setProblem(null);
+            }}
+            placeholder="What are you looking for?"
+            placeholderTextColor={colors.muted}
+            style={styles.input}
+            returnKeyType="search"
+            onSubmitEditing={search}
+            accessibilityLabel={`Search ${current.label}`}
+          />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TextInput
+              value={max}
+              onChangeText={(v) => {
+                setMax(v);
+                setProblem(null);
+              }}
+              placeholder="Max budget ($)"
+              placeholderTextColor={colors.muted}
+              keyboardType="decimal-pad"
+              style={[styles.input, { flex: 1 }]}
+              accessibilityLabel="Maximum budget in Canadian dollars (optional)"
+            />
+            <Button label="Search" onPress={search} style={{ height: 48, paddingHorizontal: 18 }} />
+          </View>
+          {problem ? (
+            <T size={13} color={colors.brickText}>
+              {problem}
+            </T>
+          ) : null}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {(DEPARTMENT_PICKS[current.id] ?? []).map((p) => (
+              <Chip key={p.query} label={`${p.label} ↗`} onPress={() => Linking.openURL(amazonSearchUrl(p.query, parseBudget(max)))} />
+            ))}
+          </View>
+          <T size={12} color={colors.muted}>{`${AFFILIATE_NOTE} Prices and availability are shown on Amazon.ca.`}</T>
+        </Card>
+      ) : null}
+
+      {soon.length ? (
+        <Card style={{ gap: 10 }}>
+          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+            MORE SHOPPING SOON
+          </T>
+          {soon.map((d) => (
+            <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ flex: 1 }}>
+                <T size={14.5} weight="semibold">
+                  {d.label}
+                </T>
+                <T size={12.5} color={colors.muted}>
+                  {d.note}
+                </T>
+              </View>
+              <Badge label="Soon" tone="amber" />
+            </View>
+          ))}
+          <T size={12.5} color={colors.muted}>
+            With trusted Muslim-owned and partner stores.
+          </T>
+        </Card>
+      ) : null}
+    </>
   );
 }
 

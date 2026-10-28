@@ -104,6 +104,10 @@ const sections: LegalSection[] = [
             halal products, “halal” is the seller’s own description: check the label for a halal certificate. Firdam may
             earn a commission on qualifying purchases; prices, delivery and returns are handled by the seller.
           </li>
+          <li>
+            Partner shops are independent businesses, many of them Muslim-owned. Firdam lists them but doesn’t sell
+            their products: orders, payment, delivery and returns are between you and the shop.
+          </li>
           <li>When in doubt, ask the business for its certification or ask a trusted local authority.</li>
         </ul>
       </>

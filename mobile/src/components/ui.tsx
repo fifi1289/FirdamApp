@@ -29,6 +29,7 @@ export function T({
   style?: StyleProp<TextStyle>;
   numberOfLines?: number;
   accessibilityRole?: 'header' | 'text';
+  selectable?: boolean;
 }) {
   return (
     <Text style={[{ fontFamily: fonts[weight], fontSize: size, color }, style]} {...rest}>

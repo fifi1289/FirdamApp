@@ -946,6 +946,72 @@ export type Database = {
         };
         Relationships: [];
       };
+      partner_shops: {
+        Row: {
+          id: string;
+          name: string;
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          description: string | null;
+          city: string | null;
+          ships: string | null;
+          how_to_order: string | null;
+          url: string;
+          image_url: string | null;
+          photos: string[];
+          discount_code: string | null;
+          discount_text: string | null;
+          free_until: string | null;
+          terms_accepted_at: string | null;
+          active: boolean;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          description?: string | null;
+          city?: string | null;
+          ships?: string | null;
+          how_to_order?: string | null;
+          url: string;
+          image_url?: string | null;
+          photos?: string[];
+          discount_code?: string | null;
+          discount_text?: string | null;
+          free_until?: string | null;
+          terms_accepted_at?: string | null;
+          active?: boolean;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          department?: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts';
+          description?: string | null;
+          city?: string | null;
+          ships?: string | null;
+          how_to_order?: string | null;
+          url?: string;
+          image_url?: string | null;
+          photos?: string[];
+          discount_code?: string | null;
+          discount_text?: string | null;
+          free_until?: string | null;
+          terms_accepted_at?: string | null;
+          active?: boolean;
+          position?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      partner_clicks: {
+        Row: { id: number; partner_id: string; user_id: string | null; source: 'web' | 'app' | null; created_at: string };
+        Insert: { partner_id: string; user_id?: string | null; source?: 'web' | 'app' | null; created_at?: string };
+        Update: { source?: 'web' | 'app' | null };
+        Relationships: [];
+      };
       family_events: {
         Row: {
           id: string;
@@ -1424,6 +1490,10 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      partner_click_counts: {
+        Args: Record<string, never>;
+        Returns: { partner_id: string; last_30_days: number; total: number; families: number }[];
+      };
       my_household_id: { Args: Record<string, never>; Returns: string | null };
       create_household: { Args: { household_name: string }; Returns: string };
       accept_household_invite: { Args: { invite_token: string }; Returns: string };
@@ -1666,3 +1736,5 @@ export type CommunityEventKind =
   | 'class'
   | 'other';
 export type CommunityEvent = Database['public']['Tables']['community_events']['Row'];
+
+export type PartnerShopRow = Database['public']['Tables']['partner_shops']['Row'];

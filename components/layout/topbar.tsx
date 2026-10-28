@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Bell, Menu } from 'lucide-react';
+import { SITE } from '@/lib/site';
 import { FREE_LAUNCH } from '@/lib/plan/plan';
 
 import { Button } from '@/components/ui/button';
@@ -228,6 +229,11 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/settings')}>
                   Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a href={`mailto:${SITE.supportEmail}?subject=${encodeURIComponent('Firdam feedback')}`}>
+                    Send feedback
+                  </a>
                 </DropdownMenuItem>
                 {!FREE_LAUNCH && (
                   <DropdownMenuItem onClick={() => router.push('/dashboard/upgrade')}>

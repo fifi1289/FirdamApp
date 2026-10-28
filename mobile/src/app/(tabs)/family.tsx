@@ -1,6 +1,7 @@
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/art';
 import { TabScreen } from '@/components/screen';
@@ -13,7 +14,16 @@ import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 
+/** Opens the phone's email app with the app version filled in, so we can help faster. */
+function feedbackUrl(): string {
+  const version = Constants.expoConfig?.version ?? '';
+  const subject = 'Firdam app feedback';
+  const body = `\n\n\n—\nFirdam ${version} · ${Platform.OS} ${Platform.Version}`;
+  return `mailto:support@firdam.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 const links = [
+  { label: 'Send feedback or report a problem', path: 'feedback' },
   { label: 'Help and support', path: '/support' },
   { label: 'Security and two-step verification', path: '/security' },
   { label: 'Privacy Policy', path: '/privacy' },
@@ -103,7 +113,7 @@ export default function Family() {
           <Pressable
             key={l.path}
             accessibilityRole="link"
-            onPress={() => Linking.openURL(`${WEBSITE}${l.path}`)}
+            onPress={() => Linking.openURL(l.path === 'feedback' ? feedbackUrl() : `${WEBSITE}${l.path}`)}
             style={[styles.row, i < links.length - 1 && styles.rowLine]}
           >
             <T weight="semibold" size={15}>

@@ -21,6 +21,8 @@ import { ExternalLink, Receipt } from 'lucide-react';
 import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
 import { AFFILIATE_NOTE, amazonFoodUrl, canBuyOnline, listNames, nearYouHint, needsHalalCheck, shopsAvailable } from '@/features/groceries/shop-links';
 import { ShopDepartment } from '@/features/groceries/shop-department';
+import { PartnerShops, usePartnerShops } from '@/features/groceries/partner-shops';
+import { partnerDepartments } from '@/features/groceries/partners';
 import { useCurrency } from '@/features/budget/budget-config';
 import { toast } from 'sonner';
 import { haramItemMessage } from '@/lib/recipes/halal';
@@ -212,6 +214,8 @@ export function GroceriesDashboard() {
 
   const { currency } = useCurrency();
   const online = shopsAvailable(currency);
+  const partners = usePartnerShops();
+  const withPartners = partnerDepartments(partners);
   const [department, setDepartment] = useState('groceries');
   const activeDepartment = SHOPPING_DEPARTMENTS.find((d) => d.id === department) ?? SHOPPING_DEPARTMENTS[0]!;
   const remaining = items.filter((i) => !i.checked);
@@ -401,7 +405,7 @@ export function GroceriesDashboard() {
       {/* Departments: Groceries, plus Household, Clothing, Kids and Eid on Amazon.ca for families in Canada. */}
       <nav aria-label="Shopping departments" className="mb-5 flex flex-wrap gap-2">
         {SHOPPING_DEPARTMENTS.map((d) =>
-          d.live || online ? (
+          d.live || online || withPartners.has(d.id) ? (
             <button
               key={d.id}
               type="button"
@@ -427,8 +431,11 @@ export function GroceriesDashboard() {
         )}
       </nav>
 
-      {online && department !== 'groceries' ? (
-        <ShopDepartment id={activeDepartment.id} label={activeDepartment.label} note={activeDepartment.note} />
+      {department !== 'groceries' ? (
+        <div className="space-y-5">
+          <PartnerShops shops={partners} department={activeDepartment.id} />
+          {online && <ShopDepartment id={activeDepartment.id} label={activeDepartment.label} note={activeDepartment.note} />}
+        </div>
       ) : loading ? (
         <Card>
           <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">

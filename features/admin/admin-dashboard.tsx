@@ -17,6 +17,7 @@ import type { Business, Database } from '@/types/database';
 import { BUSINESS_CATEGORIES } from '@/features/directory/directory-config';
 import { CommunityModeration } from '@/features/community/community-moderation';
 import { HalalPlaceReview } from '@/features/admin/halal-place-review';
+import { PartnerAdmin } from '@/features/admin/partner-admin';
 import { RecipeFill } from '@/features/admin/recipe-fill';
 import { RecipePhotoRegenerate } from '@/features/admin/recipe-photo-regenerate';
 import { RecipePhotos } from '@/features/admin/recipe-photos';
@@ -170,9 +171,10 @@ export function AdminDashboard() {
         ))}
       </div>
       <Tabs defaultValue="review">
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 h-auto flex-wrap">
           <TabsTrigger value="review">Review ({pending.length})</TabsTrigger>
           <TabsTrigger value="live">Live listings</TabsTrigger>
+          <TabsTrigger value="partners">Partner shops</TabsTrigger>
           <TabsTrigger value="places">Halal places</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
           <TabsTrigger value="recipes">Recipes</TabsTrigger>
@@ -197,6 +199,9 @@ export function AdminDashboard() {
           <RecipePhotoUpload />
           <RecipePhotoRegenerate />
           <RecipePhotos />
+        </TabsContent>
+        <TabsContent value="partners" className="mt-0">
+          <PartnerAdmin />
         </TabsContent>
         <TabsContent value="places" className="mt-0">
           <HalalPlaceReview />

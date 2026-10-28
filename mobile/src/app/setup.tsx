@@ -169,7 +169,7 @@ export default function Setup() {
               You’re all set
             </T>
             <T size={15.5} color={colors.muted} style={{ lineHeight: 22 }}>
-              Everything Firdam does is on the Home ring: prayer and Qibla, Quran & duas, fasting, your family calendar, halal places, meal plans,
+              Everything Firdam does is on the Home ring: prayer and Qibla, Quran & duas, learning, fasting, your family calendar, halal places, meal plans,
               recipes, shopping, pantry and finance. Tap any circle to open it, and “Home” to come back.
             </T>
             <Card style={{ gap: 6, backgroundColor: colors.sageTint, borderColor: '#CFE0C6' }}>

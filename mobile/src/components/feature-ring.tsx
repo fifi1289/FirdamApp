@@ -21,6 +21,7 @@ const ICONS: Record<HomeFeatureId, IconName> = {
   finance: 'money',
   calendar: 'calendar',
   family: 'family',
+  learning: 'learning',
 };
 
 /*

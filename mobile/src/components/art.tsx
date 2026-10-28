@@ -29,7 +29,7 @@ export function StarPattern({ size, color = colors.sand, strokeWidth = 0.6 }: { 
 
 export type IconName =
   | 'today' | 'kitchen' | 'prayer' | 'halal' | 'family' | 'shield' | 'chevron' | 'cart' | 'back'
-  | 'qibla' | 'money' | 'recipes' | 'pantry' | 'calendar' | 'quran' | 'fasting' | 'bell';
+  | 'qibla' | 'money' | 'recipes' | 'pantry' | 'calendar' | 'quran' | 'fasting' | 'bell' | 'learning';
 
 /** Line icons drawn to match the design. */
 export function Icon({ name, size = 24, color = colors.walnut, fill = 'none' }: { name: IconName; size?: number; color?: ColorValue; fill?: ColorValue }) {
@@ -112,6 +112,12 @@ export function Icon({ name, size = 24, color = colors.walnut, fill = 'none' }: 
           <Path d="M17.5 12.5A6.5 6.5 0 1 1 9 4.4a5 5 0 0 0 8.5 8.1z" fill={fill} {...common} />
           <Path d="M17 3.5l.7 1.5 1.6.2-1.2 1.1.3 1.6-1.4-.8-1.4.8.3-1.6-1.2-1.1 1.6-.2z" {...common} strokeWidth={1.2} />
           <Path d="M4 20.5h16" {...common} />
+        </>
+      )}
+      {name === 'learning' && (
+        <>
+          <Path d="M2.5 9 12 4.5 21.5 9 12 13.5z" fill={fill} {...common} />
+          <Path d="M6.5 11v4.5c0 1.6 2.5 3 5.5 3s5.5-1.4 5.5-3V11M21.5 9v5" {...common} />
         </>
       )}
       {name === 'bell' && (

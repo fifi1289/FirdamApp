@@ -129,6 +129,16 @@ export const allModules: LifeModule[] = [
     group: 'Faith',
   },
   {
+    id: 'learning',
+    name: 'Learning',
+    description: 'Learn Quran, tajweed, Arabic, hadith and more with trusted teachers and Islamic schools.',
+    status: 'active',
+    accent: 'from-brand-dark to-brand-mid',
+    icon: 'graduation-cap',
+    href: '/dashboard/learning',
+    group: 'Faith',
+  },
+  {
     id: 'fasting',
     name: 'Fasting',
     description: 'The Sunnah fasts coming up — Arafah, Ashura, the white days and Shawwal — with suhoor reminders.',
@@ -166,17 +176,6 @@ export const allModules: LifeModule[] = [
     accent: 'from-brand-dark to-brand-mid',
     icon: 'list-checks',
     href: '/dashboard/planner',
-    group: 'Family',
-  },
-  {
-    id: 'learning',
-    name: 'Learning',
-    description:
-      'Learning goals for every family member, a kids’ corner, and trusted tutors and schools.',
-    status: 'planned',
-    accent: 'from-brand-dark to-brand-mid',
-    icon: 'graduation-cap',
-    href: '/dashboard/learning',
     group: 'Family',
   },
   {
@@ -236,7 +235,7 @@ export const allModules: LifeModule[] = [
  * Firdam. Their pages still exist; they are just not shown in menus or lists.
  * Remove an id here to bring a module back.
  */
-export const HIDDEN_MODULE_IDS = new Set(['planner', 'learning', 'health', 'community', 'travel', 'directory']);
+export const HIDDEN_MODULE_IDS = new Set(['planner', 'health', 'community', 'travel', 'directory']);
 
 /** The modules shown in menus, the home page and the landing page. */
 export const lifeModules: LifeModule[] = allModules.filter((m) => !HIDDEN_MODULE_IDS.has(m.id));

@@ -68,6 +68,7 @@ function Navigator() {
         <Stack.Screen name="calendar" />
         <Stack.Screen name="quran" />
         <Stack.Screen name="fasting" />
+        <Stack.Screen name="learning" />
         <Stack.Screen name="notifications" />
         <Stack.Screen name="household" />
         <Stack.Screen name="setup" options={{ gestureEnabled: false }} />

@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
+import { LEARNING_TOPICS, PARTNER_CATEGORIES } from '@/features/groceries/partners';
 import { FOUNDING_FREE_UNTIL } from '@/features/partners/partner-terms';
 import type { Database, PartnerApplication, PartnerShopRow } from '@/types/database';
 
@@ -31,6 +31,7 @@ const EMPTY: Insert = {
   url: '',
   image_url: null,
   photos: [],
+  topics: [],
   discount_code: '',
   discount_text: '',
   free_until: FOUNDING_FREE_UNTIL,
@@ -148,6 +149,7 @@ export function PartnerAdmin() {
       url: form.url.trim(),
       image_url: form.image_url ?? null,
       photos: form.photos ?? [],
+      topics: form.department === 'learning' ? form.topics ?? [] : [],
       discount_code: blank(form.discount_code)?.toUpperCase() ?? null,
       discount_text: blank(form.discount_text),
       free_until: form.free_until || null,
@@ -185,7 +187,7 @@ export function PartnerAdmin() {
     load();
   };
 
-  const dept = (id: string) => SHOPPING_DEPARTMENTS.find((d) => d.id === id)?.label ?? id;
+  const dept = (id: string) => PARTNER_CATEGORIES.find((d) => d.id === id)?.label ?? id;
 
   const setStatus = async (a: PartnerApplication, status: PartnerApplication['status']) => {
     setApplications((prev) => prev.map((x) => (x.id === a.id ? { ...x, status } : x)));
@@ -298,7 +300,7 @@ export function PartnerAdmin() {
                   onChange={(e) => set('department', e.target.value as Insert['department'])}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 >
-                  {SHOPPING_DEPARTMENTS.map((d) => (
+                  {PARTNER_CATEGORIES.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.label}
                     </option>
@@ -309,6 +311,29 @@ export function PartnerAdmin() {
                 Description
                 <Textarea value={form.description ?? ''} onChange={(e) => set('description', e.target.value)} maxLength={300} rows={2} />
               </label>
+              {form.department === 'learning' && (
+                <div className="space-y-1.5 text-sm font-medium sm:col-span-2">
+                  What they teach (up to 6)
+                  <div className="flex flex-wrap gap-2">
+                    {LEARNING_TOPICS.map((t) => {
+                      const on = (form.topics ?? []).includes(t);
+                      return (
+                        <button
+                          key={t}
+                          type="button"
+                          aria-pressed={on}
+                          onClick={() =>
+                            set('topics', on ? (form.topics ?? []).filter((x) => x !== t) : [...(form.topics ?? []), t].slice(0, 6))
+                          }
+                          className={`rounded-full px-3 py-1 text-sm ${on ? 'bg-primary text-primary-foreground' : 'border border-border'}`}
+                        >
+                          {t}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <label className="space-y-1 text-sm font-medium">
                 City
                 <Input value={form.city ?? ''} onChange={(e) => set('city', e.target.value)} placeholder="Hamilton, ON" maxLength={80} />

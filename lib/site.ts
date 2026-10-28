@@ -19,5 +19,5 @@ export const SITE = {
   supportEmail: 'support@firdam.com',
   privacyEmail: 'privacy@firdam.com',
   /** Last time the Privacy Policy or Terms changed (shown on the pages). */
-  legalUpdated: 'October 16, 2026',
+  legalUpdated: 'October 26, 2026',
 } as const;

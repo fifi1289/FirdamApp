@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ImagePlus, Loader2, MousePointerClick, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { ExternalLink, ImagePlus, Inbox, Loader2, MousePointerClick, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
@@ -12,15 +12,14 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
-import type { Database, PartnerShopRow } from '@/types/database';
+import { FOUNDING_FREE_UNTIL } from '@/features/partners/partner-terms';
+import type { Database, PartnerApplication, PartnerShopRow } from '@/types/database';
 
 type Insert = Database['public']['Tables']['partner_shops']['Insert'];
 type Counts = { last_30_days: number; total: number; families: number };
 
 const BUCKET = 'partner-images';
 const MAX_PHOTOS = 4;
-/** Founding partners list free until this date. */
-const FOUNDING_FREE_UNTIL = '2027-11-01';
 
 const EMPTY: Insert = {
   name: '',
@@ -64,6 +63,8 @@ export function PartnerAdmin() {
   const [shops, setShops] = useState<PartnerShopRow[] | null>(null);
   const [counts, setCounts] = useState<Record<string, Counts>>({});
   const [form, setForm] = useState<(Insert & { id?: string }) | null>(null);
+  const [applications, setApplications] = useState<PartnerApplication[]>([]);
+  const [fromApplication, setFromApplication] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const logoRef = useRef<HTMLInputElement>(null);
   const photoRef = useRef<HTMLInputElement>(null);
@@ -80,6 +81,8 @@ export function PartnerAdmin() {
     }
     setShops(data ?? []);
     setCounts(Object.fromEntries((c ?? []).map((r) => [r.partner_id, r])));
+    const { data: apps } = await supabase.from('partner_applications').select('*').order('created_at', { ascending: false }).limit(100);
+    setApplications(apps ?? []);
   }, [supabase]);
 
   useEffect(() => {
@@ -158,6 +161,10 @@ export function PartnerAdmin() {
     setBusy(null);
     if (error) return toast.error('Save failed', { description: error.message });
     toast.success(form.id ? 'Partner updated' : 'Partner added');
+    if (!form.id && fromApplication) {
+      await supabase.from('partner_applications').update({ status: 'added' }).eq('id', fromApplication);
+      setFromApplication(null);
+    }
     setForm(null);
     load();
   };
@@ -180,6 +187,34 @@ export function PartnerAdmin() {
 
   const dept = (id: string) => SHOPPING_DEPARTMENTS.find((d) => d.id === id)?.label ?? id;
 
+  const setStatus = async (a: PartnerApplication, status: PartnerApplication['status']) => {
+    setApplications((prev) => prev.map((x) => (x.id === a.id ? { ...x, status } : x)));
+    const { error } = await supabase.from('partner_applications').update({ status }).eq('id', a.id);
+    if (error) {
+      toast.error('Update failed', { description: error.message });
+      load();
+    }
+  };
+
+  /** Starts a listing from an application; the shop still needs a logo and the switches checked. */
+  const createFrom = (a: PartnerApplication) => {
+    setFromApplication(a.id);
+    setForm({
+      ...EMPTY,
+      name: a.shop_name,
+      department: a.department,
+      description: a.description ?? '',
+      city: a.city ?? '',
+      ships: a.ships ?? '',
+      url: a.link.replace(/^http:\/\//i, 'https://'),
+      terms_accepted_at: a.terms_agreed ? a.created_at : null,
+      active: false,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const open = applications.filter((a) => a.status === 'new' || a.status === 'contacted');
+
   if (shops === null) {
     return (
       <p className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
@@ -195,11 +230,51 @@ export function PartnerAdmin() {
           Muslim-owned shops shown in Shopping. Only add a shop after the owner has replied “I agree” to the partner terms.
         </p>
         {!form && (
-          <Button size="sm" onClick={() => setForm({ ...EMPTY })}>
+          <Button size="sm" onClick={() => {
+              setFromApplication(null);
+              setForm({ ...EMPTY });
+            }}>
             <Plus className="mr-2 h-4 w-4" /> Add partner
           </Button>
         )}
       </div>
+
+      {open.length > 0 && (
+        <Card className="border-primary/30">
+          <CardContent className="space-y-3 p-4">
+            <p className="flex items-center gap-2 font-semibold text-foreground">
+              <Inbox className="h-4 w-4 text-primary" /> {`Applications (${open.length})`}
+            </p>
+            {open.map((a) => (
+              <div key={a.id} className="space-y-2 rounded-lg border border-border p-3 text-sm">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold text-foreground">{a.shop_name}</p>
+                  <Badge variant="secondary">{dept(a.department)}</Badge>
+                  {a.status === 'contacted' && <Badge variant="outline">Contacted</Badge>}
+                  <span className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleDateString('en-CA', { dateStyle: 'medium' })}</span>
+                </div>
+                <p className="text-muted-foreground">
+                  {a.owner_name} · <a className="text-primary hover:underline" href={`mailto:${a.email}`}>{a.email}</a>
+                  {a.phone ? ` · ${a.phone}` : ''}
+                  {a.city ? ` · ${a.city}` : ''}
+                </p>
+                {a.description && <p className="text-foreground">{a.description}</p>}
+                {a.ships && <p className="text-muted-foreground">{a.ships}</p>}
+                <div className="flex flex-wrap gap-2">
+                  <a href={a.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted">
+                    Open their link <ExternalLink className="h-3 w-3" />
+                  </a>
+                  <Button size="sm" onClick={() => createFrom(a)}>Create listing</Button>
+                  {a.status === 'new' && (
+                    <Button size="sm" variant="outline" onClick={() => setStatus(a, 'contacted')}>Mark contacted</Button>
+                  )}
+                  <Button size="sm" variant="ghost" onClick={() => setStatus(a, 'declined')}>Decline</Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {form && (
         <Card>

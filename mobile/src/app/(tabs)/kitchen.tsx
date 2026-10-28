@@ -206,6 +206,13 @@ function MoreDepartments() {
           </T>
         </Card>
       ) : null}
+
+      <T size={13} color={colors.muted}>
+        {'Run a Muslim-owned shop? '}
+        <T size={13} weight="bold" color={colors.walnut} accessibilityRole="link" onPress={() => Linking.openURL('https://firdam.com/partners')}>
+          Become a Firdam partner ↗
+        </T>
+      </T>
     </>
   );
 }

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { FREE_LAUNCH } from '@/lib/plan/launch';
 
-const PUBLIC_PATHS = ['/privacy', '/terms', '/security', '/support', '/auth', '/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email'];
+const PUBLIC_PATHS = ['/partners', '/privacy', '/terms', '/security', '/support', '/auth', '/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email'];
 
 function isPublicPath(pathname: string): boolean {
   return (

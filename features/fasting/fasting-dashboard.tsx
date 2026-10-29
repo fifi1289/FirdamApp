@@ -13,6 +13,8 @@ import { readSavedLocation } from '@/lib/geo/location';
 import { DEFAULT_PRAYER_SETTINGS, fetchPrayerMonth, parseGregorian } from '@/lib/prayer/prayer';
 import { useReminderSettings } from '@/lib/reminders/reminders';
 import { MakeupCard } from '@/features/fasting/makeup-card';
+import { insideRamadan, isoDate, nextRamadan } from '@/features/fasting/makeup-core';
+import { cn } from '@/lib/utils';
 import { iso, parseISODate, sunnahFastingDays, type FastingDay, type HijriLabel } from '@/features/calendar/calendar-core';
 
 export const FASTING_PREFS_KEY = 'firdam.fasting';
@@ -53,6 +55,9 @@ export function FastingDashboard() {
   const [days, setDays] = useState<FastingDay[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { settings: reminders, permission, update } = useReminderSettings();
+  // Two tabs keep the page short: Sunnah fasts, and Ramadan (with days to make up).
+  const [tab, setTab] = useState<'sunnah' | 'ramadan'>(() => (insideRamadan(isoDate(new Date())) ? 'ramadan' : 'sunnah'));
+  const next = nextRamadan();
 
   useEffect(() => {
     try {
@@ -96,9 +101,47 @@ export function FastingDashboard() {
     <AppShell>
       <PageHeader
         title="Fasting"
-        description="The Sunnah fasts coming up, and the Ramadan days you have to make up, with reminders before the next Ramadan."
+        description="Sunnah fasts and Ramadan."
       />
 
+      <nav aria-label="Fasting" className="mb-5 flex gap-2">
+        {(
+          [
+            ['sunnah', 'Sunnah fasts'],
+            ['ramadan', 'Ramadan'],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            aria-pressed={tab === id}
+            className={cn(
+              'rounded-full px-4 py-1.5 text-sm font-semibold transition-colors',
+              tab === id ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      {tab === 'ramadan' ? (
+        <div className="max-w-2xl space-y-4">
+          {next && (
+            <Card className="border-0 bg-brand-ink text-white">
+              <CardContent className="p-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-light">{`Ramadan ${next.year}`}</p>
+                <p className="mt-1 font-display text-3xl font-bold">{`In ${next.daysAway} ${next.daysAway === 1 ? 'day' : 'days'}`}</p>
+                <p className="mt-1 text-sm text-white/80">
+                  {`Around ${parseISODate(next.start).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}, depending on the moon sighting`}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          <MakeupCard />
+        </div>
+      ) : (
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
         <Card>
           <CardContent className="p-5">
@@ -135,7 +178,6 @@ export function FastingDashboard() {
         </Card>
 
         <div className="space-y-4">
-          <MakeupCard />
           <Card>
             <CardContent className="space-y-4 p-5">
               <div className="flex items-center justify-between gap-4">
@@ -172,6 +214,7 @@ export function FastingDashboard() {
           </p>
         </div>
       </div>
+      )}
     </AppShell>
   );
 }

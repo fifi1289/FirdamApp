@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Chip } from '@/components/kitchen-ui';
 import { MakeupCard } from '@/components/makeup-card';
 import { HomeButton } from '@/components/screen';
 import { SwitchRow } from '@/components/switch-row';
@@ -10,6 +11,7 @@ import { askForAlerts } from '@/lib/adhan-alerts';
 import { scheduleEventAlerts } from '@/lib/event-alerts';
 import { getFastingPrefs, setFastingPrefs, upcomingFasts, type FastingPrefs } from '@/lib/fasting';
 import { iso, parseISODate, type FastingDay } from '@/shared/calendar-core';
+import { insideRamadan, isoDate, nextRamadan } from '@/shared/makeup-core';
 import { colors } from '@/theme';
 
 /** Sunnah fasts: the recommended fasting days coming up, with a suhoor reminder. Ramadan joins here later. */
@@ -17,6 +19,9 @@ export default function Fasting() {
   const [prefs, setPrefs] = useState<FastingPrefs | null>(null);
   const [days, setDays] = useState<FastingDay[] | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  // Two tabs keep the page short: Sunnah fasts, and Ramadan (with days to make up).
+  const [tab, setTab] = useState<'sunnah' | 'ramadan'>(insideRamadan(isoDate(new Date())) ? 'ramadan' : 'sunnah');
+  const next = nextRamadan();
 
   const load = useCallback((p: FastingPrefs) => {
     setDays(null);
@@ -62,8 +67,33 @@ export default function Fasting() {
           Fasting
         </T>
         <T size={14.5} color={colors.muted} style={{ lineHeight: 21 }}>
-          The Sunnah fasts coming up, and the Ramadan days you have to make up, with reminders before the next Ramadan.
+          Sunnah fasts and Ramadan.
         </T>
+
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Chip label="Sunnah fasts" selected={tab === 'sunnah'} onPress={() => setTab('sunnah')} />
+          <Chip label="Ramadan" selected={tab === 'ramadan'} onPress={() => setTab('ramadan')} />
+        </View>
+
+        {tab === 'ramadan' ? (
+          <>
+            {next ? (
+              <Card style={{ gap: 4, backgroundColor: colors.espresso, borderColor: colors.espresso }}>
+                <T size={12.5} weight="bold" color={colors.gold} style={{ letterSpacing: 0.4 }}>
+                  {`RAMADAN ${next.year}`}
+                </T>
+                <T size={26} weight="extrabold" color={colors.white}>
+                  {`In ${next.daysAway} ${next.daysAway === 1 ? 'day' : 'days'}`}
+                </T>
+                <T size={13} color={colors.goldText}>
+                  {`Around ${parseISODate(next.start).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}, depending on the moon sighting`}
+                </T>
+              </Card>
+            ) : null}
+            <MakeupCard />
+          </>
+        ) : (
+          <>
 
         {prefs ? (
           <Card style={{ gap: 4, paddingVertical: 6 }}>
@@ -88,8 +118,6 @@ export default function Fasting() {
             {problem}
           </T>
         ) : null}
-
-        <MakeupCard />
 
         <Card style={{ gap: 2 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4, marginBottom: 4 }}>
@@ -135,6 +163,8 @@ export default function Fasting() {
           Islamic dates may differ by a day from your local moon sighting. No voluntary fasts are listed in Ramadan, on the Eids or the days of
           Tashreeq.
         </T>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

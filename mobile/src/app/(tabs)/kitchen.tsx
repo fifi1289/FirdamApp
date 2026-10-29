@@ -12,11 +12,10 @@ import { PartnerShops } from '@/components/partner-shops';
 import { HomeButton } from '@/components/screen';
 import { getCurrency } from '@/lib/finance';
 import { AFFILIATE_NOTE, DEPARTMENT_PICKS, amazonSearchUrl, parseBudget, shopsAvailable } from '@/shared/shop-links';
-import { UPCOMING_DEPARTMENTS } from '@/shared/shopping-departments';
+import { SHOPPING_DEPARTMENTS } from '@/shared/shopping-departments';
 import { Button, Card, T } from '@/components/ui';
 import { useKitchen } from '@/lib/kitchen-store';
 import { usePartnerShops } from '@/lib/partners';
-import { partnerDepartments } from '@/shared/partners';
 import { colors } from '@/theme';
 
 type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
@@ -34,6 +33,8 @@ export default function Kitchen() {
     if (params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section)) setSection(params.section as Section);
   }, [params.section]);
   const [refreshing, setRefreshing] = useState(false);
+  // Shopping departments: Groceries by default, the others always one tap away at the top.
+  const [dept, setDept] = useState('groceries');
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -67,16 +68,21 @@ export default function Kitchen() {
           <RecipesView />
         ) : section === 'shopping' ? (
           <>
-            <View style={{ gap: 2 }}>
-              <T weight="extrabold" size={19}>
-                Groceries
-              </T>
-              <T size={13.5} color={colors.muted}>
-                Food and kitchen basics. Fills itself from your meal plan, minus what’s in your pantry.
-              </T>
-            </View>
-            <ShoppingView />
-            <MoreDepartments />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} accessibilityLabel="Shopping departments">
+              {SHOPPING_DEPARTMENTS.map((d) => (
+                <Chip key={d.id} label={d.label} selected={dept === d.id} onPress={() => setDept(d.id)} />
+              ))}
+            </ScrollView>
+            {dept === 'groceries' ? (
+              <>
+                <T size={13.5} color={colors.muted}>
+                  Fills itself from your meal plan, minus what’s in your pantry.
+                </T>
+                <ShoppingView />
+              </>
+            ) : (
+              <DepartmentView dept={dept} />
+            )}
           </>
         ) : (
           <PantryView />
@@ -87,14 +93,12 @@ export default function Kitchen() {
 }
 
 /**
- * More shopping beyond groceries. In Canada: search Amazon.ca by department,
- * within a budget, or tap a popular pick. Elsewhere: the departments to come.
+ * One shopping department (Household, Clothing…): partner shops first, then in
+ * Canada an Amazon.ca search within a budget. Elsewhere, partners or "soon".
  */
-function MoreDepartments() {
+function DepartmentView({ dept }: { dept: string }) {
   const [online, setOnline] = useState<boolean | null>(null);
   const partners = usePartnerShops();
-  const withPartners = partnerDepartments(partners);
-  const [dept, setDept] = useState(UPCOMING_DEPARTMENTS[0]!.id);
   const [query, setQuery] = useState('');
   const [max, setMax] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
@@ -103,12 +107,13 @@ function MoreDepartments() {
       .then((c) => setOnline(shopsAvailable(c)))
       .catch(() => setOnline(false));
   }, []);
-  if (online === null) return null;
-
-  // Departments you can open: all of them in Canada (Amazon.ca), elsewhere only those with partner shops.
-  const open = online ? UPCOMING_DEPARTMENTS : UPCOMING_DEPARTMENTS.filter((d) => withPartners.has(d.id));
-  const soon = UPCOMING_DEPARTMENTS.filter((d) => !open.includes(d));
-  const current = open.find((d) => d.id === dept) ?? open[0];
+  useEffect(() => {
+    setQuery('');
+    setProblem(null);
+  }, [dept]);
+  const current = SHOPPING_DEPARTMENTS.find((d) => d.id === dept);
+  if (online === null || !current) return null;
+  const hasPartners = partners.some((s) => s.department === dept);
 
   const search = () => {
     if (!query.trim()) return setProblem('Type what you’re looking for.');
@@ -118,25 +123,13 @@ function MoreDepartments() {
 
   return (
     <>
-      {current ? (
-        <View style={{ gap: 10 }}>
-          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            MORE SHOPPING
-          </T>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-            {open.map((d) => (
-              <Chip key={d.id} label={d.label} selected={current.id === d.id} onPress={() => setDept(d.id)} />
-            ))}
-          </ScrollView>
-          <T size={13} color={colors.muted}>
-            {current.note}
-          </T>
-        </View>
-      ) : null}
+      <T size={13.5} color={colors.muted}>
+        {current.note}
+      </T>
 
-      {current ? <PartnerShops shops={partners} department={current.id} /> : null}
+      <PartnerShops shops={partners} department={dept} />
 
-      {online && current ? (
+      {online ? (
         <Card style={{ gap: 12 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
             {`SEARCH ${current.label.toUpperCase()} ON AMAZON.CA`}
@@ -175,34 +168,22 @@ function MoreDepartments() {
             </T>
           ) : null}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {(DEPARTMENT_PICKS[current.id] ?? []).map((p) => (
+            {(DEPARTMENT_PICKS[dept] ?? []).map((p) => (
               <Chip key={p.query} label={`${p.label} ↗`} onPress={() => Linking.openURL(amazonSearchUrl(p.query, parseBudget(max)))} />
             ))}
           </View>
           <T size={12} color={colors.muted}>{`${AFFILIATE_NOTE} Prices and availability are shown on Amazon.ca.`}</T>
         </Card>
-      ) : null}
-
-      {soon.length ? (
-        <Card style={{ gap: 10 }}>
-          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            MORE SHOPPING SOON
-          </T>
-          {soon.map((d) => (
-            <View key={d.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ flex: 1 }}>
-                <T size={14.5} weight="semibold">
-                  {d.label}
-                </T>
-                <T size={12.5} color={colors.muted}>
-                  {d.note}
-                </T>
-              </View>
-              <Badge label="Soon" tone="amber" />
-            </View>
-          ))}
-          <T size={12.5} color={colors.muted}>
-            With trusted Muslim-owned and partner stores.
+      ) : !hasPartners ? (
+        <Card style={{ gap: 6 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T weight="bold" size={15} style={{ flex: 1 }}>
+              {`${current.label} is coming soon`}
+            </T>
+            <Badge label="Soon" tone="amber" />
+          </View>
+          <T size={13.5} color={colors.muted}>
+            With trusted Muslim-owned and partner stores, insha’Allah.
           </T>
         </Card>
       ) : null}

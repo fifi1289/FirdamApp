@@ -84,10 +84,17 @@ export const SERVICE_GROUPS: { id: string; label: string; types: string[] }[] = 
 ];
 export const SERVICE_TYPES = SERVICE_GROUPS.flatMap((g) => g.types);
 
-/** Service partners, optionally only one group (Home, Professional…). */
-export function servicePartners(shops: PartnerShop[], group?: string | null): PartnerShop[] {
-  const types = group ? SERVICE_GROUPS.find((g) => g.id === group)?.types ?? [] : null;
+/** Service partners, optionally only one group (Home, Professional…) and one kind of service. */
+export function servicePartners(shops: PartnerShop[], group?: string | null, type?: string | null): PartnerShop[] {
+  const types = type ? [type] : group ? SERVICE_GROUPS.find((g) => g.id === group)?.types ?? [] : null;
   return partnersIn(shops, 'services').filter((s) => !types || s.topics.some((t) => types.includes(t)));
+}
+
+/** How many partners offer each kind of service. */
+export function serviceTypeCounts(shops: PartnerShop[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const s of partnersIn(shops, 'services')) for (const t of s.topics) out[t] = (out[t] ?? 0) + 1;
+  return out;
 }
 
 /** Groups that at least one service partner belongs to, in the standard order. */

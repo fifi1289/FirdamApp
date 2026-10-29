@@ -237,7 +237,8 @@ export function PartnerAdmin() {
       active: false,
     });
     setContact({ owner_name: a.owner_name, email: a.email });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Bring the filled-in form into view (it sits below the applications).
+    setTimeout(() => document.getElementById('partner-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
   const open = applications.filter((a) => a.status === 'new' || a.status === 'contacted');
@@ -327,7 +328,7 @@ export function PartnerAdmin() {
       )}
 
       {form && (
-        <Card>
+        <Card id="partner-form" className="scroll-mt-24">
           <CardContent className="space-y-4 p-5">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-foreground">{form.id ? `Edit ${form.name}` : 'New partner shop'}</h3>

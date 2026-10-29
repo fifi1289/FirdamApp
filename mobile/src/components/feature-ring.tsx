@@ -36,7 +36,7 @@ const BUBBLE = 66;
 const INNER_R = 76;
 const OUTER_R = 148;
 /** One slow turn, in ms. Both rings turn together, the same way, so it stays calm. */
-const TURN_MS = 180_000;
+const TURN_MS = 300_000;
 
 const inner = HOME_FEATURES.filter((f) => f.ring === 'inner');
 const outer = HOME_FEATURES.filter((f) => f.ring === 'outer');

@@ -169,6 +169,16 @@ export const allModules: LifeModule[] = [
     group: 'Family',
   },
   {
+    id: 'services',
+    name: 'Services',
+    description: 'Trusted Muslim-owned local services: renovation, cleaning, accountants, lawyers, catering, Hajj & Umrah and more.',
+    status: 'active',
+    accent: 'from-brand-mid to-brand-light',
+    icon: 'handshake',
+    href: '/dashboard/services',
+    group: 'Family',
+  },
+  {
     id: 'planner',
     name: 'Planner',
     description: 'Household tasks and personal goals, organised around your day.',

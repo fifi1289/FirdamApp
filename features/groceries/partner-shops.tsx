@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BadgeCheck, ExternalLink, MapPin, Tag } from 'lucide-react';
+import { BadgeCheck, ExternalLink, MapPin, Phone, Tag } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { PARTNER_COLUMNS, PARTNER_NOTE, partnerLinkLabel, partnerMeta, partnersIn, type PartnerShop } from '@/features/groceries/partners';
+import { PARTNER_COLUMN_FALLBACKS, PARTNER_NOTE, telLink, partnerLinkLabel, partnerMeta, partnersIn, type PartnerShop } from '@/features/groceries/partners';
 
 /** Active partner shops for Shopping. Empty (never an error) if the table isn't there yet. */
 export function usePartnerShops() {
@@ -15,9 +15,12 @@ export function usePartnerShops() {
     type Result = { data: PartnerShop[] | null; error: unknown };
     const get = async (cols: string) => (await supabase.from('partner_shops').select(cols).eq('active', true)) as unknown as Result;
     const load = async () => {
-      let res = await get(PARTNER_COLUMNS);
-      // Before the topics column exists, fall back to the older columns.
-      if (res.error) res = await get(PARTNER_COLUMNS.replace(', topics', ''));
+      // Older databases may not have every column yet: try the newest set first.
+      let res: Result = { data: null, error: true };
+      for (const cols of PARTNER_COLUMN_FALLBACKS) {
+        res = await get(cols);
+        if (!res.error) break;
+      }
       setShops((res.data ?? []).map((s) => ({ ...s, topics: s.topics ?? [] })));
     };
     load();
@@ -107,6 +110,16 @@ export function PartnerCard({ shop }: { shop: PartnerShop }) {
             {partnerLinkLabel(shop.url)}
             <ExternalLink className="h-4 w-4" />
           </a>
+          {shop.phone && (
+            <a
+              href={telLink(shop.phone)}
+              onClick={() => recordClick(shop.id)}
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+            >
+              <Phone className="h-4 w-4" />
+              {shop.phone}
+            </a>
+          )}
           {shop.discount_code && (
             <span className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-primary/40 px-3 py-1.5 text-sm">
               <Tag className="h-3.5 w-3.5 text-primary" />

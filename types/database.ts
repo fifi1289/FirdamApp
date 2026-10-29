@@ -953,7 +953,7 @@ export type Database = {
           owner_name: string;
           email: string;
           phone: string | null;
-          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning' | 'services';
           city: string | null;
           link: string;
           description: string | null;
@@ -967,7 +967,7 @@ export type Database = {
           owner_name: string;
           email: string;
           phone?: string | null;
-          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning' | 'services';
           city?: string | null;
           link: string;
           description?: string | null;
@@ -982,12 +982,13 @@ export type Database = {
         Row: {
           id: string;
           name: string;
-          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning' | 'services';
           description: string | null;
           city: string | null;
           ships: string | null;
           how_to_order: string | null;
           url: string;
+          phone: string | null;
           image_url: string | null;
           photos: string[];
           topics: string[];
@@ -1002,12 +1003,13 @@ export type Database = {
         Insert: {
           id?: string;
           name: string;
-          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
+          department: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning' | 'services';
           description?: string | null;
           city?: string | null;
           ships?: string | null;
           how_to_order?: string | null;
           url: string;
+          phone?: string | null;
           image_url?: string | null;
           photos?: string[];
           topics?: string[];
@@ -1022,12 +1024,13 @@ export type Database = {
         Update: {
           id?: string;
           name?: string;
-          department?: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning';
+          department?: 'groceries' | 'household' | 'clothing' | 'kids' | 'gifts' | 'learning' | 'services';
           description?: string | null;
           city?: string | null;
           ships?: string | null;
           how_to_order?: string | null;
           url?: string;
+          phone?: string | null;
           image_url?: string | null;
           photos?: string[];
           topics?: string[];

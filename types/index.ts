@@ -16,6 +16,7 @@ export type ModuleId =
   | 'community'
   | 'travel'
   | 'directory'
+  | 'services'
   | 'finance';
 
 export type ModuleGroup = 'Halal living' | 'Faith' | 'Family' | 'Community & travel' | 'Money';

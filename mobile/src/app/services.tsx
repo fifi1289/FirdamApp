@@ -11,8 +11,9 @@ import { SERVICES_NOTE, serviceGroupsInUse, servicePartners } from '@/shared/par
 import { colors } from '@/theme';
 
 const COMING = [
-  { title: 'Home', text: 'Renovation, cleaning, moving, plumbing and electrical.' },
+  { title: 'Home', text: 'Renovation, cleaning, moving, plumbing and electrical, property management.' },
   { title: 'Professional', text: 'Accountants for zakat and taxes, lawyers and wills, real estate, Islamic finance.' },
+  { title: 'Business & digital', text: 'Website creation, marketing and social media, graphic design, business and project management.' },
   { title: 'Events', text: 'Halal catering, henna, photography and event planning.' },
   { title: 'Travel', text: 'Hajj and Umrah operators and travel agencies.' },
 ];
@@ -35,7 +36,7 @@ export default function Services() {
           Services
         </T>
         <T size={14.5} color={colors.muted} style={{ lineHeight: 21 }}>
-          Trusted Muslim-owned businesses for your home, paperwork, events and travel.
+          Trusted Muslim-owned businesses for your home, paperwork, business, events and travel.
         </T>
 
         {all.length ? (

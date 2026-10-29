@@ -1,4 +1,4 @@
-# Temporary helper (run 12: align Expo patch versions): runs package commands for mobile/ (npm isn't reachable from
+# Temporary helper (run 13: align Expo patch versions): runs package commands for mobile/ (npm isn't reachable from
 # the coding session) and commits the updated package files back.
 name: mobile-deps
 on:

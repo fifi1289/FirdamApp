@@ -5,7 +5,7 @@
  * doesn't show the ring because its sidebar already lists every feature; the
  * web paths are kept so both stay pointed at the same places.
  */
-export type HomeFeatureId = 'prayer' | 'qibla' | 'quran' | 'fasting' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'calendar' | 'family' | 'learning';
+export type HomeFeatureId = 'prayer' | 'qibla' | 'quran' | 'fasting' | 'halal' | 'meals' | 'recipes' | 'shopping' | 'pantry' | 'finance' | 'calendar' | 'family' | 'learning' | 'services';
 
 /**
  * Two rings: faith and family close to the centre, everyday living around them.
@@ -23,6 +23,7 @@ export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app
   { id: 'recipes', label: 'Recipes', web: '/dashboard/recipes', app: '/kitchen?section=recipes', ring: 'outer' },
   { id: 'shopping', label: 'Shopping', web: '/dashboard/shopping', app: '/kitchen?section=shopping', ring: 'outer' },
   { id: 'pantry', label: 'Pantry', web: '/dashboard/pantry', app: '/kitchen?section=pantry', ring: 'outer' },
+  { id: 'services', label: 'Services', web: '/dashboard/services', app: '/services', ring: 'outer' },
   { id: 'finance', label: 'Finance & zakat', web: '/dashboard/finance', app: '/finance', ring: 'outer' },
 ];
 

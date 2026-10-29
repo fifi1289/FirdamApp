@@ -88,7 +88,7 @@ export function PartnerApplyForm() {
     <form onSubmit={submit} className="space-y-4 rounded-2xl border border-border bg-card p-5 sm:p-6" noValidate>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="space-y-1.5 text-sm font-medium text-foreground">
-          Shop name *
+          Business name *
           <Input value={f.shop_name} onChange={set('shop_name')} maxLength={80} autoComplete="organization" />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground">
@@ -122,12 +122,12 @@ export function PartnerApplyForm() {
           <Input value={f.city} onChange={set('city')} maxLength={80} placeholder="Ottawa, ON" />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground sm:col-span-2">
-          Link to your shop *
+          Link to your business *
           <Input value={f.link} onChange={set('link')} maxLength={300} placeholder="Website, Facebook, Instagram or WhatsApp link" />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground sm:col-span-2">
-          Shipping, delivery or class format
-          <Input value={f.ships} onChange={set('ships')} maxLength={120} placeholder="e.g. Ships across Canada, or Online classes for kids and adults" />
+          Shipping, delivery, class format or area served
+          <Input value={f.ships} onChange={set('ships')} maxLength={120} placeholder="e.g. Ships across Canada, Online classes, or Serves Ottawa & area" />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground sm:col-span-2">
           Tell families about your shop

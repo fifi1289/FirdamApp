@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { LEARNING_TOPICS, PARTNER_CATEGORIES } from '@/features/groceries/partners';
+import { PARTNER_CATEGORIES, topicsFor } from '@/features/groceries/partners';
 import { FOUNDING_FREE_UNTIL } from '@/features/partners/partner-terms';
 import type { Database, PartnerApplication, PartnerShopRow } from '@/types/database';
 
@@ -29,6 +29,7 @@ const EMPTY: Insert = {
   ships: '',
   how_to_order: '',
   url: '',
+  phone: '',
   image_url: null,
   photos: [],
   topics: [],
@@ -149,7 +150,8 @@ export function PartnerAdmin() {
       url: form.url.trim(),
       image_url: form.image_url ?? null,
       photos: form.photos ?? [],
-      topics: form.department === 'learning' ? form.topics ?? [] : [],
+      topics: topicsFor(form.department).length ? form.topics ?? [] : [],
+      phone: blank(form.phone ?? ''),
       discount_code: blank(form.discount_code)?.toUpperCase() ?? null,
       discount_text: blank(form.discount_text),
       free_until: form.free_until || null,
@@ -208,6 +210,7 @@ export function PartnerAdmin() {
       description: a.description ?? '',
       city: a.city ?? '',
       ships: a.ships ?? '',
+      phone: a.phone ?? '',
       url: a.link.replace(/^http:\/\//i, 'https://'),
       terms_accepted_at: a.terms_agreed ? a.created_at : null,
       active: false,
@@ -311,11 +314,11 @@ export function PartnerAdmin() {
                 Description
                 <Textarea value={form.description ?? ''} onChange={(e) => set('description', e.target.value)} maxLength={300} rows={2} />
               </label>
-              {form.department === 'learning' && (
+              {topicsFor(form.department).length > 0 && (
                 <div className="space-y-1.5 text-sm font-medium sm:col-span-2">
-                  What they teach (up to 6)
+                  {form.department === 'learning' ? 'What they teach (up to 6)' : 'What they offer (up to 6)'}
                   <div className="flex flex-wrap gap-2">
-                    {LEARNING_TOPICS.map((t) => {
+                    {topicsFor(form.department).map((t) => {
                       const on = (form.topics ?? []).includes(t);
                       return (
                         <button
@@ -354,6 +357,10 @@ export function PartnerAdmin() {
               <label className="space-y-1 text-sm font-medium sm:col-span-2">
                 Link (website, Facebook, Instagram or WhatsApp)
                 <Input value={form.url} onChange={(e) => set('url', e.target.value)} placeholder="https://" />
+              </label>
+              <label className="space-y-1 text-sm font-medium sm:col-span-2">
+                Phone (optional, shows a Call button)
+                <Input value={form.phone ?? ''} onChange={(e) => set('phone', e.target.value)} placeholder="613-262-8640" maxLength={30} />
               </label>
               <label className="space-y-1 text-sm font-medium">
                 Discount code (optional)

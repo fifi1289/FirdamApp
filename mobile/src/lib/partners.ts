@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { PARTNER_COLUMNS, type PartnerShop } from '@/shared/partners';
+import { PARTNER_COLUMN_FALLBACKS, type PartnerShop } from '@/shared/partners';
 import { supabase } from '@/lib/supabase';
 
 /** Active partner shops, the same list as Shopping on firdam.com. Empty if anything goes wrong. */
@@ -11,9 +11,12 @@ export function usePartnerShops(): PartnerShop[] {
     type Result = { data: PartnerShop[] | null; error: unknown };
     const get = async (cols: string) => (await supabase.from('partner_shops').select(cols).eq('active', true)) as unknown as Result;
     (async () => {
-      let res = await get(PARTNER_COLUMNS);
-      // Before the topics column exists, fall back to the older columns.
-      if (res.error) res = await get(PARTNER_COLUMNS.replace(', topics', ''));
+      // Older databases may not have every column yet: try the newest set first.
+      let res: Result = { data: null, error: true };
+      for (const cols of PARTNER_COLUMN_FALLBACKS) {
+        res = await get(cols);
+        if (!res.error) break;
+      }
       if (alive) setShops((res.data ?? []).map((s) => ({ ...s, topics: s.topics ?? [] })));
     })().catch(() => {});
     return () => {

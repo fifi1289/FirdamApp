@@ -3,7 +3,7 @@ import { Image, Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { Badge } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
 import { recordPartnerClick } from '@/lib/partners';
-import { PARTNER_NOTE, partnerLinkLabel, partnerMeta, partnersIn, type PartnerShop } from '@/shared/partners';
+import { PARTNER_NOTE, partnerLinkLabel, partnerMeta, partnersIn, telLink, type PartnerShop } from '@/shared/partners';
 import { colors } from '@/theme';
 
 /** Muslim-owned partner shops for one Shopping department, the same as on firdam.com. */
@@ -97,6 +97,16 @@ export function PartnerCard({ shop }: { shop: PartnerShop }) {
       ) : null}
 
       <Button label={`${partnerLinkLabel(shop.url)} ↗`} onPress={open} />
+      {shop.phone ? (
+        <Button
+          label={`Call ${shop.phone}`}
+          variant="secondary"
+          onPress={() => {
+            recordPartnerClick(shop.id);
+            Linking.openURL(telLink(shop.phone!)).catch(() => {});
+          }}
+        />
+      ) : null}
     </Card>
   );
 }

@@ -8,14 +8,14 @@ import { SITE } from '@/lib/site';
 
 export const metadata = {
   title: 'Become a partner',
-  description: `List your Muslim-owned shop or classes on Firdam, free for founding partners until ${FOUNDING_FREE_UNTIL_LABEL}.`,
+  description: `List your Muslim-owned business on Firdam, free for founding partners until ${FOUNDING_FREE_UNTIL_LABEL}.`,
 };
 
 const BENEFITS = [
   {
     icon: Store,
     title: 'Your shop in front of Muslim families',
-    text: 'Families find you in Firdam’s Shopping and Learning, right where they plan meals, Eid, the school year and their Quran.',
+    text: 'Families find you in Firdam’s Shopping, Learning and Services, right where they plan meals, Eid, the school year and their Quran.',
   },
   {
     icon: BadgeCheck,
@@ -41,12 +41,12 @@ export default function PartnersPage() {
       <main className="flex-1">
         <section className="border-b border-border/60 py-14 md:py-20">
           <div className="container max-w-4xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">For Muslim-owned shops and teachers</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">For Muslim-owned shops, teachers and services</p>
             <h1 className="mt-3 font-display text-3xl font-semibold text-foreground md:text-5xl">
-              Bring your shop or classes to Muslim families on {SITE.name}
+              Bring your business to Muslim families on {SITE.name}
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-              Modest clothing, halal groceries, kids’ books, Eid gifts, home essentials, Quran and Arabic classes… If
+              Modest clothing, halal groceries, kids’ books, Eid gifts, home essentials, Quran and Arabic classes, renovation, accounting, catering… If
               you run a Muslim-owned business or teach, list it on Firdam for free as one of our founding partners.
             </p>
             <a
@@ -77,7 +77,7 @@ export default function PartnersPage() {
               {[
                 ['Apply', 'Tell us about your shop with the form below.'],
                 ['We set it up', 'We message you within a few days, add your logo and photos, and send you a preview.'],
-                ['Families find you', 'You appear in Shopping or Learning on firdam.com and in the Firdam app.'],
+                ['Families find you', 'You appear in Shopping, Learning or Services on firdam.com and in the Firdam app.'],
               ].map(([t, d], i) => (
                 <li key={t} className="rounded-2xl border border-border p-5">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">{i + 1}</span>

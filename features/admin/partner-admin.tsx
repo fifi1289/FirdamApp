@@ -67,6 +67,8 @@ export function PartnerAdmin() {
   const [form, setForm] = useState<(Insert & { id?: string }) | null>(null);
   const [applications, setApplications] = useState<PartnerApplication[]>([]);
   const [fromApplication, setFromApplication] = useState<string | null>(null);
+  const [contacts, setContacts] = useState<Record<string, { owner_name: string | null; email: string | null }>>({});
+  const [contact, setContact] = useState({ owner_name: '', email: '' });
   const [busy, setBusy] = useState<string | null>(null);
   const logoRef = useRef<HTMLInputElement>(null);
   const photoRef = useRef<HTMLInputElement>(null);
@@ -85,6 +87,9 @@ export function PartnerAdmin() {
     setCounts(Object.fromEntries((c ?? []).map((r) => [r.partner_id, r])));
     const { data: apps } = await supabase.from('partner_applications').select('*').order('created_at', { ascending: false }).limit(100);
     setApplications(apps ?? []);
+    // Private contact details (admins only); empty if the table isn't there yet.
+    const { data: cs } = await supabase.from('partner_contacts').select('partner_id, owner_name, email');
+    setContacts(Object.fromEntries((cs ?? []).map((c) => [c.partner_id, { owner_name: c.owner_name, email: c.email }])));
   }, [supabase]);
 
   useEffect(() => {
@@ -159,11 +164,21 @@ export function PartnerAdmin() {
       active: form.active ?? true,
       position: Number(form.position) || 0,
     };
-    const { error } = form.id
-      ? await supabase.from('partner_shops').update(row).eq('id', form.id)
-      : await supabase.from('partner_shops').insert(row);
+    const { data: saved, error } = form.id
+      ? await supabase.from('partner_shops').update(row).eq('id', form.id).select('id').single()
+      : await supabase.from('partner_shops').insert(row).select('id').single();
     setBusy(null);
     if (error) return toast.error('Save failed', { description: error.message });
+    if (saved && (contact.email.trim() || contact.owner_name.trim())) {
+      const { error: cErr } = await supabase.from('partner_contacts').upsert({
+        partner_id: saved.id,
+        owner_name: blank(contact.owner_name),
+        email: blank(contact.email)?.toLowerCase() ?? null,
+        phone: blank(form.phone ?? ''),
+        updated_at: new Date().toISOString(),
+      });
+      if (cErr) toast.error('Contact email not saved', { description: cErr.message });
+    }
     toast.success(form.id ? 'Partner updated' : 'Partner added');
     if (!form.id && fromApplication) {
       await supabase.from('partner_applications').update({ status: 'added' }).eq('id', fromApplication);
@@ -212,9 +227,16 @@ export function PartnerAdmin() {
       ships: a.ships ?? '',
       phone: a.phone ?? '',
       url: a.link.replace(/^http:\/\//i, 'https://'),
+      how_to_order: a.how_to_order ?? '',
+      image_url: a.logo_url ?? null,
+      photos: a.photos ?? [],
+      topics: a.topics ?? [],
+      discount_code: a.discount_code ?? '',
+      discount_text: a.discount_text ?? '',
       terms_accepted_at: a.terms_agreed ? a.created_at : null,
       active: false,
     });
+    setContact({ owner_name: a.owner_name, email: a.email });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -237,6 +259,7 @@ export function PartnerAdmin() {
         {!form && (
           <Button size="sm" onClick={() => {
               setFromApplication(null);
+              setContact({ owner_name: '', email: '' });
               setForm({ ...EMPTY });
             }}>
             <Plus className="mr-2 h-4 w-4" /> Add partner
@@ -265,6 +288,28 @@ export function PartnerAdmin() {
                 </p>
                 {a.description && <p className="text-foreground">{a.description}</p>}
                 {a.ships && <p className="text-muted-foreground">{a.ships}</p>}
+                {a.how_to_order && <p className="text-muted-foreground">{a.how_to_order}</p>}
+                {a.discount_code && (
+                  <p className="text-foreground">
+                    <span className="font-mono font-semibold">{a.discount_code}</span>
+                    {a.discount_text ? ` · ${a.discount_text}` : ''}
+                  </p>
+                )}
+                {(a.topics ?? []).length > 0 && <p className="text-muted-foreground">{a.topics.join(' · ')}</p>}
+                {(a.logo_url || (a.photos ?? []).length > 0) && (
+                  <div className="flex flex-wrap gap-2">
+                    {a.logo_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={a.logo_url} alt="Logo" className="h-16 w-16 rounded-full border border-border object-cover" />
+                    )}
+                    {(a.photos ?? []).map((src) => (
+                      <a key={src} href={src} target="_blank" rel="noopener noreferrer" title="Open full size to check for faces">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src} alt="" className="h-16 w-16 rounded-lg object-cover" />
+                      </a>
+                    ))}
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2">
                   <a href={a.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted">
                     Open their link <ExternalLink className="h-3 w-3" />
@@ -357,6 +402,14 @@ export function PartnerAdmin() {
               <label className="space-y-1 text-sm font-medium sm:col-span-2">
                 Link (website, Facebook, Instagram or WhatsApp)
                 <Input value={form.url} onChange={(e) => set('url', e.target.value)} placeholder="https://" />
+              </label>
+              <label className="space-y-1 text-sm font-medium">
+                Owner’s name (private)
+                <Input value={contact.owner_name} onChange={(e) => setContact((c) => ({ ...c, owner_name: e.target.value }))} maxLength={80} />
+              </label>
+              <label className="space-y-1 text-sm font-medium">
+                Contact email (private, for monthly reports)
+                <Input type="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} maxLength={254} />
               </label>
               <label className="space-y-1 text-sm font-medium sm:col-span-2">
                 Phone (optional, shows a Call button)
@@ -483,6 +536,7 @@ export function PartnerAdmin() {
                   <p className="text-xs text-muted-foreground">
                     {s.free_until ? `Free until ${new Date(`${s.free_until}T12:00:00`).toLocaleDateString('en-CA', { dateStyle: 'medium' })}` : 'No end date'}
                     {s.terms_accepted_at ? ` · Agreed ${new Date(s.terms_accepted_at).toLocaleDateString('en-CA', { dateStyle: 'medium' })}` : ''}
+                    {contacts[s.id]?.email ? ` · ${contacts[s.id]!.email}` : ''}
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 text-sm text-foreground" title="Taps on “Visit shop” from Firdam">
@@ -495,7 +549,11 @@ export function PartnerAdmin() {
                   <span className="text-muted-foreground">families</span>
                 </div>
                 <Switch checked={s.active} onCheckedChange={(on) => toggle(s, on)} aria-label={`Show ${s.name}`} disabled={!s.terms_accepted_at && !s.active} />
-                <Button variant="ghost" size="sm" onClick={() => setForm({ ...s })} aria-label={`Edit ${s.name}`}>
+                <Button variant="ghost" size="sm" onClick={() => {
+                    setFromApplication(null);
+                    setContact({ owner_name: contacts[s.id]?.owner_name ?? '', email: contacts[s.id]?.email ?? '' });
+                    setForm({ ...s });
+                  }} aria-label={`Edit ${s.name}`}>
                   <Pencil className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => remove(s)} aria-label={`Remove ${s.name}`}>

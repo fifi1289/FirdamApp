@@ -4,9 +4,10 @@ export const FOUNDING_FREE_UNTIL_LABEL = 'November 1, 2027';
 
 /** The partner terms a shop agrees to, shown on firdam.com/partners. */
 export const PARTNER_TERMS = [
-  'Firdam can show your shop name, logo, photos, description and link on firdam.com and in the Firdam app.',
+  'Firdam can show your business name, logo, photos, description, discount and link on firdam.com and in the Firdam app.',
+  'Firdam can also feature your business (name, logo, photos and discount) in its own promotion, such as social media posts, ads, videos and emails, to bring families to you. Photos are shown without faces, and you can ask us to stop at any time.',
   'Your information is accurate, and you are responsible for your products, orders, payment, delivery and returns. Firdam doesn’t sell anything itself.',
   `Free for founding partners until ${FOUNDING_FREE_UNTIL_LABEL}. After that, Firdam never charges anything unless you agree in writing first, with at least 60 days’ notice.`,
   'Either of us can end the listing at any time.',
-  'If you give a discount code for Firdam families, you honour it while it’s listed.',
+  'You offer an ongoing discount for Firdam families while you’re listed (you choose the amount) and honour it.',
 ];

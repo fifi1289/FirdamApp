@@ -57,7 +57,7 @@ export const PARTNER_CATEGORIES: { id: string; label: string }[] = [
   { id: 'kids', label: 'Kids & school' },
   { id: 'gifts', label: 'Eid & gifts' },
   { id: 'learning', label: 'Learning (Quran, Arabic, classes)' },
-  { id: 'services', label: 'Services (home, professional, events, travel)' },
+  { id: 'services', label: 'Services (home, professional, business, events, travel)' },
 ];
 
 /** What learning partners can teach; used as filters in Learning. */
@@ -76,8 +76,9 @@ export function learningTopicsInUse(shops: PartnerShop[]): string[] {
 
 /** Kinds of local services, grouped for the filters in Services. */
 export const SERVICE_GROUPS: { id: string; label: string; types: string[] }[] = [
-  { id: 'home', label: 'Home', types: ['Renovation', 'Cleaning', 'Moving', 'Plumbing & electrical'] },
+  { id: 'home', label: 'Home', types: ['Renovation', 'Cleaning', 'Moving', 'Plumbing & electrical', 'Property management'] },
   { id: 'professional', label: 'Professional', types: ['Accounting & tax', 'Legal & wills', 'Real estate', 'Islamic finance'] },
+  { id: 'business', label: 'Business & digital', types: ['Website creation', 'Marketing & social media', 'Graphic design', 'Business & project management'] },
   { id: 'events', label: 'Events', types: ['Catering', 'Henna', 'Photography', 'Event planning'] },
   { id: 'travel', label: 'Travel', types: ['Hajj & Umrah', 'Travel agency'] },
 ];

@@ -961,6 +961,13 @@ export type Database = {
           terms_agreed: boolean;
           status: 'new' | 'contacted' | 'added' | 'declined';
           created_at: string;
+          user_id: string | null;
+          logo_url: string | null;
+          photos: string[];
+          topics: string[];
+          how_to_order: string | null;
+          discount_code: string | null;
+          discount_text: string | null;
         };
         Insert: {
           shop_name: string;
@@ -974,8 +981,21 @@ export type Database = {
           ships?: string | null;
           terms_agreed: boolean;
           status?: 'new' | 'contacted' | 'added' | 'declined';
+          user_id?: string | null;
+          logo_url?: string | null;
+          photos?: string[];
+          topics?: string[];
+          how_to_order?: string | null;
+          discount_code?: string | null;
+          discount_text?: string | null;
         };
         Update: { status?: 'new' | 'contacted' | 'added' | 'declined' };
+        Relationships: [];
+      };
+      partner_contacts: {
+        Row: { partner_id: string; owner_name: string | null; email: string | null; phone: string | null; updated_at: string };
+        Insert: { partner_id: string; owner_name?: string | null; email?: string | null; phone?: string | null; updated_at?: string };
+        Update: { owner_name?: string | null; email?: string | null; phone?: string | null; updated_at?: string };
         Relationships: [];
       };
       partner_shops: {

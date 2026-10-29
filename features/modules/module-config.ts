@@ -89,6 +89,16 @@ export const allModules: LifeModule[] = [
     group: 'Halal living',
   },
   {
+    id: 'services',
+    name: 'Services',
+    description: 'Trusted Muslim-owned local services: renovation, cleaning, accountants, lawyers, catering, Hajj & Umrah and more.',
+    status: 'active',
+    accent: 'from-brand-mid to-brand-light',
+    icon: 'handshake',
+    href: '/dashboard/services',
+    group: 'Halal living',
+  },
+  {
     id: 'pantry',
     name: 'Pantry',
     description: 'Track what is in your kitchen, spot what is expiring, and reduce waste.',
@@ -166,16 +176,6 @@ export const allModules: LifeModule[] = [
     accent: 'from-brand-mid to-brand-light',
     icon: 'calendar-heart',
     href: '/dashboard/calendar',
-    group: 'Family',
-  },
-  {
-    id: 'services',
-    name: 'Services',
-    description: 'Trusted Muslim-owned local services: renovation, cleaning, accountants, lawyers, catering, Hajj & Umrah and more.',
-    status: 'active',
-    accent: 'from-brand-mid to-brand-light',
-    icon: 'handshake',
-    href: '/dashboard/services',
     group: 'Family',
   },
   {

@@ -968,6 +968,12 @@ export type Database = {
           how_to_order: string | null;
           discount_code: string | null;
           discount_text: string | null;
+          terms_version: string | null;
+          terms_text: string | null;
+          user_agent: string | null;
+          submitted_from: string | null;
+          account_email: string | null;
+          account_verified: boolean | null;
         };
         Insert: {
           shop_name: string;
@@ -988,6 +994,10 @@ export type Database = {
           how_to_order?: string | null;
           discount_code?: string | null;
           discount_text?: string | null;
+          terms_version?: string | null;
+          terms_text?: string | null;
+          user_agent?: string | null;
+          submitted_from?: string | null;
         };
         Update: { status?: 'new' | 'contacted' | 'added' | 'declined' };
         Relationships: [];
@@ -1019,6 +1029,7 @@ export type Database = {
           active: boolean;
           position: number;
           created_at: string;
+          application_id: string | null;
         };
         Insert: {
           id?: string;
@@ -1040,6 +1051,7 @@ export type Database = {
           active?: boolean;
           position?: number;
           created_at?: string;
+          application_id?: string | null;
         };
         Update: {
           id?: string;
@@ -1061,6 +1073,7 @@ export type Database = {
           active?: boolean;
           position?: number;
           created_at?: string;
+          application_id?: string | null;
         };
         Relationships: [];
       };

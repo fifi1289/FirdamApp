@@ -2,6 +2,9 @@
 export const FOUNDING_FREE_UNTIL = '2027-11-01';
 export const FOUNDING_FREE_UNTIL_LABEL = 'November 1, 2027';
 
+/** Change this whenever the terms change: each application keeps the version and exact text it agreed to. */
+export const PARTNER_TERMS_VERSION = '2026-10-29';
+
 /** The partner terms a shop agrees to, shown on firdam.com/partners. */
 export const PARTNER_TERMS = [
   'Firdam can show your business name, logo, photos, description, discount and link on firdam.com and in the Firdam app.',
@@ -11,3 +14,8 @@ export const PARTNER_TERMS = [
   'Either of us can end the listing at any time.',
   'You offer an ongoing discount for Firdam families while you’re listed (you choose the amount) and honour it.',
 ];
+
+/** The terms as one numbered text, saved with each application. */
+export function partnerTermsText(): string {
+  return PARTNER_TERMS.map((t, i) => `${i + 1}. ${t}`).join('\n');
+}

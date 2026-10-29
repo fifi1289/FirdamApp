@@ -2,82 +2,106 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Briefcase, Hammer, Laptop, PartyPopper, Plane } from 'lucide-react';
+import { ArrowLeft, Briefcase, ChevronRight, Hammer, Laptop, PartyPopper, Plane, type LucideIcon } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { PartnerCard, usePartnerShops } from '@/features/groceries/partner-shops';
-import { SERVICES_NOTE, serviceGroupsInUse, servicePartners } from '@/features/groceries/partners';
+import { SERVICE_GROUPS, SERVICES_NOTE, servicePartners, serviceTypeCounts } from '@/features/groceries/partners';
 
-const COMING = [
-  { icon: Hammer, title: 'Home', text: 'Renovation, cleaning, moving, plumbing and electrical, property management.' },
-  { icon: Briefcase, title: 'Professional', text: 'Accountants for zakat and taxes, lawyers and wills, real estate, Islamic finance.' },
-  { icon: Laptop, title: 'Business & digital', text: 'Website creation, marketing and social media, graphic design, business and project management.' },
-  { icon: PartyPopper, title: 'Events', text: 'Halal catering, henna, photography and event planning.' },
-  { icon: Plane, title: 'Travel', text: 'Hajj and Umrah operators and travel agencies.' },
-];
+const ICONS: Record<string, LucideIcon> = { home: Hammer, professional: Briefcase, business: Laptop, events: PartyPopper, travel: Plane };
 
-/** Services: trusted Muslim-owned local businesses families hire, the same as in the Firdam app. */
+/** Services: trusted Muslim-owned local businesses families hire, by group and kind, the same as in the Firdam app. */
 export function ServicesDashboard() {
   const shops = usePartnerShops();
   const [group, setGroup] = useState<string | null>(null);
-  const groups = serviceGroupsInUse(shops);
-  const all = servicePartners(shops);
-  const list = servicePartners(shops, group);
+  const [type, setType] = useState<string | null>(null);
+  const counts = serviceTypeCounts(shops);
+  const current = SERVICE_GROUPS.find((g) => g.id === group) ?? null;
+  const list = current ? servicePartners(shops, current.id, type) : [];
+  const groupCount = (id: string) => servicePartners(shops, id).length;
+
+  const openGroup = (id: string | null) => {
+    setGroup(id);
+    setType(null);
+  };
 
   return (
     <AppShell>
-      <PageHeader
-        title="Services"
-        description="Trusted Muslim-owned businesses for your home, paperwork, business, events and travel."
-      />
+      <PageHeader title="Services" description="Trusted Muslim-owned businesses for your home, paperwork, business, events and travel." />
 
-      {all.length > 0 ? (
-        <div className="space-y-4">
-          {groups.length > 1 && (
-            <nav aria-label="Kinds of service" className="flex flex-wrap gap-2">
-              {[{ id: null, label: 'All' }, ...groups].map((g) => (
-                <button
-                  key={g.id ?? 'all'}
-                  type="button"
-                  onClick={() => setGroup(g.id)}
-                  aria-pressed={group === g.id}
-                  className={cn(
-                    'rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors',
-                    group === g.id ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
-                  )}
-                >
-                  {g.label}
-                </button>
-              ))}
-            </nav>
-          )}
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Service partners · Muslim-owned</p>
-          {list.map((s) => (
-            <PartnerCard key={s.id} shop={s} />
-          ))}
-          <p className="text-xs text-muted-foreground">{SERVICES_NOTE}</p>
+      {!current ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {SERVICE_GROUPS.map((g) => {
+            const Icon = ICONS[g.id] ?? Briefcase;
+            const n = groupCount(g.id);
+            return (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => openGroup(g.id)}
+                className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 text-left transition-colors hover:border-primary/40 hover:bg-muted/40"
+              >
+                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2">
+                    <span className="font-semibold text-foreground">{g.label}</span>
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      {n ? `${n} ${n === 1 ? 'business' : 'businesses'}` : 'Joining soon'}
+                    </span>
+                  </span>
+                  <span className="mt-1 block text-sm text-muted-foreground">{g.types.join(' · ')}</span>
+                </span>
+                <ChevronRight className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </button>
+            );
+          })}
         </div>
       ) : (
-        <Card>
-          <CardContent className="space-y-5 p-6">
-            <div>
-              <p className="font-semibold text-foreground">Trusted businesses are joining soon, insha’Allah</p>
-              <p className="mt-1 text-sm text-muted-foreground">We’re partnering with Muslim-owned businesses near you.</p>
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {COMING.map(({ icon: Icon, title, text }) => (
-                <div key={title} className="rounded-xl border border-border p-4">
-                  <Icon className="h-5 w-5 text-primary" />
-                  <p className="mt-2 text-sm font-semibold text-foreground">{title}</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{text}</p>
-                </div>
+        <div className="space-y-4">
+          <button type="button" onClick={() => openGroup(null)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
+            <ArrowLeft className="h-4 w-4" /> All services
+          </button>
+          <h2 className="text-xl font-semibold text-foreground">{current.label}</h2>
+
+          <nav aria-label={`Kinds of ${current.label} services`} className="flex flex-wrap gap-2">
+            {[null, ...current.types].map((t) => (
+              <button
+                key={t ?? 'all'}
+                type="button"
+                onClick={() => setType(t)}
+                aria-pressed={type === t}
+                className={cn(
+                  'rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors',
+                  type === t ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
+                )}
+              >
+                {t ?? 'All'}
+                {t && counts[t] ? <span className="ml-1.5 opacity-70">{counts[t]}</span> : null}
+              </button>
+            ))}
+          </nav>
+
+          {list.length > 0 ? (
+            <>
+              {list.map((s) => (
+                <PartnerCard key={s.id} shop={s} />
               ))}
-            </div>
-          </CardContent>
-        </Card>
+              <p className="text-xs text-muted-foreground">{SERVICES_NOTE}</p>
+            </>
+          ) : (
+            <Card>
+              <CardContent className="space-y-1 p-6">
+                <p className="font-semibold text-foreground">{`No ${type ?? current.label.toLowerCase()} partners yet`}</p>
+                <p className="text-sm text-muted-foreground">
+                  We’re inviting trusted Muslim-owned businesses, insha’Allah. Know a good one? Tell them about Firdam.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       )}
 
       <p className="mt-6 text-sm text-muted-foreground">

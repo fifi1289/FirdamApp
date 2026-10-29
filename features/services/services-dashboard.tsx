@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Briefcase, Hammer, PartyPopper, Plane } from 'lucide-react';
+import { Briefcase, Hammer, Laptop, PartyPopper, Plane } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
@@ -12,8 +12,9 @@ import { PartnerCard, usePartnerShops } from '@/features/groceries/partner-shops
 import { SERVICES_NOTE, serviceGroupsInUse, servicePartners } from '@/features/groceries/partners';
 
 const COMING = [
-  { icon: Hammer, title: 'Home', text: 'Renovation, cleaning, moving, plumbing and electrical.' },
+  { icon: Hammer, title: 'Home', text: 'Renovation, cleaning, moving, plumbing and electrical, property management.' },
   { icon: Briefcase, title: 'Professional', text: 'Accountants for zakat and taxes, lawyers and wills, real estate, Islamic finance.' },
+  { icon: Laptop, title: 'Business & digital', text: 'Website creation, marketing and social media, graphic design, business and project management.' },
   { icon: PartyPopper, title: 'Events', text: 'Halal catering, henna, photography and event planning.' },
   { icon: Plane, title: 'Travel', text: 'Hajj and Umrah operators and travel agencies.' },
 ];
@@ -30,7 +31,7 @@ export function ServicesDashboard() {
     <AppShell>
       <PageHeader
         title="Services"
-        description="Trusted Muslim-owned businesses for your home, paperwork, events and travel."
+        description="Trusted Muslim-owned businesses for your home, paperwork, business, events and travel."
       />
 
       {all.length > 0 ? (

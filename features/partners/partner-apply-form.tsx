@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PARTNER_CATEGORIES, topicsFor } from '@/features/groceries/partners';
+import { PARTNER_TERMS_VERSION, partnerTermsText } from '@/features/partners/partner-terms';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
 
@@ -158,6 +159,11 @@ export function PartnerApplyForm() {
       photos,
       topics: options.length ? topics : [],
       terms_agreed: true,
+      // A record of exactly what they agreed to, and from where.
+      terms_version: PARTNER_TERMS_VERSION,
+      terms_text: partnerTermsText(),
+      user_agent: navigator.userAgent.slice(0, 400),
+      submitted_from: window.location.href.slice(0, 300),
     };
     const { error } = await supabase.from('partner_applications').insert(row);
     setBusy(false);

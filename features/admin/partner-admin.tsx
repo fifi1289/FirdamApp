@@ -59,6 +59,26 @@ async function compress(file: File, max: number): Promise<Blob> {
 
 const blank = (v: string | null | undefined) => (v && v.trim() ? v.trim() : null);
 
+const day = (iso: string) => new Date(iso).toLocaleString('en-CA', { dateStyle: 'medium', timeStyle: 'short' });
+
+/** The proof a business applied and agreed itself: when, from which account, and which terms. */
+function Consent({ a }: { a: PartnerApplication }) {
+  return (
+    <details className="text-xs text-muted-foreground">
+      <summary className="cursor-pointer select-none">
+        {`Agreed ${day(a.created_at)} by ${a.account_email ?? a.email}`}
+        {a.account_verified ? ' · verified account' : a.account_verified === false ? ' · account not verified' : ''}
+        {a.terms_version ? ` · terms ${a.terms_version}` : ''}
+      </summary>
+      <div className="mt-2 space-y-1 rounded-md bg-muted/50 p-3">
+        {a.terms_text ? <pre className="whitespace-pre-wrap font-sans">{a.terms_text}</pre> : <p>Terms text not recorded (applied before Oct 29, 2026).</p>}
+        {a.user_agent && <p>Device: {a.user_agent}</p>}
+        {a.submitted_from && <p>Page: {a.submitted_from}</p>}
+      </div>
+    </details>
+  );
+}
+
 /** Admin: add and edit partner shops, upload their logo and photos, see how many families Firdam sends them. */
 export function PartnerAdmin() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -163,6 +183,7 @@ export function PartnerAdmin() {
       terms_accepted_at: form.terms_accepted_at ?? null,
       active: form.active ?? true,
       position: Number(form.position) || 0,
+      ...(!form.id && fromApplication ? { application_id: fromApplication } : {}),
     };
     const { data: saved, error } = form.id
       ? await supabase.from('partner_shops').update(row).eq('id', form.id).select('id').single()
@@ -287,6 +308,7 @@ export function PartnerAdmin() {
                   {a.phone ? ` · ${a.phone}` : ''}
                   {a.city ? ` · ${a.city}` : ''}
                 </p>
+                <Consent a={a} />
                 {a.description && <p className="text-foreground">{a.description}</p>}
                 {a.ships && <p className="text-muted-foreground">{a.ships}</p>}
                 {a.how_to_order && <p className="text-muted-foreground">{a.how_to_order}</p>}
@@ -539,6 +561,11 @@ export function PartnerAdmin() {
                     {s.terms_accepted_at ? ` · Agreed ${new Date(s.terms_accepted_at).toLocaleDateString('en-CA', { dateStyle: 'medium' })}` : ''}
                     {contacts[s.id]?.email ? ` · ${contacts[s.id]!.email}` : ''}
                   </p>
+                  {(() => {
+                    const app = s.application_id ? applications.find((x) => x.id === s.application_id) : undefined;
+                    if (app) return <Consent a={app} />;
+                    return s.terms_accepted_at ? <p className="text-xs text-muted-foreground">Agreed by message, keep your screenshot</p> : null;
+                  })()}
                 </div>
                 <div className="flex items-center gap-1.5 text-sm text-foreground" title="Taps on “Visit shop” from Firdam">
                   <MousePointerClick className="h-4 w-4 text-muted-foreground" />

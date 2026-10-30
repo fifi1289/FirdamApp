@@ -45,6 +45,8 @@ export interface PrayerPlace {
   longitude: number;
   /** "Toronto", or "Your location" until the name is known. */
   label: string;
+  /** ISO country code ("CA") when known, used to show the partners that reach you. */
+  country?: string;
 }
 
 export interface PrayerSettings {

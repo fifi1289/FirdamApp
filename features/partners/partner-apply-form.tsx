@@ -10,6 +10,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PARTNER_CATEGORIES, topicsFor } from '@/features/groceries/partners';
+import { usePartnerCountry } from '@/features/partners/partner-country';
+import { EMPTY_WHERE, PartnerWhereFields, cleanWhere, whereProblem, type PartnerWhere } from '@/features/partners/partner-where-fields';
 import { PARTNER_TERMS_VERSION, partnerTermsText } from '@/features/partners/partner-terms';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
@@ -63,6 +65,9 @@ export function PartnerApplyForm() {
   const { user, loading } = useAuth();
   const [f, setF] = useState(EMPTY);
   const [topics, setTopics] = useState<string[]>([]);
+  const { home } = usePartnerCountry();
+  const [where, setWhere] = useState<PartnerWhere | null>(null);
+  const whereValue = where ?? { ...EMPTY_WHERE, country: home ?? EMPTY_WHERE.country };
   const [logo, setLogo] = useState<string | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [uploading, setUploading] = useState<'logo' | 'photos' | null>(null);
@@ -139,6 +144,8 @@ export function PartnerApplyForm() {
     if (!logo) return setProblem('Upload your logo.');
     if (!f.discount_code.trim() || !f.discount_text.trim()) return setProblem('Add your Firdam discount code and what it gives (for example 10% off).');
     if (options.length && !topics.length) return setProblem('Choose what you offer.');
+    const whereIssue = whereProblem(whereValue, f.department);
+    if (whereIssue) return setProblem(whereIssue);
     if (!agreed) return setProblem('Please read and agree to the partner terms.');
 
     setBusy(true);
@@ -158,6 +165,7 @@ export function PartnerApplyForm() {
       logo_url: logo,
       photos,
       topics: options.length ? topics : [],
+      ...cleanWhere(whereValue, f.department),
       terms_agreed: true,
       // A record of exactly what they agreed to, and from where.
       terms_version: PARTNER_TERMS_VERSION,
@@ -282,6 +290,8 @@ export function PartnerApplyForm() {
           </div>
         )}
 
+        <PartnerWhereFields value={whereValue} department={f.department} onChange={setWhere} />
+
         <label className="space-y-1.5 text-sm font-medium text-foreground sm:col-span-2">
           Link to your business *
           <Input value={f.link} onChange={set('link')} maxLength={300} placeholder="Website, Facebook, Instagram or WhatsApp link" />
@@ -291,8 +301,8 @@ export function PartnerApplyForm() {
           <Textarea value={f.description} onChange={set('description')} maxLength={300} rows={3} placeholder="What you offer and what makes it special, in one or two sentences." />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground">
-          Shipping, delivery or class format
-          <Input value={f.ships} onChange={set('ships')} maxLength={120} placeholder="Ships across Canada · Online classes · Serves Ottawa" />
+          Delivery details (optional)
+          <Input value={f.ships} onChange={set('ships')} maxLength={120} placeholder="Free shipping over $80 · Extra fee outside Ontario" />
         </label>
         <label className="space-y-1.5 text-sm font-medium text-foreground">
           How to order or book

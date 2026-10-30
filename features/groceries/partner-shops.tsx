@@ -1,11 +1,27 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BadgeCheck, ExternalLink, MapPin, Phone, Tag } from 'lucide-react';
+import { BadgeCheck, ExternalLink, Laptop, MapPin, Phone, Tag, Truck } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { PARTNER_COLUMN_FALLBACKS, PARTNER_NOTE, telLink, partnerLinkLabel, partnerMeta, partnersIn, type PartnerShop } from '@/features/groceries/partners';
+import {
+  ALL_COUNTRIES,
+  PARTNER_COLUMN_FALLBACKS,
+  PARTNER_NOTE,
+  countryName,
+  notReachLabel,
+  partnerLinkLabel,
+  partnerMeta,
+  partnerReaches,
+  partnersFor,
+  partnersIn,
+  reachLabel,
+  telLink,
+  worksLabel,
+  type PartnerShop,
+} from '@/features/groceries/partners';
+import { PartnerCountryPicker, usePartnerCountry } from '@/features/partners/partner-country';
 
 /** Active partner shops for Shopping. Empty (never an error) if the table isn't there yet. */
 export function usePartnerShops() {
@@ -21,7 +37,7 @@ export function usePartnerShops() {
         res = await get(cols);
         if (!res.error) break;
       }
-      setShops((res.data ?? []).map((s) => ({ ...s, topics: s.topics ?? [] })));
+      setShops((res.data ?? []).map((s) => ({ ...s, topics: s.topics ?? [], photos: s.photos ?? [] })));
     };
     load();
   }, [supabase]);
@@ -36,15 +52,41 @@ function recordClick(partnerId: string) {
     .then(() => {});
 }
 
+/** Partners that can reach the country the family is viewing (all of them for "All countries"). */
+export function useVisiblePartners(shops: PartnerShop[]) {
+  const { viewing } = usePartnerCountry();
+  return partnersFor(shops, viewing);
+}
+
+/** Shown when no partner reaches the chosen country: never an empty page. */
+export function NoPartnersHere({ what }: { what: string }) {
+  const { viewing, setViewing } = usePartnerCountry();
+  return (
+    <div className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+      No {what} reach {countryName(viewing)} yet.{' '}
+      <button type="button" onClick={() => setViewing(ALL_COUNTRIES)} className="font-semibold text-primary hover:underline">
+        See all countries
+      </button>{' '}
+      ·{' '}
+      <a href="/partners" className="font-semibold text-primary hover:underline">
+        Become a partner
+      </a>
+    </div>
+  );
+}
+
 export function PartnerShops({ shops, department }: { shops: PartnerShop[]; department: string }) {
-  const list = partnersIn(shops, department);
-  if (!list.length) return null;
+  const visible = useVisiblePartners(shops);
+  const all = partnersIn(shops, department);
+  const list = partnersIn(visible, department);
+  if (!all.length) return null;
   return (
     <section aria-label="Partner shops" className="space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Partner shops · Muslim-owned</p>
-      {list.map((s) => (
-        <PartnerCard key={s.id} shop={s} />
-      ))}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Partner shops · Muslim-owned</p>
+        <PartnerCountryPicker shops={shops} />
+      </div>
+      {list.length ? list.map((s) => <PartnerCard key={s.id} shop={s} />) : <NoPartnersHere what="partner shops" />}
       <p className="text-xs text-muted-foreground">{PARTNER_NOTE}</p>
     </section>
   );
@@ -52,6 +94,10 @@ export function PartnerShops({ shops, department }: { shops: PartnerShop[]; depa
 
 export function PartnerCard({ shop }: { shop: PartnerShop }) {
   const meta = partnerMeta(shop);
+  const { home, viewing } = usePartnerCountry();
+  const reach = reachLabel(shop);
+  const works = worksLabel(shop.works);
+  const outside = viewing === ALL_COUNTRIES && home && !partnerReaches(shop, home) ? notReachLabel(shop, home) : '';
   return (
     <Card className="overflow-hidden">
       <CardContent className="space-y-4 p-5">
@@ -75,6 +121,23 @@ export function PartnerCard({ shop }: { shop: PartnerShop }) {
               <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5" /> {meta}
               </p>
+            )}
+            {(reach || works) && (
+              <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                {works && (
+                  <span className="inline-flex items-center gap-1">
+                    <Laptop className="h-3.5 w-3.5" /> {works}
+                  </span>
+                )}
+                {reach && (
+                  <span className="inline-flex items-center gap-1">
+                    <Truck className="h-3.5 w-3.5" /> {reach}
+                  </span>
+                )}
+              </p>
+            )}
+            {outside && (
+              <p className="mt-1.5 inline-block rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">{outside}</p>
             )}
             {shop.description && <p className="mt-1.5 text-sm text-foreground">{shop.description}</p>}
             {shop.how_to_order && <p className="mt-1 text-sm text-muted-foreground">{shop.how_to_order}</p>}

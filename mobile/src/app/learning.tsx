@@ -4,11 +4,11 @@ import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/kitchen-ui';
-import { PartnerCard } from '@/components/partner-shops';
+import { NoPartnersHere, PartnerCard, PartnerFilters, useVisiblePartners, type WorksFilter } from '@/components/partner-shops';
 import { HomeButton } from '@/components/screen';
 import { Card, T } from '@/components/ui';
 import { usePartnerShops } from '@/lib/partners';
-import { LEARNING_NOTE, learningPartners, learningTopicsInUse } from '@/shared/partners';
+import { LEARNING_NOTE, learningPartners, learningTopicsInUse, matchesWorks } from '@/shared/partners';
 import { colors } from '@/theme';
 
 const COMING = [
@@ -20,10 +20,12 @@ const COMING = [
 
 /** Learning: trusted Quran, Arabic and Islamic studies teachers, the same as on firdam.com. */
 export default function Learning() {
-  const shops = usePartnerShops();
+  const allShops = usePartnerShops();
+  const [works, setWorks] = useState<WorksFilter>(null);
+  const shops = useVisiblePartners(allShops).filter((s) => matchesWorks(s, works));
   const [topic, setTopic] = useState<string | null>(null);
-  const topics = learningTopicsInUse(shops);
-  const all = learningPartners(shops);
+  const topics = learningTopicsInUse(allShops);
+  const all = learningPartners(allShops);
   const list = learningPartners(shops, topic);
 
   return (
@@ -41,6 +43,7 @@ export default function Learning() {
 
         {all.length ? (
           <>
+            <PartnerFilters shops={allShops} works={works} onWorks={setWorks} />
             {topics.length > 1 ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                 {[null, ...topics].map((t) => (
@@ -51,9 +54,7 @@ export default function Learning() {
             <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
               LEARNING PARTNERS
             </T>
-            {list.map((s) => (
-              <PartnerCard key={s.id} shop={s} />
-            ))}
+            {list.length ? list.map((s) => <PartnerCard key={s.id} shop={s} />) : <NoPartnersHere what="learning partners" />}
             <T size={12} color={colors.muted}>
               {LEARNING_NOTE}
             </T>

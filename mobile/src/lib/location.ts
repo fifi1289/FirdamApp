@@ -16,13 +16,15 @@ export async function placeFromDevice(): Promise<PrayerPlace | 'denied'> {
     (await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }));
   const { latitude, longitude } = pos.coords;
   let label = 'Your location';
+  let country: string | undefined;
   try {
     const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
     label = placeName(address) ?? label;
+    country = address?.isoCountryCode ?? undefined;
   } catch {
     // The name is only for display; the times don't need it.
   }
-  return { latitude, longitude, label };
+  return { latitude, longitude, label, ...(country ? { country } : {}) };
 }
 
 /** Finds a typed city, e.g. "Mississauga" or "London, UK". */
@@ -32,11 +34,13 @@ export async function placeFromSearch(query: string): Promise<PrayerPlace | null
   const [hit] = await Location.geocodeAsync(text);
   if (!hit) return null;
   let label = text;
+  let country: string | undefined;
   try {
     const [address] = await Location.reverseGeocodeAsync({ latitude: hit.latitude, longitude: hit.longitude });
     label = placeName(address) ?? text;
+    country = address?.isoCountryCode ?? undefined;
   } catch {
     // Keep what was typed.
   }
-  return { latitude: hit.latitude, longitude: hit.longitude, label };
+  return { latitude: hit.latitude, longitude: hit.longitude, label, ...(country ? { country } : {}) };
 }

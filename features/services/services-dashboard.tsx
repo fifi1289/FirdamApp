@@ -8,14 +8,18 @@ import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { PartnerCard, usePartnerShops } from '@/features/groceries/partner-shops';
-import { SERVICE_GROUPS, SERVICES_NOTE, servicePartners, serviceTypeCounts } from '@/features/groceries/partners';
+import { NoPartnersHere, PartnerCard, usePartnerShops, useVisiblePartners } from '@/features/groceries/partner-shops';
+import { SERVICE_GROUPS, SERVICES_NOTE, matchesWorks, partnersIn, servicePartners, serviceTypeCounts } from '@/features/groceries/partners';
+import { PartnerFilters, type WorksFilter } from '@/features/partners/partner-filters';
 
 const ICONS: Record<string, LucideIcon> = { home: Hammer, professional: Briefcase, business: Laptop, events: PartyPopper, travel: Plane };
 
 /** Services: trusted Muslim-owned local businesses families hire, by group and kind, the same as in the Firdam app. */
 export function ServicesDashboard() {
-  const shops = usePartnerShops();
+  const allShops = usePartnerShops();
+  const [works, setWorks] = useState<WorksFilter>(null);
+  const shops = useVisiblePartners(allShops).filter((s) => matchesWorks(s, works));
+  const hasAny = partnersIn(allShops, 'services').length > 0;
   const [group, setGroup] = useState<string | null>(null);
   const [type, setType] = useState<string | null>(null);
   const counts = serviceTypeCounts(shops);
@@ -31,6 +35,7 @@ export function ServicesDashboard() {
   return (
     <AppShell>
       <PageHeader title="Services" description="Trusted Muslim-owned businesses for your home, paperwork, business, events and travel." />
+      {hasAny && <PartnerFilters shops={allShops} works={works} onWorks={setWorks} />}
 
       {!current ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -91,6 +96,8 @@ export function ServicesDashboard() {
               ))}
               <p className="text-xs text-muted-foreground">{SERVICES_NOTE}</p>
             </>
+          ) : servicePartners(allShops, current.id, type).length > 0 ? (
+            <NoPartnersHere what={`${type ?? current.label.toLowerCase()} partners${works ? (works === 'online' ? ' working online' : ' working in person') : ''}`} />
           ) : (
             <Card>
               <CardContent className="space-y-1 p-6">

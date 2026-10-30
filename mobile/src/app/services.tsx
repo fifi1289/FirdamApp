@@ -3,16 +3,19 @@ import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/kitchen-ui';
-import { PartnerCard } from '@/components/partner-shops';
+import { NoPartnersHere, PartnerCard, PartnerFilters, useVisiblePartners, type WorksFilter } from '@/components/partner-shops';
 import { HomeButton } from '@/components/screen';
 import { Card, T } from '@/components/ui';
 import { usePartnerShops } from '@/lib/partners';
-import { SERVICE_GROUPS, SERVICES_NOTE, servicePartners, serviceTypeCounts } from '@/shared/partners';
+import { SERVICE_GROUPS, SERVICES_NOTE, matchesWorks, partnersIn, servicePartners, serviceTypeCounts } from '@/shared/partners';
 import { colors } from '@/theme';
 
 /** Services: trusted Muslim-owned local businesses families hire, by group and kind, the same as on firdam.com. */
 export default function Services() {
-  const shops = usePartnerShops();
+  const allShops = usePartnerShops();
+  const [works, setWorks] = useState<WorksFilter>(null);
+  const shops = useVisiblePartners(allShops).filter((s) => matchesWorks(s, works));
+  const hasAny = partnersIn(allShops, 'services').length > 0;
   const [group, setGroup] = useState<string | null>(null);
   const [type, setType] = useState<string | null>(null);
   const counts = serviceTypeCounts(shops);
@@ -33,6 +36,7 @@ export default function Services() {
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
           {current ? current.label : 'Services'}
         </T>
+        {hasAny ? <PartnerFilters shops={allShops} works={works} onWorks={setWorks} /> : null}
 
         {!current ? (
           <>
@@ -86,6 +90,8 @@ export default function Services() {
                   {SERVICES_NOTE}
                 </T>
               </>
+            ) : servicePartners(allShops, current.id, type).length ? (
+              <NoPartnersHere what={`${(type ?? current.label).toLowerCase()} partners${works ? (works === 'online' ? ' working online' : ' working in person') : ''}`} />
             ) : (
               <Card style={{ gap: 4 }}>
                 <T weight="bold" size={15}>

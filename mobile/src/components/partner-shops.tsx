@@ -1,23 +1,109 @@
-import { Image, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Badge } from '@/components/kitchen-ui';
+import { Badge, Chip } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
+import { usePartnerCountry } from '@/lib/partner-country';
 import { recordPartnerClick } from '@/lib/partners';
-import { PARTNER_NOTE, partnerLinkLabel, partnerMeta, partnersIn, telLink, type PartnerShop } from '@/shared/partners';
+import {
+  ALL_COUNTRIES,
+  PARTNER_NOTE,
+  countryName,
+  notReachLabel,
+  partnerCountryOptions,
+  partnerLinkLabel,
+  partnerMeta,
+  partnerReaches,
+  partnersFor,
+  partnersIn,
+  reachLabel,
+  telLink,
+  worksLabel,
+  type PartnerShop,
+} from '@/shared/partners';
 import { colors } from '@/theme';
+
+export type WorksFilter = 'online' | 'in_person' | null;
+
+/** Partners that can reach the country the family is viewing (all of them for "All countries"). */
+export function useVisiblePartners(shops: PartnerShop[]): PartnerShop[] {
+  const { viewing } = usePartnerCountry();
+  return partnersFor(shops, viewing);
+}
+
+/** "Showing partners for": the family's country, the countries partners reach, or all. */
+export function PartnerCountryPicker({ shops }: { shops: PartnerShop[] }) {
+  const { home, viewing, setViewing } = usePartnerCountry();
+  const options = partnerCountryOptions(shops, home);
+  if (viewing && viewing !== ALL_COUNTRIES && !options.includes(viewing)) options.push(viewing);
+  return (
+    <View style={{ gap: 6 }}>
+      <T size={12.5} color={colors.muted}>
+        Showing partners for
+      </T>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+        {options.map((c) => (
+          <Chip key={c} label={`${countryName(c)}${c === home ? ' (you)' : ''}`} selected={viewing === c} onPress={() => setViewing(c)} />
+        ))}
+        <Chip label="All countries" selected={!viewing || viewing === ALL_COUNTRIES} onPress={() => setViewing(ALL_COUNTRIES)} />
+      </ScrollView>
+    </View>
+  );
+}
+
+/** Country picker + All / Online / In person, for Services and Learning. */
+export function PartnerFilters({ shops, works, onWorks }: { shops: PartnerShop[]; works: WorksFilter; onWorks: (w: WorksFilter) => void }) {
+  const opts: { id: WorksFilter; label: string }[] = [
+    { id: null, label: 'All' },
+    { id: 'online', label: 'Online' },
+    { id: 'in_person', label: 'In person' },
+  ];
+  return (
+    <View style={{ gap: 10 }}>
+      <PartnerCountryPicker shops={shops} />
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        {opts.map((o) => (
+          <Chip key={o.label} label={o.label} tone="sage" selected={works === o.id} onPress={() => onWorks(o.id)} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+/** Shown when no partner reaches the chosen country: never an empty page. */
+export function NoPartnersHere({ what }: { what: string }) {
+  const { viewing, setViewing } = usePartnerCountry();
+  return (
+    <Card style={{ gap: 8 }}>
+      <T size={14}>{`No ${what} reach ${countryName(viewing)} yet.`}</T>
+      <View style={{ flexDirection: 'row', gap: 16 }}>
+        <Pressable accessibilityRole="button" onPress={() => setViewing(ALL_COUNTRIES)} hitSlop={8}>
+          <T size={14} weight="bold" color={colors.walnut}>
+            See all countries
+          </T>
+        </Pressable>
+        <Pressable accessibilityRole="link" onPress={() => Linking.openURL('https://firdam.com/partners').catch(() => {})} hitSlop={8}>
+          <T size={14} weight="bold" color={colors.walnut}>
+            Become a partner ↗
+          </T>
+        </Pressable>
+      </View>
+    </Card>
+  );
+}
 
 /** Muslim-owned partner shops for one Shopping department, the same as on firdam.com. */
 export function PartnerShops({ shops, department }: { shops: PartnerShop[]; department: string }) {
-  const list = partnersIn(shops, department);
-  if (!list.length) return null;
+  const visible = useVisiblePartners(shops);
+  const all = partnersIn(shops, department);
+  const list = partnersIn(visible, department);
+  if (!all.length) return null;
   return (
     <View style={{ gap: 10 }}>
       <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
         PARTNER SHOPS · MUSLIM-OWNED
       </T>
-      {list.map((s) => (
-        <PartnerCard key={s.id} shop={s} />
-      ))}
+      <PartnerCountryPicker shops={shops} />
+      {list.length ? list.map((s) => <PartnerCard key={s.id} shop={s} />) : <NoPartnersHere what="partner shops" />}
       <T size={12} color={colors.muted}>
         {PARTNER_NOTE}
       </T>
@@ -27,6 +113,9 @@ export function PartnerShops({ shops, department }: { shops: PartnerShop[]; depa
 
 export function PartnerCard({ shop }: { shop: PartnerShop }) {
   const meta = partnerMeta(shop);
+  const { home, viewing } = usePartnerCountry();
+  const reach = [worksLabel(shop.works), reachLabel(shop)].filter(Boolean).join(' · ');
+  const outside = viewing === ALL_COUNTRIES && home && !partnerReaches(shop, home) ? notReachLabel(shop, home) : '';
   const open = () => {
     recordPartnerClick(shop.id);
     Linking.openURL(shop.url).catch(() => {});
@@ -55,8 +144,20 @@ export function PartnerCard({ shop }: { shop: PartnerShop }) {
               {meta}
             </T>
           ) : null}
+          {reach ? (
+            <T size={12.5} color={colors.muted}>
+              {reach}
+            </T>
+          ) : null}
         </View>
       </View>
+      {outside ? (
+        <View style={styles.outside}>
+          <T size={12} weight="bold" color={colors.walnut}>
+            {outside}
+          </T>
+        </View>
+      ) : null}
 
       {shop.description ? <T size={14}>{shop.description}</T> : null}
       {shop.how_to_order ? (
@@ -115,6 +216,7 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   logo: { width: 56, height: 56, borderRadius: 28, borderWidth: 1, borderColor: colors.line },
   initial: { backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
+  outside: { alignSelf: 'flex-start', backgroundColor: colors.tint, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
   topic: { backgroundColor: colors.tint, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
   photo: { width: 120, height: 120, borderRadius: 12, backgroundColor: colors.tint },
   code: {

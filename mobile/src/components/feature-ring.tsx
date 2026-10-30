@@ -1,6 +1,5 @@
 import { router, type Href } from 'expo-router';
-import { useEffect, useRef } from 'react';
-import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { Icon, type IconName, Logo } from '@/components/art';
@@ -36,35 +35,12 @@ const HUB = 76;
 const BUBBLE = 66;
 const INNER_R = 76;
 const OUTER_R = 148;
-/** One slow turn, in ms. Both rings turn together, the same way, so it stays calm. */
-const TURN_MS = 300_000;
 
 const inner = HOME_FEATURES.filter((f) => f.ring === 'inner');
 const outer = HOME_FEATURES.filter((f) => f.ring === 'outer');
 
-/** 0 → 1 forever, unless the phone asks for reduced motion. */
-function useSpin(duration: number) {
-  const spin = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    let anim: Animated.CompositeAnimation | null = null;
-    let cancelled = false;
-    AccessibilityInfo.isReduceMotionEnabled()
-      .catch(() => false)
-      .then((reduce) => {
-        if (reduce || cancelled) return;
-        anim = Animated.loop(Animated.timing(spin, { toValue: 1, duration, easing: Easing.linear, useNativeDriver: true }));
-        anim.start();
-      });
-    return () => {
-      cancelled = true;
-      anim?.stop();
-    };
-  }, [spin, duration]);
-  return spin;
-}
-
 /**
- * Home: every feature in two rings turning slowly together around the Firdam logo —
+ * Home: every feature in two rings around the Firdam logo (they stay still, so every button is easy to find and tap) —
  * faith and family close in, everyday living around them.
  */
 export function FeatureRing() {
@@ -72,7 +48,6 @@ export function FeatureRing() {
   const size = Math.min(width - 24, BASE);
   const k = size / BASE;
   const center = size / 2;
-  const spin = useSpin(TURN_MS);
 
   return (
     <View style={{ width: size, height: size, alignSelf: 'center' }} accessibilityLabel={tr('Firdam features')}>
@@ -81,8 +56,8 @@ export function FeatureRing() {
         <Circle cx={center} cy={center} r={INNER_R * k} stroke={colors.gold} strokeWidth={1} strokeDasharray="2 6" fill="none" opacity={0.7} />
       </Svg>
 
-      <Ring items={outer} radius={OUTER_R * k} bubble={BUBBLE * k} size={size} spin={spin} tone="outer" />
-      <Ring items={inner} radius={INNER_R * k} bubble={BUBBLE * k} size={size} spin={spin} tone="inner" />
+      <Ring items={outer} radius={OUTER_R * k} bubble={BUBBLE * k} size={size} tone="outer" />
+      <Ring items={inner} radius={INNER_R * k} bubble={BUBBLE * k} size={size} tone="inner" />
 
       <View
         style={[styles.hub, { width: HUB * k, height: HUB * k, borderRadius: (HUB * k) / 2, left: center - (HUB * k) / 2, top: center - (HUB * k) / 2 }]}
@@ -103,27 +78,23 @@ function Ring({
   radius,
   bubble,
   size,
-  spin,
   tone,
 }: {
   items: typeof HOME_FEATURES;
   radius: number;
   bubble: number;
   size: number;
-  spin: Animated.Value;
   tone: 'inner' | 'outer';
 }) {
-  const turn = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-  const upright = spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-360deg'] });
   const center = size / 2;
   const scale = bubble / BUBBLE;
 
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, { transform: [{ rotate: turn }] }]} pointerEvents="box-none">
+    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
       {items.map((f, i) => {
         const p = ringPoint(i, items.length);
         return (
-          <Animated.View
+          <View
             key={f.id}
             style={{
               position: 'absolute',
@@ -131,18 +102,12 @@ function Ring({
               top: center + p.y * radius - bubble / 2,
               width: bubble,
               height: bubble,
-              transform: [{ rotate: upright }],
             }}
           >
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={tr(f.label)}
               onPress={() => router.push(f.app as Href)}
-              // The ring turns on the native side, so React Native measures the
-              // bubble where it started, not where it is now. Without this, the
-              // tiny finger movement of a tap counts as "moved away" and the tap
-              // is dropped (very visible on tablets). Scrolling still cancels it.
-              pressRetentionOffset={{ top: size, bottom: size, left: size, right: size }}
             >
               {({ pressed }) => (
                 <View
@@ -166,10 +131,10 @@ function Ring({
                 </View>
               )}
             </Pressable>
-          </Animated.View>
+          </View>
         );
       })}
-    </Animated.View>
+    </View>
   );
 }
 

@@ -17,7 +17,7 @@ const db = () => createSupabaseBrowserClient() as unknown as SupabaseClient;
  * meal plans, shopping lists, the pantry — shows them. Remembered on this
  * browser, refreshed in the background on each visit.
  */
-const CACHE = (lang: Lang) => `firdam.recipe-i18n.${lang}.v1`;
+const CACHE = (lang: Lang) => `firdam.recipe-i18n.${lang}.v2`;
 const listeners = new Set<() => void>();
 let version = 0;
 let started: Lang | null = null;
@@ -28,12 +28,15 @@ function bump() {
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+/** Recipes also write foods as "Brown Lentils": every word capitalised. */
+const title = (s: string) => s.split(' ').map(cap).join(' ');
 
 /** Food names appear as "chicken" (shopping) and "Chicken" (recipes): both get the translation, in the same case. */
 function applyFoods(rows: { name_en: string; name: string }[], into: Record<string, string>) {
   for (const r of rows) {
     into[r.name_en] = r.name;
     into[cap(r.name_en)] = cap(r.name);
+    if (!(title(r.name_en) in into)) into[title(r.name_en)] = cap(r.name);
   }
 }
 

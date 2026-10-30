@@ -9,9 +9,11 @@ import { supabase } from '@/lib/supabase';
  * to the app's dictionary, so recipe cards, plans, shopping and the pantry show
  * them. Remembered on the phone and refreshed in the background.
  */
-const CACHE = (lang: Lang) => `firdam.recipe-i18n.${lang}.v1`;
+const CACHE = (lang: Lang) => `firdam.recipe-i18n.${lang}.v2`;
 const PAGE = 1000;
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+/** Recipes also write foods as "Brown Lentils": every word capitalised. */
+const title = (s: string) => s.split(' ').map(cap).join(' ');
 let refreshed: Lang | null = null;
 
 async function allPages<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>): Promise<T[]> {
@@ -47,6 +49,7 @@ async function fetchMap(lang: Lang): Promise<Record<string, string>> {
   for (const f of foods) {
     map[f.name_en] = f.name;
     map[cap(f.name_en)] = cap(f.name);
+    if (!(title(f.name_en) in map)) map[title(f.name_en)] = cap(f.name);
   }
   for (const r of recipes) {
     if (!r.recipe) continue;

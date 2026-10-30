@@ -209,7 +209,7 @@ export function partnerCountryOptions(shops: PartnerShop[], home: string | null)
     if (s.ships_mode === 'countries') for (const c of s.ship_countries ?? []) set.add(c);
   }
   if (home) set.delete(home);
-  const rest = [...set].sort((a, b) => countryName(a).localeCompare(countryName(b)));
+  const rest = Array.from(set).sort((a, b) => countryName(a).localeCompare(countryName(b)));
   return home ? [home, ...rest] : rest;
 }
 

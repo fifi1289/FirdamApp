@@ -7,6 +7,7 @@ import { getMealImage } from '@/features/meals/meal-images';
 import type { MealPreferencesState } from '@/features/meals/meals-config';
 import { conflictsWithAllergies, fitsDiet } from '@/lib/recipes/allergens';
 import { checkNeeds, Ledger, type PantryLike } from '@/supabase/functions/_shared/pantry-engine';
+import { tr } from '@/lib/i18n';
 
 export type MealDifficulty = 'Easy' | 'Medium' | 'Hard';
 
@@ -99,7 +100,7 @@ export function formatWeekRange(weekStartDate: string): string {
     month: 'short',
     day: 'numeric',
   });
-  return `Week of ${startLabel} \u2013 ${endLabel}`;
+  return tr('Week of {0} – {1}', [startLabel, endLabel]);
 }
 
 export interface RecipeRow {
@@ -298,7 +299,7 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
             id: `needs-ai-${i}-${type}`,
             name: `${cuisine} ${type}`,
             type,
-            description: `No more ${cuisine} ${type} recipes in the library yet.`,
+            description: tr('No more {0} {1} recipes in the library yet.', [cuisine, type]),
             image: getMealImage(`${cuisine} ${type}`, type),
             ingredients: [],
             recipe: [],
@@ -465,8 +466,8 @@ export function swapPlanMeal(
   const soft = diets.filter((d) => SOFT_DIETS.includes(d.toLowerCase()));
   const tiers: { types: string[]; diets: string[]; note: string | null }[] = [
     { types: [key], diets, note: null },
-    ...(soft.length ? [{ types: [key], diets: firm, note: `Nothing ${soft.join(' and ').toLowerCase()} was left, so this one isn’t.` }] : []),
-    { types: [key, ...(NEAR_TYPES[key] ?? [])], diets: firm, note: `Picked from ${(NEAR_TYPES[key] ?? []).join(' and ')} recipes too, as no other ${key} fits.` },
+    ...(soft.length ? [{ types: [key], diets: firm, note: tr('Nothing {0} was left, so this one isn’t.', [soft.join(' and ').toLowerCase()]) }] : []),
+    { types: [key, ...(NEAR_TYPES[key] ?? [])], diets: firm, note: tr('Picked from {0} recipes too, as no other {1} fits.', [(NEAR_TYPES[key] ?? []).join(' and '), key]) },
   ];
   // The family's chosen cuisines for this meal come first in every tier.
   const wanted = (preferences.cuisinePreferences?.[type] ?? []).map((c) => c.toLowerCase());

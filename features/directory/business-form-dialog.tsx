@@ -148,7 +148,7 @@ export function BusinessFormDialog({
     }
     toast.success(
       business ? tr('Listing updated') : tr('Thank you! Your listing has been submitted for review.'),
-      business ? undefined : { description: 'We usually review new businesses within 2 working days.' }
+      business ? undefined : { description: tr('We usually review new businesses within 2 working days.') }
     );
     onSaved();
     onOpenChange(false);

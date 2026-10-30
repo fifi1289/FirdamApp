@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { callEdgeFunction } from '@/lib/supabase/functions';
+import { tr, getLang } from '@/lib/i18n';
 
 export interface PrayerTimings {
   Imsak: string;
@@ -231,12 +232,20 @@ export function formatRelative(ms: number): string {
   const totalMin = Math.max(0, Math.round(ms / 60000));
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
-  if (h === 0) return `in ${m} min`;
-  return `in ${h}h ${String(m).padStart(2, '0')}m`;
+  if (h === 0) return tr('in {0} min', [m]);
+  return tr('in {0}h {1}m', [h, String(m).padStart(2, '0')]);
 }
 
 /** Parse Aladhan's DD-MM-YYYY into a local Date. */
 export function parseGregorian(date: string): Date {
   const [dd, mm, yyyy] = date.split('-').map(Number);
   return new Date(yyyy, mm - 1, dd);
+}
+
+const HIJRI_MONTHS_AR = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الآخر', 'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'];
+
+/** The Hijri month as shown: Arabic names on the Arabic site, the usual transliteration in English and French. */
+export function hijriMonthLabel(h: { month: string; monthAr?: string | null; monthNumber?: number }): string {
+  if (getLang() !== 'ar') return h.month;
+  return (h.monthNumber && HIJRI_MONTHS_AR[h.monthNumber - 1]) || h.monthAr || h.month;
 }

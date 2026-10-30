@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   description:
     'Firdam is the digital home for Muslim families: halal places near you, halal meal planning, prayer times, Ramadan, Quran and duas, family calendar, groceries and budget — in one calm, trusted app.',
   applicationName: 'Firdam',
+  // Firdam translates itself (English, French, Arabic): stop browsers from re-translating pages.
+  other: { google: 'notranslate' },
   keywords: [
     'Firdam',
     'Muslim family app',
@@ -89,7 +91,7 @@ export default function RootLayout({
   // cookie here also renders every page per request, in that language.
   const lang = asLang(cookies().get(LANG_COOKIE)?.value) ?? langFromHeader(headers().get('accept-language'));
   return (
-    <html lang={lang} dir={isRTL(lang) ? 'rtl' : 'ltr'} suppressHydrationWarning>
+    <html lang={lang} dir={isRTL(lang) ? 'rtl' : 'ltr'} translate="no" className="notranslate" suppressHydrationWarning>
       <body
         className={`${jakarta.variable} ${display.variable} ${inter.variable} ${arabic.variable} font-sans antialiased`}
       >

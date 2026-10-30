@@ -113,7 +113,7 @@ export function MealsDashboard() {
         // Out of AI plans: still give them a plan, from the recipe library (free).
         toast.message(tr('You\'ve used this month\'s {0} AI chef plans', [aiLimit]), {
           description: tr('This plan comes from the recipe library instead — that’s always unlimited.'),
-          action: !isPaid ? { label: 'Upgrade', onClick: () => setUpgradeOpen(true) } : undefined,
+          action: !isPaid ? { label: tr('Upgrade'), onClick: () => setUpgradeOpen(true) } : undefined,
         });
         setUseAI(false);
         return generateMealPlanFromSupabase(input);
@@ -128,7 +128,7 @@ export function MealsDashboard() {
           setUseAI(false);
           toast.message(tr('You\'ve used this month\'s AI chef plans'), {
             description: tr('This plan comes from the recipe library instead — that’s always unlimited.'),
-            action: !isPaid ? { label: 'Upgrade', onClick: () => setUpgradeOpen(true) } : undefined,
+            action: !isPaid ? { label: tr('Upgrade'), onClick: () => setUpgradeOpen(true) } : undefined,
           });
         } else {
           toast.message(tr('The AI chef is unavailable right now'), {

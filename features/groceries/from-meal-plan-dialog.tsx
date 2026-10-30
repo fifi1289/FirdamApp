@@ -107,7 +107,7 @@ export function FromMealPlanDialog({
         unit: m.missingUnit || null,
         category: guessCategory(m.name),
         from_meal_plan: true,
-        note: m.meals.length ? `For ${m.meals.slice(0, 2).join(', ')}${m.meals.length > 2 ? '…' : ''}` : null,
+        note: m.meals.length ? tr('For {0}{1}', [m.meals.slice(0, 2).join(', '), m.meals.length > 2 ? '…' : '']) : null,
       }));
     if (rows.length === 0) {
       onOpenChange(false);

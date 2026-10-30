@@ -94,7 +94,7 @@ export function QuickAddBar() {
       const batch = await applyPantryChanges(changes, 'quick_add', 'Quick add');
       setText('');
       changed();
-      undoToast(`Added ${preview.length} item${preview.length === 1 ? '' : 's'} to your pantry`, batch);
+      undoToast(tr('Added {0} items to your pantry', [preview.length]), batch);
     } catch (err) {
       toast.error(tr('Could not add'), { description: err instanceof Error ? err.message : undefined });
     } finally {
@@ -172,7 +172,7 @@ export function PantrySetupDialog({ open, onOpenChange }: { open: boolean; onOpe
       const batch = await applyPantryChanges(changes, 'setup', 'Pantry setup');
       changed();
       onOpenChange(false);
-      undoToast(`Pantry set up with ${items.length} items`, batch);
+      undoToast(tr('Pantry set up with {0} items', [items.length]), batch);
     } catch (err) {
       toast.error(tr('Could not save'), { description: err instanceof Error ? err.message : undefined });
     } finally {
@@ -301,7 +301,7 @@ export function PantryCheckDialog({ open, onOpenChange }: { open: boolean; onOpe
         .insert({ batch_id: batch, source: 'check', label: 'Weekly pantry check', item_name: 'Weekly check' });
       changed();
       onOpenChange(false);
-      if (changes.length) undoToast(`Pantry updated (${changes.length} change${changes.length === 1 ? '' : 's'})`, batch);
+      if (changes.length) undoToast(tr('Pantry updated ({0} changes)', [changes.length]), batch);
       else toast.success(tr('All checked — see you next week'));
     } catch (err) {
       toast.error(tr('Could not save'), { description: err instanceof Error ? err.message : undefined });
@@ -313,9 +313,9 @@ export function PantryCheckDialog({ open, onOpenChange }: { open: boolean; onOpe
   const Choice = ({ item }: { item: PantryItem }) => {
     const value = choice[item.id] ?? 'have';
     const opts: { v: CheckChoice; label: string }[] = [
-      { v: 'have', label: 'Still have' },
-      { v: 'less', label: 'Less (½)' },
-      { v: 'gone', label: 'Finished' },
+      { v: 'have', label: tr('Still have') },
+      { v: 'less', label: tr('Less (½)') },
+      { v: 'gone', label: tr('Finished') },
     ];
     return (
       <span className="inline-flex gap-1">

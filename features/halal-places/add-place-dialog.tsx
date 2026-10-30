@@ -119,7 +119,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
     setLocating(true);
     try {
       const pos = await getDevicePosition();
-      setPoint({ ...pos, label: 'My current position', city: null, country: null });
+      setPoint({ ...pos, label: tr('My current position'), city: null, country: null });
       setResults([]);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : tr('Could not get your location.'));

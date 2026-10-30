@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js';
+import { tr } from '@/lib/i18n';
 
 /** A friendly display name from Supabase auth metadata, falling back to the email name. */
 export function displayNameFor(user: User | null): string {
@@ -9,8 +10,8 @@ export function displayNameFor(user: User | null): string {
   if (full) return full;
   const direct = (meta.full_name ?? meta.name) as string | undefined;
   if (direct) return String(direct);
-  if (user?.email) return user.email.split('@')[0] ?? 'Member';
-  return 'Member';
+  if (user?.email) return user.email.split('@')[0] ?? tr('Member');
+  return tr('Member');
 }
 
 export function firstNameFor(user: User | null): string {

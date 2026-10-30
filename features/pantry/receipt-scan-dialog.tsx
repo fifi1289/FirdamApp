@@ -162,7 +162,7 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
       window.dispatchEvent(new Event('pantry-items-changed'));
       window.dispatchEvent(new Event('grocery-items-changed'));
       onOpenChange(false);
-      undoToast(`${kept.length} item${kept.length === 1 ? '' : 's'} added from your receipt`, batch);
+      undoToast(tr('{0} items added from your receipt', [kept.length]), batch);
     } catch (err) {
       toast.error(tr('Could not save'), { description: err instanceof Error ? err.message : undefined });
     } finally {

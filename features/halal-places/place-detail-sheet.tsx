@@ -168,7 +168,7 @@ export function PlaceDetailSheet({
 
   const deletePlace = async () => {
     if (place.source !== 'community') return;
-    if (!window.confirm(`Remove "${place.name}" from Firdam? This cannot be undone.`)) return;
+    if (!window.confirm(tr('Remove "{0}" from Firdam? This cannot be undone.', [place.name]))) return;
     setDeleting(true);
     const id = place.key.replace('community:', '');
     const { error } = await supabase.from('halal_places').delete().eq('id', id);

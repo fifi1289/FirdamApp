@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n';
 /**
  * Days to make up (qada): Ramadan days someone didn't fast — for example during
  * her period, illness, travel, pregnancy or nursing — and should fast before the
@@ -95,8 +96,8 @@ export function makeupSummary(records: MakeupRecord[], today = new Date()): stri
   const left = totalRemaining(records);
   if (!left) return null;
   const next = nextRamadan(today);
-  const days = `${left} ${left === 1 ? 'day' : 'days'} left to make up`;
-  return next ? `${days} before Ramadan (in ${next.daysAway} ${next.daysAway === 1 ? 'day' : 'days'})` : days;
+  const days = left === 1 ? tr('1 day left to make up') : tr('{0} days left to make up', [left]);
+  return next ? (next.daysAway === 1 ? tr('{0} before Ramadan (in 1 day)', [days]) : tr('{0} before Ramadan (in {1} days)', [days, next.daysAway])) : days;
 }
 
 /** True if the date falls inside a Ramadan (about 30 days from its start): a make-up fast can't be logged there. */

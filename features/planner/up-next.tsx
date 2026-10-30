@@ -26,7 +26,7 @@ const PRIORITY_LABELS: Record<TaskPriority, string> = {
 };
 
 function formatTime(time: string | null): string {
-  if (!time) return 'Anytime';
+  if (!time) return tr('Anytime');
   const [h, m] = time.split(':');
   const hour = Number(h);
   const period = hour >= 12 ? 'PM' : 'AM';

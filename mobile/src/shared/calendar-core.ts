@@ -1,4 +1,5 @@
 // GENERATED from features/calendar/calendar-core.ts by mobile/scripts/sync-shared.mjs — do not edit here.
+import { tr } from '@/lib/i18n';
 /**
  * Family calendar rules shared by the website and the phone app (the app gets
  * a copy via mobile/scripts/sync-shared.mjs): event kinds, Islamic dates,
@@ -166,29 +167,29 @@ export function sunnahFastingDays(hijri: Map<string, HijriLabel>, start: Date, e
     if (d < start || d > end) return;
     if (opts.sunnahFasts) {
       if (h.monthNumber === 12 && h.day === 9) {
-        out.push({ date, title: 'Day of Arafah', why: 'Expiates the sins of the year before and the year after (Muslim).' });
+        out.push({ date, title: tr('Day of Arafah'), why: tr('Expiates the sins of the year before and the year after (Muslim).') });
       }
       if (h.monthNumber === 1 && h.day === 9) {
-        out.push({ date, title: 'Tasu’a, 9th of Muharram', why: 'The Prophet ﷺ intended to fast it with Ashura (Muslim).' });
+        out.push({ date, title: tr('Tasu’a, 9th of Muharram'), why: tr('The Prophet ﷺ intended to fast it with Ashura (Muslim).') });
       }
       if (h.monthNumber === 1 && h.day === 10) {
-        out.push({ date, title: 'Ashura, 10th of Muharram', why: 'Expiates the sins of the year before (Muslim).' });
+        out.push({ date, title: tr('Ashura, 10th of Muharram'), why: tr('Expiates the sins of the year before (Muslim).') });
       }
     }
     if (noVoluntaryFast(h)) return;
     if (opts.sunnahFasts) {
       if (h.day >= 13 && h.day <= 15) {
-        out.push({ date, title: `White day, ${h.day} ${h.month}`, why: 'Fasting three days each month is like fasting the whole year (Bukhari, Muslim).' });
+        out.push({ date, title: tr('White day, {0} {1}', [h.day, h.month]), why: tr('Fasting three days each month is like fasting the whole year (Bukhari, Muslim).') });
       }
       if (h.monthNumber === 10 && h.day === 2) {
-        out.push({ date, title: 'Six days of Shawwal begin', why: 'Any six days this month; with Ramadan, like fasting the whole year (Muslim).' });
+        out.push({ date, title: tr('Six days of Shawwal begin'), why: tr('Any six days this month; with Ramadan, like fasting the whole year (Muslim).') });
       }
     }
     if (opts.mondaysThursdays && (d.getDay() === 1 || d.getDay() === 4)) {
       out.push({
         date,
-        title: d.getDay() === 1 ? 'Monday fast' : 'Thursday fast',
-        why: 'Deeds are presented on Mondays and Thursdays (Tirmidhi).',
+        title: d.getDay() === 1 ? tr('Monday fast') : tr('Thursday fast'),
+        why: tr('Deeds are presented on Mondays and Thursdays (Tirmidhi).'),
       });
     }
   });

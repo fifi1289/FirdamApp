@@ -74,7 +74,7 @@ const STATUS_BADGE: Record<PantryStatus, { label: string; className: string }> =
       'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
   },
   expired: {
-    label: 'Expired',
+    label: tr('Expired'),
     className:
       'border-destructive/30 bg-destructive/10 text-destructive',
   },
@@ -113,22 +113,22 @@ function relativeExpiration(iso: string | null): string | null {
   const diffDays = Math.round(
     (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   );
-  if (diffDays === 0) return 'Expires today';
-  if (diffDays === 1) return 'Expires tomorrow';
-  if (diffDays === -1) return 'Expired yesterday';
+  if (diffDays === 0) return tr('Expires today');
+  if (diffDays === 1) return tr('Expires tomorrow');
+  if (diffDays === -1) return tr('Expired yesterday');
   if (diffDays > 0) {
     if (diffDays >= 14) {
       const weeks = Math.round(diffDays / 7);
-      return `Expires in ${weeks} ${weeks === 1 ? 'week' : 'weeks'}`;
+      return (weeks === 1 ? tr('Expires in 1 week') : tr('Expires in {0} weeks', [weeks]));
     }
-    return `Expires in ${diffDays} days`;
+    return tr('Expires in {0} days', [diffDays]);
   }
   const ago = Math.abs(diffDays);
   if (ago >= 14) {
     const weeks = Math.round(ago / 7);
-    return `Expired ${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+    return (weeks === 1 ? tr('Expired 1 week ago') : tr('Expired {0} weeks ago', [weeks]));
   }
-  return `Expired ${ago} ${ago === 1 ? 'day' : 'days'} ago`;
+  return (ago === 1 ? tr('Expired 1 day ago') : tr('Expired {0} days ago', [ago]));
 }
 
 function PantryItemCard({

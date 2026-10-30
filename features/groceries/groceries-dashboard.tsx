@@ -324,7 +324,7 @@ export function GroceriesDashboard() {
       await supabase.from('grocery_items').delete().in('id', checked.map((i) => i.id));
       setItems((prev) => prev.filter((i) => !i.checked));
       window.dispatchEvent(new Event('pantry-items-changed'));
-      undoToast(`${checked.length} item${checked.length === 1 ? '' : 's'} put away in your pantry`, batch);
+      undoToast(checked.length === 1 ? tr('1 item put away in your pantry') : tr('{0} items put away in your pantry', [checked.length]), batch);
     } catch (err) {
       toast.error(tr('Could not add to pantry'), { description: err instanceof Error ? err.message : undefined });
     } finally {
@@ -360,7 +360,7 @@ export function GroceriesDashboard() {
   };
 
   const deleteList = async (list: GroceryList) => {
-    if (!window.confirm(`Delete "${list.name}" and all its items?`)) return;
+    if (!window.confirm(tr('Delete "{0}" and all its items?', [list.name]))) return;
     const { error } = await supabase.from('grocery_lists').delete().eq('id', list.id);
     if (error) {
       toast.error(tr('Could not delete list'), { description: error.message });

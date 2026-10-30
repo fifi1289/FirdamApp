@@ -30,9 +30,9 @@ export async function labelForCoordinates(latitude: number, longitude: number): 
       lng: longitude,
       reverse: '1',
     });
-    return res.label || 'Current location';
+    return res.label || tr('Current location');
   } catch {
-    return 'Current location';
+    return tr('Current location');
   }
 }
 

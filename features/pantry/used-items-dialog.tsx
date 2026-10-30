@@ -119,7 +119,7 @@ export function UsedItemsDialog({
       window.dispatchEvent(new Event('cooking-log-changed'));
       onOpenChange(false);
       onDone?.();
-      undoToast(`Pantry updated (${changes.length} item${changes.length === 1 ? '' : 's'})`, batchId, () =>
+      undoToast(tr('Pantry updated ({0} items)', [changes.length]), batchId, () =>
         window.dispatchEvent(new Event('cooking-log-changed'))
       );
     } catch (err) {

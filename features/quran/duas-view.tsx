@@ -17,7 +17,23 @@ import {
   type Dua,
   type DuaCategory,
 } from '@/features/quran/duas';
-import { tr, trn } from '@/lib/i18n';
+import { tr, trn, isRTL, getLang } from '@/lib/i18n';
+
+const BOOKS: Record<string, { fr: string; ar: string }> = {
+  'Sahih al-Bukhari': { fr: 'Sahih al-Bukhari', ar: 'صحيح البخاري' },
+  'Sahih Muslim': { fr: 'Sahih Muslim', ar: 'صحيح مسلم' },
+  'Abu Dawud': { fr: 'Abou Dawoud', ar: 'أبو داود' },
+  Tirmidhi: { fr: 'Tirmidhi', ar: 'الترمذي' },
+  'Ibn Majah': { fr: 'Ibn Majah', ar: 'ابن ماجه' },
+  Quran: { fr: 'Coran', ar: 'القرآن' },
+};
+
+/** "Sahih al-Bukhari 6307" → "صحيح البخاري 6307" on the Arabic site. */
+function duaSource(source: string): string {
+  const lang = getLang();
+  if (lang === 'en') return source;
+  return Object.entries(BOOKS).reduce((s, [en, t]) => s.split(en).join(t[lang]), source);
+}
 
 const FAVOURITES_KEY = 'firdam.duas.favourites';
 
@@ -63,7 +79,9 @@ export function DuaCard({
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(
-        `${dua.title}\n\n${dua.arabic}\n\n${dua.transliteration}\n\n${dua.translation}\n— ${dua.source}`
+        isRTL()
+          ? `${tr(dua.title)}\n\n${dua.arabic}\n— ${duaSource(dua.source)}`
+          : `${tr(dua.title)}\n\n${dua.arabic}\n\n${dua.transliteration}\n\n${dua.translation}\n— ${duaSource(dua.source)}`
       );
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
@@ -80,7 +98,7 @@ export function DuaCard({
             <p className="font-semibold text-foreground">{tr(dua.title)}</p>
             <p className="text-xs text-muted-foreground">
               {trn(dua.category)}
-              {dua.repeat ? ` · ${dua.repeat}` : ''}
+              {dua.repeat ? ` · ${tr(dua.repeat)}` : ''}
             </p>
           </div>
           <div className="flex shrink-0 gap-1">
@@ -114,11 +132,10 @@ export function DuaCard({
         >
           {trn(dua.arabic)}
         </p>
-        {showTransliteration && (
-          <p className="mt-3 text-sm italic text-primary">{trn(dua.transliteration)}</p>
-        )}
-        <p className="mt-2 text-sm leading-relaxed text-foreground/85">{trn(dua.translation)}</p>
-        <p className="mt-3 text-xs text-muted-foreground">{trn(dua.source)}</p>
+        {/* Arabic readers read the dua itself; the Latin spelling and English meaning are for everyone else. */}
+        {showTransliteration && !isRTL() && <p className="mt-3 text-sm italic text-primary">{dua.transliteration}</p>}
+        {!isRTL() && <p className="mt-2 text-sm leading-relaxed text-foreground/85">{dua.translation}</p>}
+        <p className="mt-3 text-xs text-muted-foreground">{duaSource(dua.source)}</p>
       </CardContent>
     </Card>
   );
@@ -136,7 +153,7 @@ export function DuasView() {
   const chips: { value: typeof category; label: string }[] = [
     { value: 'all', label: 'All' },
     { value: 'favourites', label: `Favourites${favs.size ? ` (${favs.size})` : ''}` },
-    ...DUA_CATEGORIES.map((c) => ({ value: c, label: c })),
+    ...DUA_CATEGORIES.map((c) => ({ value: c, label: tr(c) })),
   ];
 
   return (

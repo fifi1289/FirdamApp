@@ -77,9 +77,9 @@ function DayEditor({
   useEffect(() => setPages(String(record.quran_pages || '')), [record.quran_pages]);
 
   const statuses: { value: FastStatus; label: string }[] = [
-    { value: 'fasted', label: 'Fasted' },
-    { value: 'missed', label: 'Missed' },
-    { value: 'excused', label: 'Excused' },
+    { value: 'fasted', label: tr('Fasted') },
+    { value: 'missed', label: tr('Missed') },
+    { value: 'excused', label: tr('Excused') },
   ];
 
   return (
@@ -285,8 +285,8 @@ export function RamadanDashboard() {
     if (!today) return null;
     const suhoorEnd = timeOnDate(today.timings.Imsak || today.timings.Fajr, now);
     const iftar = timeOnDate(today.timings.Maghrib, now);
-    if (now < suhoorEnd) return { label: 'Suhoor ends in', target: suhoorEnd };
-    if (now < iftar) return { label: 'Iftar in', target: iftar };
+    if (now < suhoorEnd) return { label: tr('Suhoor ends in'), target: suhoorEnd };
+    if (now < iftar) return { label: tr('Iftar in'), target: iftar };
     return null;
   }, [today, now]);
 

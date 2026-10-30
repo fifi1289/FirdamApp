@@ -1,4 +1,5 @@
 // GENERATED from features/groceries/shop-links.ts by mobile/scripts/sync-shared.mjs — do not edit here.
+import { tr } from '@/lib/i18n';
 /**
  * Online shopping links. For now only Amazon.ca, for families who use
  * Canadian dollars; elsewhere no buy links are shown and the rest of Firdam is
@@ -116,8 +117,8 @@ export function nearYouHint(groups: { category: string; items: { name: string }[
 export function listNames(names: string[]): string {
   const lower = names.map((n) => n.toLowerCase());
   if (lower.length <= 1) return lower.join('');
-  if (lower.length <= 3) return `${lower.slice(0, -1).join(', ')} and ${lower[lower.length - 1]}`;
-  return `${lower.slice(0, 3).join(', ')} and ${lower.length - 3} more`;
+  if (lower.length <= 3) return tr('{0} and {1}', [lower.slice(0, -1).join(', '), lower[lower.length - 1]]);
+  return tr('{0} and {1} more', [lower.slice(0, 3).join(', '), lower.length - 3]);
 }
 
 /**

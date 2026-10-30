@@ -210,7 +210,7 @@ export function SavingsGoals({ currency }: { currency: string }) {
   };
 
   const remove = async (goal: SavingsGoal) => {
-    if (!window.confirm(`Delete the goal "${goal.name}"?`)) return;
+    if (!window.confirm(tr('Delete the goal "{0}"?', [goal.name]))) return;
     setGoals((prev) => prev.filter((g) => g.id !== goal.id));
     const { error } = await supabase.from('savings_goals').delete().eq('id', goal.id);
     if (error) {

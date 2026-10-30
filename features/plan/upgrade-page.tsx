@@ -79,8 +79,8 @@ export function UpgradePage() {
   };
 
   const tiers: { id: Tier; title: string; icon: typeof Crown; blurb: string; highlighted?: boolean }[] = [
-    { id: 'free', title: 'Free', icon: ShieldCheck, blurb: 'Prayer times, halal places, recipes and a shared list for two.' },
-    { id: 'family', title: 'Firdam Family', icon: Users, blurb: 'The halal kitchen that plans, shops and tracks the pantry — for everyone at home.', highlighted: true },
+    { id: 'free', title: tr('Free'), icon: ShieldCheck, blurb: tr('Prayer times, halal places, recipes and a shared list for two.') },
+    { id: 'family', title: tr('Firdam Family'), icon: Users, blurb: tr('The halal kitchen that plans, shops and tracks the pantry — for everyone at home.'), highlighted: true },
   ];
   const paid = plan !== 'free';
 

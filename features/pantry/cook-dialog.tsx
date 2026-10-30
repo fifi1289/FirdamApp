@@ -41,7 +41,7 @@ export function undoToast(message: string, batchId: string, onUndone?: () => voi
   toast.success(message, {
     duration: 8000,
     action: {
-      label: 'Undo',
+      label: tr('Undo'),
       onClick: async () => {
         try {
           await undoPantryBatch(batchId);
@@ -143,7 +143,7 @@ export function CookDialog({
       onOpenChange(false);
       onDone?.();
       undoToast(
-        changes.length ? `Enjoy! ${changes.length} pantry item${changes.length === 1 ? '' : 's'} updated.` : 'Enjoy! Marked as cooked.',
+        changes.length ? tr('Enjoy! {0} pantry items updated.', [changes.length]) : tr('Enjoy! Marked as cooked.'),
         batchId,
         () => window.dispatchEvent(new Event('cooking-log-changed'))
       );

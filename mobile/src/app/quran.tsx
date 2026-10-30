@@ -22,7 +22,7 @@ import { DUAS, DUA_CATEGORIES, duaOfTheDay, filterDuas, type Dua, type DuaCatego
 import { GOAL_OPTIONS, loggedMessage, matchSurah, parsePages, readingStats } from '@/shared/quran-core';
 import { QURAN_PAGES, SURAHS } from '@/shared/surahs';
 import { colors, fonts } from '@/theme';
-import { locale, tr } from '@/lib/i18n';
+import { locale, tr, duaSource, isRTL } from '@/lib/i18n';
 
 type Tab = 'duas' | 'reading';
 
@@ -131,7 +131,7 @@ function Duas() {
 
 function DuaCard({ dua, translit, favourite, onFavourite, featured }: { dua: Dua; translit: boolean; favourite: boolean; onFavourite: () => void; featured?: boolean }) {
   const share = () =>
-    Share.share({ message: `${dua.title}\n\n${dua.arabic}\n\n${dua.transliteration}\n\n${dua.translation}\n— ${dua.source}` }).catch(() => {});
+    Share.share({ message: isRTL() ? `${tr(dua.title)}\n\n${dua.arabic}\n— ${duaSource(dua.source)}` : `${tr(dua.title)}\n\n${dua.arabic}\n\n${dua.transliteration}\n\n${dua.translation}\n— ${duaSource(dua.source)}` }).catch(() => {});
   return (
     <Card style={[{ gap: 10 }, featured && { borderColor: colors.gold }]}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
@@ -141,7 +141,7 @@ function DuaCard({ dua, translit, favourite, onFavourite, featured }: { dua: Dua
           </T>
           <T size={12.5} color={colors.muted}>
             {dua.category}
-            {dua.repeat ? ` · ${dua.repeat}` : ''}
+            {dua.repeat ? ` · ${tr(dua.repeat)}` : ''}
           </T>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={tr('Share this dua')} onPress={share} hitSlop={8} style={styles.iconBtn}>
@@ -164,16 +164,19 @@ function DuaCard({ dua, translit, favourite, onFavourite, featured }: { dua: Dua
       <T style={{ fontFamily: fonts.arabic, textAlign: 'right', writingDirection: 'rtl', lineHeight: featured ? 50 : 42 }} size={featured ? 26 : 22}>
         {dua.arabic}
       </T>
-      {translit ? (
+      {/* Arabic readers read the dua itself; the Latin spelling and English meaning are for everyone else. */}
+      {translit && !isRTL() ? (
         <T size={14} color={colors.walnut} style={{ fontStyle: 'italic', lineHeight: 20 }}>
           {dua.transliteration}
         </T>
       ) : null}
-      <T size={14.5} style={{ lineHeight: 21 }}>
-        {dua.translation}
-      </T>
+      {!isRTL() ? (
+        <T size={14.5} style={{ lineHeight: 21 }}>
+          {dua.translation}
+        </T>
+      ) : null}
       <T size={12} color={colors.muted}>
-        {dua.source}
+        {duaSource(dua.source)}
       </T>
     </Card>
   );

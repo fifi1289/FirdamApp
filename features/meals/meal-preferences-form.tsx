@@ -180,8 +180,8 @@ const customAllergies = allergies.filter(
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {(
                   [
-                    { key: 'this', label: 'This Week', sub: formatWeekRange(formatDateISO(thisWeekStart)) },
-                    { key: 'next', label: 'Next Week', sub: formatWeekRange(formatDateISO(nextWeekStart)) },
+                    { key: 'this', label: tr('This Week'), sub: formatWeekRange(formatDateISO(thisWeekStart)) },
+                    { key: 'next', label: tr('Next Week'), sub: formatWeekRange(formatDateISO(nextWeekStart)) },
                   ] as const
                 ).map((opt) => (
                   <button

@@ -96,7 +96,7 @@ function AddToPlanDialog({
     try {
       await addRecipeToPlan(recipe, date, type, servings);
       toast.success(tr('Added to {0} on {1}', [MEAL_LABELS[type].toLowerCase(), new Date(`${date}T00:00:00`).toLocaleDateString(locale(), { weekday: 'long', month: 'short', day: 'numeric' })]), {
-        action: { label: 'Open planner', onClick: () => (window.location.href = '/dashboard/meals') },
+        action: { label: tr('Open planner'), onClick: () => (window.location.href = '/dashboard/meals') },
       });
       onOpenChange(false);
     } catch (err) {
@@ -271,7 +271,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
     try {
       const n = await addRecipeToShopping(recipe, servings);
       toast.success(tr('{0} ingredients added to your shopping list', [n]), {
-        action: { label: 'View list', onClick: () => router.push('/dashboard/shopping') },
+        action: { label: tr('View list'), onClick: () => router.push('/dashboard/shopping') },
       });
     } catch (err) {
       toast.error(tr('Could not add to shopping list'), {
@@ -350,9 +350,9 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
 
           <div className="mt-5 grid grid-cols-3 gap-3">
             {[
-              { label: 'Prep', value: formatDuration(recipe.prepMinutes) },
-              { label: 'Cook', value: formatDuration(recipe.cookMinutes) },
-              { label: 'Total', value: formatDuration(recipe.prepMinutes + recipe.cookMinutes) },
+              { label: tr('Prep'), value: formatDuration(recipe.prepMinutes) },
+              { label: tr('Cook'), value: formatDuration(recipe.cookMinutes) },
+              { label: tr('Total'), value: formatDuration(recipe.prepMinutes + recipe.cookMinutes) },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-3 text-center">
                 <p className="text-xs text-muted-foreground">{tr(s.label)}</p>

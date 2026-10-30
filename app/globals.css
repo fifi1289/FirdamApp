@@ -253,3 +253,9 @@
 html[lang='ar'] body {
   font-family: var(--font-arabic), var(--font-sans), system-ui, sans-serif;
 }
+
+/* In Arabic, English content (recipes, names) keeps its own direction, so a
+   full stop stays at the end of an English sentence. */
+html[lang='ar'] :is(p, li, h1, h2, h3, h4, h5, h6, td, th, dd, dt, label, blockquote, figcaption) {
+  unicode-bidi: plaintext;
+}

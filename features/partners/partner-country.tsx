@@ -4,7 +4,7 @@ import { useSyncExternalStore } from 'react';
 import { Globe } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { ALL_COUNTRIES, countryFromLocale, countryName, normalizeCountry, partnerCountryOptions, type PartnerShop } from '@/features/groceries/partners';
+import { ALL_COUNTRIES, countryFromLocale, countryFromTimeZone, countryName, normalizeCountry, partnerCountryOptions, type PartnerShop } from '@/features/groceries/partners';
 import { tr } from '@/lib/i18n';
 
 /**
@@ -23,7 +23,13 @@ function readCookie(name: string): string | null {
 
 function load() {
   if (state) return state;
-  const home = normalizeCountry(readCookie('firdam_country')) ?? countryFromLocale(navigator.language);
+  let tz: string | undefined;
+  try {
+    tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    /* old browser */
+  }
+  const home = normalizeCountry(readCookie('firdam_country')) ?? countryFromTimeZone(tz) ?? countryFromLocale(navigator.language);
   let picked: string | null = null;
   try {
     picked = localStorage.getItem(PICK_KEY);

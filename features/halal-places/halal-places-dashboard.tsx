@@ -46,6 +46,7 @@ import { PlaceDetailSheet } from '@/features/halal-places/place-detail-sheet';
 import { AddPlaceDialog } from '@/features/halal-places/add-place-dialog';
 import { StarRating } from '@/features/halal-places/star-rating';
 import type { HalalPlace, PlaceRating } from '@/features/halal-places/types';
+import { tr, trn } from '@/lib/i18n';
 
 type Tab = 'nearby' | 'saved';
 type SortKey = 'distance' | 'rating' | 'name';
@@ -86,7 +87,7 @@ function PlaceRow({
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-start justify-between gap-2">
-          <span className="truncate text-sm font-semibold text-foreground">{place.name}</span>
+          <span className="truncate text-sm font-semibold text-foreground">{trn(place.name)}</span>
           {place.distanceKm !== undefined && (
             <span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
               {formatDistance(place.distanceKm)}
@@ -94,17 +95,17 @@ function PlaceRow({
           )}
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-          <span>{meta.label}</span>
+          <span>{tr(meta.label)}</span>
           {place.category !== 'mosque' && (
             <>
               <span aria-hidden>·</span>
-              <span className="text-brand-sage">{HALAL_STATUS_LABEL[place.halalStatus]}</span>
+              <span className="text-brand-sage">{trn(HALAL_STATUS_LABEL[place.halalStatus])}</span>
             </>
           )}
           {place.certification && (
             <span className="inline-flex items-center gap-0.5 text-primary">
               <BadgeCheck className="h-3.5 w-3.5" />
-              Certified
+              {tr('Certified')}
             </span>
           )}
           {saved && <Heart className="h-3.5 w-3.5 fill-destructive text-destructive" />}
@@ -116,11 +117,11 @@ function PlaceRow({
           <span className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
             <StarRating value={rating.avgRating} />
             <span className="font-medium text-foreground">{rating.avgRating.toFixed(1)}</span>
-            <span>({rating.reviewCount})</span>
+            <span>({trn(rating.reviewCount)})</span>
             {rating.confirmations > 0 && (
               <span className="inline-flex items-center gap-0.5 text-brand-sage">
                 <ShieldCheck className="h-3 w-3" />
-                {rating.confirmations}
+                {trn(rating.confirmations)}
               </span>
             )}
           </span>
@@ -152,7 +153,7 @@ function CategoryChip({
           : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
       )}
     >
-      {label}
+      {trn(label)}
       {count !== undefined && (
         <span
           className={cn(
@@ -276,9 +277,9 @@ export function HalalPlacesDashboard() {
   const onToggleSave = async (place: HalalPlace) => {
     try {
       const nowSaved = await toggle(place);
-      toast.success(nowSaved ? 'Saved to your places' : 'Removed from saved places');
+      toast.success(nowSaved ? tr('Saved to your places') : tr('Removed from saved places'));
     } catch (err) {
-      toast.error('Could not update saved places', {
+      toast.error(tr('Could not update saved places'), {
         description: err instanceof Error ? err.message : undefined,
       });
     }
@@ -289,12 +290,12 @@ export function HalalPlacesDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Halal Places"
-        description="Halal groceries, butchers, restaurants and mosques near you — wherever you live or travel."
+        title={tr('Halal Places')}
+        description={tr('Halal groceries, butchers, restaurants and mosques near you — wherever you live or travel.')}
       >
         <Button size="sm" onClick={() => setAddOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add a place
+          {tr('Add a place')}
         </Button>
       </PageHeader>
 
@@ -313,7 +314,7 @@ export function HalalPlacesDashboard() {
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-wrap gap-2">
                 <CategoryChip
-                  label="All"
+                  label={tr('All')}
                   count={tab === 'nearby' ? places.length : undefined}
                   active={category === 'all'}
                   onClick={() => setCategory('all')}
@@ -321,7 +322,7 @@ export function HalalPlacesDashboard() {
                 {FILTER_CATEGORIES.map((c) => (
                   <CategoryChip
                     key={c}
-                    label={CATEGORY_META[c].plural}
+                    label={trn(CATEGORY_META[c].plural)}
                     count={tab === 'nearby' ? counts[c] ?? 0 : undefined}
                     active={category === c}
                     onClick={() => setCategory(c)}
@@ -332,23 +333,23 @@ export function HalalPlacesDashboard() {
                 <div className="flex items-center gap-2">
                   <Switch id="certified-only" checked={certifiedOnly} onCheckedChange={setCertifiedOnly} />
                   <Label htmlFor="certified-only" className="text-xs font-medium text-muted-foreground">
-                    Certified only
+                    {tr('Certified only')}
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch id="include-stores" checked={includeStores} onCheckedChange={setIncludeStores} />
                   <Label htmlFor="include-stores" className="text-xs font-medium text-muted-foreground">
-                    Also show shops that may stock halal food
+                    {tr('Also show shops that may stock halal food')}
                   </Label>
                 </div>
                 <Select value={String(radius)} onValueChange={(v) => setRadius(Number(v) as RadiusKm)}>
-                  <SelectTrigger className="h-9 w-[120px]" aria-label="Search radius">
+                  <SelectTrigger className="h-9 w-[120px]" aria-label={tr('Search radius')}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {RADIUS_OPTIONS.map((r) => (
                       <SelectItem key={r} value={String(r)}>
-                        Within {r} km
+                        {tr('Within {0} km', [r])}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -366,11 +367,10 @@ export function HalalPlacesDashboard() {
               <MapPin className="h-7 w-7" />
             </span>
             <h2 className="mt-5 font-display text-lg font-semibold text-foreground">
-              Where are you looking?
+              {tr('Where are you looking?')}
             </h2>
             <p className="mt-1.5 max-w-md text-sm text-muted-foreground">
-              Use your location or search a city above to see halal shops, restaurants and
-              mosques around you. Travelling soon? Search your destination to plan ahead.
+              {tr('Use your location or search a city above to see halal shops, restaurants and mosques around you. Travelling soon? Search your destination to plan ahead.')}
             </p>
           </CardContent>
         </Card>
@@ -395,7 +395,7 @@ export function HalalPlacesDashboard() {
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
-                  {label}
+                  {trn(label)}
                 </button>
               ))}
             </div>
@@ -406,25 +406,25 @@ export function HalalPlacesDashboard() {
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Filter by name or cuisine"
+                  placeholder={tr('Filter by name or cuisine')}
                   className="h-9 pl-9"
-                  aria-label="Filter places"
+                  aria-label={tr('Filter places')}
                 />
               </div>
               <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-                <SelectTrigger className="h-9 w-[140px]" aria-label="Sort places">
+                <SelectTrigger className="h-9 w-[140px]" aria-label={tr('Sort places')}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="distance">Nearest</SelectItem>
-                  <SelectItem value="rating">Top rated</SelectItem>
-                  <SelectItem value="name">Name (A–Z)</SelectItem>
+                  <SelectItem value="distance">{tr('Nearest')}</SelectItem>
+                  <SelectItem value="rating">{tr('Top rated')}</SelectItem>
+                  <SelectItem value="name">{tr('Name (A–Z)')}</SelectItem>
                 </SelectContent>
               </Select>
               <div className="inline-flex rounded-lg border border-border bg-card p-0.5 lg:hidden">
                 <button
                   type="button"
-                  aria-label="List view"
+                  aria-label={tr('List view')}
                   onClick={() => setMobileView('list')}
                   className={cn(
                     'rounded-md p-1.5',
@@ -435,7 +435,7 @@ export function HalalPlacesDashboard() {
                 </button>
                 <button
                   type="button"
-                  aria-label="Map view"
+                  aria-label={tr('Map view')}
                   onClick={() => setMobileView('map')}
                   className={cn(
                     'rounded-md p-1.5',
@@ -450,15 +450,13 @@ export function HalalPlacesDashboard() {
 
           {osmError && tab === 'nearby' && (
             <p className="mb-3 rounded-xl border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground">
-              Map data is temporarily unavailable ({osmError}). Showing places added by the
-              Firdam community only.
+              {tr('Map data is temporarily unavailable ({0}). Showing places added by the Firdam community only.', [osmError])}
             </p>
           )}
 
           {pending && tab === 'nearby' && !loading && (
             <p className="mb-3 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-foreground">
-              Firdam is gathering halal places for your area. Check back in a few minutes
-              for the full list.
+              {tr('Firdam is gathering halal places for your area. Check back in a few minutes for the full list.')}
             </p>
           )}
 
@@ -468,7 +466,7 @@ export function HalalPlacesDashboard() {
                 <Card>
                   <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Finding halal places near {activeLocation.name || 'you'}…
+                    {tr('Finding halal places near')} {trn(activeLocation.name) || tr('you')}…
                   </CardContent>
                 </Card>
               ) : visible.length === 0 ? (
@@ -479,17 +477,17 @@ export function HalalPlacesDashboard() {
                     </span>
                     <h3 className="mt-4 text-base font-semibold text-foreground">
                       {tab === 'saved'
-                        ? 'No saved places yet'
+                        ? tr('No saved places yet')
                         : hasFilters
-                          ? 'Nothing matches these filters'
-                          : 'No halal places found here yet'}
+                          ? tr('Nothing matches these filters')
+                          : tr('No halal places found here yet')}
                     </h3>
                     <p className="mt-1 max-w-sm text-sm text-muted-foreground">
                       {tab === 'saved'
-                        ? 'Tap the heart on a place to keep it here for quick access.'
+                        ? tr('Tap the heart on a place to keep it here for quick access.')
                         : hasFilters
-                          ? 'Try another category or turn off “Certified only”.'
-                          : 'Try a wider radius — or be the first to add a place you trust.'}
+                          ? tr('Try another category or turn off “Certified only”.')
+                          : tr('Try a wider radius — or be the first to add a place you trust.')}
                     </p>
                     {tab === 'nearby' && (
                       <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -503,7 +501,7 @@ export function HalalPlacesDashboard() {
                               )
                             }
                           >
-                            Search wider
+                            {tr('Search wider')}
                           </Button>
                         )}
                         {hasFilters ? (
@@ -516,12 +514,12 @@ export function HalalPlacesDashboard() {
                               setQuery('');
                             }}
                           >
-                            Clear filters
+                            {tr('Clear filters')}
                           </Button>
                         ) : (
                           <Button size="sm" onClick={() => setAddOpen(true)}>
                             <Plus className="mr-2 h-4 w-4" />
-                            Add a place
+                            {tr('Add a place')}
                           </Button>
                         )}
                       </div>
@@ -531,8 +529,8 @@ export function HalalPlacesDashboard() {
               ) : (
                 <>
                   <p className="px-1 text-xs text-muted-foreground">
-                    {visible.length} place{visible.length === 1 ? '' : 's'}
-                    {tab === 'nearby' && ` within ${radius} km of ${activeLocation.name || 'you'}`}
+                    {visible.length} {tr('place')}{visible.length === 1 ? '' : tr('s')}
+                    {tab === 'nearby' && tr(' within {0} km of {1}', [radius, activeLocation.name || 'you'])}
                   </p>
                   <div className="space-y-2.5 lg:max-h-[calc(100vh-330px)] lg:overflow-y-auto lg:pr-1">
                     {visible.map((p) => (
@@ -566,7 +564,7 @@ export function HalalPlacesDashboard() {
                       className={cn('inline-block h-2.5 w-2.5 rounded-full', `firdam-pin--${c}`)}
                       style={{ background: 'var(--pin)' }}
                     />
-                    {CATEGORY_META[c].label}
+                    {tr(CATEGORY_META[c].label)}
                   </span>
                 ))}
               </div>
@@ -574,8 +572,7 @@ export function HalalPlacesDashboard() {
           </div>
 
           <p className="mt-6 text-xs text-muted-foreground">
-            Halal information comes from OpenStreetMap contributors and Firdam members, and can
-            change. When in doubt, ask to see the store&apos;s current certificate.
+            {tr('Halal information comes from OpenStreetMap contributors and Firdam members, and can change. When in doubt, ask to see the store\'s current certificate.')}
           </p>
         </>
       )}

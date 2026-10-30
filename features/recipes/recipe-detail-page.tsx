@@ -63,6 +63,7 @@ import { useRecipeFavorites } from '@/features/recipes/use-favorites';
 import { RecipeFormDialog } from '@/features/recipes/recipe-form-dialog';
 import { CookDialog } from '@/features/pantry/cook-dialog';
 import { useHousehold } from '@/lib/pantry/portions';
+import { locale, tr, trn } from '@/lib/i18n';
 
 const MEAL_LABELS: Record<MealTypeKey, string> = {
   breakfast: 'Breakfast',
@@ -94,12 +95,12 @@ function AddToPlanDialog({
     setSaving(true);
     try {
       await addRecipeToPlan(recipe, date, type, servings);
-      toast.success(`Added to ${MEAL_LABELS[type].toLowerCase()} on ${new Date(`${date}T00:00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}`, {
+      toast.success(tr('Added to {0} on {1}', [MEAL_LABELS[type].toLowerCase(), new Date(`${date}T00:00:00`).toLocaleDateString(locale(), { weekday: 'long', month: 'short', day: 'numeric' })]), {
         action: { label: 'Open planner', onClick: () => (window.location.href = '/dashboard/meals') },
       });
       onOpenChange(false);
     } catch (err) {
-      toast.error('Could not add to your plan', {
+      toast.error(tr('Could not add to your plan'), {
         description: err instanceof Error ? err.message : undefined,
       });
     } finally {
@@ -117,9 +118,9 @@ function AddToPlanDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add to meal plan</DialogTitle>
+          <DialogTitle>{tr('Add to meal plan')}</DialogTitle>
           <DialogDescription>
-            {recipe.name} · serves {servings}
+            {trn(recipe.name)} {tr('· serves')} {trn(servings)}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -136,7 +137,7 @@ function AddToPlanDialog({
                     date === iso ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary/40'
                   )}
                 >
-                  <span className="opacity-80">{d.toLocaleDateString(undefined, { weekday: 'short' })}</span>
+                  <span className="opacity-80">{d.toLocaleDateString(locale(), { weekday: 'short' })}</span>
                   <span className="text-sm font-semibold">{d.getDate()}</span>
                 </button>
               );
@@ -144,11 +145,11 @@ function AddToPlanDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="plan-date">Or pick a date</Label>
+              <Label htmlFor="plan-date">{tr('Or pick a date')}</Label>
               <Input id="plan-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>Meal</Label>
+              <Label>{tr('Meal')}</Label>
               <Select value={type} onValueChange={(v) => setType(v as MealTypeKey)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -156,7 +157,7 @@ function AddToPlanDialog({
                 <SelectContent>
                   {(Object.keys(MEAL_LABELS) as MealTypeKey[]).map((k) => (
                     <SelectItem key={k} value={k}>
-                      {MEAL_LABELS[k]}
+                      {trn(MEAL_LABELS[k])}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -164,16 +165,16 @@ function AddToPlanDialog({
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            Replaces anything already planned for that meal.
+            {tr('Replaces anything already planned for that meal.')}
           </p>
         </div>
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={saving || !date}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Add to plan
+            {tr('Add to plan')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -240,7 +241,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
     return (
       <AppShell>
         <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading recipe…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading recipe…')}
         </div>
       </AppShell>
     );
@@ -252,9 +253,9 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-16 text-center">
             <ChefHat className="h-8 w-8 text-muted-foreground" />
-            <p className="mt-3 font-semibold text-foreground">Recipe not found</p>
+            <p className="mt-3 font-semibold text-foreground">{tr('Recipe not found')}</p>
             <Button asChild variant="outline" size="sm" className="mt-4">
-              <Link href="/dashboard/recipes">Back to recipes</Link>
+              <Link href="/dashboard/recipes">{tr('Back to recipes')}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -269,11 +270,11 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
     setAdding(true);
     try {
       const n = await addRecipeToShopping(recipe, servings);
-      toast.success(`${n} ingredients added to your shopping list`, {
+      toast.success(tr('{0} ingredients added to your shopping list', [n]), {
         action: { label: 'View list', onClick: () => router.push('/dashboard/shopping') },
       });
     } catch (err) {
-      toast.error('Could not add to shopping list', {
+      toast.error(tr('Could not add to shopping list'), {
         description: err instanceof Error ? err.message : undefined,
       });
     } finally {
@@ -285,10 +286,10 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
     if (!recipe.userRecipe || !window.confirm(`Delete "${recipe.name}"?`)) return;
     const { error } = await supabase.from('user_recipes').delete().eq('id', recipe.id);
     if (error) {
-      toast.error('Could not delete recipe');
+      toast.error(tr('Could not delete recipe'));
       return;
     }
-    toast.success('Recipe deleted');
+    toast.success(tr('Recipe deleted'));
     router.push('/dashboard/recipes');
   };
 
@@ -298,21 +299,21 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
         <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/recipes">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Recipes
+            {tr('Recipes')}
           </Link>
         </Button>
         <div className="flex gap-1">
           {recipe.isOwn && (
             <>
               <Button variant="ghost" size="sm" onClick={() => setEditOpen(true)}>
-                <Pencil className="mr-2 h-4 w-4" /> Edit
+                <Pencil className="mr-2 h-4 w-4" /> {tr('Edit')}
               </Button>
               <Button variant="ghost" size="sm" onClick={remove} className="text-destructive hover:text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                <Trash2 className="mr-2 h-4 w-4" /> {tr('Delete')}
               </Button>
             </>
           )}
-          <Button variant="ghost" size="icon" onClick={() => window.print()} aria-label="Print recipe">
+          <Button variant="ghost" size="icon" onClick={() => window.print()} aria-label={tr('Print recipe')}>
             <Printer className="h-4 w-4" />
           </Button>
         </div>
@@ -322,7 +323,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
         <div className="overflow-hidden rounded-3xl border border-border bg-muted print:hidden">
           <MealImage
             src={recipe.image}
-            alt={recipe.name}
+            alt={trn(recipe.name)}
             category={recipe.mealType}
             className="aspect-[4/3] h-full w-full object-cover"
           />
@@ -330,22 +331,22 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
         <div className="flex flex-col">
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="border-brand-sage/30 bg-brand-sage/10 text-brand-sage">
-              Halal
+              {tr('Halal')}
             </Badge>
-            {recipe.cuisine && <Badge variant="secondary">{recipe.cuisine}</Badge>}
-            <Badge variant="secondary">{MEAL_LABELS[recipe.mealType]}</Badge>
-            <Badge variant="secondary">{recipe.difficulty}</Badge>
+            {recipe.cuisine && <Badge variant="secondary">{trn(recipe.cuisine)}</Badge>}
+            <Badge variant="secondary">{trn(MEAL_LABELS[recipe.mealType])}</Badge>
+            <Badge variant="secondary">{trn(recipe.difficulty)}</Badge>
             {recipe.source !== 'catalog' && (
               <Badge variant="outline" className="gap-1">
                 {recipe.isPublic && <Globe className="h-3 w-3" />}
-                {recipe.isOwn ? 'Your private recipe' : `By ${recipe.author ?? 'a Firdam family'}`}
+                {recipe.isOwn ? tr('Your private recipe') : tr('By {0}', [recipe.author ?? 'a Firdam family'])}
               </Badge>
             )}
           </div>
           <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            {recipe.name}
+            {trn(recipe.name)}
           </h1>
-          {recipe.description && <p className="mt-3 text-muted-foreground">{recipe.description}</p>}
+          {recipe.description && <p className="mt-3 text-muted-foreground">{tr(recipe.description)}</p>}
 
           <div className="mt-5 grid grid-cols-3 gap-3">
             {[
@@ -354,7 +355,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
               { label: 'Total', value: formatDuration(recipe.prepMinutes + recipe.cookMinutes) },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-3 text-center">
-                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <p className="text-xs text-muted-foreground">{tr(s.label)}</p>
                 <p className="mt-0.5 font-semibold text-foreground">{s.value}</p>
               </div>
             ))}
@@ -362,7 +363,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
 
           <div className="mt-5 flex items-center justify-between rounded-2xl border border-border bg-card p-3">
             <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Users className="h-4 w-4 text-primary" /> Servings
+              <Users className="h-4 w-4 text-primary" /> {tr('Servings')}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -370,17 +371,17 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => setServings((s) => Math.max(1, s - 1))}
-                aria-label="Fewer servings"
+                aria-label={tr('Fewer servings')}
               >
                 <Minus className="h-4 w-4" />
               </Button>
-              <span className="w-8 text-center font-semibold tabular-nums">{servings}</span>
+              <span className="w-8 text-center font-semibold tabular-nums">{trn(servings)}</span>
               <Button
                 variant="outline"
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => setServings((s) => Math.min(50, s + 1))}
-                aria-label="More servings"
+                aria-label={tr('More servings')}
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -389,28 +390,28 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
 
           <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-4 print:hidden">
             <Button onClick={() => setCookOpen(true)}>
-              <ChefHat className="mr-2 h-4 w-4" /> I cooked this
+              <ChefHat className="mr-2 h-4 w-4" /> {tr('I cooked this')}
             </Button>
             <Button variant="outline" onClick={() => setPlanOpen(true)}>
-              <CalendarPlus className="mr-2 h-4 w-4" /> Add to plan
+              <CalendarPlus className="mr-2 h-4 w-4" /> {tr('Add to plan')}
             </Button>
             <Button variant="outline" onClick={toShopping} disabled={adding}>
               {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2 h-4 w-4" />}
-              Shopping list
+              {tr('Shopping list')}
             </Button>
             <Button
               variant="outline"
               onClick={async () => {
                 try {
                   const saved = await toggle(recipe.key);
-                  toast.success(saved ? 'Saved to favourites' : 'Removed from favourites');
+                  toast.success(saved ? tr('Saved to favourites') : tr('Removed from favourites'));
                 } catch {
-                  toast.error('Could not update favourites');
+                  toast.error(tr('Could not update favourites'));
                 }
               }}
             >
               <Heart className={cn('mr-2 h-4 w-4', fav && 'fill-destructive text-destructive')} />
-              {fav ? 'Saved' : 'Save'}
+              {fav ? tr('Saved') : tr('Save')}
             </Button>
           </div>
         </div>
@@ -420,10 +421,10 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
         <Card className="h-fit lg:sticky lg:top-24">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-foreground">Ingredients</h2>
+              <h2 className="font-semibold text-foreground">{tr('Ingredients')}</h2>
               {pantry.length > 0 && (
                 <span className="text-xs text-muted-foreground">
-                  {haveCount}/{recipe.ingredients.length} in your pantry
+                  {trn(haveCount)}/{recipe.ingredients.length} {tr('in your pantry')}
                 </span>
               )}
             </div>
@@ -439,17 +440,17 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
                             'mt-1.5 h-2 w-2 shrink-0 rounded-full',
                             status === 'available' ? 'bg-brand-sage' : status === 'low' ? 'bg-warning' : 'bg-border'
                           )}
-                          title={status === 'available' ? 'In your pantry' : status === 'low' ? 'Running low' : 'Not in pantry'}
+                          title={status === 'available' ? tr('In your pantry') : status === 'low' ? tr('Running low') : tr('Not in pantry')}
                         />
                       )}
                       <span className="capitalize text-foreground">
-                        {ing.name}
-                        {ing.optional && <span className="text-muted-foreground"> (optional)</span>}
+                        {trn(ing.name)}
+                        {ing.optional && <span className="text-muted-foreground"> {tr('(optional)')}</span>}
                       </span>
                     </span>
                     <span className="flex shrink-0 flex-col items-end gap-1">
                       <span className="text-right tabular-nums text-muted-foreground">
-                        {formatScaled(ing.quantity, factor)} {ing.unit}
+                        {formatScaled(ing.quantity, factor)} {trn(ing.unit)}
                       </span>
                       {checks[i] && !ing.optional && (
                         <IngredientActions check={checks[i]!} onPantryChange={loadPantry} />
@@ -462,14 +463,14 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
             {recipe.nutrition.length > 0 && (
               <div className="mt-5 rounded-xl bg-muted/50 p-3">
                 <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Per serving (approx.)
+                  {tr('Per serving (approx.)')}
                 </p>
                 <div className="grid grid-cols-4 gap-2 text-center">
                   {recipe.nutrition.slice(0, 4).map((n) => (
                     <div key={n.label}>
                       <p className="text-sm font-semibold text-foreground">{Math.round(n.value)}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {n.unit} {n.label}
+                        {trn(n.unit)} {tr(n.label)}
                       </p>
                     </div>
                   ))}
@@ -478,7 +479,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
             )}
             {recipe.allergens.length > 0 && (
               <p className="mt-4 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">Contains:</span> {recipe.allergens.join(', ')}
+                <span className="font-medium text-foreground">{tr('Contains:')}</span> {recipe.allergens.join(', ')}
               </p>
             )}
           </CardContent>
@@ -487,8 +488,8 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
         <div className="space-y-6">
           <Card>
             <CardContent className="p-5">
-              <h2 className="font-semibold text-foreground">Method</h2>
-              <p className="mt-1 text-xs text-muted-foreground">Tap a step to tick it off as you cook. Bismillah!</p>
+              <h2 className="font-semibold text-foreground">{tr('Method')}</h2>
+              <p className="mt-1 text-xs text-muted-foreground">{tr('Tap a step to tick it off as you cook. Bismillah!')}</p>
               <ol className="mt-4 space-y-3">
                 {recipe.steps.map((s, i) => {
                   const isDone = done.has(i);
@@ -518,10 +519,10 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
                           {isDone ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
                         </span>
                         <span className={cn('text-sm leading-relaxed', isDone ? 'text-muted-foreground line-through' : 'text-foreground')}>
-                          {s.text}
+                          {tr(s.text)}
                           {s.minutes ? (
                             <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted-foreground no-underline">
-                              <Clock className="h-3 w-3" /> {s.minutes} min
+                              <Clock className="h-3 w-3" /> {trn(s.minutes)} {tr('min')}
                             </span>
                           ) : null}
                         </span>
@@ -539,28 +540,28 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
                 {recipe.tips.length > 0 && (
                   <div>
                     <h3 className="flex items-center gap-2 font-semibold text-foreground">
-                      <Lightbulb className="h-4 w-4 text-brand-gold" /> Tips
+                      <Lightbulb className="h-4 w-4 text-brand-gold" /> {tr('Tips')}
                     </h3>
                     <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
                       {recipe.tips.map((t) => (
-                        <li key={t}>{t}</li>
+                        <li key={t}>{trn(t)}</li>
                       ))}
                     </ul>
                   </div>
                 )}
                 {recipe.equipment.length > 0 && (
                   <p className="text-muted-foreground">
-                    <span className="font-medium text-foreground">Equipment:</span> {recipe.equipment.join(', ')}
+                    <span className="font-medium text-foreground">{tr('Equipment:')}</span> {recipe.equipment.join(', ')}
                   </p>
                 )}
                 {recipe.storage && (
                   <p className="text-muted-foreground">
-                    <span className="font-medium text-foreground">Storage:</span> {recipe.storage}
+                    <span className="font-medium text-foreground">{tr('Storage:')}</span> {trn(recipe.storage)}
                   </p>
                 )}
                 {recipe.reheating && (
                   <p className="text-muted-foreground">
-                    <span className="font-medium text-foreground">Reheating:</span> {recipe.reheating}
+                    <span className="font-medium text-foreground">{tr('Reheating:')}</span> {trn(recipe.reheating)}
                   </p>
                 )}
               </CardContent>

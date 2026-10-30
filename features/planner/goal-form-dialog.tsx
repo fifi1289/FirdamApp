@@ -23,6 +23,7 @@ import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { PLANNER_GOALS_CHANGED } from '@/features/planner/goals-list';
 import type { PlannerGoal } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 export interface GoalFormValues {
   title: string;
@@ -64,7 +65,7 @@ export function NewGoalDialog() {
       trigger={
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          New goal
+          {tr('New goal')}
         </Button>
       }
     />
@@ -115,7 +116,7 @@ export function GoalFormDialog({
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       setSubmitting(false);
-      toast.error('Your session has expired. Please sign in again.');
+      toast.error(tr('Your session has expired. Please sign in again.'));
       return;
     }
 
@@ -126,53 +127,53 @@ export function GoalFormDialog({
 
     if (result.error) {
       toast.error(
-        isEdit ? 'Could not update goal' : 'Could not create goal',
+        isEdit ? tr('Could not update goal') : tr('Could not create goal'),
         { description: result.error.message }
       );
       return;
     }
     onOpenChange(false);
-    toast.success(isEdit ? 'Goal updated' : 'Goal created');
+    toast.success(isEdit ? tr('Goal updated') : tr('Goal created'));
     window.dispatchEvent(new Event(PLANNER_GOALS_CHANGED));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {trigger && <DialogTrigger asChild>{trn(trigger)}</DialogTrigger>}
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Edit goal' : 'New goal'}</DialogTitle>
+            <DialogTitle>{isEdit ? tr('Edit goal') : tr('New goal')}</DialogTitle>
             <DialogDescription>
               {isEdit
-                ? 'Update the details of your goal.'
-                : 'Set a goal and track your progress toward it.'}
+                ? tr('Update the details of your goal.')
+                : tr('Set a goal and track your progress toward it.')}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="goal-title">Title</Label>
+              <Label htmlFor="goal-title">{tr('Title')}</Label>
               <Input
                 id="goal-title"
                 value={values.title}
                 onChange={(e) => update({ title: e.target.value })}
-                placeholder="What do you want to achieve?"
+                placeholder={tr('What do you want to achieve?')}
                 autoFocus
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="goal-description">Description (optional)</Label>
+              <Label htmlFor="goal-description">{tr('Description (optional)')}</Label>
               <Textarea
                 id="goal-description"
                 value={values.description}
                 onChange={(e) => update({ description: e.target.value })}
-                placeholder="Add any details about this goal"
+                placeholder={tr('Add any details about this goal')}
                 rows={3}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="goal-target-date">Target date (optional)</Label>
+              <Label htmlFor="goal-target-date">{tr('Target date (optional)')}</Label>
               <Input
                 id="goal-target-date"
                 type="date"
@@ -182,9 +183,9 @@ export function GoalFormDialog({
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="goal-progress">Progress</Label>
+                <Label htmlFor="goal-progress">{tr('Progress')}</Label>
                 <span className="text-sm font-medium tabular-nums text-muted-foreground">
-                  {values.progress}%
+                  {trn(values.progress)}%
                 </span>
               </div>
               <Slider
@@ -204,7 +205,7 @@ export function GoalFormDialog({
                 onCheckedChange={(c) => update({ completed: c === true })}
               />
               <Label htmlFor="goal-completed" className="text-sm font-normal">
-                Mark as completed
+                {tr('Mark as completed')}
               </Label>
             </div>
           </div>
@@ -215,16 +216,16 @@ export function GoalFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              {tr('Cancel')}
             </Button>
             <Button type="submit" disabled={submitting || !values.title.trim()}>
               {submitting
                 ? isEdit
-                  ? 'Saving…'
-                  : 'Adding…'
+                  ? tr('Saving…')
+                  : tr('Adding…')
                 : isEdit
-                ? 'Save changes'
-                : 'Add goal'}
+                ? tr('Save changes')
+                : tr('Add goal')}
             </Button>
           </DialogFooter>
         </form>

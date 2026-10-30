@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import type { FamilyEvent, FamilyEventKind, FamilyMember } from '@/types/database';
 import { EDITABLE_KINDS, EVENT_KINDS } from '@/features/calendar/calendar-config';
 import { FAMILY_EVENTS_CHANGED } from '@/features/calendar/use-calendar';
+import { tr, trn } from '@/lib/i18n';
 
 interface EventDialogProps {
   open: boolean;
@@ -72,11 +73,11 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
 
   const save = async () => {
     if (!title.trim()) {
-      toast.error('Give the event a title.');
+      toast.error(tr('Give the event a title.'));
       return;
     }
     if (!date) {
-      toast.error('Choose a date.');
+      toast.error(tr('Choose a date.'));
       return;
     }
     const row = {
@@ -98,10 +99,10 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
       : await supabase.from('family_events').insert(row);
     setSaving(false);
     if (error) {
-      toast.error('Could not save event', { description: error.message });
+      toast.error(tr('Could not save event'), { description: error.message });
       return;
     }
-    toast.success(event ? 'Event updated' : 'Added to the family calendar');
+    toast.success(event ? tr('Event updated') : tr('Added to the family calendar'));
     window.dispatchEvent(new Event(FAMILY_EVENTS_CHANGED));
     onOpenChange(false);
   };
@@ -113,7 +114,7 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
     const { error } = await supabase.from('family_events').delete().eq('id', event.id);
     setSaving(false);
     if (error) {
-      toast.error('Could not delete', { description: error.message });
+      toast.error(tr('Could not delete'), { description: error.message });
       return;
     }
     window.dispatchEvent(new Event(FAMILY_EVENTS_CHANGED));
@@ -124,25 +125,25 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{event ? 'Edit event' : 'New family event'}</DialogTitle>
-          <DialogDescription>Ceremonies, gatherings, school events and appointments.</DialogDescription>
+          <DialogTitle>{event ? tr('Edit event') : tr('New family event')}</DialogTitle>
+          <DialogDescription>{tr('Ceremonies, gatherings, school events and appointments.')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="ev-title">Title</Label>
+            <Label htmlFor="ev-title">{tr('Title')}</Label>
             <Input
               id="ev-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Yusuf's Aqiqah"
+              placeholder={tr('e.g. Yusuf\'s Aqiqah')}
               maxLength={120}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Type</Label>
+              <Label>{tr('Type')}</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as FamilyEventKind)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -150,51 +151,51 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
                 <SelectContent>
                   {EDITABLE_KINDS.map((k) => (
                     <SelectItem key={k} value={k}>
-                      {EVENT_KINDS[k].label}
+                      {tr(EVENT_KINDS[k].label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ev-date">Date</Label>
+              <Label htmlFor="ev-date">{tr('Date')}</Label>
               <Input id="ev-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5">
             <Label htmlFor="ev-allday" className="text-sm">
-              All day
+              {tr('All day')}
             </Label>
             <Switch id="ev-allday" checked={allDay} onCheckedChange={setAllDay} />
           </div>
           {!allDay && (
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="ev-start">Starts</Label>
+                <Label htmlFor="ev-start">{tr('Starts')}</Label>
                 <Input id="ev-start" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="ev-end">Ends</Label>
+                <Label htmlFor="ev-end">{tr('Ends')}</Label>
                 <Input id="ev-end" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
               </div>
             </div>
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="ev-location">Location (optional)</Label>
+            <Label htmlFor="ev-location">{tr('Location (optional)')}</Label>
             <Input
               id="ev-location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Grandma's house, Ottawa Main Mosque"
+              placeholder={tr('e.g. Grandma\'s house, Ottawa Main Mosque')}
               maxLength={200}
             />
           </div>
 
           {members.length > 0 && (
             <div className="space-y-1.5">
-              <Label>Who&apos;s involved</Label>
+              <Label>{tr('Who\'s involved')}</Label>
               <div className="flex flex-wrap gap-1.5">
                 {members.map((m) => {
                   const on = memberIds.includes(m.id);
@@ -212,7 +213,7 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
                           : 'border-border bg-card text-muted-foreground hover:text-foreground'
                       )}
                     >
-                      {m.first_name}
+                      {trn(m.first_name)}
                     </button>
                   );
                 })}
@@ -221,8 +222,8 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
           )}
 
           <div className="space-y-1.5">
-            <Label>Repeats</Label>
-            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Repeats">
+            <Label>{tr('Repeats')}</Label>
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={tr('Repeats')}>
               {(
                 [
                   ['once', 'Once'],
@@ -241,21 +242,21 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
                     repeat === value ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary/40'
                   )}
                 >
-                  {label}
+                  {trn(label)}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="ev-notes">Notes (optional)</Label>
+            <Label htmlFor="ev-notes">{tr('Notes (optional)')}</Label>
             <Textarea
               id="ev-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
               maxLength={1000}
-              placeholder="What to bring, who's cooking, dress code…"
+              placeholder={tr('What to bring, who\'s cooking, dress code…')}
             />
           </div>
         </div>
@@ -269,18 +270,18 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              {tr('Delete')}
             </Button>
           ) : (
             <span />
           )}
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-              Cancel
+              {tr('Cancel')}
             </Button>
             <Button onClick={save} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {event ? 'Save' : 'Add event'}
+              {event ? tr('Save') : tr('Add event')}
             </Button>
           </div>
         </DialogFooter>

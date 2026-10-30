@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, type LucideIcon } from 'lucide-react';
+import { trn } from '@/lib/i18n';
 
 interface StatCardProps {
   label: string;
@@ -23,7 +24,7 @@ export function StatCard({
     <Card className={cn('overflow-hidden', className)}>
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          <p className="text-sm font-medium text-muted-foreground">{trn(label)}</p>
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Icon className="h-4 w-4" />
           </span>
@@ -43,7 +44,7 @@ export function StatCard({
             ) : (
               <TrendingUp className="h-3 w-3" />
             )}
-            {delta}
+            {trn(delta)}
           </p>
         )}
       </CardContent>

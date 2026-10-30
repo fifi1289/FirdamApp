@@ -24,6 +24,7 @@ import {
   type MissingIngredient,
   type PlanPantrySummary as PlanPantrySummaryData,
 } from '@/features/meals/pantry-check';
+import { tr, trn } from '@/lib/i18n';
 
 function SummaryStat({
   icon: Icon,
@@ -48,7 +49,7 @@ function SummaryStat({
           {value}
         </p>
         <p className="mt-1 text-[11px] leading-none text-muted-foreground">
-          {label}
+          {trn(label)}
         </p>
       </div>
     </div>
@@ -70,12 +71,12 @@ function MissingIngredientsDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PackageX className="h-5 w-5 text-destructive" />
-            Missing Ingredients
+            {tr('Missing Ingredients')}
           </DialogTitle>
           <DialogDescription>
             {missing.length === 0
-              ? 'You have everything you need for this meal plan.'
-              : `${missing.length} ingredient${missing.length === 1 ? '' : 's'} need attention across your meal plan.`}
+              ? tr('You have everything you need for this meal plan.')
+              : tr('{0} ingredient{1} need attention across your meal plan.', [missing.length, missing.length === 1 ? '' : 's'])}
           </DialogDescription>
         </DialogHeader>
 
@@ -85,10 +86,10 @@ function MissingIngredientsDialog({
               <CheckCircle2 className="h-7 w-7" />
             </span>
             <p className="mt-4 text-sm font-medium text-foreground">
-              All ingredients available
+              {tr('All ingredients available')}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Your pantry covers every ingredient in this meal plan.
+              {tr('Your pantry covers every ingredient in this meal plan.')}
             </p>
           </div>
         ) : (
@@ -100,16 +101,16 @@ function MissingIngredientsDialog({
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-semibold text-foreground">
-                    {item.name}
+                    {trn(item.name)}
                   </p>
                   <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
                     <PackageX className="h-3 w-3" />
-                    {item.meals.length} meal{item.meals.length === 1 ? '' : 's'}
+                    {item.meals.length} {tr('meal')}{item.meals.length === 1 ? '' : tr('s')}
                   </span>
                 </div>
                 <div className="mt-2.5 grid grid-cols-3 gap-2 text-xs">
                   <div className="rounded-md bg-muted/40 px-2.5 py-2">
-                    <p className="text-muted-foreground">Need</p>
+                    <p className="text-muted-foreground">{tr('Need')}</p>
                     <p className="mt-0.5 font-medium text-foreground">
                       {formatQuantityWithUnit(
                         item.neededQuantity,
@@ -118,19 +119,19 @@ function MissingIngredientsDialog({
                     </p>
                   </div>
                   <div className="rounded-md bg-muted/40 px-2.5 py-2">
-                    <p className="text-muted-foreground">Available</p>
+                    <p className="text-muted-foreground">{tr('Available')}</p>
                     <p className="mt-0.5 font-medium text-foreground">
                       {item.availableQuantity > 0
                         ? formatQuantityWithUnit(
                             item.availableQuantity,
                             item.availableUnit
                           )
-                        : 'None'}
+                        : tr('None')}
                     </p>
                   </div>
                   <div className="rounded-md border border-destructive/20 bg-destructive/5 px-2.5 py-2">
                     <p className="text-destructive/80 dark:text-destructive/70">
-                      Missing
+                      {tr('Missing')}
                     </p>
                     <p className="mt-0.5 font-semibold text-destructive">
                       {formatQuantityWithUnit(
@@ -141,7 +142,7 @@ function MissingIngredientsDialog({
                   </div>
                 </div>
                 <p className="mt-2 text-[11px] text-muted-foreground">
-                  Used in: {item.meals.join(', ')}
+                  {tr('Used in:')} {item.meals.join(', ')}
                 </p>
               </div>
             ))}
@@ -168,7 +169,7 @@ export function PlanPantrySummary({
           <div className="flex items-center justify-between gap-3">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <ChefHat className="h-4 w-4 text-primary" />
-              Pantry Summary
+              {tr('Pantry Summary')}
             </h2>
             {summary.missingIngredients.length > 0 && (
               <Button
@@ -178,7 +179,7 @@ export function PlanPantrySummary({
                 onClick={() => setMissingOpen(true)}
               >
                 <PackageX className="mr-1.5 h-3.5 w-3.5" />
-                View Missing Ingredients
+                {tr('View Missing Ingredients')}
               </Button>
             )}
           </div>
@@ -186,25 +187,25 @@ export function PlanPantrySummary({
           <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             <SummaryStat
               icon={Utensils}
-              label="Total ingredients"
+              label={tr('Total ingredients')}
               value={summary.totalIngredients}
               accent="bg-primary/10 text-primary"
             />
             <SummaryStat
               icon={CheckCircle2}
-              label="Fully available"
+              label={tr('Fully available')}
               value={summary.availableCount}
               accent="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
             />
             <SummaryStat
               icon={AlertTriangle}
-              label="Low quantity"
+              label={tr('Low quantity')}
               value={summary.lowCount}
               accent="bg-amber-500/10 text-amber-600 dark:text-amber-400"
             />
             <SummaryStat
               icon={PackageX}
-              label="Missing"
+              label={tr('Missing')}
               value={summary.missingCount}
               accent="bg-destructive/10 text-destructive"
             />
@@ -214,10 +215,10 @@ export function PlanPantrySummary({
             <div className="rounded-lg border border-border/60 bg-muted/30 p-3.5">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-medium text-muted-foreground">
-                  Estimated pantry usage
+                  {tr('Estimated pantry usage')}
                 </p>
                 <span className="text-sm font-semibold text-foreground tabular-nums">
-                  {summary.usagePercentage}%
+                  {trn(summary.usagePercentage)}%
                 </span>
               </div>
               <Progress
@@ -225,17 +226,17 @@ export function PlanPantrySummary({
                 className="mt-2.5 h-2"
               />
               <p className="mt-2 text-[11px] text-muted-foreground">
-                {summary.availableCount} of {summary.totalIngredients}{' '}
-                ingredients are in your pantry.
+                {trn(summary.availableCount)} {tr('of')} {trn(summary.totalIngredients)}{' '}
+                {tr('ingredients are in your pantry.')}
               </p>
             </div>
             <div className="rounded-lg border border-border/60 bg-muted/30 p-3.5">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-medium text-muted-foreground">
-                  Meals you can prepare now
+                  {tr('Meals you can prepare now')}
                 </p>
                 <span className="text-sm font-semibold text-foreground tabular-nums">
-                  {summary.completableMeals} / {summary.totalMeals}
+                  {trn(summary.completableMeals)} / {trn(summary.totalMeals)}
                 </span>
               </div>
               <div className="mt-2.5 flex items-center gap-2">
@@ -254,8 +255,8 @@ export function PlanPantrySummary({
               </div>
               <p className="mt-2 text-[11px] text-muted-foreground">
                 {summary.completableMeals === summary.totalMeals
-                  ? 'Every meal can be prepared with what you have.'
-                  : `${summary.totalMeals - summary.completableMeals} meal${summary.totalMeals - summary.completableMeals === 1 ? '' : 's'} need ingredients from the store.`}
+                  ? tr('Every meal can be prepared with what you have.')
+                  : tr('{0} meal{1} need ingredients from the store.', [summary.totalMeals - summary.completableMeals, summary.totalMeals - summary.completableMeals === 1 ? '' : 's'])}
               </p>
             </div>
           </div>

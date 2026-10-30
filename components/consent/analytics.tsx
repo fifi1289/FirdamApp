@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 
 import { Button } from '@/components/ui/button';
+import { tr } from '@/lib/i18n';
 
 // Google Analytics 4 for firdam.com (account: Firdam, stream: firdam.com).
 // The Measurement ID is public by design (it ships in the page source).
@@ -75,35 +76,29 @@ export function Analytics() {
         <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
           <Script id="google-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_MEASUREMENT_ID}');
-            `}
+            {tr('\n              window.dataLayer = window.dataLayer || [];\n              function gtag(){dataLayer.push(arguments);}\n              gtag(\'js\', new Date());\n              gtag(\'config\', \'{0}\');\n            ', [GA_MEASUREMENT_ID])}
           </Script>
         </>
       )}
       {ready && consent === null && (
         <div
           role="dialog"
-          aria-label="Cookie choice"
+          aria-label={tr('Cookie choice')}
           className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-xl rounded-2xl border border-border bg-card p-4 shadow-lg sm:inset-x-6 sm:bottom-6 sm:p-5 print:hidden"
         >
-          <p className="text-sm font-semibold text-foreground">Can we use analytics cookies?</p>
+          <p className="text-sm font-semibold text-foreground">{tr('Can we use analytics cookies?')}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            They help us see which pages are visited so we can improve Firdam. No ads, and we never sell your data. Firdam works the same
-            either way.{' '}
+            {tr('They help us see which pages are visited so we can improve Firdam. No ads, and we never sell your data. Firdam works the same either way.')}{' '}
             <Link href="/privacy#cookies" className="font-medium text-primary hover:underline">
-              Privacy Policy
+              {tr('Privacy Policy')}
             </Link>
           </p>
           <div className="mt-3 flex gap-2">
             <Button variant="outline" className="flex-1" onClick={() => saveConsent('denied')}>
-              Decline
+              {tr('Decline')}
             </Button>
             <Button className="flex-1" onClick={() => saveConsent('granted')}>
-              Accept
+              {tr('Accept')}
             </Button>
           </div>
         </div>
@@ -116,7 +111,7 @@ export function Analytics() {
 export function CookieChoiceButton() {
   return (
     <Button variant="outline" size="sm" onClick={() => saveConsent(null)}>
-      Change my cookie choice
+      {tr('Change my cookie choice')}
     </Button>
   );
 }

@@ -40,6 +40,7 @@ import {
   type TaskFormValues,
 } from '@/features/planner/new-task-dialog';
 import { usePlannerDate } from '@/features/planner/planner-context';
+import { tr, trn } from '@/lib/i18n';
 
 export const PLANNER_TASKS_CHANGED = 'planner-tasks-changed';
 
@@ -154,19 +155,19 @@ export function TasksList() {
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base font-semibold">Tasks</CardTitle>
+        <CardTitle className="text-base font-semibold">{tr('Tasks')}</CardTitle>
         <span className="text-xs text-muted-foreground">
-          {completedCount} of {tasks.length} done
+          {tr('{0} of {1} done', [completedCount, tasks.length])}
         </span>
       </CardHeader>
       <CardContent className="space-y-1">
         {loading ? (
           <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-            Loading tasks…
+            {tr('Loading tasks…')}
           </p>
         ) : sorted.length === 0 ? (
           <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-            No tasks for this day.
+            {tr('No tasks for this day.')}
           </p>
         ) : (
           sorted.map((task) => (
@@ -177,7 +178,7 @@ export function TasksList() {
               <Checkbox
                 checked={task.completed}
                 onCheckedChange={() => toggleTask(task)}
-                aria-label="Toggle task complete"
+                aria-label={tr('Toggle task complete')}
               />
               {task.completed ? (
                 <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
@@ -193,11 +194,11 @@ export function TasksList() {
                       : 'text-foreground'
                   )}
                 >
-                  {task.title}
+                  {tr(task.title)}
                 </span>
                 {task.description && (
                   <span className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-                    {task.description}
+                    {tr(task.description)}
                   </span>
                 )}
               </div>
@@ -205,7 +206,7 @@ export function TasksList() {
                 variant="outline"
                 className={cn('shrink-0 text-[10px] font-medium', PRIORITY_BADGE_STYLES[task.priority])}
               >
-                {PRIORITY_LABELS[task.priority]}
+                {trn(PRIORITY_LABELS[task.priority])}
               </Badge>
               {task.time && (
                 <span className="text-xs font-medium tabular-nums text-muted-foreground">
@@ -218,7 +219,7 @@ export function TasksList() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100"
-                    aria-label="Task actions"
+                    aria-label={tr('Task actions')}
                   >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
@@ -226,7 +227,7 @@ export function TasksList() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onSelect={() => startEdit(task)}>
                     <Pencil className="mr-2 h-4 w-4" />
-                    Edit
+                    {tr('Edit')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => {
@@ -236,7 +237,7 @@ export function TasksList() {
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    {tr('Delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -257,22 +258,22 @@ export function TasksList() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete task?</AlertDialogTitle>
+            <AlertDialogTitle>{tr('Delete task?')}</AlertDialogTitle>
             <AlertDialogDescription>
               {deletingTask
-                ? `"${deletingTask.title}" will be permanently removed.`
-                : 'This task will be permanently removed.'}{' '}
-              This action cannot be undone.
+                ? tr('"{0}" will be permanently removed.', [deletingTask.title])
+                : tr('This task will be permanently removed.')}{' '}
+              {tr('This action cannot be undone.')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{tr('Cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? tr('Deleting…') : tr('Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

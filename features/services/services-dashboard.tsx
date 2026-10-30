@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { NoPartnersHere, PartnerCard, usePartnerShops, useVisiblePartners } from '@/features/groceries/partner-shops';
 import { SERVICE_GROUPS, SERVICES_NOTE, matchesWorks, partnersIn, servicePartners, serviceTypeCounts } from '@/features/groceries/partners';
 import { PartnerFilters, type WorksFilter } from '@/features/partners/partner-filters';
+import { tr, trn } from '@/lib/i18n';
 
 const ICONS: Record<string, LucideIcon> = { home: Hammer, professional: Briefcase, business: Laptop, events: PartyPopper, travel: Plane };
 
@@ -34,7 +35,7 @@ export function ServicesDashboard() {
 
   return (
     <AppShell>
-      <PageHeader title="Services" description="Trusted Muslim-owned businesses for your home, paperwork, business, events and travel." />
+      <PageHeader title={tr('Services')} description={tr('Trusted Muslim-owned businesses for your home, paperwork, business, events and travel.')} />
       {hasAny && <PartnerFilters shops={allShops} works={works} onWorks={setWorks} />}
 
       {!current ? (
@@ -52,9 +53,9 @@ export function ServicesDashboard() {
                 <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
-                    <span className="font-semibold text-foreground">{g.label}</span>
+                    <span className="font-semibold text-foreground">{tr(g.label)}</span>
                     <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                      {n ? `${n} ${n === 1 ? 'business' : 'businesses'}` : 'Joining soon'}
+                      {n ? `${n} ${n === 1 ? 'business' : 'businesses'}` : tr('Joining soon')}
                     </span>
                   </span>
                   <span className="mt-1 block text-sm text-muted-foreground">{g.types.join(' · ')}</span>
@@ -67,11 +68,11 @@ export function ServicesDashboard() {
       ) : (
         <div className="space-y-4">
           <button type="button" onClick={() => openGroup(null)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
-            <ArrowLeft className="h-4 w-4" /> All services
+            <ArrowLeft className="h-4 w-4" /> {tr('All services')}
           </button>
-          <h2 className="text-xl font-semibold text-foreground">{current.label}</h2>
+          <h2 className="text-xl font-semibold text-foreground">{tr(current.label)}</h2>
 
-          <nav aria-label={`Kinds of ${current.label} services`} className="flex flex-wrap gap-2">
+          <nav aria-label={tr('Kinds of {0} services', [current.label])} className="flex flex-wrap gap-2">
             {[null, ...current.types].map((t) => (
               <button
                 key={t ?? 'all'}
@@ -83,8 +84,8 @@ export function ServicesDashboard() {
                   type === t ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
                 )}
               >
-                {t ?? 'All'}
-                {t && counts[t] ? <span className="ml-1.5 opacity-70">{counts[t]}</span> : null}
+                {trn(t) ?? tr('All')}
+                {t && counts[t] ? <span className="ml-1.5 opacity-70">{trn(counts[t])}</span> : null}
               </button>
             ))}
           </nav>
@@ -94,16 +95,16 @@ export function ServicesDashboard() {
               {list.map((s) => (
                 <PartnerCard key={s.id} shop={s} />
               ))}
-              <p className="text-xs text-muted-foreground">{SERVICES_NOTE}</p>
+              <p className="text-xs text-muted-foreground">{tr(SERVICES_NOTE)}</p>
             </>
           ) : servicePartners(allShops, current.id, type).length > 0 ? (
-            <NoPartnersHere what={`${type ?? current.label.toLowerCase()} partners${works ? (works === 'online' ? ' working online' : ' working in person') : ''}`} />
+            <NoPartnersHere what={tr('{0} partners{1}', [type ?? current.label.toLowerCase(), works ? (works === 'online' ? ' working online' : ' working in person') : ''])} />
           ) : (
             <Card>
               <CardContent className="space-y-1 p-6">
-                <p className="font-semibold text-foreground">{`No ${type ?? current.label.toLowerCase()} partners yet`}</p>
+                <p className="font-semibold text-foreground">{tr('No {0} partners yet', [type ?? current.label.toLowerCase()])}</p>
                 <p className="text-sm text-muted-foreground">
-                  We’re inviting trusted Muslim-owned businesses, insha’Allah. Know a good one? Tell them about Firdam.
+                  {tr('We’re inviting trusted Muslim-owned businesses, insha’Allah. Know a good one? Tell them about Firdam.')}
                 </p>
               </CardContent>
             </Card>
@@ -112,11 +113,11 @@ export function ServicesDashboard() {
       )}
 
       <p className="mt-6 text-sm text-muted-foreground">
-        Run a Muslim-owned business?{' '}
+        {tr('Run a Muslim-owned business?')}{' '}
         <Link href="/partners" className="font-semibold text-primary underline-offset-2 hover:underline">
-          Become a Firdam partner
+          {tr('Become a Firdam partner')}
         </Link>
-        , free for founding partners.
+        {tr(', free for founding partners.')}
       </p>
     </AppShell>
   );

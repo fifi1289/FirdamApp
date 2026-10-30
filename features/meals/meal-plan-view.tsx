@@ -69,6 +69,7 @@ import { MealEditDialog } from '@/features/meals/meal-edit-dialog';
 import { MealDetailDialog } from '@/features/meals/meal-detail-dialog';
 import { MealImage } from '@/features/meals/meal-image';
 import type { PantryItem } from '@/types/database';
+import { locale, tr, trn } from '@/lib/i18n';
 
 interface MealWithLocation {
   meal: MockMeal;
@@ -125,7 +126,7 @@ function PantrySummaryBadge({
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${className}`}
     >
       <Icon className="h-3 w-3" />
-      {label}
+      {trn(label)}
     </span>
   );
 }
@@ -190,7 +191,7 @@ export function MealPlanView({
         meals: day.meals.map((m) => (m.id === updated.id ? updated : m)),
       })),
     }));
-    toast.success('Meal updated');
+    toast.success(tr('Meal updated'));
   };
 
   const handleRegenerate = async () => {
@@ -210,7 +211,7 @@ export function MealPlanView({
       })
       .eq('id', planId);
     if (error) {
-      toast.error('Could not persist swap', { description: error.message });
+      toast.error(tr('Could not persist swap'), { description: error.message });
     }
   };
 
@@ -223,8 +224,8 @@ export function MealPlanView({
       if (source === 'library') {
         const res = swapPlanMeal(currentPlan, date, meal.type, await loadLibraryRecipes(), preferences, meal.servings);
         if (!res) {
-          toast.message(`No other ${getMealTypeLabel(meal.type).toLowerCase()} in the library fits your family`, {
-            description: 'The AI chef can create a new one, and it joins the recipe library.',
+          toast.message(tr('No other {0} in the library fits your family', [getMealTypeLabel(meal.type).toLowerCase()]), {
+            description: tr('The AI chef can create a new one, and it joins the recipe library.'),
             action: { label: 'Create with the AI chef', onClick: () => handleReplaceMeal(meal, date, 'ai') },
           });
           return;
@@ -245,11 +246,11 @@ export function MealPlanView({
       }
       setCurrentPlan(next);
       await silentSave(next);
-      toast.success('Meal replaced', note ? { description: note } : undefined);
+      toast.success(tr('Meal replaced'), note ? { description: note } : undefined);
     } catch (err) {
       const limit = err instanceof GenerateMealPlanError && (err.status === 402 || err.status === 429);
-      toast.error(limit ? err.message : 'Could not replace this meal. Please try again.', {
-        description: limit ? 'Replacing from the recipe library is unlimited.' : undefined,
+      toast.error(limit ? err.message : tr('Could not replace this meal. Please try again.'), {
+        description: limit ? tr('Replacing from the recipe library is unlimited.') : undefined,
       });
     } finally {
       setReplaceMealId(null);
@@ -293,7 +294,7 @@ export function MealPlanView({
     setSwapSource(null);
     await silentSave(newPlan);
     setSwapping(false);
-    toast.success('Meals swapped successfully.');
+    toast.success(tr('Meals swapped successfully.'));
   };
 
   const persistSave = async (replaceId?: string) => {
@@ -313,7 +314,7 @@ export function MealPlanView({
         .eq('id', replaceId);
       if (delError) {
         setSaving(false);
-        toast.error('Could not replace meal plan', { description: delError.message });
+        toast.error(tr('Could not replace meal plan'), { description: delError.message });
         return;
       }
     }
@@ -324,13 +325,13 @@ export function MealPlanView({
 
     setSaving(false);
     if (result.error) {
-      toast.error('Could not save meal plan', { description: result.error.message });
+      toast.error(tr('Could not save meal plan'), { description: result.error.message });
       return;
     }
-    toast.success(planId && !replaceId ? 'Meal plan updated' : 'Meal plan saved', {
+    toast.success(planId && !replaceId ? tr('Meal plan updated') : tr('Meal plan saved'), {
       description: planId && !replaceId
-        ? 'Your changes have been saved.'
-        : 'You can find it in your Meal Plans.',
+        ? tr('Your changes have been saved.')
+        : tr('You can find it in your Meal Plans.'),
     });
     onBack();
   };
@@ -347,7 +348,7 @@ export function MealPlanView({
       .order('created_at', { ascending: false });
     setSaving(false);
     if (checkError) {
-      toast.error('Could not check for existing plans', { description: checkError.message });
+      toast.error(tr('Could not check for existing plans'), { description: checkError.message });
       return;
     }
     const duplicate = (existing ?? []).find((row) => {
@@ -401,7 +402,7 @@ export function MealPlanView({
             ) : (
               <RefreshCw className="mr-2 h-4 w-4" />
             )}
-            Regenerate Plan
+            {tr('Regenerate Plan')}
           </Button>
           <Button size="sm" onClick={handleSave} disabled={saving}>
             {saving ? (
@@ -409,7 +410,7 @@ export function MealPlanView({
             ) : (
               <Save className="mr-2 h-4 w-4" />
             )}
-            {planId ? 'Save Changes' : 'Save Meal Plan'}
+            {planId ? tr('Save Changes') : tr('Save Meal Plan')}
           </Button>
         </div>
       </div>
@@ -428,10 +429,10 @@ export function MealPlanView({
           <div className="flex items-center gap-2">
             <Utensils className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-sm font-semibold text-foreground">
-              {day.dayName}
+              {trn(day.dayName)}
             </h2>
             <span className="text-xs text-muted-foreground">
-              {new Date(day.date).toLocaleDateString(undefined, {
+              {new Date(day.date).toLocaleDateString(locale(), {
                 month: 'short',
                 day: 'numeric',
               })}
@@ -455,7 +456,7 @@ export function MealPlanView({
                   <div className="relative h-32 w-full bg-muted">
                     <MealImage
                       src={meal.image}
-                      alt={meal.name}
+                      alt={trn(meal.name)}
                       category={meal.type}
                       className="h-full w-full object-cover"
                     />
@@ -464,7 +465,7 @@ export function MealPlanView({
                         <div className="flex flex-col items-center gap-2">
                           <Loader2 className="h-6 w-6 animate-spin text-primary" />
                           <span className="text-xs font-medium text-foreground">
-                            Replacing meal…
+                            {tr('Replacing meal…')}
                           </span>
                         </div>
                       </div>
@@ -475,25 +476,25 @@ export function MealPlanView({
                       {getMealTypeLabel(meal.type)}
                     </Badge>
                     <h3 className="text-sm font-semibold text-foreground">
-                      {meal.name}
+                      {trn(meal.name)}
                     </h3>
                     <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
-                      {meal.description}
+                      {tr(meal.description)}
                     </p>
                     <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
                       {meal.ingredients.length > 0 && (
-                        <span>{meal.ingredients.length} ingredients</span>
+                        <span>{meal.ingredients.length} {tr('ingredients')}</span>
                       )}
                       {(meal.prepTime > 0 || meal.cookTime > 0) && (
                         <span>
-                          {meal.prepTime + meal.cookTime} min total
+                          {meal.prepTime + meal.cookTime} {tr('min total')}
                         </span>
                       )}
                       <span className="flex items-center gap-1">
                         <Users className="h-3 w-3" />
-                        {meal.servings}
+                        {trn(meal.servings)}
                       </span>
-                      <span>{meal.difficulty}</span>
+                      <span>{trn(meal.difficulty)}</span>
                     </div>
                     <div className="mt-2.5">
                       <PantrySummaryBadge summary={summary} compact />
@@ -510,7 +511,7 @@ export function MealPlanView({
                         }}
                       >
                         <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                        Customize
+                        {tr('Customize')}
                       </Button>
                       <Button
                         variant="ghost"
@@ -527,7 +528,7 @@ export function MealPlanView({
                         }}
                       >
                         <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" />
-                        Swap
+                        {tr('Swap')}
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -543,15 +544,15 @@ export function MealPlanView({
                             ) : (
                               <Replace className="mr-1.5 h-3.5 w-3.5" />
                             )}
-                            Replace
+                            {tr('Replace')}
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
                           <DropdownMenuItem onSelect={() => handleReplaceMeal(meal, day.date, 'library')}>
-                            <BookOpen className="mr-2 h-4 w-4" /> From the recipe library
+                            <BookOpen className="mr-2 h-4 w-4" /> {tr('From the recipe library')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onSelect={() => handleReplaceMeal(meal, day.date, 'ai')}>
-                            <Sparkles className="mr-2 h-4 w-4" /> New dish from the AI chef
+                            <Sparkles className="mr-2 h-4 w-4" /> {tr('New dish from the AI chef')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -568,14 +569,13 @@ export function MealPlanView({
       <Dialog open={swapOpen} onOpenChange={(open) => { if (!swapping) setSwapOpen(open); }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Swap Meal</DialogTitle>
+            <DialogTitle>{tr('Swap Meal')}</DialogTitle>
             <DialogDescription>
-              Swapping{' '}
+              {tr('Swapping')}{' '}
               <span className="font-medium text-foreground">
-                {swapSource?.meal.name}
+                {trn(swapSource?.meal.name)}
               </span>{' '}
-              on <span className="font-medium text-foreground">{swapSource?.dayName}</span>.
-              Select the meal to swap it with.
+              {tr('on')} <span className="font-medium text-foreground">{trn(swapSource?.dayName)}</span>{tr('. Select the meal to swap it with.')}
             </DialogDescription>
           </DialogHeader>
           <ScrollArea className="max-h-[60vh] pr-1">
@@ -583,7 +583,7 @@ export function MealPlanView({
               {swapCandidatesByDay.map((group) => (
                 <div key={group.dayName}>
                   <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    {group.dayName}
+                    {trn(group.dayName)}
                   </p>
                   <div className="space-y-1.5">
                     {group.items.map((loc) => (
@@ -596,7 +596,7 @@ export function MealPlanView({
                         <div className="h-10 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
                           <MealImage
                             src={loc.meal.image}
-                            alt={loc.meal.name}
+                            alt={trn(loc.meal.name)}
                             category={loc.meal.type}
                             className="h-full w-full object-cover"
                           />
@@ -608,7 +608,7 @@ export function MealPlanView({
                             </Badge>
                           </div>
                           <p className="mt-0.5 truncate text-sm font-medium text-foreground">
-                            {loc.meal.name}
+                            {trn(loc.meal.name)}
                           </p>
                         </div>
                         {swapping && (
@@ -640,19 +640,19 @@ export function MealPlanView({
       <AlertDialog open={conflictDialogOpen} onOpenChange={setConflictDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Meal Plan Already Exists</AlertDialogTitle>
+            <AlertDialogTitle>{tr('Meal Plan Already Exists')}</AlertDialogTitle>
             <AlertDialogDescription>
-              A meal plan already exists for{' '}
+              {tr('A meal plan already exists for')}{' '}
               <span className="font-medium text-foreground">
                 {formatWeekRange(currentPlan.weekStartDate)}
               </span>
-              . Would you like to replace it with this new plan?
+              {tr('. Would you like to replace it with this new plan?')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tr('Cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleReplaceExisting}>
-              Replace Existing
+              {tr('Replace Existing')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -16,6 +16,7 @@ export const metadata = { title: 'Support' };
 
 /** Change this to the real support inbox before launch. */
 import { SITE } from '@/lib/site';
+import { tr, trn } from '@/lib/i18n';
 
 const SUPPORT_EMAIL = SITE.supportEmail;
 
@@ -65,7 +66,7 @@ const FAQ: { q: string; a: string; icon: typeof MapPin }[] = [
 export default function SupportPage() {
   return (
     <AppShell>
-      <PageHeader title="Support" description="Answers to common questions, and a way to reach the Firdam team." />
+      <PageHeader title={tr('Support')} description={tr('Answers to common questions, and a way to reach the Firdam team.')} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <Card>
@@ -78,11 +79,11 @@ export default function SupportPage() {
                     <AccordionTrigger className="text-left text-sm font-medium hover:no-underline">
                       <span className="flex items-center gap-3">
                         <Icon className="h-4 w-4 shrink-0 text-primary" />
-                        {item.q}
+                        {trn(item.q)}
                       </span>
                     </AccordionTrigger>
                     <AccordionContent className="pl-7 text-sm leading-relaxed text-muted-foreground">
-                      {item.a}
+                      {trn(item.a)}
                     </AccordionContent>
                   </AccordionItem>
                 );
@@ -97,26 +98,26 @@ export default function SupportPage() {
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Mail className="h-5 w-5" />
               </span>
-              <p className="mt-3 font-semibold text-foreground">Still need help?</p>
+              <p className="mt-3 font-semibold text-foreground">{tr('Still need help?')}</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Send us a message and we&apos;ll get back to you, in sha Allah, within two working days.
+                {tr('Send us a message and we\'ll get back to you, in sha Allah, within two working days.')}
               </p>
               <Button asChild className="mt-4 w-full">
-                <a href={`mailto:${SUPPORT_EMAIL}?subject=Firdam%20support`}>Email support</a>
+                <a href={`mailto:${SUPPORT_EMAIL}?subject=Firdam%20support`}>{tr('Email support')}</a>
               </Button>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="space-y-2 p-5 text-sm">
-              <p className="font-semibold text-foreground">Quick links</p>
+              <p className="font-semibold text-foreground">{tr('Quick links')}</p>
               <Link href="/settings?tab=prayer" className="block text-primary hover:underline">
-                Prayer calculation settings
+                {tr('Prayer calculation settings')}
               </Link>
               <Link href="/settings?tab=notifications" className="block text-primary hover:underline">
-                Turn on reminders
+                {tr('Turn on reminders')}
               </Link>
               <Link href="/settings?tab=account" className="block text-primary hover:underline">
-                Export my data
+                {tr('Export my data')}
               </Link>
             </CardContent>
           </Card>

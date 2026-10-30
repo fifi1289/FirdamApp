@@ -18,9 +18,10 @@ import {
   remaining,
   type MakeupRecord,
 } from '@/features/fasting/makeup-core';
+import { locale, tr, trn } from '@/lib/i18n';
 
 const monthYear = (year: number) =>
-  RAMADAN_STARTS[year] ? new Date(`${RAMADAN_STARTS[year]}T12:00:00`).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : '';
+  RAMADAN_STARTS[year] ? new Date(`${RAMADAN_STARTS[year]}T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : '';
 
 /** Days to make up (qada) from Ramadan, the same as Fasting in the Firdam app. Private to the signed-in person. */
 export function MakeupCard() {
@@ -46,7 +47,7 @@ export function MakeupCard() {
       .from('fast_makeup')
       .upsert({ ramadan_year: next.ramadan_year, missed: next.missed, made_up: next.made_up, updated_at: new Date().toISOString() }, { onConflict: 'user_id,ramadan_year' });
     if (error) {
-      toast.error('Could not save', { description: 'Check your connection and try again.' });
+      toast.error(tr('Could not save'), { description: tr('Check your connection and try again.') });
       load();
     }
   };
@@ -66,23 +67,23 @@ export function MakeupCard() {
       <CardContent className="space-y-4 p-5">
         <div>
           <p className="flex items-center gap-2 font-semibold text-foreground">
-            <CalendarCheck className="h-4 w-4 text-primary" /> Days to make up
+            <CalendarCheck className="h-4 w-4 text-primary" /> {tr('Days to make up')}
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">{MAKEUP_NOTE}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{tr(MAKEUP_NOTE)}</p>
         </div>
 
         {shown.map((r) => (
-          <MakeupRow key={r.ramadan_year} record={r} label={`Ramadan ${r.ramadan_year} · ${monthYear(r.ramadan_year)}`} onChange={save} />
+          <MakeupRow key={r.ramadan_year} record={r} label={tr('Ramadan {0} · {1}', [r.ramadan_year, monthYear(r.ramadan_year)])} onChange={save} />
         ))}
 
         <p className="text-sm font-medium text-foreground">
-          {summary ?? (next ? `All caught up, alhamdulillah. Next Ramadan in ${next.daysAway} days.` : 'All caught up, alhamdulillah.')}
+          {trn(summary) ?? (next ? tr('All caught up, alhamdulillah. Next Ramadan in {0} days.', [next.daysAway]) : tr('All caught up, alhamdulillah.'))}
         </p>
         {summary && (
-          <p className="text-xs text-muted-foreground">We’ll remind you a month and a week before Ramadan.</p>
+          <p className="text-xs text-muted-foreground">{tr('We’ll remind you a month and a week before Ramadan.')}</p>
         )}
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Lock className="h-3 w-3" /> Only you can see this. It isn’t shared with your family.
+          <Lock className="h-3 w-3" /> {tr('Only you can see this. It isn’t shared with your family.')}
         </p>
       </CardContent>
     </Card>
@@ -98,28 +99,28 @@ function MakeupRow({ record, label, onChange }: { record: MakeupRecord; label: s
 
   return (
     <div className="space-y-3 rounded-xl border border-border p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-primary">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-primary">{trn(label)}</p>
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm text-foreground">Days I didn’t fast</span>
+        <span className="text-sm text-foreground">{tr('Days I didn’t fast')}</span>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            aria-label="One day less"
+            aria-label={tr('One day less')}
             disabled={record.missed <= done}
             onClick={() => onChange({ ...record, missed: record.missed - 1 })}
           >
             <Minus className="h-4 w-4" />
           </Button>
           <span className="w-8 text-center font-display text-lg font-bold text-foreground" aria-live="polite">
-            {record.missed}
+            {trn(record.missed)}
           </span>
           <Button
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            aria-label="One day more"
+            aria-label={tr('One day more')}
             disabled={record.missed >= 30}
             onClick={() => onChange({ ...record, missed: record.missed + 1 })}
           >
@@ -132,8 +133,8 @@ function MakeupRow({ record, label, onChange }: { record: MakeupRecord; label: s
         <>
           <div>
             <div className="flex justify-between text-sm">
-              <span className="text-foreground">{`Made up ${done} of ${record.missed}`}</span>
-              <span className="text-muted-foreground">{left ? `${left} left` : 'Done ✓'}</span>
+              <span className="text-foreground">{tr('Made up {0} of {1}', [done, record.missed])}</span>
+              <span className="text-muted-foreground">{left ? tr('{0} left', [left]) : tr('Done ✓')}</span>
             </div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
               <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(done / record.missed) * 100}%` }} />
@@ -145,7 +146,7 @@ function MakeupRow({ record, label, onChange }: { record: MakeupRecord; label: s
               disabled={!left || loggedToday || blocked}
               onClick={() => onChange({ ...record, made_up: [...record.made_up, today].sort() })}
             >
-              {loggedToday ? 'Today is logged ✓' : 'I made up a fast today'}
+              {loggedToday ? tr('Today is logged ✓') : tr('I made up a fast today')}
             </Button>
             {done > 0 && (
               <Button
@@ -153,11 +154,11 @@ function MakeupRow({ record, label, onChange }: { record: MakeupRecord; label: s
                 variant="ghost"
                 onClick={() => onChange({ ...record, made_up: record.made_up.slice(0, -1) })}
               >
-                <Undo2 className="mr-1.5 h-3.5 w-3.5" /> Undo last
+                <Undo2 className="mr-1.5 h-3.5 w-3.5" /> {tr('Undo last')}
               </Button>
             )}
           </div>
-          {blocked && <p className="text-xs text-muted-foreground">Make-up fasts are logged after Ramadan.</p>}
+          {blocked && <p className="text-xs text-muted-foreground">{tr('Make-up fasts are logged after Ramadan.')}</p>}
         </>
       )}
     </div>

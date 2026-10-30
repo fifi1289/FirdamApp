@@ -23,6 +23,7 @@ import {
   type ZakatValues,
 } from '@/features/budget/finance-core';
 import { useHousehold } from '@/lib/pantry/portions';
+import { tr, trn } from '@/lib/i18n';
 
 const STORAGE_KEY = 'firdam.zakat.inputs';
 
@@ -76,20 +77,17 @@ export function ZakatCalculator({
           <p className="flex items-start gap-2 rounded-xl bg-brand-sage/10 px-3 py-2.5 text-xs text-foreground">
             <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-sage" />
             <span>
-              <strong>Private to this device.</strong> Your gold, savings and other amounts here are calculated and saved
-              only in this browser — they are never sent to Firdam’s servers. Only a zakat payment you choose to record
-              is saved to your account.
+              <strong>{tr('Private to this device.')}</strong> {tr('Your gold, savings and other amounts here are calculated and saved only in this browser — they are never sent to Firdam’s servers. Only a zakat payment you choose to record is saved to your account.')}
             </span>
           </p>
           <section>
-            <h3 className="text-sm font-semibold text-foreground">1. Today&apos;s metal prices</h3>
+            <h3 className="text-sm font-semibold text-foreground">{tr('1. Today\'s metal prices')}</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Enter the current price per gram in {currency} from your bank, a jeweller, or a
-              trusted price site. The nisab is {GOLD_NISAB_GRAMS} g of gold or {SILVER_NISAB_GRAMS} g of silver.
+              {tr('Enter the current price per gram in {0} from your bank, a jeweller, or a trusted price site. The nisab is {1} g of gold or {2} g of silver.', [currency, GOLD_NISAB_GRAMS, SILVER_NISAB_GRAMS])}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="gold-price">Gold, per gram</Label>
+                <Label htmlFor="gold-price">{tr('Gold, per gram')}</Label>
                 <Input
                   id="gold-price"
                   inputMode="decimal"
@@ -99,7 +97,7 @@ export function ZakatCalculator({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="silver-price">Silver, per gram</Label>
+                <Label htmlFor="silver-price">{tr('Silver, per gram')}</Label>
                 <Input
                   id="silver-price"
                   inputMode="decimal"
@@ -120,26 +118,24 @@ export function ZakatCalculator({
                     basis === b ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
                   )}
                 >
-                  {b} nisab
+                  {trn(b)} {tr('nisab')}
                 </button>
               ))}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Many scholars recommend the silver nisab as it benefits more people in need. Follow
-              the opinion you trust.
+              {tr('Many scholars recommend the silver nisab as it benefits more people in need. Follow the opinion you trust.')}
             </p>
           </section>
 
           <section>
-            <h3 className="text-sm font-semibold text-foreground">2. What you own</h3>
+            <h3 className="text-sm font-semibold text-foreground">{tr('2. What you own')}</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Wealth held for a full lunar year (hawl). Your home, car and personal items are not
-              included.
+              {tr('Wealth held for a full lunar year (hawl). Your home, car and personal items are not included.')}
             </p>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {ASSETS.map((a) => (
                 <div key={a.key} className="space-y-1.5">
-                  <Label htmlFor={`z-${a.key}`}>{a.label}</Label>
+                  <Label htmlFor={`z-${a.key}`}>{tr(a.label)}</Label>
                   <Input
                     id={`z-${a.key}`}
                     inputMode="decimal"
@@ -147,16 +143,16 @@ export function ZakatCalculator({
                     onChange={(e) => set(a.key, e.target.value)}
                     placeholder="0"
                   />
-                  {a.hint && <p className="text-[11px] text-muted-foreground">{a.hint}</p>}
+                  {a.hint && <p className="text-[11px] text-muted-foreground">{tr(a.hint)}</p>}
                 </div>
               ))}
             </div>
           </section>
 
           <section>
-            <h3 className="text-sm font-semibold text-foreground">3. What you owe now</h3>
+            <h3 className="text-sm font-semibold text-foreground">{tr('3. What you owe now')}</h3>
             <div className="mt-3 max-w-xs space-y-1.5">
-              <Label htmlFor="z-debts">Debts and bills due now</Label>
+              <Label htmlFor="z-debts">{tr('Debts and bills due now')}</Label>
               <Input
                 id="z-debts"
                 inputMode="decimal"
@@ -174,49 +170,48 @@ export function ZakatCalculator({
           <div className="bg-girih bg-gradient-to-br from-brand-espresso to-brand-mid p-5 text-brand-linen">
             <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-brand-linen/75">
               <Scale className="h-4 w-4" />
-              Zakat al-mal due
+              {tr('Zakat al-mal due')}
             </p>
             <p className="mt-2 font-display text-4xl font-bold tabular-nums">
               {formatMoney(result.due, currency)}
             </p>
             <p className="mt-1 text-sm text-brand-linen/80">
               {!result.hasNisab
-                ? `Enter the ${basis} price to check the nisab.`
+                ? tr('Enter the {0} price to check the nisab.', [basis])
                 : result.due > 0
-                  ? '2.5% of your net zakatable wealth'
-                  : 'Your wealth is below the nisab — no zakat is due.'}
+                  ? tr('2.5% of your net zakatable wealth')
+                  : tr('Your wealth is below the nisab — no zakat is due.')}
             </p>
           </div>
           <CardContent className="space-y-2 p-5 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Total assets</span>
+              <span className="text-muted-foreground">{tr('Total assets')}</span>
               <span className="tabular-nums text-foreground">{formatMoney(result.assets, currency)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Debts due</span>
+              <span className="text-muted-foreground">{tr('Debts due')}</span>
               <span className="tabular-nums text-foreground">− {formatMoney(num(values.debts), currency)}</span>
             </div>
             <div className="flex justify-between border-t border-border pt-2 font-medium">
-              <span className="text-foreground">Net zakatable wealth</span>
+              <span className="text-foreground">{tr('Net zakatable wealth')}</span>
               <span className="tabular-nums text-foreground">{formatMoney(result.net, currency)}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Nisab ({basis})</span>
+              <span className="text-muted-foreground">{tr('Nisab (')}{trn(basis)})</span>
               <span className="tabular-nums text-muted-foreground">
                 {result.hasNisab ? formatMoney(result.nisab, currency) : '—'}
               </span>
             </div>
             {result.due > 0 && (
               <Button className="mt-3 w-full" onClick={() => onRecord(Math.round(result.due * 100) / 100, ZAKAT_DESCRIPTIONS.mal)}>
-                Record as zakat paid
+                {tr('Record as zakat paid')}
               </Button>
             )}
           </CardContent>
         </Card>
         <p className="flex gap-2 text-xs leading-relaxed text-muted-foreground">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          This is a guide to help you estimate. For gold jewellery, pensions, rental property and
-          other special cases, please consult a scholar you trust.
+          {tr('This is a guide to help you estimate. For gold jewellery, pensions, rental property and other special cases, please consult a scholar you trust.')}
         </p>
       </div>
     </div>
@@ -262,12 +257,12 @@ function ZakatAlFitr({ currency, onRecord }: { currency: string; onRecord: (amou
       <CardContent className="grid grid-cols-1 gap-5 p-5 lg:grid-cols-[1fr_340px]">
         <section>
           <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Moon className="h-4 w-4 text-primary" /> Zakat al-fitr
+            <Moon className="h-4 w-4 text-primary" /> {tr('Zakat al-fitr')}
           </h3>
-          <p className="mt-1 text-xs text-muted-foreground">{ZAKAT_AL_FITR_NOTE}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{tr(ZAKAT_AL_FITR_NOTE)}</p>
           <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-md">
             <div className="space-y-1.5">
-              <Label htmlFor="fitr-people">People</Label>
+              <Label htmlFor="fitr-people">{tr('People')}</Label>
               <Input
                 id="fitr-people"
                 inputMode="numeric"
@@ -280,7 +275,7 @@ function ZakatAlFitr({ currency, onRecord }: { currency: string; onRecord: (amou
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="fitr-each">Per person ({currency})</Label>
+              <Label htmlFor="fitr-each">{tr('Per person (')}{trn(currency)})</Label>
               <Input
                 id="fitr-each"
                 inputMode="decimal"
@@ -289,24 +284,24 @@ function ZakatAlFitr({ currency, onRecord }: { currency: string; onRecord: (amou
                   setPerPerson(e.target.value);
                   save({ people, perPerson: e.target.value });
                 }}
-                placeholder="e.g. 15"
+                placeholder={tr('e.g. 15')}
               />
             </div>
           </div>
         </section>
         <div className="rounded-2xl bg-muted/60 p-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Zakat al-fitr due</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{tr('Zakat al-fitr due')}</p>
           <p className="mt-1 font-display text-3xl font-bold tabular-nums text-foreground">
             {formatMoney(fitr.total, currency)}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             {fitr.total > 0
-              ? `${fitr.people} × ${formatMoney(fitr.perPerson, currency)} · pay before the Eid prayer`
-              : 'Enter the number of people and the amount per person.'}
+              ? tr('{0} × {1} · pay before the Eid prayer', [fitr.people, formatMoney(fitr.perPerson, currency)])
+              : tr('Enter the number of people and the amount per person.')}
           </p>
           {fitr.total > 0 && (
             <Button className="mt-3 w-full" variant="outline" onClick={() => onRecord(Math.round(fitr.total * 100) / 100, ZAKAT_DESCRIPTIONS.fitr)}>
-              Record as zakat al-fitr paid
+              {tr('Record as zakat al-fitr paid')}
             </Button>
           )}
         </div>

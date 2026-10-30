@@ -20,6 +20,7 @@ import { applyPantryChanges, type PantryChange } from '@/lib/pantry/store';
 import { undoToast } from '@/features/pantry/cook-dialog';
 import type { PantryItem } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { tr, trn } from '@/lib/i18n';
 
 type Level = NonNullable<PantryItem['level']>;
 type Choice = { kind: 'fraction'; value: number } | { kind: 'count'; value: number } | { kind: 'level'; value: Level };
@@ -122,7 +123,7 @@ export function UsedItemsDialog({
         window.dispatchEvent(new Event('cooking-log-changed'))
       );
     } catch (err) {
-      toast.error('Could not update your pantry', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not update your pantry'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setSaving(false);
     }
@@ -134,22 +135,22 @@ export function UsedItemsDialog({
     <Dialog open={open} onOpenChange={(o) => !saving && onOpenChange(o)}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>What did you use?</DialogTitle>
-          <DialogDescription>Tap the things you cooked with and roughly how much. We’ll update your pantry.</DialogDescription>
+          <DialogTitle>{tr('What did you use?')}</DialogTitle>
+          <DialogDescription>{tr('Tap the things you cooked with and roughly how much. We’ll update your pantry.')}</DialogDescription>
         </DialogHeader>
 
-        <Input value={dish} onChange={(e) => setDish(e.target.value)} placeholder="What did you make? (optional)" aria-label="Dish name" />
+        <Input value={dish} onChange={(e) => setDish(e.target.value)} placeholder={tr('What did you make? (optional)')} aria-label={tr('Dish name')} />
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search your pantry" className="pl-9" aria-label="Search pantry" />
+          <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr('Search your pantry')} className="pl-9" aria-label={tr('Search pantry')} />
         </div>
 
         {!pantry ? (
           <p className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading your pantry…
+            <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading your pantry…')}
           </p>
         ) : pantry.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">Your pantry is empty, so there’s nothing to take off.</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">{tr('Your pantry is empty, so there’s nothing to take off.')}</p>
         ) : (
           <ul className="max-h-[45vh] space-y-1.5 overflow-y-auto pr-1">
             {visible.map((item) => {
@@ -157,21 +158,21 @@ export function UsedItemsDialog({
               return (
                 <li key={item.id} className={cn('rounded-xl border px-3 py-2', p ? 'border-primary/50 bg-primary/5' : 'border-border')}>
                   <button type="button" onClick={() => toggle(item)} className="flex w-full items-center justify-between gap-2 text-left">
-                    <span className="text-sm font-medium text-foreground">{item.name}</span>
+                    <span className="text-sm font-medium text-foreground">{trn(item.name)}</span>
                     <span className="text-xs text-muted-foreground">
-                      {item.tracking === 'level' ? item.level ?? 'full' : formatAmount(Number(item.quantity), item.unit)}
+                      {item.tracking === 'level' ? trn(item.level) ?? tr('full') : formatAmount(Number(item.quantity), item.unit)}
                     </span>
                   </button>
                   {p && (
                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
                       {p.kind === 'count' && (
                         <>
-                          <span className="mr-1 text-xs text-muted-foreground">Used</span>
-                          <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPicked((c) => ({ ...c, [item.id]: { kind: 'count', value: Math.max(1, p.value - 1) } }))} aria-label="Fewer">
+                          <span className="mr-1 text-xs text-muted-foreground">{tr('Used')}</span>
+                          <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPicked((c) => ({ ...c, [item.id]: { kind: 'count', value: Math.max(1, p.value - 1) } }))} aria-label={tr('Fewer')}>
                             <Minus className="h-3.5 w-3.5" />
                           </Button>
                           <span className="w-8 text-center text-sm font-semibold tabular-nums">{p.value}</span>
-                          <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPicked((c) => ({ ...c, [item.id]: { kind: 'count', value: Math.min(Number(item.quantity) || 1, p.value + 1) } }))} aria-label="More">
+                          <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPicked((c) => ({ ...c, [item.id]: { kind: 'count', value: Math.min(Number(item.quantity) || 1, p.value + 1) } }))} aria-label={tr('More')}>
                             <Plus className="h-3.5 w-3.5" />
                           </Button>
                         </>
@@ -187,12 +188,12 @@ export function UsedItemsDialog({
                               p.value === f.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                             )}
                           >
-                            {f.label}
+                            {tr(f.label)}
                           </button>
                         ))}
                       {p.kind === 'level' && (
                         <>
-                          <span className="mr-1 text-xs text-muted-foreground">Now</span>
+                          <span className="mr-1 text-xs text-muted-foreground">{tr('Now')}</span>
                           {(['full', 'half', 'low', 'out'] as Level[]).map((l) => (
                             <button
                               key={l}
@@ -203,7 +204,7 @@ export function UsedItemsDialog({
                                 p.value === l ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                               )}
                             >
-                              {l}
+                              {trn(l)}
                             </button>
                           ))}
                         </>
@@ -218,11 +219,11 @@ export function UsedItemsDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={confirm} disabled={saving || count === 0}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-            Update {count || ''} item{count === 1 ? '' : 's'}
+            {tr('Update')} {count || ''} {tr('item')}{count === 1 ? '' : tr('s')}
           </Button>
         </DialogFooter>
       </DialogContent>

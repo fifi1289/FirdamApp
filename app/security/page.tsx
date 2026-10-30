@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { LegalPage, type LegalSection } from '@/features/legal/legal-page';
 import { SITE } from '@/lib/site';
+import { tr, trn } from '@/lib/i18n';
 
 export const metadata = {
   title: 'Security',
@@ -14,9 +15,7 @@ const sections: LegalSection[] = [
     title: 'Encrypted on the way and at rest',
     body: (
       <p>
-        Everything between your device and {SITE.name} travels over HTTPS (TLS encryption), and browsers are told to
-        always use the secure connection. Your data is stored with our database provider, Supabase, which encrypts stored
-        data (AES-256) and keeps backups.
+        {tr('Everything between your device and {0} travels over HTTPS (TLS encryption), and browsers are told to always use the secure connection. Your data is stored with our database provider, Supabase, which encrypts stored data (AES-256) and keeps backups.', [SITE.name])}
       </p>
     ),
   },
@@ -26,13 +25,10 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          The database itself checks every request: you can only read and change your own information, and the shared
-          parts of a household you’ve joined. This is enforced by the database (“row-level security”), not just by the
-          app’s screens, so it holds even if someone tries to call our servers directly.
+          {tr('The database itself checks every request: you can only read and change your own information, and the shared parts of a household you’ve joined. This is enforced by the database (“row-level security”), not just by the app’s screens, so it holds even if someone tries to call our servers directly.')}
         </p>
         <p>
-          Every change we make to {SITE.name} is automatically tested to confirm that one family can’t see another
-          family’s pantry, budget, plans or trackers.
+          {tr('Every change we make to {0} is automatically tested to confirm that one family can’t see another family’s pantry, budget, plans or trackers.', [SITE.name])}
         </p>
       </>
     ),
@@ -42,9 +38,7 @@ const sections: LegalSection[] = [
     title: 'Two-step verification',
     body: (
       <p>
-        Turn it on in Settings → Account. After your password, you’ll enter a 6-digit code from an authenticator app on
-        your phone, so a stolen password alone isn’t enough. When it’s on, the database refuses to share any of your data
-        with a session that hasn’t entered the code.
+        {tr('Turn it on in Settings → Account. After your password, you’ll enter a 6-digit code from an authenticator app on your phone, so a stolen password alone isn’t enough. When it’s on, the database refuses to share any of your data with a session that hasn’t entered the code.')}
       </p>
     ),
   },
@@ -53,9 +47,7 @@ const sections: LegalSection[] = [
     title: 'Your gold and zakat figures stay on your device',
     body: (
       <p>
-        The zakat calculator works entirely in your browser: the gold, silver, cash and savings amounts you enter are
-        saved only on your device and never sent to {SITE.name}. Only a zakat or sadaqah payment you choose to record in
-        your budget is saved to your account.
+        {tr('The zakat calculator works entirely in your browser: the gold, silver, cash and savings amounts you enter are saved only on your device and never sent to {0}. Only a zakat or sadaqah payment you choose to record in your budget is saved to your account.', [SITE.name])}
       </p>
     ),
   },
@@ -65,11 +57,9 @@ const sections: LegalSection[] = [
     body: (
       <p>
         {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
-          ? 'Sign-in, sign-up and password reset are protected by Cloudflare Turnstile, which stops automated password-guessing without annoying puzzles. '
+          ? tr('Sign-in, sign-up and password reset are protected by Cloudflare Turnstile, which stops automated password-guessing without annoying puzzles. ')
           : ''}
-        The app runs on Cloudflare’s global network, which absorbs traffic floods (DDoS), and our
-        login provider limits repeated attempts. Pages send strict browser security rules that block other sites from
-        framing {SITE.name} and stop injected scripts from talking to unknown servers.
+        {tr('The app runs on Cloudflare’s global network, which absorbs traffic floods (DDoS), and our login provider limits repeated attempts. Pages send strict browser security rules that block other sites from framing {0} and stop injected scripts from talking to unknown servers.', [SITE.name])}
       </p>
     ),
   },
@@ -78,8 +68,7 @@ const sections: LegalSection[] = [
     title: 'Payments',
     body: (
       <p>
-        Subscriptions are handled by Stripe, a certified payment processor. Your card details go straight to Stripe — they
-        never touch {SITE.name}’s servers.
+        {tr('Subscriptions are handled by Stripe, a certified payment processor. Your card details go straight to Stripe — they never touch {0}’s servers.', [SITE.name])}
       </p>
     ),
   },
@@ -88,9 +77,8 @@ const sections: LegalSection[] = [
     title: 'AI features',
     body: (
       <p>
-        When you use an AI feature, we send only what that feature needs, and the AI provider doesn’t use it to train its
-        models. Companion chat history is kept on your device. Receipt photos aren’t stored. Read more in our{' '}
-        <Link href="/privacy#ai">Privacy Policy</Link>.
+        {tr('When you use an AI feature, we send only what that feature needs, and the AI provider doesn’t use it to train its models. Companion chat history is kept on your device. Receipt photos aren’t stored. Read more in our')}{' '}
+        <Link href="/privacy#ai">{tr('Privacy Policy')}</Link>.
       </p>
     ),
   },
@@ -99,9 +87,9 @@ const sections: LegalSection[] = [
     title: 'You stay in control',
     body: (
       <ul>
-        <li>We don’t sell your data, show ads or use tracking cookies.</li>
-        <li>Download everything any time: Settings → Account → Export my data.</li>
-        <li>Delete your account and data any time: Settings → Account → Delete my account.</li>
+        <li>{tr('We don’t sell your data, show ads or use tracking cookies.')}</li>
+        <li>{tr('Download everything any time: Settings → Account → Export my data.')}</li>
+        <li>{tr('Delete your account and data any time: Settings → Account → Delete my account.')}</li>
       </ul>
     ),
   },
@@ -110,11 +98,11 @@ const sections: LegalSection[] = [
     title: 'What you can do',
     body: (
       <ul>
-        <li>Use a strong password you don’t use anywhere else (a password manager helps).</li>
-        <li>Turn on two-step verification, especially if you track savings or zakat.</li>
-        <li>Only invite people you trust into your shared household.</li>
-        <li>Sign out on shared or public computers.</li>
-        <li>{SITE.name} will never ask for your password by email or message.</li>
+        <li>{tr('Use a strong password you don’t use anywhere else (a password manager helps).')}</li>
+        <li>{tr('Turn on two-step verification, especially if you track savings or zakat.')}</li>
+        <li>{tr('Only invite people you trust into your shared household.')}</li>
+        <li>{tr('Sign out on shared or public computers.')}</li>
+        <li>{trn(SITE.name)} {tr('will never ask for your password by email or message.')}</li>
       </ul>
     ),
   },
@@ -123,9 +111,8 @@ const sections: LegalSection[] = [
     title: 'Found a problem?',
     body: (
       <p>
-        If you think you’ve found a security issue, please email{' '}
-        <a href={`mailto:${SITE.privacyEmail}`}>{SITE.privacyEmail}</a> with the details. We’ll reply quickly and fix
-        it. Please don’t access other people’s data or disrupt the service while testing.
+        {tr('If you think you’ve found a security issue, please email')}{' '}
+        <a href={`mailto:${SITE.privacyEmail}`}>{trn(SITE.privacyEmail)}</a> {tr('with the details. We’ll reply quickly and fix it. Please don’t access other people’s data or disrupt the service while testing.')}
       </p>
     ),
   },
@@ -134,11 +121,10 @@ const sections: LegalSection[] = [
 export default function SecurityPage() {
   return (
     <LegalPage
-      title="How we keep your data safe"
+      title={tr('How we keep your data safe')}
       intro={
         <p>
-          Families trust {SITE.name} with their plans, money and faith — an amanah we take seriously. Here’s what protects
-          your information, in plain words.
+          {tr('Families trust {0} with their plans, money and faith — an amanah we take seriously. Here’s what protects your information, in plain words.', [SITE.name])}
         </p>
       }
       summary={[

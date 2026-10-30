@@ -4,6 +4,7 @@ import { Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { tr, trn } from '@/lib/i18n';
 
 const tiers = [
   {
@@ -49,13 +50,13 @@ export function Pricing() {
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Pricing
+            {tr('Pricing')}
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Simple pricing for every family
+            {tr('Simple pricing for every family')}
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
-            Start free. One low price unlocks the full kitchen for your whole household.
+            {tr('Start free. One low price unlocks the full kitchen for your whole household.')}
           </p>
         </div>
 
@@ -73,26 +74,26 @@ export function Pricing() {
               {tier.highlighted && (
                 <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 gap-1">
                   <Sparkles className="h-3 w-3" />
-                  Most popular
+                  {tr('Most popular')}
                 </Badge>
               )}
 
               <h3 className="text-lg font-semibold text-foreground">
-                {tier.name}
+                {trn(tier.name)}
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                {tier.description}
+                {tr(tier.description)}
               </p>
 
               <div className="mt-5 flex items-baseline gap-1">
                 <span className="font-display text-4xl font-bold tracking-tight text-foreground">
-                  {tier.price}
+                  {trn(tier.price)}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  /{tier.period}
+                  /{trn(tier.period)}
                 </span>
               </div>
-              {tier.note && <p className="mt-1 text-xs text-muted-foreground">{tier.note}</p>}
+              {tier.note && <p className="mt-1 text-xs text-muted-foreground">{tr(tier.note)}</p>}
 
               <ul className="mt-6 flex-1 space-y-3">
                 {tier.features.map((feat) => (
@@ -101,7 +102,7 @@ export function Pricing() {
                     className="flex items-start gap-2.5 text-sm text-muted-foreground"
                   >
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    {feat}
+                    {trn(feat)}
                   </li>
                 ))}
               </ul>
@@ -111,7 +112,7 @@ export function Pricing() {
                 className="mt-7 w-full"
                 variant={tier.highlighted ? 'default' : 'outline'}
               >
-                <Link href={tier.href}>{tier.cta}</Link>
+                <Link href={tier.href}>{trn(tier.cta)}</Link>
               </Button>
             </div>
           ))}

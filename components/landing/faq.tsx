@@ -9,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { tr, trn } from '@/lib/i18n';
 
 const faqs = [
   {
@@ -43,10 +44,10 @@ export function FAQ() {
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            FAQ
+            {tr('FAQ')}
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Questions, answered
+            {tr('Questions, answered')}
           </h2>
         </div>
 
@@ -55,10 +56,10 @@ export function FAQ() {
             {faqs.map((faq, i) => (
               <AccordionItem key={i} value={`item-${i}`}>
                 <AccordionTrigger className="text-left text-base font-medium hover:no-underline">
-                  {faq.q}
+                  {trn(faq.q)}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
-                  {faq.a}
+                  {trn(faq.a)}
                 </AccordionContent>
               </AccordionItem>
             ))}

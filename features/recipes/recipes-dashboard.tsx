@@ -38,6 +38,7 @@ import {
 import { useRecipeFavorites } from '@/features/recipes/use-favorites';
 import { RecipeFormDialog } from '@/features/recipes/recipe-form-dialog';
 import { CookWithWhatIHave } from '@/features/recipes/cook-with-what-i-have';
+import { tr, trn } from '@/lib/i18n';
 
 type Tab = 'all' | 'cook' | 'favorites' | 'mine';
 
@@ -80,7 +81,7 @@ export function RecipeCard({
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           <MealImage
             src={recipe.image}
-            alt={recipe.name}
+            alt={trn(recipe.name)}
             category={recipe.mealType}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -90,11 +91,11 @@ export function RecipeCard({
               DIFFICULTY_STYLE[recipe.difficulty]
             )}
           >
-            {recipe.difficulty}
+            {trn(recipe.difficulty)}
           </span>
           {recipe.source !== 'catalog' && (
             <span className="absolute bottom-3 left-3 rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-medium text-foreground backdrop-blur">
-              {recipe.source === 'mine' ? 'Your recipe' : `By ${recipe.author ?? 'a Firdam family'}`}
+              {recipe.source === 'mine' ? tr('Your recipe') : tr('By {0}', [recipe.author ?? 'a Firdam family'])}
             </span>
           )}
         </div>
@@ -102,7 +103,7 @@ export function RecipeCard({
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2">
           <Link href={`/dashboard/recipes/${recipe.key}`} className="min-w-0">
-            <h3 className="line-clamp-1 font-semibold text-foreground group-hover:text-primary">{recipe.name}</h3>
+            <h3 className="line-clamp-1 font-semibold text-foreground group-hover:text-primary">{trn(recipe.name)}</h3>
             <p className="text-xs text-muted-foreground">
               {[recipe.cuisine, recipe.mealType.charAt(0).toUpperCase() + recipe.mealType.slice(1)]
                 .filter(Boolean)
@@ -112,14 +113,14 @@ export function RecipeCard({
           <button
             type="button"
             onClick={onToggleFavorite}
-            aria-label={favorite ? 'Remove from favourites' : 'Save to favourites'}
+            aria-label={favorite ? tr('Remove from favourites') : tr('Save to favourites')}
             className="shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted"
           >
             <Heart className={cn('h-4 w-4', favorite && 'fill-destructive text-destructive')} />
           </button>
         </div>
         {recipe.description && (
-          <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{recipe.description}</p>
+          <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{tr(recipe.description)}</p>
         )}
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           {mins > 0 && (
@@ -130,12 +131,12 @@ export function RecipeCard({
           )}
           <span className="inline-flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
-            Serves {recipe.servings}
+            {tr('Serves')} {trn(recipe.servings)}
           </span>
           {recipe.calories != null && (
             <span className="inline-flex items-center gap-1">
               <Flame className="h-3.5 w-3.5" />
-              {recipe.calories} kcal
+              {trn(recipe.calories)} {tr('kcal')}
             </span>
           )}
         </div>
@@ -240,9 +241,9 @@ export function RecipesDashboard() {
   const onToggleFavorite = async (key: string) => {
     try {
       const saved = await toggle(key);
-      toast.success(saved ? 'Saved to favourites' : 'Removed from favourites');
+      toast.success(saved ? tr('Saved to favourites') : tr('Removed from favourites'));
     } catch {
-      toast.error('Could not update favourites');
+      toast.error(tr('Could not update favourites'));
     }
   };
 
@@ -264,15 +265,15 @@ export function RecipesDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Recipes"
-        description="Halal recipes from around the Muslim world. Save favourites, scale servings, and add them to your meal plan in one tap."
+        title={tr('Recipes')}
+        description={tr('Halal recipes from around the Muslim world. Save favourites, scale servings, and add them to your meal plan in one tap.')}
       >
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/meals">Meal planner</Link>
+          <Link href="/dashboard/meals">{tr('Meal planner')}</Link>
         </Button>
         <Button size="sm" onClick={startNew}>
           <Plus className="mr-2 h-4 w-4" />
-          Add your recipe
+          {tr('Add your recipe')}
         </Button>
       </PageHeader>
 
@@ -287,7 +288,7 @@ export function RecipesDashboard() {
               tab === t.value ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            {t.label}
+            {tr(t.label)}
           </button>
         ))}
       </div>
@@ -297,7 +298,7 @@ export function RecipesDashboard() {
           <>
             {freeFrom.length > 0 && (
               <p className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <ShieldCheck className="h-3.5 w-3.5 text-brand-sage" /> Only showing recipes free from {freeFrom.join(', ')}.
+                <ShieldCheck className="h-3.5 w-3.5 text-brand-sage" /> {tr('Only showing recipes free from')} {freeFrom.join(', ')}.
               </p>
             )}
             <CookWithWhatIHave recipes={safeRecipes} />
@@ -311,57 +312,57 @@ export function RecipesDashboard() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search biryani, lentils, tagine…"
+            placeholder={tr('Search biryani, lentils, tagine…')}
             className="pl-9"
-            aria-label="Search recipes"
+            aria-label={tr('Search recipes')}
           />
         </div>
         <Select value={meal} onValueChange={(v) => setMeal(v as MealTypeKey | 'all')}>
-          <SelectTrigger className="md:w-[170px]" aria-label="Meal">
+          <SelectTrigger className="md:w-[170px]" aria-label={tr('Meal')}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {MEAL_FILTERS.map((m) => (
               <SelectItem key={m.value} value={m.value}>
-                {m.label}
+                {tr(m.label)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={cuisine} onValueChange={setCuisine}>
-          <SelectTrigger className="md:w-[170px]" aria-label="Cuisine">
+          <SelectTrigger className="md:w-[170px]" aria-label={tr('Cuisine')}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Any cuisine</SelectItem>
+            <SelectItem value="all">{tr('Any cuisine')}</SelectItem>
             {cuisines.map((c) => (
               <SelectItem key={c} value={c}>
-                {c}
+                {trn(c)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={time} onValueChange={setTime}>
-          <SelectTrigger className="md:w-[150px]" aria-label="Time">
+          <SelectTrigger className="md:w-[150px]" aria-label={tr('Time')}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {TIME_FILTERS.map((t) => (
               <SelectItem key={t.value} value={t.value}>
-                {t.label}
+                {tr(t.label)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={diet} onValueChange={setDiet}>
-          <SelectTrigger className="md:w-[160px]" aria-label="Diet">
+          <SelectTrigger className="md:w-[160px]" aria-label={tr('Diet')}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="any">Any diet</SelectItem>
+            <SelectItem value="any">{tr('Any diet')}</SelectItem>
             {DIET_FILTERS.map((d) => (
               <SelectItem key={d} value={d}>
-                {d}
+                {trn(d)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -370,11 +371,11 @@ export function RecipesDashboard() {
           <PopoverTrigger asChild>
             <Button variant="outline" className={cn('justify-start md:w-[170px]', freeFrom.length > 0 && 'border-primary text-primary')}>
               <ShieldCheck className="mr-2 h-4 w-4" />
-              {freeFrom.length > 0 ? `Free from ${freeFrom.length}` : 'Allergies'}
+              {freeFrom.length > 0 ? tr('Free from {0}', [freeFrom.length]) : tr('Allergies')}
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-64">
-            <p className="mb-2 text-sm font-medium text-foreground">Hide recipes containing</p>
+            <p className="mb-2 text-sm font-medium text-foreground">{tr('Hide recipes containing')}</p>
             <div className="space-y-2">
               {[...ALLERGEN_RULES.map((r) => r.name), ...freeFrom.filter((a) => !ALLERGEN_RULES.some((r) => r.name === a))].map((a) => (
                 <label key={a} className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
@@ -384,16 +385,16 @@ export function RecipesDashboard() {
                       setFreeFrom((cur) => (v ? [...cur, a] : cur.filter((x) => x !== a)))
                     }
                   />
-                  {a}
+                  {trn(a)}
                 </label>
               ))}
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Checked against every ingredient. Always read labels on packaged foods.
+              {tr('Checked against every ingredient. Always read labels on packaged foods.')}
             </p>
             {freeFrom.length > 0 && (
               <Button variant="ghost" size="sm" className="mt-2 px-0" onClick={() => setFreeFrom([])}>
-                Clear
+                {tr('Clear')}
               </Button>
             )}
           </PopoverContent>
@@ -403,7 +404,7 @@ export function RecipesDashboard() {
       {loading ? (
         <Card>
           <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading recipes…
+            <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading recipes…')}
           </CardContent>
         </Card>
       ) : visible.length === 0 ? (
@@ -414,26 +415,26 @@ export function RecipesDashboard() {
             </span>
             <h3 className="mt-5 text-lg font-semibold text-foreground">
               {tab === 'favorites'
-                ? 'No favourites yet'
+                ? tr('No favourites yet')
                 : tab === 'mine'
-                  ? 'You haven’t added a recipe yet'
+                  ? tr('You haven’t added a recipe yet')
                   : recipes.length === 0
-                      ? 'The recipe library is empty'
-                      : 'No recipes match'}
+                      ? tr('The recipe library is empty')
+                      : tr('No recipes match')}
             </h3>
             <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
               {tab === 'favorites'
-                ? 'Tap the heart on any recipe to keep it here.'
+                ? tr('Tap the heart on any recipe to keep it here.')
                 : tab === 'mine'
-                  ? 'Add a family favourite. Your recipes are private: only your family sees them.'
+                  ? tr('Add a family favourite. Your recipes are private: only your family sees them.')
                   : recipes.length === 0
-                    ? 'Run the database migrations to add the starter halal recipes.'
-                    : 'Try a different search or filter.'}
+                    ? tr('Run the database migrations to add the starter halal recipes.')
+                    : tr('Try a different search or filter.')}
             </p>
             {tab === 'mine' && (
               <Button size="sm" className="mt-5" onClick={startNew}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add your recipe
+                {tr('Add your recipe')}
               </Button>
             )}
           </CardContent>
@@ -441,7 +442,7 @@ export function RecipesDashboard() {
       ) : (
         <>
           <p className="mb-3 text-xs text-muted-foreground">
-            {visible.length > shown ? `Showing ${shown} of ${visible.length} recipes` : `${visible.length} recipe${visible.length === 1 ? '' : 's'}`}
+            {visible.length > shown ? tr('Showing {0} of {1} recipes', [shown, visible.length]) : tr('{0} recipe{1}', [visible.length, visible.length === 1 ? '' : 's'])}
           </p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {visible.slice(0, shown).map((r) => (
@@ -456,7 +457,7 @@ export function RecipesDashboard() {
           {visible.length > shown && (
             <div className="mt-6 flex justify-center">
               <Button variant="outline" onClick={() => setShown((n) => n + PAGE_SIZE)}>
-                Show {Math.min(PAGE_SIZE, visible.length - shown)} more
+                {tr('Show')} {Math.min(PAGE_SIZE, visible.length - shown)} {tr('more')}
               </Button>
             </div>
           )}

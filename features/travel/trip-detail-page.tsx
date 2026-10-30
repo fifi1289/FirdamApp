@@ -32,6 +32,7 @@ import type { ChecklistItem, Trip } from '@/types/database';
 import { QiblaCompass } from '@/features/prayer-times/qibla-compass';
 import { TRIP_KINDS } from '@/features/travel/travel-config';
 import { TripFormDialog } from '@/features/travel/trip-form-dialog';
+import { locale, tr, trn } from '@/lib/i18n';
 
 export function TripDetailPage({ tripId }: { tripId: string }) {
   const router = useRouter();
@@ -79,7 +80,7 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
       .update({ checklist, updated_at: new Date().toISOString() })
       .eq('id', trip.id);
     if (error) {
-      toast.error('Could not save checklist');
+      toast.error(tr('Could not save checklist'));
       load();
     }
   };
@@ -88,7 +89,7 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
     return (
       <AppShell>
         <p className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading trip…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading trip…')}
         </p>
       </AppShell>
     );
@@ -97,7 +98,7 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
     return (
       <AppShell>
         <p className="py-20 text-center text-sm text-muted-foreground">
-          Trip not found. <Link href="/dashboard/travel" className="text-primary hover:underline">Back to Travel</Link>
+          {tr('Trip not found.')} <Link href="/dashboard/travel" className="text-primary hover:underline">{tr('Back to Travel')}</Link>
         </p>
       </AppShell>
     );
@@ -119,8 +120,8 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
   const remove = async () => {
     if (!window.confirm(`Delete "${trip.name}"?`)) return;
     const { error } = await supabase.from('trips').delete().eq('id', trip.id);
-    if (error) return toast.error('Could not delete trip');
-    toast.success('Trip deleted');
+    if (error) return toast.error(tr('Could not delete trip'));
+    toast.success(tr('Trip deleted'));
     router.push('/dashboard/travel');
   };
 
@@ -129,15 +130,15 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
       <div className="mb-4 flex items-center justify-between">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/travel">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Travel
+            <ArrowLeft className="mr-2 h-4 w-4" /> {tr('Travel')}
           </Link>
         </Button>
         <div className="flex gap-1">
           <Button variant="ghost" size="sm" onClick={() => setEditOpen(true)}>
-            <Pencil className="mr-2 h-4 w-4" /> Edit
+            <Pencil className="mr-2 h-4 w-4" /> {tr('Edit')}
           </Button>
           <Button variant="ghost" size="sm" onClick={remove} className="text-destructive hover:text-destructive">
-            <Trash2 className="mr-2 h-4 w-4" /> Delete
+            <Trash2 className="mr-2 h-4 w-4" /> {tr('Delete')}
           </Button>
         </div>
       </div>
@@ -145,28 +146,28 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
       <Card className="overflow-hidden">
         <div className="bg-girih relative bg-gradient-to-br from-brand-espresso via-brand-dark to-brand-mid p-6 text-brand-linen md:p-8">
           <Icon className="absolute right-6 top-6 h-16 w-16 text-brand-gold/30" />
-          <p className="text-sm font-medium text-brand-gold">{meta.label}</p>
-          <h1 className="mt-1 font-display text-3xl font-bold">{trip.name}</h1>
+          <p className="text-sm font-medium text-brand-gold">{tr(meta.label)}</p>
+          <h1 className="mt-1 font-display text-3xl font-bold">{trn(trip.name)}</h1>
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-brand-linen/85">
             <span className="inline-flex items-center gap-1.5">
-              <MapPin className="h-4 w-4" /> {trip.destination_label}
+              <MapPin className="h-4 w-4" /> {trn(trip.destination_label)}
             </span>
             {trip.start_date && (
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDays className="h-4 w-4" />
-                {new Date(`${trip.start_date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                {new Date(`${trip.start_date}T00:00:00`).toLocaleDateString(locale(), { month: 'short', day: 'numeric' })}
                 {trip.end_date &&
-                  ` – ${new Date(`${trip.end_date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`}
-                {nights !== null && ` · ${nights} night${nights === 1 ? '' : 's'}`}
+                  ` – ${new Date(`${trip.end_date}T00:00:00`).toLocaleDateString(locale(), { month: 'short', day: 'numeric', year: 'numeric' })}`}
+                {nights !== null && tr(' · {0} night{1}', [nights, nights === 1 ? '' : 's'])}
               </span>
             )}
             <span className="inline-flex items-center gap-1.5">
-              <Users className="h-4 w-4" /> {trip.travellers} traveller{trip.travellers === 1 ? '' : 's'}
+              <Users className="h-4 w-4" /> {trn(trip.travellers)} {tr('traveller')}{trip.travellers === 1 ? '' : tr('s')}
             </span>
           </div>
           {daysTo !== null && daysTo >= 0 && (
             <p className="mt-5 inline-block rounded-xl bg-white/10 px-4 py-2 font-display text-lg font-semibold backdrop-blur">
-              {daysTo === 0 ? 'You travel today — safe journey!' : `${daysTo} day${daysTo === 1 ? '' : 's'} to go`}
+              {daysTo === 0 ? tr('You travel today — safe journey!') : tr('{0} day{1} to go', [daysTo, daysTo === 1 ? '' : 's'])}
             </p>
           )}
         </div>
@@ -177,16 +178,16 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
           <Card>
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-foreground">Packing checklist</h2>
+                <h2 className="font-semibold text-foreground">{tr('Packing checklist')}</h2>
                 <span className="text-xs text-muted-foreground">
-                  {done}/{trip.checklist.length} packed
+                  {trn(done)}/{trip.checklist.length} {tr('packed')}
                 </span>
               </div>
               <Progress value={trip.checklist.length ? (done / trip.checklist.length) * 100 : 0} className="mt-3 h-2" />
               <div className="mt-4 space-y-5">
                 {groups.map(([group, items]) => (
                   <div key={group}>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group}</p>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{trn(group)}</p>
                     <ul className="space-y-1">
                       {items.map((item) => (
                         <li key={item.id} className="group flex items-center gap-3 rounded-lg px-1 py-1.5">
@@ -195,7 +196,7 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
                             onClick={() =>
                               saveChecklist(trip.checklist.map((c) => (c.id === item.id ? { ...c, done: !c.done } : c)))
                             }
-                            aria-label={item.done ? `Unpack ${item.text}` : `Pack ${item.text}`}
+                            aria-label={item.done ? tr('Unpack {0}', [item.text]) : tr('Pack {0}', [item.text])}
                             className={cn(
                               'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2',
                               item.done ? 'border-brand-sage bg-brand-sage text-white' : 'border-border'
@@ -204,12 +205,12 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
                             {item.done && <Check className="h-3 w-3" strokeWidth={3} />}
                           </button>
                           <span className={cn('flex-1 text-sm', item.done ? 'text-muted-foreground line-through' : 'text-foreground')}>
-                            {item.text}
+                            {tr(item.text)}
                           </span>
                           <button
                             type="button"
                             onClick={() => saveChecklist(trip.checklist.filter((c) => c.id !== item.id))}
-                            aria-label={`Remove ${item.text}`}
+                            aria-label={tr('Remove {0}', [item.text])}
                             className="rounded p-0.5 text-muted-foreground opacity-0 hover:text-destructive group-hover:opacity-100"
                           >
                             <X className="h-3.5 w-3.5" />
@@ -232,7 +233,7 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
                   setNewItem('');
                 }}
               >
-                <Input value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder="Add an item" />
+                <Input value={newItem} onChange={(e) => setNewItem(e.target.value)} placeholder={tr('Add an item')} />
                 <Button type="submit" variant="outline">
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -243,8 +244,8 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
           {trip.notes && (
             <Card>
               <CardContent className="p-5">
-                <h2 className="font-semibold text-foreground">Notes</h2>
-                <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{trip.notes}</p>
+                <h2 className="font-semibold text-foreground">{tr('Notes')}</h2>
+                <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{trn(trip.notes)}</p>
               </CardContent>
             </Card>
           )}
@@ -254,17 +255,17 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
           <Card>
             <CardContent className="p-5">
               <h2 className="flex items-center gap-2 font-semibold text-foreground">
-                <Moon className="h-4 w-4 text-primary" /> Prayer times at your destination
+                <Moon className="h-4 w-4 text-primary" /> {tr('Prayer times at your destination')}
               </h2>
               {prayer ? (
                 <>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    For {prayer.gregorian.weekday}, {prayer.gregorian.date} · local time there
+                    {tr('For')} {trn(prayer.gregorian.weekday)}, {trn(prayer.gregorian.date)} {tr('· local time there')}
                   </p>
                   <ul className="mt-3 divide-y divide-border/70">
                     {PRAYER_ORDER.map((p) => (
                       <li key={p.key} className="flex justify-between py-2 text-sm">
-                        <span className="text-foreground">{p.label}</span>
+                        <span className="text-foreground">{tr(p.label)}</span>
                         <span className="tabular-nums text-muted-foreground">{format12h(prayer.timings[p.key])}</span>
                       </li>
                     ))}
@@ -272,7 +273,7 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
                 </>
               ) : (
                 <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+                  <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading…')}
                 </p>
               )}
             </CardContent>
@@ -287,8 +288,8 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
                   <UtensilsCrossed className="h-5 w-5" />
                 </span>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-foreground">Halal food & mosques there</p>
-                  <p className="text-xs text-muted-foreground">Open Halal Places for {trip.destination_label}</p>
+                  <p className="text-sm font-semibold text-foreground">{tr('Halal food & mosques there')}</p>
+                  <p className="text-xs text-muted-foreground">{tr('Open Halal Places for')} {trn(trip.destination_label)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -298,8 +299,8 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
             <Link href="/dashboard/travel?tab=agencies" className="block">
               <Card className="border-brand-gold/40 bg-brand-gold/10 transition-colors hover:border-brand-gold">
                 <CardContent className="p-5 text-sm">
-                  <p className="font-semibold text-foreground">Find a trusted {meta.label} operator</p>
-                  <p className="mt-1 text-muted-foreground">Compare Firdam-listed operators and send enquiries in one place.</p>
+                  <p className="font-semibold text-foreground">{tr('Find a trusted')} {tr(meta.label)} {tr('operator')}</p>
+                  <p className="mt-1 text-muted-foreground">{tr('Compare Firdam-listed operators and send enquiries in one place.')}</p>
                 </CardContent>
               </Card>
             </Link>
@@ -312,9 +313,9 @@ export function TripDetailPage({ tripId }: { tripId: string }) {
                   <Wallet className="h-5 w-5" />
                 </span>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-foreground">Save for this trip</p>
+                  <p className="text-sm font-semibold text-foreground">{tr('Save for this trip')}</p>
                   <p className="text-xs text-muted-foreground">
-                    {trip.budget ? `Budget ${trip.budget.toLocaleString()}` : 'Create a savings goal in Finance'}
+                    {trip.budget ? tr('Budget {0}', [trip.budget.toLocaleString()]) : tr('Create a savings goal in Finance')}
                   </p>
                 </div>
               </CardContent>

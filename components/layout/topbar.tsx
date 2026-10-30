@@ -23,12 +23,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { LanguageSwitcher } from '@/components/i18n/language-switcher';
 import { Logo } from '@/components/brand/logo';
 import { useAuth } from '@/components/auth/auth-provider';
 import { signOut as signOutService } from '@/lib/auth/auth-service';
 import { createSupabaseBrowserClient as getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { lifeModules } from '@/features/modules/module-config';
+import { tr, trn } from '@/lib/i18n';
 
 function buildDisplayName(user: { user_metadata?: Record<string, unknown>; email?: string } | null): string {
   const meta = user?.user_metadata ?? {};
@@ -113,9 +115,9 @@ function ModuleSearch() {
             setOpen(false);
           }
         }}
-        placeholder="Search Firdam — e.g. halal, zakat, duas"
+        placeholder={tr('Search Firdam — e.g. halal, zakat, duas')}
         className="pl-9"
-        aria-label="Search Firdam"
+        aria-label={tr('Search Firdam')}
       />
       {open && results.length > 0 && (
         <ul className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-popover p-1 shadow-lg">
@@ -129,7 +131,7 @@ function ModuleSearch() {
                   i === active ? 'bg-accent text-foreground' : 'text-foreground hover:bg-accent/60'
                 }`}
               >
-                {r.name}
+                {trn(r.name)}
               </button>
             </li>
           ))}
@@ -162,11 +164,11 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       router.refresh();
     } catch (error) {
       toast({
-        title: 'Sign out failed',
+        title: tr('Sign out failed'),
         description:
           error instanceof Error
             ? error.message
-            : 'Could not sign out. Please try again.',
+            : tr('Could not sign out. Please try again.'),
         variant: 'destructive',
       });
     } finally {
@@ -181,7 +183,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         size="icon"
         className="md:hidden"
         onClick={onMenuClick}
-        aria-label="Open menu"
+        aria-label={tr('Open menu')}
       >
         <Menu className="h-5 w-5" />
       </Button>
@@ -193,11 +195,12 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       <ModuleSearch />
 
       <div className="ml-auto flex items-center gap-1.5">
-        <ThemeToggle />
+        <LanguageSwitcher />
+          <ThemeToggle />
 
         {loading ? null : authenticated ? (
           <>
-            <Button variant="ghost" size="icon" aria-label="Reminders" asChild>
+            <Button variant="ghost" size="icon" aria-label={tr('Reminders')} asChild>
               <Link href="/settings?tab=notifications">
                 <Bell className="h-5 w-5" />
               </Link>
@@ -209,7 +212,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                   <Avatar className="h-8 w-8 border border-border">
                     <AvatarImage alt="" />
                     <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                      {initials}
+                      {trn(initials)}
                     </AvatarFallback>
                   </Avatar>
                 </button>
@@ -217,32 +220,32 @@ export function Topbar({ onMenuClick }: TopbarProps) {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col">
-                    <span className="truncate text-sm font-medium">{displayName}</span>
+                    <span className="truncate text-sm font-medium">{trn(displayName)}</span>
                     <span className="truncate text-xs font-normal text-muted-foreground">
-                      {user?.email ?? 'Not signed in'}
+                      {user?.email ?? tr('Not signed in')}
                     </span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push('/profile')}>
-                  Profile
+                  {tr('Profile')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/settings')}>
-                  Settings
+                  {tr('Settings')}
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <a href={`mailto:${SITE.supportEmail}?subject=${encodeURIComponent('Firdam feedback')}`}>
-                    Send feedback
+                    {tr('Send feedback')}
                   </a>
                 </DropdownMenuItem>
                 {!FREE_LAUNCH && (
                   <DropdownMenuItem onClick={() => router.push('/dashboard/upgrade')}>
-                    Plans &amp; billing
+                    {tr('Plans & billing')}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} disabled={signingOut}>
-                  {signingOut ? 'Signing out…' : 'Sign out'}
+                  {signingOut ? tr('Signing out…') : tr('Sign out')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -250,10 +253,10 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         ) : (
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">
-              <Link href="/auth/login">Sign in</Link>
+              <Link href="/auth/login">{tr('Sign in')}</Link>
             </Button>
             <Button asChild size="sm">
-              <Link href="/auth/register">Sign up</Link>
+              <Link href="/auth/register">{tr('Sign up')}</Link>
             </Button>
           </div>
         )}

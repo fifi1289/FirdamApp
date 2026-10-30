@@ -59,6 +59,7 @@ import {
   GenerateMealPlanError,
   requestGeneratedMealPlan,
 } from '@/features/meals/generate-meal-plan-service';
+import { tr, trn } from '@/lib/i18n';
 
 type View = 'home' | 'preferences' | 'plan';
 
@@ -110,8 +111,8 @@ export function MealsDashboard() {
     if (useAI) {
       if (aiRemaining <= 0) {
         // Out of AI plans: still give them a plan, from the recipe library (free).
-        toast.message(`You've used this month's ${aiLimit} AI chef plans`, {
-          description: 'This plan comes from the recipe library instead — that’s always unlimited.',
+        toast.message(tr('You\'ve used this month\'s {0} AI chef plans', [aiLimit]), {
+          description: tr('This plan comes from the recipe library instead — that’s always unlimited.'),
           action: !isPaid ? { label: 'Upgrade', onClick: () => setUpgradeOpen(true) } : undefined,
         });
         setUseAI(false);
@@ -125,13 +126,13 @@ export function MealsDashboard() {
         if (err instanceof GenerateMealPlanError && (err.status === 402 || err.status === 429)) {
           setAiUsed(aiLimit);
           setUseAI(false);
-          toast.message(`You've used this month's AI chef plans`, {
-            description: 'This plan comes from the recipe library instead — that’s always unlimited.',
+          toast.message(tr('You\'ve used this month\'s AI chef plans'), {
+            description: tr('This plan comes from the recipe library instead — that’s always unlimited.'),
             action: !isPaid ? { label: 'Upgrade', onClick: () => setUpgradeOpen(true) } : undefined,
           });
         } else {
-          toast.message('The AI chef is unavailable right now', {
-            description: 'Building your plan from the recipe library instead.',
+          toast.message(tr('The AI chef is unavailable right now'), {
+            description: tr('Building your plan from the recipe library instead.'),
           });
         }
       }
@@ -300,9 +301,9 @@ export function MealsDashboard() {
       plan = await buildPlan(input);
     } catch (err) {
       setGenerating(false);
-      toast.error('Could not generate meal plan', {
+      toast.error(tr('Could not generate meal plan'), {
         description:
-          err instanceof Error ? err.message : 'No recipes were found to build a plan.',
+          err instanceof Error ? err.message : tr('No recipes were found to build a plan.'),
       });
       return;
     }
@@ -330,9 +331,9 @@ export function MealsDashboard() {
       plan = await buildPlan(input);
     } catch (err) {
       setGenerating(false);
-      toast.error('Could not generate meal plan', {
+      toast.error(tr('Could not generate meal plan'), {
         description:
-          err instanceof Error ? err.message : 'No recipes were found to build a plan.',
+          err instanceof Error ? err.message : tr('No recipes were found to build a plan.'),
       });
       return;
     }
@@ -350,7 +351,7 @@ export function MealsDashboard() {
   const openSavedPlan = async (record: MealPlanRecord) => {
     const plan = await repairPlanIngredients(record.id, normalizePlan(record.plan_data as Record<string, unknown>));
     if (!plan || !Array.isArray(plan.days) || plan.days.length === 0) {
-      toast.error('This meal plan could not be opened.');
+      toast.error(tr('This meal plan could not be opened.'));
       return;
     }
     setGeneratedPlan(plan);
@@ -365,25 +366,25 @@ export function MealsDashboard() {
     const { error } = await supabase.from('meal_plans').delete().eq('id', id);
     setDeleting(false);
     if (error) {
-      toast.error('Could not delete meal plan', { description: error.message });
+      toast.error(tr('Could not delete meal plan'), { description: error.message });
       return;
     }
     setSavedPlans((prev) => prev.filter((p) => p.id !== id));
     setDeleteOpen(false);
     setDeletingPlan(null);
-    toast.success('Meal plan deleted');
+    toast.success(tr('Meal plan deleted'));
   };
 
   if (view === 'preferences' || generating) {
     return (
       <AppShell>
         <PageHeader
-          title="Meal Planner"
-          description="Plan and organize your family's meals."
+          title={tr('Meal Planner')}
+          description={tr('Plan and organize your family\'s meals.')}
         >
           <Button variant="ghost" size="sm" onClick={() => setView('home')} disabled={generating}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+            {tr('Back')}
           </Button>
         </PageHeader>
         {generating ? (
@@ -391,10 +392,10 @@ export function MealsDashboard() {
             <CardContent className="flex flex-col items-center justify-center px-6 py-20 text-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <h3 className="mt-4 text-sm font-semibold text-foreground">
-                Generating your meal plan…
+                {tr('Generating your meal plan…')}
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                This will only take a moment.
+                {tr('This will only take a moment.')}
               </p>
             </CardContent>
           </Card>
@@ -408,19 +409,18 @@ export function MealsDashboard() {
               </span>
               <div>
                 <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
-                  AI chef
+                  {tr('AI chef')}
                   {!isPaid && <PremiumBadge />}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Creates brand-new halal recipes tailored to your family, cuisines and pantry.{' '}
-                  {aiRemaining} of {aiLimit} AI plans left this month — regenerating uses one. Changing a
-                  single meal is free.
+                  {tr('Creates brand-new halal recipes tailored to your family, cuisines and pantry.')}{' '}
+                  {tr('{0} of {1} AI plans left this month — regenerating uses one. Changing a single meal is free.', [aiRemaining, aiLimit])}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Label htmlFor="use-ai" className="text-sm text-muted-foreground">
-                {useAI ? 'On' : 'Off — use recipe library'}
+                {useAI ? tr('On') : tr('Off — use recipe library')}
               </Label>
               <Switch
                 id="use-ai"
@@ -428,7 +428,7 @@ export function MealsDashboard() {
                 onCheckedChange={(v) => {
                   if (v && aiRemaining <= 0) {
                     if (!isPaid) setUpgradeOpen(true);
-                    else toast.message(`You've used this month's ${aiLimit} AI chef plans`, { description: 'They reset on the 1st.' });
+                    else toast.message(tr('You\'ve used this month\'s {0} AI chef plans', [aiLimit]), { description: tr('They reset on the 1st.') });
                     return;
                   }
                   setUseAI(v);
@@ -460,12 +460,12 @@ export function MealsDashboard() {
     return (
       <AppShell>
         <PageHeader
-          title="Meal Planner"
-          description="Plan and organize your family's meals."
+          title={tr('Meal Planner')}
+          description={tr('Plan and organize your family\'s meals.')}
         >
           <Button variant="ghost" size="sm" onClick={handleBackHome}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+            {tr('Back')}
           </Button>
         </PageHeader>
         <MealPlanView
@@ -483,13 +483,13 @@ export function MealsDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Meal Planner"
-        description="Plan your family's halal meals — generate a week in one tap, or pick recipes yourself."
+        title={tr('Meal Planner')}
+        description={tr('Plan your family\'s halal meals — generate a week in one tap, or pick recipes yourself.')}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/recipes">
             <BookOpen className="mr-2 h-4 w-4" />
-            Pick from recipes
+            {tr('Pick from recipes')}
           </Link>
         </Button>
         <Button
@@ -498,7 +498,7 @@ export function MealsDashboard() {
           disabled={loading}
         >
           <Sparkles className="mr-2 h-4 w-4" />
-          Generate New Meal Plan
+          {tr('Generate New Meal Plan')}
         </Button>
       </PageHeader>
 
@@ -528,7 +528,7 @@ export function MealsDashboard() {
           <div className="mb-3 flex items-center gap-2">
             <Utensils className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-sm font-semibold text-foreground">
-              Meal Plans
+              {tr('Meal Plans')}
             </h2>
           </div>
           {loading ? (
@@ -543,9 +543,9 @@ export function MealsDashboard() {
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <CalendarDays className="h-6 w-6" />
                 </span>
-                <h3 className="mt-4 text-sm font-semibold text-foreground">No meal plans yet</h3>
+                <h3 className="mt-4 text-sm font-semibold text-foreground">{tr('No meal plans yet')}</h3>
                 <p className="mt-1.5 max-w-sm text-xs text-muted-foreground">
-                  Generate your first meal plan to start organizing your family's weekly menu.
+                  {tr('Generate your first meal plan to start organizing your family\'s weekly menu.')}
                 </p>
               </CardContent>
             </Card>
@@ -570,7 +570,7 @@ export function MealsDashboard() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-foreground">
-                            {plan.name}
+                            {trn(plan.name)}
                           </p>
                           <p className="mt-0.5 text-xs text-muted-foreground">
                             {(() => {
@@ -596,7 +596,7 @@ export function MealsDashboard() {
                             variant="ghost"
                             size="icon"
                             className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
-                            aria-label="Delete plan"
+                            aria-label={tr('Delete plan')}
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();
@@ -610,10 +610,10 @@ export function MealsDashboard() {
                       </div>
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         <Badge variant="outline" className="text-[10px] font-medium">
-                          {days.length} days
+                          {days.length} {tr('days')}
                         </Badge>
                         <Badge variant="outline" className="text-[10px] font-medium">
-                          {mealCount} meals
+                          {trn(mealCount)} {tr('meals')}
                         </Badge>
                         {mealTypes.map((t) => (
                           <Badge
@@ -637,21 +637,21 @@ export function MealsDashboard() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Meal Plan?</AlertDialogTitle>
+            <AlertDialogTitle>{tr('Delete Meal Plan?')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this meal plan?
+              {tr('Are you sure you want to delete this meal plan?')}
               <br />
-              This action cannot be undone.
+              {tr('This action cannot be undone.')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{tr('Cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeletePlan}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? tr('Deleting…') : tr('Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

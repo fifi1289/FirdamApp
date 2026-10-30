@@ -20,6 +20,7 @@ import {
 } from '@/features/planner/planner-context';
 import { cn } from '@/lib/utils';
 import type { PlannerTask } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 function buildDisplayName(
   user: { user_metadata?: Record<string, unknown>; email?: string } | null
@@ -142,12 +143,12 @@ export function TodaysFocus() {
             <div className="h-9 w-64 animate-pulse rounded-lg bg-muted/60" />
           ) : (
             <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-              {greeting}, {firstName}{' '}
+              {trn(greeting)}, {trn(firstName)}{' '}
               <span className="text-brand-light" aria-hidden>🌿</span>
             </h1>
           )}
           <p className="max-w-xl text-sm text-muted-foreground md:text-base">
-            {subtitle}
+            {trn(subtitle)}
           </p>
         </div>
 
@@ -162,7 +163,7 @@ export function TodaysFocus() {
                 if (v) setSelectedDate(v);
               }}
               className="w-[180px] pl-9 text-sm"
-              aria-label="Select date"
+              aria-label={tr('Select date')}
             />
           </div>
           <NewTaskDialog />
@@ -179,14 +180,14 @@ export function TodaysFocus() {
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-3">
             <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">
-              Today&apos;s Focus
+              {tr('Today\'s Focus')}
             </h2>
             <span className="text-sm text-muted-foreground">
-              {isToday ? 'Top 3 high priorities' : formatDateLongUtil(selectedDate)}
+              {isToday ? tr('Top 3 high priorities') : formatDateLongUtil(selectedDate)}
             </span>
           </div>
           <span className="hidden text-xs font-medium uppercase tracking-wider text-muted-foreground sm:block">
-            {focusTasks.filter((t) => t.completed).length} of {focusTasks.length} done
+            {focusTasks.filter((t) => t.completed).length} {tr('of {0} done', [focusTasks.length])}
           </span>
         </div>
 
@@ -205,10 +206,10 @@ export function TodaysFocus() {
           ) : focusTasks.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 px-6 py-12 text-center">
               <p className="text-sm font-medium text-foreground">
-                No high-priority tasks yet
+                {tr('No high-priority tasks yet')}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Choose up to 3 tasks that matter most today. Focus on what counts.
+                {tr('Choose up to 3 tasks that matter most today. Focus on what counts.')}
               </p>
               <div className="mt-5 flex justify-center">
                 <NewTaskDialog />
@@ -232,13 +233,13 @@ export function TodaysFocus() {
                       badge.ring
                     )}
                   >
-                    {priority}
+                    {trn(priority)}
                   </div>
 
                   <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => toggleTask(task)}
-                    aria-label="Toggle task complete"
+                    aria-label={tr('Toggle task complete')}
                     className="h-5 w-5"
                   />
 
@@ -249,11 +250,11 @@ export function TodaysFocus() {
                         task.completed && 'line-through'
                       )}
                     >
-                      {task.title}
+                      {tr(task.title)}
                     </span>
                     {task.description && (
                       <span className="line-clamp-1 text-xs text-muted-foreground">
-                        {task.description}
+                        {tr(task.description)}
                       </span>
                     )}
                   </div>
@@ -262,7 +263,7 @@ export function TodaysFocus() {
                     variant="outline"
                     className={cn('shrink-0 border text-[11px]', badge.badge)}
                   >
-                    High Priority
+                    {tr('High Priority')}
                   </Badge>
 
                   {task.time && (
@@ -278,11 +279,11 @@ export function TodaysFocus() {
 
         <div className="mt-7 flex items-center justify-between border-t border-border/40 pt-5">
           <p className="text-sm text-muted-foreground">
-            {isToday ? 'Three things. One day. Steady progress.' : 'Focus for this day.'}
+            {isToday ? tr('Three things. One day. Steady progress.') : tr('Focus for this day.')}
           </p>
           <Button asChild variant="link" size="sm" className="h-auto px-0 text-primary">
             <Link href="#tasks">
-              View all tasks
+              {tr('View all tasks')}
               <ArrowRight className="ml-1 h-3.5 w-3.5" />
             </Link>
           </Button>

@@ -20,6 +20,7 @@ import { CookDialog, type CookableRecipe } from '@/features/pantry/cook-dialog';
 import { UsedItemsDialog } from '@/features/pantry/used-items-dialog';
 import type { CookingLog } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { tr, trn } from '@/lib/i18n';
 
 function todayISO() {
   const d = new Date();
@@ -113,7 +114,7 @@ export function TodayCookingCard() {
       recipe_name: m.meal.name,
       plan_ref: m.planRef,
     });
-    if (error) toast.error('Could not save');
+    if (error) toast.error(tr('Could not save'));
     else load();
   };
 
@@ -132,9 +133,9 @@ export function TodayCookingCard() {
               </span>
               <div>
                 <p className="font-semibold text-foreground">
-                  {meals.length === 0 ? 'Cooked today?' : evening && pending.length ? 'Did you cook today’s meals?' : 'Today’s cooking'}
+                  {meals.length === 0 ? tr('Cooked today?') : evening && pending.length ? tr('Did you cook today’s meals?') : tr('Today’s cooking')}
                 </p>
-                <p className="text-xs text-muted-foreground">One tap keeps your pantry up to date.</p>
+                <p className="text-xs text-muted-foreground">{tr('One tap keeps your pantry up to date.')}</p>
               </div>
             </div>
           </div>
@@ -142,10 +143,10 @@ export function TodayCookingCard() {
           {meals.length === 0 ? (
             <div className="flex flex-wrap gap-2">
               <Button size="sm" variant="outline" asChild>
-                <Link href="/dashboard/recipes">I cooked a recipe</Link>
+                <Link href="/dashboard/recipes">{tr('I cooked a recipe')}</Link>
               </Button>
               <Button size="sm" variant="outline" onClick={() => setUsedFor({ planRef: null, mealType: null })}>
-                I cooked something else
+                {tr('I cooked something else')}
               </Button>
             </div>
           ) : (
@@ -156,31 +157,31 @@ export function TodayCookingCard() {
                   <li key={m.planRef} className="flex items-center gap-3 rounded-xl border border-border px-3 py-2">
                     <Utensils className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
-                      <p className={cn('truncate text-sm font-medium', st ? 'text-muted-foreground' : 'text-foreground')}>{m.meal.name}</p>
+                      <p className={cn('truncate text-sm font-medium', st ? 'text-muted-foreground' : 'text-foreground')}>{trn(m.meal.name)}</p>
                       <p className="text-xs text-muted-foreground">
                         {getMealTypeLabel(m.meal.type)}
-                        {st === 'cooked' && ' · cooked ✓'}
-                        {st === 'other' && ' · cooked something else ✓'}
-                        {st === 'skipped' && ' · not cooked'}
+                        {st === 'cooked' && tr(' · cooked ✓')}
+                        {st === 'other' && tr(' · cooked something else ✓')}
+                        {st === 'skipped' && tr(' · not cooked')}
                       </p>
                     </div>
                     {!st && (
                       <div className="flex shrink-0 items-center gap-1">
                         <Button size="sm" onClick={() => setCooking({ recipe: toCookable(m.meal), planRef: m.planRef, mealType: m.meal.type })}>
-                          <Check className="mr-1.5 h-4 w-4" /> Cooked it
+                          <Check className="mr-1.5 h-4 w-4" /> {tr('Cooked it')}
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Other options">
+                            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label={tr('Other options')}>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onSelect={() => setUsedFor({ planRef: m.planRef, mealType: m.meal.type })}>
-                              <ChefHat className="mr-2 h-4 w-4" /> I cooked something else
+                              <ChefHat className="mr-2 h-4 w-4" /> {tr('I cooked something else')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => skip(m)}>
-                              <X className="mr-2 h-4 w-4" /> We didn’t cook (ate out, leftovers)
+                              <X className="mr-2 h-4 w-4" /> {tr('We didn’t cook (ate out, leftovers)')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -198,15 +199,15 @@ export function TodayCookingCard() {
         <div className="mt-3 space-y-1.5 text-sm">
           {useSoon.length > 0 && (
             <Link href="/dashboard/recipes?tab=cook" className="block rounded-xl bg-amber-500/10 px-4 py-2.5 text-foreground hover:bg-amber-500/15">
-              <span className="font-medium">Use soon:</span>{' '}
+              <span className="font-medium">{tr('Use soon:')}</span>{' '}
               {useSoon.map((u) => `${u.name} (${u.days === 0 ? 'today' : u.days === 1 ? 'tomorrow' : `${u.days} days`})`).join(', ')}
-              <span className="text-primary"> → recipes that use them</span>
+              <span className="text-primary"> {tr('→ recipes that use them')}</span>
             </Link>
           )}
           {lowStaples.length > 0 && (
             <Link href="/dashboard/shopping" className="block rounded-xl bg-muted px-4 py-2.5 text-foreground hover:bg-muted/80">
-              <span className="font-medium">Running low:</span> {lowStaples.slice(0, 5).join(', ')}
-              <span className="text-primary"> → add to shopping</span>
+              <span className="font-medium">{tr('Running low:')}</span> {lowStaples.slice(0, 5).join(', ')}
+              <span className="text-primary"> {tr('→ add to shopping')}</span>
             </Link>
           )}
         </div>
@@ -219,8 +220,8 @@ export function TodayCookingCard() {
         >
           <ClipboardCheck className="h-5 w-5 shrink-0 text-[#7a5a30] dark:text-brand-gold" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">Weekly pantry check</p>
-            <p className="text-xs text-muted-foreground">2 minutes: tap what you still have so suggestions stay accurate.</p>
+            <p className="text-sm font-semibold text-foreground">{tr('Weekly pantry check')}</p>
+            <p className="text-xs text-muted-foreground">{tr('2 minutes: tap what you still have so suggestions stay accurate.')}</p>
           </div>
         </Link>
       )}

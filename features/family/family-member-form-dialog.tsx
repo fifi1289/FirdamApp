@@ -28,6 +28,7 @@ import {
   type FamilyMember,
   type FamilyRelationship,
 } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 export interface FamilyMemberFormValues {
   first_name: string;
@@ -97,7 +98,7 @@ export function FamilyMemberFormDialog({
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       setSubmitting(false);
-      toast.error('Your session has expired. Please sign in again.');
+      toast.error(tr('Your session has expired. Please sign in again.'));
       return;
     }
 
@@ -108,13 +109,13 @@ export function FamilyMemberFormDialog({
 
     if (result.error) {
       toast.error(
-        isEdit ? 'Could not update member' : 'Could not add member',
+        isEdit ? tr('Could not update member') : tr('Could not add member'),
         { description: result.error.message }
       );
       return;
     }
     onOpenChange(false);
-    toast.success(isEdit ? 'Member updated' : 'Member added to family');
+    toast.success(isEdit ? tr('Member updated') : tr('Member added to family'));
     window.dispatchEvent(new Event(FAMILY_MEMBERS_CHANGED));
   };
 
@@ -123,45 +124,45 @@ export function FamilyMemberFormDialog({
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Edit member' : 'Add family member'}</DialogTitle>
+            <DialogTitle>{isEdit ? tr('Edit member') : tr('Add family member')}</DialogTitle>
             <DialogDescription>
               {isEdit
-                ? 'Update the details of this household member.'
-                : 'Add someone to your household to keep track of them in one place.'}
+                ? tr('Update the details of this household member.')
+                : tr('Add someone to your household to keep track of them in one place.')}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="member-first-name">First name</Label>
+              <Label htmlFor="member-first-name">{tr('First name')}</Label>
               <Input
                 id="member-first-name"
                 value={values.first_name}
                 onChange={(e) => update({ first_name: e.target.value })}
-                placeholder="e.g. Aisha"
+                placeholder={tr('e.g. Aisha')}
                 autoFocus
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="member-relationship">Relationship</Label>
+              <Label htmlFor="member-relationship">{tr('Relationship')}</Label>
               <Select
                 value={values.relationship}
                 onValueChange={(v) => update({ relationship: v as FamilyRelationship })}
               >
                 <SelectTrigger id="member-relationship">
-                  <SelectValue placeholder="Select a relationship" />
+                  <SelectValue placeholder={tr('Select a relationship')} />
                 </SelectTrigger>
                 <SelectContent>
                   {FAMILY_RELATIONSHIPS.map((r) => (
                     <SelectItem key={r} value={r}>
-                      {r}
+                      {trn(r)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="member-birth-date">Birth date (optional)</Label>
+              <Label htmlFor="member-birth-date">{tr('Birth date (optional)')}</Label>
               <Input
                 id="member-birth-date"
                 type="date"
@@ -169,16 +170,16 @@ export function FamilyMemberFormDialog({
                 onChange={(e) => update({ birth_date: e.target.value })}
               />
               <p className="text-xs text-muted-foreground">
-                We&apos;ll automatically calculate their age from this date.
+                {tr('We\'ll automatically calculate their age from this date.')}
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="member-notes">Notes (optional)</Label>
+              <Label htmlFor="member-notes">{tr('Notes (optional)')}</Label>
               <Textarea
                 id="member-notes"
                 value={values.notes}
                 onChange={(e) => update({ notes: e.target.value })}
-                placeholder="Add any details about this member"
+                placeholder={tr('Add any details about this member')}
                 rows={2}
               />
             </div>
@@ -190,16 +191,16 @@ export function FamilyMemberFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              {tr('Cancel')}
             </Button>
             <Button type="submit" disabled={submitting || !values.first_name.trim()}>
               {submitting
                 ? isEdit
-                  ? 'Saving…'
-                  : 'Adding…'
+                  ? tr('Saving…')
+                  : tr('Adding…')
                 : isEdit
-                ? 'Save changes'
-                : 'Add member'}
+                ? tr('Save changes')
+                : tr('Add member')}
             </Button>
           </DialogFooter>
         </form>

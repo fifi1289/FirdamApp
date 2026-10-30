@@ -17,6 +17,7 @@ import {
   type Dua,
   type DuaCategory,
 } from '@/features/quran/duas';
+import { tr, trn } from '@/lib/i18n';
 
 const FAVOURITES_KEY = 'firdam.duas.favourites';
 
@@ -67,7 +68,7 @@ export function DuaCard({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast.error('Could not copy');
+      toast.error(tr('Could not copy'));
     }
   };
 
@@ -76,9 +77,9 @@ export function DuaCard({
       <CardContent className={cn('p-5', featured && 'bg-girih')}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-semibold text-foreground">{dua.title}</p>
+            <p className="font-semibold text-foreground">{tr(dua.title)}</p>
             <p className="text-xs text-muted-foreground">
-              {dua.category}
+              {trn(dua.category)}
               {dua.repeat ? ` · ${dua.repeat}` : ''}
             </p>
           </div>
@@ -86,7 +87,7 @@ export function DuaCard({
             <button
               type="button"
               onClick={copy}
-              aria-label="Copy dua"
+              aria-label={tr('Copy dua')}
               className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               {copied ? <Check className="h-4 w-4 text-brand-sage" /> : <Copy className="h-4 w-4" />}
@@ -95,7 +96,7 @@ export function DuaCard({
               <button
                 type="button"
                 onClick={onToggleFavourite}
-                aria-label={favourite ? 'Remove from favourites' : 'Add to favourites'}
+                aria-label={favourite ? tr('Remove from favourites') : tr('Add to favourites')}
                 className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 <Heart className={cn('h-4 w-4', favourite && 'fill-destructive text-destructive')} />
@@ -111,13 +112,13 @@ export function DuaCard({
             featured ? 'text-2xl md:text-3xl' : 'text-xl'
           )}
         >
-          {dua.arabic}
+          {trn(dua.arabic)}
         </p>
         {showTransliteration && (
-          <p className="mt-3 text-sm italic text-primary">{dua.transliteration}</p>
+          <p className="mt-3 text-sm italic text-primary">{trn(dua.transliteration)}</p>
         )}
-        <p className="mt-2 text-sm leading-relaxed text-foreground/85">{dua.translation}</p>
-        <p className="mt-3 text-xs text-muted-foreground">{dua.source}</p>
+        <p className="mt-2 text-sm leading-relaxed text-foreground/85">{trn(dua.translation)}</p>
+        <p className="mt-3 text-xs text-muted-foreground">{trn(dua.source)}</p>
       </CardContent>
     </Card>
   );
@@ -143,7 +144,7 @@ export function DuasView() {
       <div>
         <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-primary">
           <Sparkles className="h-3.5 w-3.5" />
-          Dua of the day
+          {tr('Dua of the day')}
         </p>
         <DuaCard
           dua={today}
@@ -160,15 +161,15 @@ export function DuasView() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search duas (e.g. travel, parents, sleep)"
+            placeholder={tr('Search duas (e.g. travel, parents, sleep)')}
             className="pl-9"
-            aria-label="Search duas"
+            aria-label={tr('Search duas')}
           />
         </div>
         <div className="flex items-center gap-2">
           <Switch id="translit" checked={showTranslit} onCheckedChange={setShowTranslit} />
           <Label htmlFor="translit" className="text-sm text-muted-foreground">
-            Show transliteration
+            {tr('Show transliteration')}
           </Label>
         </div>
       </div>
@@ -186,7 +187,7 @@ export function DuasView() {
                 : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
             )}
           >
-            {c.label}
+            {tr(c.label)}
           </button>
         ))}
       </div>
@@ -194,8 +195,8 @@ export function DuasView() {
       {visible.length === 0 ? (
         <p className="py-12 text-center text-sm text-muted-foreground">
           {category === 'favourites'
-            ? 'Tap the heart on any dua to keep it here.'
-            : 'No duas match your search.'}
+            ? tr('Tap the heart on any dua to keep it here.')
+            : tr('No duas match your search.')}
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

@@ -28,6 +28,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { SavedLocation } from '@/lib/geo/location';
 import type { Trip, TripKind } from '@/types/database';
 import { TRIP_KINDS, defaultChecklist } from '@/features/travel/travel-config';
+import { tr } from '@/lib/i18n';
 
 export function TripFormDialog({
   open,
@@ -76,8 +77,8 @@ export function TripFormDialog({
   }, [open, trip]);
 
   const save = async () => {
-    if (!dest) return toast.error('Choose your destination.');
-    if (start && end && end < start) return toast.error('The return date is before the departure date.');
+    if (!dest) return toast.error(tr('Choose your destination.'));
+    if (start && end && end < start) return toast.error(tr('The return date is before the departure date.'));
     const people = Math.max(1, Math.min(50, Number(travellers) || 1));
     const row = {
       name: name.trim() || `${TRIP_KINDS[kind].label} — ${dest.name || dest.label}`,
@@ -106,7 +107,7 @@ export function TripFormDialog({
           .single();
     setSaving(false);
     if (result.error) {
-      toast.error('Could not save trip', { description: result.error.message });
+      toast.error(tr('Could not save trip'), { description: result.error.message });
       return;
     }
     onOpenChange(false);
@@ -117,15 +118,15 @@ export function TripFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{trip ? 'Edit trip' : 'Plan a trip'}</DialogTitle>
+          <DialogTitle>{trip ? tr('Edit trip') : tr('Plan a trip')}</DialogTitle>
           <DialogDescription>
-            We’ll prepare prayer times, the Qibla, halal food and a packing list for your destination.
+            {tr('We’ll prepare prayer times, the Qibla, halal food and a packing list for your destination.')}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Type of trip</Label>
+              <Label>{tr('Type of trip')}</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as TripKind)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -133,56 +134,56 @@ export function TripFormDialog({
                 <SelectContent>
                   {(Object.keys(TRIP_KINDS) as TripKind[]).map((k) => (
                     <SelectItem key={k} value={k}>
-                      {TRIP_KINDS[k].label}
+                      {tr(TRIP_KINDS[k].label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="t-trav">Travellers</Label>
+              <Label htmlFor="t-trav">{tr('Travellers')}</Label>
               <Input id="t-trav" inputMode="numeric" value={travellers} onChange={(e) => setTravellers(e.target.value)} />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>Destination</Label>
+            <Label>{tr('Destination')}</Label>
             <LocationPicker
               value={dest}
               onChange={setDest}
               hideLocateButton
-              placeholder={kind === 'umrah' || kind === 'hajj' ? 'Makkah' : 'Search a city — e.g. Istanbul'}
+              placeholder={kind === 'umrah' || kind === 'hajj' ? tr('Makkah') : tr('Search a city — e.g. Istanbul')}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-name">Trip name (optional)</Label>
-            <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Family Umrah 2027" />
+            <Label htmlFor="t-name">{tr('Trip name (optional)')}</Label>
+            <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={tr('e.g. Family Umrah 2027')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="t-start">Departure</Label>
+              <Label htmlFor="t-start">{tr('Departure')}</Label>
               <Input id="t-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="t-end">Return</Label>
+              <Label htmlFor="t-end">{tr('Return')}</Label>
               <Input id="t-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-budget">Budget (optional)</Label>
+            <Label htmlFor="t-budget">{tr('Budget (optional)')}</Label>
             <Input id="t-budget" inputMode="decimal" value={budget} onChange={(e) => setBudget(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-notes">Notes</Label>
-            <Textarea id="t-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Hotel, flight numbers, people to visit…" />
+            <Label htmlFor="t-notes">{tr('Notes')}</Label>
+            <Textarea id="t-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder={tr('Hotel, flight numbers, people to visit…')} />
           </div>
         </div>
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {trip ? 'Save' : 'Create trip'}
+            {trip ? tr('Save') : tr('Create trip')}
           </Button>
         </DialogFooter>
       </DialogContent>

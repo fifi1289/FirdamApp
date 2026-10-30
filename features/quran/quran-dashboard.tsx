@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DuasView } from '@/features/quran/duas-view';
 import { QuranReading } from '@/features/quran/quran-reading';
+import { tr } from '@/lib/i18n';
 
 export function QuranDashboard() {
   const [tab, setTab] = useState('duas');
@@ -20,13 +21,13 @@ export function QuranDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Quran & Duas"
-        description="Duas for every moment of the day, and a gentle tracker for your Quran reading."
+        title={tr('Quran & Duas')}
+        description={tr('Duas for every moment of the day, and a gentle tracker for your Quran reading.')}
       />
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-5">
-          <TabsTrigger value="duas">Daily duas</TabsTrigger>
-          <TabsTrigger value="reading">Quran reading</TabsTrigger>
+          <TabsTrigger value="duas">{tr('Daily duas')}</TabsTrigger>
+          <TabsTrigger value="reading">{tr('Quran reading')}</TabsTrigger>
         </TabsList>
         <TabsContent value="duas" className="mt-0">
           <DuasView />

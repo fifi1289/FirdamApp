@@ -5,6 +5,7 @@ import { Globe } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { ALL_COUNTRIES, countryFromLocale, countryName, normalizeCountry, partnerCountryOptions, type PartnerShop } from '@/features/groceries/partners';
+import { tr } from '@/lib/i18n';
 
 /**
  * Which country's partners a family sees. Home = where they are (Cloudflare's
@@ -65,7 +66,7 @@ export function PartnerCountryPicker({ shops, className }: { shops: PartnerShop[
   return (
     <label className={cn('inline-flex flex-wrap items-center gap-2 text-sm text-muted-foreground', className)}>
       <Globe className="h-4 w-4 text-primary" aria-hidden />
-      Showing partners for
+      {tr('Showing partners for')}
       <select
         value={viewing ?? ALL_COUNTRIES}
         onChange={(e) => setViewing(e.target.value)}
@@ -73,11 +74,11 @@ export function PartnerCountryPicker({ shops, className }: { shops: PartnerShop[
       >
         {options.map((c) => (
           <option key={c} value={c}>
-            {countryName(c)}
-            {c === home ? ' (you)' : ''}
+            {tr(countryName(c))}
+            {c === home ? tr(' (you)') : ''}
           </option>
         ))}
-        <option value={ALL_COUNTRIES}>All countries</option>
+        <option value={ALL_COUNTRIES}>{tr('All countries')}</option>
       </select>
     </label>
   );

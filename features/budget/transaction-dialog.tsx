@@ -26,6 +26,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import type { BudgetCategory, BudgetTransaction, TransactionType } from '@/types/database';
 import { TRANSACTION_TYPES, todayISO } from '@/features/budget/budget-config';
+import { tr, trn } from '@/lib/i18n';
 
 interface TransactionDialogProps {
   open: boolean;
@@ -69,7 +70,7 @@ export function TransactionDialog({
   const save = async () => {
     const value = Number(amount.replace(',', '.'));
     if (!Number.isFinite(value) || value <= 0) {
-      toast.error('Enter an amount greater than zero.');
+      toast.error(tr('Enter an amount greater than zero.'));
       return;
     }
     const row = {
@@ -85,15 +86,15 @@ export function TransactionDialog({
       : await supabase.from('budget_transactions').insert(row);
     setSaving(false);
     if (error) {
-      toast.error('Could not save', { description: error.message });
+      toast.error(tr('Could not save'), { description: error.message });
       return;
     }
     toast.success(
       type === 'sadaqah' || type === 'zakat'
-        ? 'Recorded. May Allah accept it from you.'
+        ? tr('Recorded. May Allah accept it from you.')
         : editing
-          ? 'Entry updated'
-          : 'Entry added'
+          ? tr('Entry updated')
+          : tr('Entry added')
     );
     onSaved();
     onOpenChange(false);
@@ -103,8 +104,8 @@ export function TransactionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{editing ? 'Edit entry' : 'Add an entry'}</DialogTitle>
-          <DialogDescription>Track spending, income and giving in {currency}.</DialogDescription>
+          <DialogTitle>{editing ? tr('Edit entry') : tr('Add an entry')}</DialogTitle>
+          <DialogDescription>{tr('Track spending, income and giving in')} {trn(currency)}.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -121,17 +122,17 @@ export function TransactionDialog({
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                {t.label}
+                {tr(t.label)}
               </button>
             ))}
           </div>
           <p className="-mt-2 text-xs text-muted-foreground">
-            {TRANSACTION_TYPES.find((t) => t.value === type)?.hint}
+            {tr(TRANSACTION_TYPES.find((t) => t.value === type)?.hint)}
           </p>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="tx-amount">Amount</Label>
+              <Label htmlFor="tx-amount">{tr('Amount')}</Label>
               <Input
                 id="tx-amount"
                 inputMode="decimal"
@@ -142,23 +143,23 @@ export function TransactionDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="tx-date">Date</Label>
+              <Label htmlFor="tx-date">{tr('Date')}</Label>
               <Input id="tx-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
           </div>
 
           {type === 'expense' && (
             <div className="space-y-1.5">
-              <Label>Category</Label>
+              <Label>{tr('Category')}</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a category" />
+                  <SelectValue placeholder={tr('Choose a category')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_CATEGORY}>Uncategorised</SelectItem>
+                  <SelectItem value={NO_CATEGORY}>{tr('Uncategorised')}</SelectItem>
                   {categories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {c.name}
+                      {trn(c.name)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -167,19 +168,19 @@ export function TransactionDialog({
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="tx-desc">Note (optional)</Label>
+            <Label htmlFor="tx-desc">{tr('Note (optional)')}</Label>
             <Input
               id="tx-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={
                 type === 'sadaqah'
-                  ? 'e.g. Masjid building fund'
+                  ? tr('e.g. Masjid building fund')
                   : type === 'zakat'
-                    ? 'e.g. Zakat 1448 AH'
+                    ? tr('e.g. Zakat 1448 AH')
                     : type === 'income'
-                      ? 'e.g. Salary'
-                      : 'e.g. Halal butcher'
+                      ? tr('e.g. Salary')
+                      : tr('e.g. Halal butcher')
               }
               maxLength={200}
             />
@@ -188,11 +189,11 @@ export function TransactionDialog({
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {editing ? 'Save changes' : 'Add'}
+            {editing ? tr('Save changes') : tr('Add')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -10,6 +10,7 @@ import { restockSuggestions, type RestockSuggestion } from '@/lib/pantry/habits'
 import { formatAmount } from '@/lib/pantry/units';
 import { setStapleLevel } from '@/features/pantry/pantry-tools';
 import { cn } from '@/lib/utils';
+import { tr, trn } from '@/lib/i18n';
 
 const DISMISS_KEY = 'firdam.restock.dismissed';
 
@@ -73,9 +74,9 @@ export function RestockSuggestions({
     try {
       await onAdd(list.map((s) => ({ name: s.name, quantity: s.kind === 'due' ? s.quantity : null, unit: s.kind === 'due' ? s.unit : null })));
       setItems((cur) => (cur ?? []).filter((x) => !list.includes(x)));
-      toast.success(`Added ${list.length} item${list.length === 1 ? '' : 's'}`);
+      toast.success(tr('Added {0} item{1}', [list.length, list.length === 1 ? '' : 's']));
     } catch {
-      toast.error('Could not add');
+      toast.error(tr('Could not add'));
     } finally {
       setBusy(null);
     }
@@ -89,12 +90,12 @@ export function RestockSuggestions({
       <CardContent className="space-y-3 p-4">
         <div className="flex items-center justify-between gap-2">
           <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Lightbulb className="h-4 w-4 text-[#7a5a30] dark:text-brand-gold" /> Suggested for your next shop
+            <Lightbulb className="h-4 w-4 text-[#7a5a30] dark:text-brand-gold" /> {tr('Suggested for your next shop')}
           </p>
           {addable.length > 1 && (
             <Button size="sm" variant="outline" disabled={disabled || busy !== null} onClick={() => add(addable)}>
               {busy === '*' ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Plus className="mr-1.5 h-3.5 w-3.5" />}
-              Add all {addable.length}
+              {tr('Add all')} {addable.length}
             </Button>
           )}
         </div>
@@ -102,7 +103,7 @@ export function RestockSuggestions({
           {items.map((s) => (
             <li key={s.name} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/60 px-3 py-1.5 text-sm">
               <span className="min-w-0">
-                <span className="font-medium text-foreground">{s.name}</span>
+                <span className="font-medium text-foreground">{trn(s.name)}</span>
                 {s.kind === 'due' && s.quantity != null && (
                   <span className="text-muted-foreground"> · {formatAmount(s.quantity, s.unit)}</span>
                 )}
@@ -112,7 +113,7 @@ export function RestockSuggestions({
                     s.kind === 'out' ? 'text-destructive' : s.kind === 'low' ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'
                   )}
                 >
-                  {s.kind === 'check' ? `Getting low? (${s.reason})` : s.reason}
+                  {s.kind === 'check' ? tr('Getting low? ({0})', [s.reason]) : trn(s.reason)}
                 </span>
               </span>
               <span className="flex shrink-0 gap-1">
@@ -128,10 +129,10 @@ export function RestockSuggestions({
                       }}
                       disabled={disabled}
                     >
-                      Yes, add
+                      {tr('Yes, add')}
                     </Button>
                     <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => hide(s)}>
-                      <Check className="mr-1 h-3.5 w-3.5" /> Still fine
+                      <Check className="mr-1 h-3.5 w-3.5" /> {tr('Still fine')}
                     </Button>
                   </>
                 ) : (
@@ -139,8 +140,8 @@ export function RestockSuggestions({
                     <Button size="sm" variant="ghost" className="h-7 px-2" disabled={disabled || busy !== null} onClick={() => add([s])}>
                       {busy === s.name ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 px-2 text-muted-foreground" onClick={() => hide(s)} aria-label={`Not now: ${s.name}`}>
-                      Not now
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-muted-foreground" onClick={() => hide(s)} aria-label={tr('Not now: {0}', [s.name])}>
+                      {tr('Not now')}
                     </Button>
                   </>
                 )}

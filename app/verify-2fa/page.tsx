@@ -9,6 +9,7 @@ import { AuthShell } from '@/components/auth/auth-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { tr } from '@/lib/i18n';
 
 export default function Verify2faPage() {
   return (
@@ -32,7 +33,7 @@ function Verify2fa() {
     e.preventDefault();
     const clean = code.replace(/\D/g, '');
     if (clean.length !== 6) {
-      toast.error('Enter the 6-digit code from your authenticator app.');
+      toast.error(tr('Enter the 6-digit code from your authenticator app.'));
       return;
     }
     setBusy(true);
@@ -50,7 +51,7 @@ function Verify2fa() {
       await supabase.auth.getSession();
       router.replace(safeRedirect);
     } catch {
-      toast.error('That code didn’t work. Check the time on your phone and try the newest code.');
+      toast.error(tr('That code didn’t work. Check the time on your phone and try the newest code.'));
       setCode('');
     } finally {
       setBusy(false);
@@ -63,7 +64,7 @@ function Verify2fa() {
   };
 
   return (
-    <AuthShell title="Two-step verification" description="Enter the 6-digit code from your authenticator app.">
+    <AuthShell title={tr('Two-step verification')} description={tr('Enter the 6-digit code from your authenticator app.')}>
       <form className="space-y-4" onSubmit={verify}>
         <div className="flex justify-center">
           <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -79,16 +80,16 @@ function Verify2fa() {
           className="text-center text-lg tracking-[0.3em]"
           maxLength={7}
           autoFocus
-          aria-label="6-digit code"
+          aria-label={tr('6-digit code')}
         />
         <Button type="submit" className="w-full" size="lg" disabled={busy}>
           {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Verify
+          {tr('Verify')}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Lost your phone? Email the Firdam team from your account’s email address to recover access.{' '}
+          {tr('Lost your phone? Email the Firdam team from your account’s email address to recover access.')}{' '}
           <button type="button" onClick={signOut} className="text-primary hover:underline">
-            Sign out
+            {tr('Sign out')}
           </button>
         </p>
       </form>

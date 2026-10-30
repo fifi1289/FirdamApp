@@ -16,6 +16,7 @@ import {
   getAuthErrorMessage,
 } from '@/lib/auth/auth-service';
 import { emailSchema } from '@/lib/auth/validation';
+import { tr, trn } from '@/lib/i18n';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState('');
@@ -36,7 +37,7 @@ export default function ForgotPasswordPage() {
     }
 
     if (TURNSTILE_SITE_KEY && !captcha) {
-      toast.message('One moment — we’re checking you’re not a bot.');
+      toast.message(tr('One moment — we’re checking you’re not a bot.'));
       return;
     }
 
@@ -45,7 +46,7 @@ export default function ForgotPasswordPage() {
       const supabase = createSupabaseBrowserClient();
       await requestPasswordReset(supabase, email, captcha);
       setSent(true);
-      toast.success('Reset link sent. Check your inbox.');
+      toast.success(tr('Reset link sent. Check your inbox.'));
     } catch (err) {
       setError(getAuthErrorMessage(err));
       setCaptchaReset((n) => n + 1);
@@ -56,8 +57,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Forgot password"
-      description="Enter your email and we'll send you a link to reset your password."
+      title={tr('Forgot password')}
+      description={tr('Enter your email and we\'ll send you a link to reset your password.')}
     >
       {sent ? (
         <div className="space-y-6">
@@ -66,30 +67,29 @@ export default function ForgotPasswordPage() {
               <CheckCircle2 className="h-7 w-7 text-primary" />
             </span>
             <h2 className="font-display text-lg font-semibold text-foreground">
-              Check your email
+              {tr('Check your email')}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              If an account exists for <strong>{email}</strong>, you&apos;ll
-              receive a reset link shortly. Click it to choose a new password.
+              {tr('If an account exists for')} <strong>{trn(email)}</strong>{tr(', you\'ll receive a reset link shortly. Click it to choose a new password.')}
             </p>
           </div>
           <Button asChild variant="outline" className="w-full" size="lg">
             <Link href="/auth/login">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to sign in
+              {tr('Back to sign in')}
             </Link>
           </Button>
         </div>
       ) : (
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{tr('Email')}</Label>
             <div className="relative">
               <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={tr('you@example.com')}
                 className="pl-9"
                 autoComplete="email"
                 required
@@ -98,7 +98,7 @@ export default function ForgotPasswordPage() {
                 aria-invalid={!!error}
               />
             </div>
-            {error && <p className="text-xs text-destructive">{error}</p>}
+            {error && <p className="text-xs text-destructive">{trn(error)}</p>}
           </div>
 
           <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
@@ -107,23 +107,23 @@ export default function ForgotPasswordPage() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending reset link…
+                {tr('Sending reset link…')}
               </>
             ) : (
               <>
-                Send reset link
+                {tr('Send reset link')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </>
             )}
           </Button>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Remembered your password?{' '}
+            {tr('Remembered your password?')}{' '}
             <Link
               href="/auth/login"
               className="font-medium text-primary hover:underline"
             >
-              Sign in
+              {tr('Sign in')}
             </Link>
           </p>
         </form>

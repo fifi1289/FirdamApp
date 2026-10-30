@@ -34,6 +34,7 @@ import {
   type PantryUnit,
 } from '@/types/database';
 import type { PantryItem } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 export interface PantryItemFormValues {
   name: string;
@@ -120,7 +121,7 @@ export function PantryItemFormDialog({
     // Halal only (the database refuses haram food too).
     const notHalal = haramItemMessage(payload.name);
     if (notHalal) {
-      toast.error('Not added', { description: notHalal });
+      toast.error(tr('Not added'), { description: notHalal });
       return;
     }
 
@@ -129,7 +130,7 @@ export function PantryItemFormDialog({
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       setSubmitting(false);
-      toast.error('Your session has expired. Please sign in again.');
+      toast.error(tr('Your session has expired. Please sign in again.'));
       return;
     }
 
@@ -140,56 +141,56 @@ export function PantryItemFormDialog({
 
     if (result.error) {
       toast.error(
-        isEdit ? 'Could not update item' : 'Could not create item',
+        isEdit ? tr('Could not update item') : tr('Could not create item'),
         { description: result.error.message }
       );
       return;
     }
     onOpenChange(false);
-    toast.success(isEdit ? 'Item updated' : 'Item added to pantry');
+    toast.success(isEdit ? tr('Item updated') : tr('Item added to pantry'));
     window.dispatchEvent(new Event(PANTRY_ITEMS_CHANGED));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {trigger && <DialogTrigger asChild>{trn(trigger)}</DialogTrigger>}
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Edit item' : 'Add pantry item'}</DialogTitle>
+            <DialogTitle>{isEdit ? tr('Edit item') : tr('Add pantry item')}</DialogTitle>
             <DialogDescription>
               {isEdit
-                ? 'Update the details of this pantry item.'
-                : 'Track an item in your household food inventory.'}
+                ? tr('Update the details of this pantry item.')
+                : tr('Track an item in your household food inventory.')}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="pantry-name">Item name</Label>
+              <Label htmlFor="pantry-name">{tr('Item name')}</Label>
               <Input
                 id="pantry-name"
                 value={values.name}
                 onChange={(e) =>
                   update(isEdit ? { name: e.target.value } : { name: e.target.value, staple: isStapleFood(e.target.value) })
                 }
-                placeholder="e.g. Whole wheat bread"
+                placeholder={tr('e.g. Whole wheat bread')}
                 autoFocus
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pantry-category">Category</Label>
+              <Label htmlFor="pantry-category">{tr('Category')}</Label>
               <Select
                 value={values.category}
                 onValueChange={(v) => update({ category: v as PantryCategory })}
               >
                 <SelectTrigger id="pantry-category">
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder={tr('Select a category')} />
                 </SelectTrigger>
                 <SelectContent>
                   {PANTRY_CATEGORIES.map((c) => (
                     <SelectItem key={c} value={c}>
-                      {c}
+                      {trn(c)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -198,15 +199,15 @@ export function PantryItemFormDialog({
             <label className="flex items-start gap-3 rounded-xl bg-muted/60 px-3 py-2.5">
               <Switch checked={values.staple} onCheckedChange={(v) => update({ staple: v })} className="mt-0.5" />
               <span className="text-sm">
-                <span className="font-medium text-foreground">Cupboard staple</span>
+                <span className="font-medium text-foreground">{tr('Cupboard staple')}</span>
                 <span className="block text-xs text-muted-foreground">
-                  For rice, flour, oil, spices… Just mark it Full, Half, Low or Out — no weighing.
+                  {tr('For rice, flour, oil, spices… Just mark it Full, Half, Low or Out — no weighing.')}
                 </span>
               </span>
             </label>
             <div className={values.staple ? 'hidden' : 'grid grid-cols-2 gap-3'}>
               <div className="space-y-2">
-                <Label htmlFor="pantry-quantity">Quantity</Label>
+                <Label htmlFor="pantry-quantity">{tr('Quantity')}</Label>
                 <Input
                   id="pantry-quantity"
                   type="number"
@@ -218,18 +219,18 @@ export function PantryItemFormDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pantry-unit">Unit</Label>
+                <Label htmlFor="pantry-unit">{tr('Unit')}</Label>
                 <Select
                   value={values.unit}
                   onValueChange={(v) => update({ unit: v as PantryUnit })}
                 >
                   <SelectTrigger id="pantry-unit">
-                    <SelectValue placeholder="Select a unit" />
+                    <SelectValue placeholder={tr('Select a unit')} />
                   </SelectTrigger>
                   <SelectContent>
                     {PANTRY_UNITS.map((u) => (
                       <SelectItem key={u} value={u}>
-                        {u}
+                        {trn(u)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -238,7 +239,7 @@ export function PantryItemFormDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="pantry-expiration">
-                Expiration date (optional)
+                {tr('Expiration date (optional)')}
               </Label>
               <Input
                 id="pantry-expiration"
@@ -248,12 +249,12 @@ export function PantryItemFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pantry-notes">Notes (optional)</Label>
+              <Label htmlFor="pantry-notes">{tr('Notes (optional)')}</Label>
               <Textarea
                 id="pantry-notes"
                 value={values.notes}
                 onChange={(e) => update({ notes: e.target.value })}
-                placeholder="Add any details about this item"
+                placeholder={tr('Add any details about this item')}
                 rows={2}
               />
             </div>
@@ -265,16 +266,16 @@ export function PantryItemFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              {tr('Cancel')}
             </Button>
             <Button type="submit" disabled={submitting || !values.name.trim()}>
               {submitting
                 ? isEdit
-                  ? 'Saving…'
-                  : 'Adding…'
+                  ? tr('Saving…')
+                  : tr('Adding…')
                 : isEdit
-                ? 'Save changes'
-                : 'Add item'}
+                ? tr('Save changes')
+                : tr('Add item')}
             </Button>
           </DialogFooter>
         </form>

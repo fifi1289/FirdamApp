@@ -33,6 +33,7 @@ import {
 } from '@/features/meals/pantry-check';
 import { IngredientActions } from '@/features/meals/ingredient-actions';
 import type { PantryItem } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 interface MealDetailDialogProps {
   /** The meal card that was clicked (used as fallback while loading). */
@@ -290,18 +291,18 @@ function PantryStatusRow({ check }: { check: IngredientCheck }) {
     <div className="rounded-lg border border-border/60 p-3">
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm font-medium text-foreground">
-          {check.ingredient.name}
+          {trn(check.ingredient.name)}
         </p>
         <span
           className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${config.className}`}
         >
           <StatusIcon className="h-3 w-3" />
-          {config.label}
+          {tr(config.label)}
         </span>
       </div>
       <div className="mt-2 space-y-1 text-xs text-muted-foreground">
         <div className="flex items-center justify-between gap-2">
-          <span>Required</span>
+          <span>{tr('Required')}</span>
           <span className="font-medium text-foreground">
             {formatQuantityWithUnit(
               check.requiredQuantity,
@@ -310,19 +311,19 @@ function PantryStatusRow({ check }: { check: IngredientCheck }) {
           </span>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <span>Available</span>
+          <span>{tr('Available')}</span>
           <span className="font-medium text-foreground">
             {check.matchedItem
               ? formatQuantityWithUnit(
                   check.availableQuantity,
                   check.availableUnit
                 )
-              : 'Not in pantry'}
+              : tr('Not in pantry')}
           </span>
         </div>
         {check.status === 'available' && (
           <div className="flex items-center justify-between gap-2">
-            <span>Remaining</span>
+            <span>{tr('Remaining')}</span>
             <span className={`font-medium ${config.textClass}`}>
               {formatQuantityWithUnit(
                 check.remainingQuantity,
@@ -333,9 +334,9 @@ function PantryStatusRow({ check }: { check: IngredientCheck }) {
         )}
         {check.status === 'low' && check.matchedItem && (
           <div className="flex items-center justify-between gap-2">
-            <span>Status</span>
+            <span>{tr('Status')}</span>
             <span className={`font-medium ${config.textClass}`}>
-              Insufficient quantity
+              {tr('Insufficient quantity')}
             </span>
           </div>
         )}
@@ -356,13 +357,13 @@ function NutritionGrid({ recipe }: { recipe: RecipeDetail }) {
 
   return (
     <div className="space-y-2.5">
-      <h4 className="text-sm font-semibold text-foreground">Nutrition</h4>
+      <h4 className="text-sm font-semibold text-foreground">{tr('Nutrition')}</h4>
       <div className="grid grid-cols-2 gap-2 rounded-lg border border-border/60 bg-muted/30 p-3 text-xs sm:grid-cols-4">
         {rows.map((r) => (
           <div key={r.label} className="flex flex-col items-center gap-1 text-center">
             <span className="font-semibold text-foreground">{r.value}</span>
             <span className="text-muted-foreground">
-              {r.unit} {r.label}
+              {trn(r.unit)} {tr(r.label)}
             </span>
           </div>
         ))}
@@ -518,14 +519,14 @@ export function MealDetailDialog({
         {loading && (
           <div className="flex flex-col items-center justify-center gap-3 py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Loading recipe…</p>
+            <p className="text-sm text-muted-foreground">{tr('Loading recipe…')}</p>
           </div>
         )}
 
         {!loading && errorMsg && !recipe && (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
             <PackageX className="h-8 w-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">{errorMsg}</p>
+            <p className="text-sm text-muted-foreground">{trn(errorMsg)}</p>
           </div>
         )}
 
@@ -534,7 +535,7 @@ export function MealDetailDialog({
             <div className="relative -mx-6 -mt-6 h-44 w-[calc(100%+3rem)] overflow-hidden">
               <MealImage
                 src={imageUrl}
-                alt={recipeName}
+                alt={trn(recipeName)}
                 category={mealTypeKey}
                 className="h-full w-full object-cover"
               />
@@ -544,56 +545,56 @@ export function MealDetailDialog({
                   variant="secondary"
                   className="bg-white/90 text-foreground shadow-sm"
                 >
-                  {mealTypeLabel}
+                  {trn(mealTypeLabel)}
                 </Badge>
                 <Badge
                   className={`${DIFFICULTY_STYLES[difficultyName] ?? DIFFICULTY_STYLES.Medium} shadow-sm`}
                 >
-                  {difficultyName}
+                  {trn(difficultyName)}
                 </Badge>
                 {cuisineName && (
                   <Badge
                     variant="secondary"
                     className="bg-white/90 text-foreground shadow-sm"
                   >
-                    {cuisineName}
+                    {trn(cuisineName)}
                   </Badge>
                 )}
               </div>
             </div>
             <DialogHeader>
-              <DialogTitle className="text-lg">{recipeName}</DialogTitle>
-              <DialogDescription>{description}</DialogDescription>
+              <DialogTitle className="text-lg">{trn(recipeName)}</DialogTitle>
+              <DialogDescription>{trn(description)}</DialogDescription>
             </DialogHeader>
 
             {recipe.long_description && (
               <p className="text-sm leading-relaxed text-muted-foreground">
-                {recipe.long_description}
+                {trn(recipe.long_description)}
               </p>
             )}
 
             <div className="grid grid-cols-2 gap-2 rounded-lg border border-border/60 bg-muted/30 p-3 text-xs sm:grid-cols-4">
               <div className="flex flex-col items-center gap-1 text-center">
                 <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="font-semibold text-foreground">{prepTime}</span>
-                <span className="text-muted-foreground">min prep</span>
+                <span className="font-semibold text-foreground">{trn(prepTime)}</span>
+                <span className="text-muted-foreground">{tr('min prep')}</span>
               </div>
               <div className="flex flex-col items-center gap-1 text-center">
                 <Utensils className="h-4 w-4 text-muted-foreground" />
-                <span className="font-semibold text-foreground">{cookTime}</span>
-                <span className="text-muted-foreground">min cook</span>
+                <span className="font-semibold text-foreground">{trn(cookTime)}</span>
+                <span className="text-muted-foreground">{tr('min cook')}</span>
               </div>
               <div className="flex flex-col items-center gap-1 text-center">
                 <Soup className="h-4 w-4 text-muted-foreground" />
                 <span className="font-semibold text-foreground">
                   {prepTime + cookTime}
                 </span>
-                <span className="text-muted-foreground">min total</span>
+                <span className="text-muted-foreground">{tr('min total')}</span>
               </div>
               <div className="flex flex-col items-center gap-1 text-center">
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="font-semibold text-foreground">{servings}</span>
-                <span className="text-muted-foreground">servings</span>
+                <span className="font-semibold text-foreground">{trn(servings)}</span>
+                <span className="text-muted-foreground">{tr('servings')}</span>
               </div>
             </div>
 
@@ -603,7 +604,7 @@ export function MealDetailDialog({
               <div className="space-y-2.5">
                 <h4 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   <ChefHat className="h-4 w-4 text-primary" />
-                  Ingredients
+                  {tr('Ingredients')}
                 </h4>
                 <ul className="space-y-1.5">
                   {ingredients.map((ing, i) => (
@@ -612,22 +613,22 @@ export function MealDetailDialog({
                       className="flex items-center justify-between gap-3 rounded-md border border-border/40 px-3 py-2 text-sm text-foreground"
                     >
                       <span className="flex flex-col gap-0.5">
-                        <span>{ing.name}</span>
+                        <span>{trn(ing.name)}</span>
                         {ing.notes && (
                           <span className="text-[11px] text-muted-foreground">
-                            {ing.notes}
+                            {trn(ing.notes)}
                           </span>
                         )}
                       </span>
                       <span className="flex shrink-0 items-center gap-2">
                         {ing.optional && (
                           <Badge variant="outline" className="text-[10px]">
-                            Optional
+                            {tr('Optional')}
                           </Badge>
                         )}
                         {ing.quantity && (
                           <span className="text-xs font-medium text-muted-foreground">
-                            {ing.quantity} {ing.unit}
+                            {trn(ing.quantity)} {trn(ing.unit)}
                           </span>
                         )}
                       </span>
@@ -644,25 +645,25 @@ export function MealDetailDialog({
                   <div className="flex items-center justify-between">
                     <h4 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                       <PackageX className="h-4 w-4 text-primary" />
-                      Pantry Status
+                      {tr('Pantry Status')}
                     </h4>
                     <div className="flex items-center gap-2 text-[11px]">
                       {availableCount > 0 && (
                         <span className="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
                           <CheckCircle2 className="h-3 w-3" />
-                          {availableCount}
+                          {trn(availableCount)}
                         </span>
                       )}
                       {lowCount > 0 && (
                         <span className="flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
                           <AlertTriangle className="h-3 w-3" />
-                          {lowCount}
+                          {trn(lowCount)}
                         </span>
                       )}
                       {missingCount > 0 && (
                         <span className="flex items-center gap-1 font-medium text-destructive">
                           <PackageX className="h-3 w-3" />
-                          {missingCount}
+                          {trn(missingCount)}
                         </span>
                       )}
                     </div>
@@ -680,21 +681,21 @@ export function MealDetailDialog({
               <>
                 <Separator />
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-foreground">Steps</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{tr('Steps')}</h4>
                   <ol className="space-y-3">
                     {steps.map((step) => (
                       <li key={step.step_number} className="flex gap-3">
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                          {step.step_number}
+                          {trn(step.step_number)}
                         </span>
                         <div className="pt-0.5">
                           <p className="text-sm leading-relaxed text-foreground">
-                            {step.instruction}
+                            {trn(step.instruction)}
                           </p>
                           {step.estimated_minutes != null && (
                             <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                               <Clock className="h-3 w-3" />
-                              {step.estimated_minutes} min
+                              {trn(step.estimated_minutes)} {tr('min')}
                             </span>
                           )}
                         </div>
@@ -711,13 +712,13 @@ export function MealDetailDialog({
                 <div className="space-y-2">
                   <h4 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <Utensils className="h-4 w-4 text-primary" />
-                    Equipment
+                    {tr('Equipment')}
                   </h4>
                   <ul className="flex flex-wrap gap-2">
                     {equipment.map((eq, i) => (
                       <li key={i}>
                         <Badge variant="secondary" className="text-xs">
-                          {eq.equipment}
+                          {trn(eq.equipment)}
                         </Badge>
                       </li>
                     ))}
@@ -730,7 +731,7 @@ export function MealDetailDialog({
               <>
                 <Separator />
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">Tips</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{tr('Tips')}</h4>
                   <ul className="space-y-1.5">
                     {tips.map((tip, i) => (
                       <li
@@ -738,7 +739,7 @@ export function MealDetailDialog({
                         className="flex gap-2 rounded-md border border-border/40 px-3 py-2 text-sm text-foreground"
                       >
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                        <span className="leading-relaxed">{tip.tip}</span>
+                        <span className="leading-relaxed">{trn(tip.tip)}</span>
                       </li>
                     ))}
                   </ul>
@@ -750,11 +751,11 @@ export function MealDetailDialog({
               <>
                 <Separator />
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">Tags</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{tr('Tags')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {tags.map((tag) => (
                       <Badge key={tag} variant="outline" className="text-xs">
-                        {tag}
+                        {trn(tag)}
                       </Badge>
                     ))}
                   </div>
@@ -766,7 +767,7 @@ export function MealDetailDialog({
               <>
                 <Separator />
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">Allergens</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{tr('Allergens')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {allergens.map((allergen) => (
                       <Badge
@@ -774,7 +775,7 @@ export function MealDetailDialog({
                         variant="outline"
                         className="border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs"
                       >
-                        {allergen}
+                        {trn(allergen)}
                       </Badge>
                     ))}
                   </div>
@@ -787,12 +788,12 @@ export function MealDetailDialog({
                 <Separator />
                 <div className="space-y-2">
                   <h4 className="text-sm font-semibold text-foreground">
-                    Recommended Age Groups
+                    {tr('Recommended Age Groups')}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {ageGroups.map((ag) => (
                       <Badge key={ag} variant="secondary" className="text-xs">
-                        {ag}
+                        {trn(ag)}
                       </Badge>
                     ))}
                   </div>
@@ -805,12 +806,12 @@ export function MealDetailDialog({
                 <Separator />
                 <div className="space-y-3">
                   <h4 className="text-sm font-semibold text-foreground">
-                    Adaptations
+                    {tr('Adaptations')}
                   </h4>
                   {Object.entries(adaptations).map(([group, items]) => (
                     <div key={group} className="space-y-1.5">
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {group}
+                        {trn(group)}
                       </p>
                       {items.map((item, i) => (
                         <div
@@ -818,10 +819,10 @@ export function MealDetailDialog({
                           className="rounded-md border border-border/40 px-3 py-2"
                         >
                           <p className="text-sm font-medium text-foreground">
-                            {item.title}
+                            {tr(item.title)}
                           </p>
                           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                            {item.instructions}
+                            {trn(item.instructions)}
                           </p>
                         </div>
                       ))}
@@ -835,9 +836,9 @@ export function MealDetailDialog({
               <>
                 <Separator />
                 <div className="space-y-1.5">
-                  <h4 className="text-sm font-semibold text-foreground">Storage</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{tr('Storage')}</h4>
                   <p className="text-sm leading-relaxed text-muted-foreground">
-                    {recipe.storage_instructions}
+                    {trn(recipe.storage_instructions)}
                   </p>
                 </div>
               </>
@@ -847,9 +848,9 @@ export function MealDetailDialog({
               <>
                 <Separator />
                 <div className="space-y-1.5">
-                  <h4 className="text-sm font-semibold text-foreground">Reheating</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{tr('Reheating')}</h4>
                   <p className="text-sm leading-relaxed text-muted-foreground">
-                    {recipe.reheating_instructions}
+                    {trn(recipe.reheating_instructions)}
                   </p>
                 </div>
               </>

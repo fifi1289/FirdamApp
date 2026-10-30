@@ -36,6 +36,7 @@ import { DirectoryList } from '@/features/directory/directory-list';
 import { TRAVEL_CATEGORIES } from '@/features/directory/directory-config';
 import { HAJJ_DAYS, TRAVEL_TIPS, TRIP_KINDS, UMRAH_STEPS } from '@/features/travel/travel-config';
 import { TripFormDialog } from '@/features/travel/trip-form-dialog';
+import { locale, tr, trn } from '@/lib/i18n';
 
 interface OsmAgency {
   key: string;
@@ -67,10 +68,10 @@ function TripCard({ trip }: { trip: Trip }) {
       <Card className="h-full overflow-hidden transition-all group-hover:-translate-y-0.5 group-hover:shadow-md">
         <div className="bg-girih relative bg-gradient-to-br from-brand-espresso via-brand-dark to-brand-mid p-5 text-brand-linen">
           <Icon className="absolute right-4 top-4 h-10 w-10 text-brand-gold/40" />
-          <p className="text-xs font-medium uppercase tracking-wider text-brand-gold">{meta.label}</p>
-          <p className="mt-1 font-display text-xl font-semibold">{trip.name}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-brand-gold">{tr(meta.label)}</p>
+          <p className="mt-1 font-display text-xl font-semibold">{trn(trip.name)}</p>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-brand-linen/80">
-            <MapPin className="h-3.5 w-3.5" /> {trip.destination_label}
+            <MapPin className="h-3.5 w-3.5" /> {trn(trip.destination_label)}
           </p>
         </div>
         <CardContent className="space-y-3 p-4 text-sm">
@@ -78,23 +79,23 @@ function TripCard({ trip }: { trip: Trip }) {
             {trip.start_date && (
               <span className="inline-flex items-center gap-1">
                 <CalendarDays className="h-3.5 w-3.5" />
-                {new Date(`${trip.start_date}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                {new Date(`${trip.start_date}T00:00:00`).toLocaleDateString(locale(), { month: 'short', day: 'numeric', year: 'numeric' })}
               </span>
             )}
             <span className="inline-flex items-center gap-1">
-              <Users className="h-3.5 w-3.5" /> {trip.travellers}
+              <Users className="h-3.5 w-3.5" /> {trn(trip.travellers)}
             </span>
           </div>
           {d !== null && (
             <p className="font-medium text-foreground">
-              {d > 1 ? `${d} days to go` : d === 1 ? 'Tomorrow!' : d === 0 ? 'Today — safe travels!' : 'Completed'}
+              {d > 1 ? tr('{0} days to go', [d]) : d === 1 ? tr('Tomorrow!') : d === 0 ? tr('Today — safe travels!') : tr('Completed')}
             </p>
           )}
           <div>
             <div className="mb-1 flex justify-between text-xs text-muted-foreground">
-              <span>Packing</span>
+              <span>{tr('Packing')}</span>
               <span>
-                {done}/{trip.checklist.length}
+                {trn(done)}/{trip.checklist.length}
               </span>
             </div>
             <Progress value={pct} className="h-1.5" />
@@ -130,7 +131,7 @@ function NearbyAgencies() {
           .sort((a, b) => Number(b.muslimFocused) - Number(a.muslimFocused) || a.d - b.d);
         setAgencies(sorted);
       })
-      .catch((e: unknown) => !cancelled && setError(e instanceof Error ? e.message : 'Could not load agencies'))
+      .catch((e: unknown) => !cancelled && setError(e instanceof Error ? e.message : tr('Could not load agencies')))
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
@@ -148,36 +149,36 @@ function NearbyAgencies() {
           <SelectContent>
             {['5', '10', '25'].map((r) => (
               <SelectItem key={r} value={r}>
-                Within {r} km
+                {tr('Within {0} km', [r])}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
       {!location ? (
-        <p className="text-sm text-muted-foreground">Set your location to see travel agencies near you.</p>
+        <p className="text-sm text-muted-foreground">{tr('Set your location to see travel agencies near you.')}</p>
       ) : loading ? (
         <p className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Finding travel agencies…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tr('Finding travel agencies…')}
         </p>
       ) : error ? (
-        <p className="text-sm text-muted-foreground">Travel agency data is temporarily unavailable ({error}).</p>
+        <p className="text-sm text-muted-foreground">{tr('Travel agency data is temporarily unavailable (')}{trn(error)}).</p>
       ) : agencies.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No travel agencies found nearby. Try a wider radius.</p>
+        <p className="text-sm text-muted-foreground">{tr('No travel agencies found nearby. Try a wider radius.')}</p>
       ) : (
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {agencies.map((a) => (
             <Card key={a.key} className={cn(a.muslimFocused && 'border-primary/30')}>
               <CardContent className="p-4 text-sm">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-foreground">{a.name}</p>
+                  <p className="font-semibold text-foreground">{trn(a.name)}</p>
                   <span className="shrink-0 text-xs text-muted-foreground">
                     {formatDistance(distanceKm(location, a))}
                   </span>
                 </div>
                 {a.muslimFocused && (
                   <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary">
-                    <Sparkles className="h-3 w-3" /> Hajj, Umrah or Muslim travel
+                    <Sparkles className="h-3 w-3" /> {tr('Hajj, Umrah or Muslim travel')}
                   </p>
                 )}
                 {a.address && <p className="mt-1 text-xs text-muted-foreground">{a.address}</p>}
@@ -194,7 +195,7 @@ function NearbyAgencies() {
                       rel="noreferrer"
                       className="inline-flex items-center gap-1 text-primary hover:underline"
                     >
-                      <Globe className="h-3.5 w-3.5" /> Website <ExternalLink className="h-3 w-3" />
+                      <Globe className="h-3.5 w-3.5" /> {tr('Website')} <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
                   <a
@@ -203,7 +204,7 @@ function NearbyAgencies() {
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 text-primary hover:underline"
                   >
-                    <MapPin className="h-3.5 w-3.5" /> Directions
+                    <MapPin className="h-3.5 w-3.5" /> {tr('Directions')}
                   </a>
                 </div>
               </CardContent>
@@ -212,8 +213,7 @@ function NearbyAgencies() {
         </div>
       )}
       <p className="text-xs text-muted-foreground">
-        From OpenStreetMap. These agencies are not verified by Firdam — always check licences (e.g.
-        TICO in Ontario, ATOL in the UK) and reviews before booking.
+        {tr('From OpenStreetMap. These agencies are not verified by Firdam — always check licences (e.g. TICO in Ontario, ATOL in the UK) and reviews before booking.')}
       </p>
     </div>
   );
@@ -224,7 +224,7 @@ function Guide() {
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
       <Card>
         <CardContent className="p-5">
-          <h3 className="font-semibold text-foreground">The steps of Umrah</h3>
+          <h3 className="font-semibold text-foreground">{tr('The steps of Umrah')}</h3>
           <ol className="mt-4 space-y-4">
             {UMRAH_STEPS.map((s, i) => (
               <li key={s.title} className="flex gap-3">
@@ -232,8 +232,8 @@ function Guide() {
                   {i + 1}
                 </span>
                 <div>
-                  <p className="font-medium text-foreground">{s.title}</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{s.detail}</p>
+                  <p className="font-medium text-foreground">{tr(s.title)}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{tr(s.detail)}</p>
                 </div>
               </li>
             ))}
@@ -243,13 +243,13 @@ function Guide() {
       <div className="space-y-5">
         <Card>
           <CardContent className="p-5">
-            <h3 className="font-semibold text-foreground">The days of Hajj</h3>
+            <h3 className="font-semibold text-foreground">{tr('The days of Hajj')}</h3>
             <ul className="mt-4 space-y-3">
               {HAJJ_DAYS.map((d) => (
                 <li key={d.day} className="rounded-xl border border-border p-3">
-                  <p className="text-xs font-medium text-primary">{d.day}</p>
-                  <p className="font-medium text-foreground">{d.title}</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{d.detail}</p>
+                  <p className="text-xs font-medium text-primary">{trn(d.day)}</p>
+                  <p className="font-medium text-foreground">{tr(d.title)}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{tr(d.detail)}</p>
                 </li>
               ))}
             </ul>
@@ -257,12 +257,12 @@ function Guide() {
         </Card>
         <Card>
           <CardContent className="p-5">
-            <h3 className="font-semibold text-foreground">Travel tips for Muslims</h3>
+            <h3 className="font-semibold text-foreground">{tr('Travel tips for Muslims')}</h3>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               {TRAVEL_TIPS.map((t) => (
                 <li key={t} className="flex gap-2">
                   <Plane className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  {t}
+                  {trn(t)}
                 </li>
               ))}
             </ul>
@@ -270,8 +270,7 @@ function Guide() {
         </Card>
         <p className="flex gap-2 text-xs text-muted-foreground">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          A brief overview to help you prepare. Learn the rulings in detail from a qualified scholar or
-          your Hajj/Umrah group before you travel.
+          {tr('A brief overview to help you prepare. Learn the rulings in detail from a qualified scholar or your Hajj/Umrah group before you travel.')}
         </p>
       </div>
     </div>
@@ -316,25 +315,25 @@ export function TravelDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Travel"
-        description="Plan halal-friendly trips, prepare for Umrah and Hajj, and find trusted travel agencies."
+        title={tr('Travel')}
+        description={tr('Plan halal-friendly trips, prepare for Umrah and Hajj, and find trusted travel agencies.')}
       >
         <Button size="sm" onClick={newTrip}>
-          <Plus className="mr-2 h-4 w-4" /> Plan a trip
+          <Plus className="mr-2 h-4 w-4" /> {tr('Plan a trip')}
         </Button>
       </PageHeader>
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-5">
-          <TabsTrigger value="trips">My trips</TabsTrigger>
-          <TabsTrigger value="agencies">Agencies & operators</TabsTrigger>
-          <TabsTrigger value="guide">Umrah & Hajj guide</TabsTrigger>
+          <TabsTrigger value="trips">{tr('My trips')}</TabsTrigger>
+          <TabsTrigger value="agencies">{tr('Agencies & operators')}</TabsTrigger>
+          <TabsTrigger value="guide">{tr('Umrah & Hajj guide')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="trips" className="mt-0 space-y-6">
           {loading ? (
             <p className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading trips…
+              <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading trips…')}
             </p>
           ) : trips.length === 0 ? (
             <Card className="border-dashed">
@@ -342,13 +341,12 @@ export function TravelDashboard() {
                 <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <Plane className="h-7 w-7" />
                 </span>
-                <h3 className="mt-5 text-lg font-semibold text-foreground">Where to next?</h3>
+                <h3 className="mt-5 text-lg font-semibold text-foreground">{tr('Where to next?')}</h3>
                 <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-                  Plan a holiday, a family visit or your Umrah. We’ll get prayer times, the Qibla, halal
-                  food and a packing list ready for your destination.
+                  {tr('Plan a holiday, a family visit or your Umrah. We’ll get prayer times, the Qibla, halal food and a packing list ready for your destination.')}
                 </p>
                 <Button size="sm" className="mt-6" onClick={newTrip}>
-                  <Plus className="mr-2 h-4 w-4" /> Plan a trip
+                  <Plus className="mr-2 h-4 w-4" /> {tr('Plan a trip')}
                 </Button>
               </CardContent>
             </Card>
@@ -361,7 +359,7 @@ export function TravelDashboard() {
               </div>
               {past.length > 0 && (
                 <div>
-                  <h2 className="mb-3 text-sm font-semibold text-muted-foreground">Past trips</h2>
+                  <h2 className="mb-3 text-sm font-semibold text-muted-foreground">{tr('Past trips')}</h2>
                   <div className="grid grid-cols-1 gap-5 opacity-80 md:grid-cols-2 xl:grid-cols-3">
                     {past.map((t) => (
                       <TripCard key={t.id} trip={t} />
@@ -369,26 +367,26 @@ export function TravelDashboard() {
                   </div>
                 </div>
               )}
-              <UsageNote used={trips.length} limit={limit('trips')} label="trips" onUpgrade={() => setUpgradeOpen(true)} />
+              <UsageNote used={trips.length} limit={limit('trips')} label={tr('trips')} onUpgrade={() => setUpgradeOpen(true)} />
             </>
           )}
         </TabsContent>
 
         <TabsContent value="agencies" className="mt-0 space-y-8">
           <section>
-            <h2 className="mb-1 font-semibold text-foreground">Firdam-listed travel businesses</h2>
+            <h2 className="mb-1 font-semibold text-foreground">{tr('Firdam-listed travel businesses')}</h2>
             <p className="mb-4 text-sm text-muted-foreground">
-              Hajj & Umrah operators, travel agencies and halal-friendly stays reviewed by the Firdam team.
+              {tr('Hajj & Umrah operators, travel agencies and halal-friendly stays reviewed by the Firdam team.')}
             </p>
             <DirectoryList
               categories={TRAVEL_CATEGORIES}
               defaultCategory="hajj_umrah"
-              emptyHint="We’re onboarding trusted Hajj & Umrah operators and travel agencies. Run one? List it for free."
+              emptyHint={tr('We’re onboarding trusted Hajj & Umrah operators and travel agencies. Run one? List it for free.')}
             />
           </section>
           <section>
-            <h2 className="mb-1 font-semibold text-foreground">Travel agencies near you</h2>
-            <p className="mb-4 text-sm text-muted-foreground">All travel agencies on the map around you.</p>
+            <h2 className="mb-1 font-semibold text-foreground">{tr('Travel agencies near you')}</h2>
+            <p className="mb-4 text-sm text-muted-foreground">{tr('All travel agencies on the map around you.')}</p>
             <NearbyAgencies />
           </section>
         </TabsContent>

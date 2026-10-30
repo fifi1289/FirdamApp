@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { locale } from '@/lib/i18n';
 
 interface PlannerContextValue {
   selectedDate: string;
@@ -45,7 +46,7 @@ export function isToday(dateKey: string): boolean {
 
 export function formatDateLong(dateKey: string): string {
   const date = new Date(`${dateKey}T00:00:00`);
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleDateString(locale(), {
     weekday: 'long',
     month: 'long',
     day: 'numeric',

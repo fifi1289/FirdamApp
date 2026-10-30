@@ -248,3 +248,8 @@
 .leaflet-container {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+/* Arabic pages read right to left in IBM Plex Sans Arabic. */
+html[lang='ar'] body {
+  font-family: var(--font-arabic), var(--font-sans), system-ui, sans-serif;
+}

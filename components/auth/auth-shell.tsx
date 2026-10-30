@@ -3,6 +3,8 @@ import { Check } from 'lucide-react';
 
 import { Logo } from '@/components/brand/logo';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { LanguageSwitcher } from '@/components/i18n/language-switcher';
+import { tr, trn } from '@/lib/i18n';
 
 const highlights = [
   'Halal places near you, wherever you are',
@@ -30,14 +32,13 @@ export function AuthAside() {
 
       <div className="relative max-w-md">
         <h2 className="font-display text-3xl font-bold leading-tight">
-          One home for your Muslim life.
+          {tr('One home for your Muslim life.')}
         </h2>
         <p className="mt-3 font-arabic text-xl text-brand-gold" lang="ar" dir="rtl">
           بِسْمِ ٱللَّٰهِ
         </p>
         <p className="mt-4 text-white/80">
-          Firdam brings halal living, faith and family together in one calm,
-          trusted app.
+          {tr('Firdam brings halal living, faith and family together in one calm, trusted app.')}
         </p>
         <ul className="mt-8 space-y-4">
           {highlights.map((h) => (
@@ -45,14 +46,14 @@ export function AuthAside() {
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
                 <Check className="h-3.5 w-3.5" />
               </span>
-              {h}
+              {trn(h)}
             </li>
           ))}
         </ul>
       </div>
 
       <div className="relative text-sm text-white/70">
-        © {new Date().getFullYear()} Firdam. One home for your Muslim life.
+        © {new Date().getFullYear()} {tr('Firdam. One home for your Muslim life.')}
       </div>
     </aside>
   );
@@ -74,21 +75,22 @@ export function AuthShell({ children, title, description }: AuthShellProps) {
           <Link
             href="/"
             className="lg:hidden"
-            aria-label="Back to home"
+            aria-label={tr('Back to home')}
           >
             <Logo noLink height={34} />
           </Link>
           <div className="ml-auto">
-            <ThemeToggle />
+            <LanguageSwitcher />
+          <ThemeToggle />
           </div>
         </div>
 
         <div className="flex flex-1 items-center justify-center px-6 pb-16">
           <div className="w-full max-w-sm">
             <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
-              {title}
+              {trn(title)}
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{trn(description)}</p>
             <div className="mt-8">{children}</div>
           </div>
         </div>

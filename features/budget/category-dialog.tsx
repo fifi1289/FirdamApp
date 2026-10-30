@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { BudgetCategory } from '@/types/database';
 import { parseAmount } from '@/features/budget/finance-core';
+import { tr, trn } from '@/lib/i18n';
 
 /**
  * Add, rename or remove a spending category and set its monthly limit — the
@@ -48,13 +49,13 @@ export function CategoryDialog({
   }, [open, category]);
 
   const save = async () => {
-    if (!name.trim()) return setProblem('Give the category a name.');
+    if (!name.trim()) return setProblem(tr('Give the category a name.'));
     setBusy(true);
     try {
       await onSave({ name: name.trim(), monthly_limit: parseAmount(limit) || null });
       onOpenChange(false);
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not save the category.');
+      setProblem(e instanceof Error ? e.message : tr('Could not save the category.'));
       setBusy(false);
     }
   };
@@ -66,7 +67,7 @@ export function CategoryDialog({
       await onDelete();
       onOpenChange(false);
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not delete the category.');
+      setProblem(e instanceof Error ? e.message : tr('Could not delete the category.'));
       setBusy(false);
     }
   };
@@ -75,25 +76,25 @@ export function CategoryDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{category ? 'Edit category' : 'New category'}</DialogTitle>
+          <DialogTitle>{category ? tr('Edit category') : tr('New category')}</DialogTitle>
           <DialogDescription>
-            {category ? 'Rename it, change its monthly limit or remove it.' : 'Add a category for your family’s spending, like Zakat savings or Car.'}
+            {category ? tr('Rename it, change its monthly limit or remove it.') : tr('Add a category for your family’s spending, like Zakat savings or Car.')}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="category-name">Name</Label>
-            <Input id="category-name" value={name} onChange={(e) => { setName(e.target.value); setProblem(null); }} placeholder="Car" autoFocus />
+            <Label htmlFor="category-name">{tr('Name')}</Label>
+            <Input id="category-name" value={name} onChange={(e) => { setName(e.target.value); setProblem(null); }} placeholder={tr('Car')} autoFocus />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="category-limit">Monthly limit ({currency}, optional)</Label>
+            <Label htmlFor="category-limit">{tr('Monthly limit ({0}, optional)', [currency])}</Label>
             <Input id="category-limit" inputMode="decimal" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder="600" />
           </div>
-          {problem && <p className="text-sm text-destructive">{problem}</p>}
+          {problem && <p className="text-sm text-destructive">{trn(problem)}</p>}
           {category && (
             <Button type="button" variant="outline" className="w-full" onClick={() => { onOpenChange(false); onAddExpense(); }}>
               <Plus className="mr-2 h-4 w-4" />
-              Add an expense in {category.name}
+              {tr('Add an expense in')} {trn(category.name)}
             </Button>
           )}
         </div>
@@ -101,18 +102,18 @@ export function CategoryDialog({
           {category ? (
             <Button type="button" variant="ghost" className="text-destructive hover:text-destructive" onClick={remove} disabled={busy}>
               <Trash2 className="mr-2 h-4 w-4" />
-              {confirmDelete ? 'Click again to delete' : 'Delete'}
+              {confirmDelete ? tr('Click again to delete') : tr('Delete')}
             </Button>
           ) : (
             <span />
           )}
           <Button type="button" onClick={save} disabled={busy}>
             {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save
+            {tr('Save')}
           </Button>
         </DialogFooter>
         {confirmDelete && (
-          <p className="text-xs text-muted-foreground">Its entries stay in your history, without a category.</p>
+          <p className="text-xs text-muted-foreground">{tr('Its entries stay in your history, without a category.')}</p>
         )}
       </DialogContent>
     </Dialog>

@@ -24,6 +24,7 @@ import { undoToast } from '@/features/pantry/cook-dialog';
 import { PANTRY_UNITS, type PantryCategory, type PantryItem, type PantryUnit } from '@/types/database';
 import { cn } from '@/lib/utils';
 import { isNonFood } from '@/supabase/functions/_shared/kitchen-items';
+import { tr, trn } from '@/lib/i18n';
 
 interface ScannedItem {
   name: string;
@@ -96,12 +97,12 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
       setPreview(image);
       const res = await callEdgeFunction<ScanResult>('receipt-scan', undefined, { body: { image } });
       if (!res.items.length) {
-        toast.error('We couldn’t find any food on that photo. Try a flatter, brighter photo of the whole receipt.');
+        toast.error(tr('We couldn’t find any food on that photo. Try a flatter, brighter photo of the whole receipt.'));
         setStep('pick');
         return;
       }
       if (res.skipped?.length) {
-        toast.info(`Left out ${res.skipped.length} item${res.skipped.length === 1 ? '' : 's'} that aren't halal`, {
+        toast.info(tr('Left out {0} item{1} that aren\'t halal', [res.skipped.length, res.skipped.length === 1 ? '' : 's']), {
           description: res.skipped.map((s) => s.name).join(', '),
         });
       }
@@ -112,7 +113,7 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
       setStep('review');
     } catch (err) {
       if (err instanceof EdgeFunctionError && err.status === 402) setUpgradeOpen(true);
-      toast.error(err instanceof Error ? err.message : 'Could not read the receipt');
+      toast.error(err instanceof Error ? err.message : tr('Could not read the receipt'));
       setStep('pick');
     } finally {
       if (fileRef.current) fileRef.current.value = '';
@@ -163,7 +164,7 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
       onOpenChange(false);
       undoToast(`${kept.length} item${kept.length === 1 ? '' : 's'} added from your receipt`, batch);
     } catch (err) {
-      toast.error('Could not save', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not save'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setSaving(false);
     }
@@ -177,10 +178,10 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
         <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-primary" /> Scan a receipt
+              <Receipt className="h-5 w-5 text-primary" /> {tr('Scan a receipt')}
             </DialogTitle>
             <DialogDescription>
-              Take a photo of your shopping receipt. We’ll list the food on it — you check it, and it goes into your pantry.
+              {tr('Take a photo of your shopping receipt. We’ll list the food on it — you check it, and it goes into your pantry.')}
             </DialogDescription>
           </DialogHeader>
 
@@ -201,12 +202,12 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
                     className="flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 px-6 py-10 text-center transition-colors hover:border-primary"
                   >
                     <Camera className="h-8 w-8 text-primary" />
-                    <span className="font-semibold text-foreground">Take a photo or choose one</span>
+                    <span className="font-semibold text-foreground">{tr('Take a photo or choose one')}</span>
                     <span className="text-xs text-muted-foreground">
-                      Lay the receipt flat in good light, with the whole list in the picture.
+                      {tr('Lay the receipt flat in good light, with the whole list in the picture.')}
                     </span>
                   </button>
-                  <p className="text-center text-xs text-muted-foreground">Up to 30 receipts a month. The photo isn’t stored.</p>
+                  <p className="text-center text-xs text-muted-foreground">{tr('Up to 30 receipts a month. The photo isn’t stored.')}</p>
                 </>
             </div>
           )}
@@ -215,10 +216,10 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
             <div className="flex flex-col items-center gap-3 py-10 text-center">
               {preview && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={preview} alt="Your receipt" className="max-h-48 rounded-xl border border-border object-contain opacity-70" />
+                <img src={preview} alt={tr('Your receipt')} className="max-h-48 rounded-xl border border-border object-contain opacity-70" />
               )}
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Reading your receipt… (about 10 seconds)
+                <Loader2 className="h-4 w-4 animate-spin" /> {tr('Reading your receipt… (about 10 seconds)')}
               </p>
             </div>
           )}
@@ -226,18 +227,18 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
           {step === 'review' && result && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                {result.store ? <span className="font-medium text-foreground">{result.store}</span> : 'Receipt'}
+                {result.store ? <span className="font-medium text-foreground">{trn(result.store)}</span> : tr('Receipt')}
                 {result.date && ` · ${result.date}`}
-                {result.total != null && ` · total ${result.total.toFixed(2)}${result.currency ? ` ${result.currency}` : ''}`}
-                {' · '}untick anything that’s wrong or not for the pantry.
+                {result.total != null && tr(' · total {0}{1}', [result.total.toFixed(2), result.currency ? ` ${result.currency}` : ''])}
+                {' · '}{tr('untick anything that’s wrong or not for the pantry.')}
               </p>
               <ul className="divide-y divide-border rounded-xl border border-border">
                 {items.map((it, idx) => (
                   <li key={idx} className={cn('flex flex-wrap items-center gap-2 px-3 py-2', !it.keep && 'opacity-50')}>
-                    <Checkbox checked={it.keep} onCheckedChange={(v) => update(idx, { keep: !!v })} aria-label={`Keep ${it.name}`} />
-                    <Input value={it.name} onChange={(e) => update(idx, { name: e.target.value })} className="h-8 min-w-[9rem] flex-1 text-sm" aria-label="Item name" />
+                    <Checkbox checked={it.keep} onCheckedChange={(v) => update(idx, { keep: !!v })} aria-label={tr('Keep {0}', [it.name])} />
+                    <Input value={it.name} onChange={(e) => update(idx, { name: e.target.value })} className="h-8 min-w-[9rem] flex-1 text-sm" aria-label={tr('Item name')} />
                     {it.staple ? (
-                      <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">staple · full</span>
+                      <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">{tr('staple · full')}</span>
                     ) : (
                       <>
                         <Input
@@ -247,17 +248,17 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
                           value={it.quantity}
                           onChange={(e) => update(idx, { quantity: Number(e.target.value) || 0 })}
                           className="h-8 w-20 text-sm"
-                          aria-label="Quantity"
+                          aria-label={tr('Quantity')}
                         />
                         <select
                           value={it.unit}
                           onChange={(e) => update(idx, { unit: e.target.value as PantryUnit })}
                           className="h-8 rounded-md border border-input bg-background px-2 text-sm"
-                          aria-label="Unit"
+                          aria-label={tr('Unit')}
                         >
                           {PANTRY_UNITS.map((u) => (
                             <option key={u} value={u}>
-                              {u}
+                              {trn(u)}
                             </option>
                           ))}
                         </select>
@@ -268,7 +269,7 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
                       onClick={() => update(idx, { staple: !it.staple })}
                       className="text-xs text-primary hover:underline"
                     >
-                      {it.staple ? 'track amount' : 'staple?'}
+                      {it.staple ? tr('track amount') : tr('staple?')}
                     </button>
                   </li>
                 ))}
@@ -277,18 +278,18 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
                 {onListCount > 0 && (
                   <label className="flex items-center gap-2">
                     <Checkbox checked={tickList} onCheckedChange={(v) => setTickList(!!v)} />
-                    Tick {onListCount} of these off my shopping list
+                    {tr('Tick {0} of these off my shopping list', [onListCount])}
                   </label>
                 )}
                 {result.total != null && (
                   <label className="flex items-center gap-2">
                     <Checkbox checked={addSpend} onCheckedChange={(v) => setAddSpend(!!v)} />
-                    Record {result.total.toFixed(2)} in my budget as grocery spending
+                    {tr('Record')} {result.total.toFixed(2)} {tr('in my budget as grocery spending')}
                   </label>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                {result.used} of {result.limit} scans used this month.
+                {tr('{0} of {1} scans used this month.', [result.used, result.limit])}
               </p>
             </div>
           )}
@@ -297,16 +298,16 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
             {step === 'review' ? (
               <>
                 <Button variant="ghost" onClick={() => setStep('pick')} disabled={saving}>
-                  <RotateCcw className="mr-2 h-4 w-4" /> Scan another
+                  <RotateCcw className="mr-2 h-4 w-4" /> {tr('Scan another')}
                 </Button>
                 <Button onClick={save} disabled={saving || keptCount === 0}>
                   {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-                  Add {keptCount} to pantry
+                  {tr('Add {0} to pantry', [keptCount])}
                 </Button>
               </>
             ) : (
               <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={step === 'reading'}>
-                Close
+                {tr('Close')}
               </Button>
             )}
           </DialogFooter>
@@ -315,8 +316,8 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
       <UpgradeDialog
         open={upgradeOpen}
         onOpenChange={setUpgradeOpen}
-        title="More receipt scans with Firdam Family"
-        description="The free plan includes one receipt a month. Firdam Family scans up to 30."
+        title={tr('More receipt scans with Firdam Family')}
+        description={tr('The free plan includes one receipt a month. Firdam Family scans up to 30.')}
       />
     </>
   );

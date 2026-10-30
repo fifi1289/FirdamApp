@@ -60,6 +60,7 @@ import { FromMealPlanDialog } from '@/features/groceries/from-meal-plan-dialog';
 import { RestockSuggestions } from '@/features/groceries/restock-suggestions';
 import { usePlan } from '@/lib/plan/plan';
 import { UpgradeDialog } from '@/components/plan/upgrade-prompt';
+import { tr, trn } from '@/lib/i18n';
 
 const ACTIVE_LIST_KEY = 'firdam.groceries.activeList';
 
@@ -80,7 +81,7 @@ function ItemRow({
       <button
         type="button"
         onClick={() => onToggle(item)}
-        aria-label={item.checked ? `Uncheck ${item.name}` : `Check ${item.name}`}
+        aria-label={item.checked ? tr('Uncheck {0}', [item.name]) : tr('Check {0}', [item.name])}
         className={cn(
           'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all',
           item.checked
@@ -97,11 +98,11 @@ function ItemRow({
             item.checked ? 'text-muted-foreground line-through' : 'text-foreground'
           )}
         >
-          {item.name}
+          {trn(item.name)}
         </p>
         {(item.note || item.from_meal_plan) && (
           <p className="truncate text-xs text-muted-foreground">
-            {item.note ?? 'From your meal plan'}
+            {trn(item.note) ?? tr('From your meal plan')}
           </p>
         )}
       </div>
@@ -111,7 +112,7 @@ function ItemRow({
       <button
         type="button"
         onClick={() => onDelete(item)}
-        aria-label={`Remove ${item.name}`}
+        aria-label={tr('Remove {0}', [item.name])}
         className="rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-destructive focus:opacity-100 group-hover:opacity-100"
       >
         <X className="h-4 w-4" />
@@ -233,7 +234,7 @@ export function GroceriesDashboard() {
     const parsed = parseQuickAdd(quickAdd);
     const notHalal = haramItemMessage(parsed.name);
     if (notHalal) {
-      toast.error('Not added', { description: notHalal });
+      toast.error(tr('Not added'), { description: notHalal });
       return;
     }
     setAdding(true);
@@ -250,7 +251,7 @@ export function GroceriesDashboard() {
       .single();
     setAdding(false);
     if (error) {
-      toast.error('Could not add item', { description: error.message });
+      toast.error(tr('Could not add item'), { description: error.message });
       return;
     }
     setItems((prev) => [...prev, data]);
@@ -279,7 +280,7 @@ export function GroceriesDashboard() {
       .eq('id', item.id);
     if (error) {
       setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, checked: item.checked } : i)));
-      toast.error('Could not update item');
+      toast.error(tr('Could not update item'));
     }
   };
 
@@ -287,7 +288,7 @@ export function GroceriesDashboard() {
     setItems((prev) => prev.filter((i) => i.id !== item.id));
     const { error } = await supabase.from('grocery_items').delete().eq('id', item.id);
     if (error) {
-      toast.error('Could not remove item');
+      toast.error(tr('Could not remove item'));
       if (activeId) loadItems(activeId);
     }
   };
@@ -298,7 +299,7 @@ export function GroceriesDashboard() {
     setItems((prev) => prev.filter((i) => !i.checked));
     const { error } = await supabase.from('grocery_items').delete().in('id', ids);
     if (error) {
-      toast.error('Could not clear items');
+      toast.error(tr('Could not clear items'));
       if (activeId) loadItems(activeId);
     }
   };
@@ -325,7 +326,7 @@ export function GroceriesDashboard() {
       window.dispatchEvent(new Event('pantry-items-changed'));
       undoToast(`${checked.length} item${checked.length === 1 ? '' : 's'} put away in your pantry`, batch);
     } catch (err) {
-      toast.error('Could not add to pantry', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not add to pantry'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setMovingToPantry(false);
     }
@@ -337,7 +338,7 @@ export function GroceriesDashboard() {
     if (!name) return;
     const { data, error } = await supabase.from('grocery_lists').insert({ name }).select().single();
     if (error) {
-      toast.error('Could not create list', { description: error.message });
+      toast.error(tr('Could not create list'), { description: error.message });
       return;
     }
     setLists((prev) => [...prev, data]);
@@ -355,14 +356,14 @@ export function GroceriesDashboard() {
       .from('grocery_lists')
       .update({ name, updated_at: new Date().toISOString() })
       .eq('id', id);
-    if (error) toast.error('Could not rename list');
+    if (error) toast.error(tr('Could not rename list'));
   };
 
   const deleteList = async (list: GroceryList) => {
     if (!window.confirm(`Delete "${list.name}" and all its items?`)) return;
     const { error } = await supabase.from('grocery_lists').delete().eq('id', list.id);
     if (error) {
-      toast.error('Could not delete list', { description: error.message });
+      toast.error(tr('Could not delete list'), { description: error.message });
       return;
     }
     const rest = lists.filter((l) => l.id !== list.id);
@@ -380,7 +381,7 @@ export function GroceriesDashboard() {
         return;
       }
       await navigator.clipboard.writeText(text);
-      toast.success('List copied — paste it into WhatsApp or a message');
+      toast.success(tr('List copied — paste it into WhatsApp or a message'));
     } catch {
       // user cancelled the share sheet
     }
@@ -389,21 +390,21 @@ export function GroceriesDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Shopping"
-        description="Everything your family buys, by department. Groceries fill themselves from your meal plan, minus what's already in your pantry."
+        title={tr('Shopping')}
+        description={tr('Everything your family buys, by department. Groceries fill themselves from your meal plan, minus what\'s already in your pantry.')}
       >
         <Button variant="outline" size="sm" onClick={shareList} disabled={!activeList || remaining.length === 0}>
           <Share2 className="mr-2 h-4 w-4" />
-          Share
+          {tr('Share')}
         </Button>
         <Button size="sm" onClick={() => setMealPlanOpen(true)} disabled={!activeId}>
           <Sparkles className="mr-2 h-4 w-4" />
-          Add from meal plan
+          {tr('Add from meal plan')}
         </Button>
       </PageHeader>
 
       {/* Departments: Groceries, plus Household, Clothing, Kids and Eid on Amazon.ca for families in Canada. */}
-      <nav aria-label="Shopping departments" className="mb-5 flex flex-wrap gap-2">
+      <nav aria-label={tr('Shopping departments')} className="mb-5 flex flex-wrap gap-2">
         {SHOPPING_DEPARTMENTS.map((d) =>
           d.live || online || withPartners.has(d.id) ? (
             <button
@@ -416,16 +417,16 @@ export function GroceriesDashboard() {
                 department === d.id ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
               )}
             >
-              {d.label}
+              {tr(d.label)}
             </button>
           ) : (
             <span
               key={d.id}
-              title={`${d.note}. Coming with partner stores.`}
+              title={tr('{0}. Coming with partner stores.', [d.note])}
               className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3.5 py-1.5 text-sm text-muted-foreground"
             >
-              {d.label}
-              <span className="rounded-full bg-brand-gold/15 px-1.5 text-[10px] font-semibold uppercase tracking-wide text-brand-dark">Soon</span>
+              {tr(d.label)}
+              <span className="rounded-full bg-brand-gold/15 px-1.5 text-[10px] font-semibold uppercase tracking-wide text-brand-dark">{tr('Soon')}</span>
             </span>
           )
         )}
@@ -434,20 +435,20 @@ export function GroceriesDashboard() {
       {department !== 'groceries' ? (
         <div className="space-y-5">
           <PartnerShops shops={partners} department={activeDepartment.id} />
-          {online && <ShopDepartment id={activeDepartment.id} label={activeDepartment.label} note={activeDepartment.note} />}
+          {online && <ShopDepartment id={activeDepartment.id} label={tr(activeDepartment.label)} note={activeDepartment.note} />}
           <p className="text-sm text-muted-foreground">
-            Run a Muslim-owned shop?{' '}
+            {tr('Run a Muslim-owned shop?')}{' '}
             <Link href="/partners" className="font-semibold text-primary underline-offset-2 hover:underline">
-              Become a Firdam partner
+              {tr('Become a Firdam partner')}
             </Link>
-            , free for founding partners.
+            {tr(', free for founding partners.')}
           </p>
         </div>
       ) : loading ? (
         <Card>
           <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Loading your lists…
+            {tr('Loading your lists…')}
           </CardContent>
         </Card>
       ) : (
@@ -455,7 +456,7 @@ export function GroceriesDashboard() {
           {/* Lists */}
           <aside className="space-y-2">
             <p className="px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
-              Your lists
+              {tr('Your lists')}
             </p>
             <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
               {lists.map((list) => (
@@ -497,12 +498,12 @@ export function GroceriesDashboard() {
                           list.id === activeId ? 'text-primary' : 'text-muted-foreground'
                         )}
                       />
-                      <span className="truncate">{list.name}</span>
+                      <span className="truncate">{trn(list.name)}</span>
                     </button>
                   )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="List actions">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={tr('List actions')}>
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -514,7 +515,7 @@ export function GroceriesDashboard() {
                         }}
                       >
                         <Pencil className="mr-2 h-4 w-4" />
-                        Rename
+                        {tr('Rename')}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -522,7 +523,7 @@ export function GroceriesDashboard() {
                         className="text-destructive focus:text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete list
+                        {tr('Delete list')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -535,12 +536,12 @@ export function GroceriesDashboard() {
                   autoFocus
                   value={newListName}
                   onChange={(e) => setNewListName(e.target.value)}
-                  placeholder="e.g. Eid shopping"
+                  placeholder={tr('e.g. Eid shopping')}
                   className="h-9"
                   maxLength={80}
                 />
                 <Button type="submit" size="sm" className="h-9">
-                  Add
+                  {tr('Add')}
                 </Button>
               </form>
             ) : (
@@ -557,7 +558,7 @@ export function GroceriesDashboard() {
                 }}
               >
                 <ListPlus className="mr-2 h-4 w-4" />
-                New list
+                {tr('New list')}
               </Button>
             )}
           </aside>
@@ -572,20 +573,20 @@ export function GroceriesDashboard() {
                     ref={inputRef}
                     value={quickAdd}
                     onChange={(e) => setQuickAdd(e.target.value)}
-                    placeholder='Add an item — try "2 kg chicken" or "dates"'
-                    aria-label="Add grocery item"
+                    placeholder={tr('Add an item — try "2 kg chicken" or "dates"')}
+                    aria-label={tr('Add grocery item')}
                     disabled={!activeId}
                   />
                   <Button type="submit" disabled={adding || !quickAdd.trim() || !activeId}>
                     {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                    <span className="ml-2 hidden sm:inline">Add</span>
+                    <span className="ml-2 hidden sm:inline">{tr('Add')}</span>
                   </Button>
                 </form>
                 {items.length > 0 && (
                   <div className="mt-4 flex items-center gap-3">
                     <Progress value={progress} className="h-2 flex-1" />
                     <span className="text-xs font-medium tabular-nums text-muted-foreground">
-                      {checked.length}/{items.length} in the basket
+                      {checked.length}/{items.length} {tr('in the basket')}
                     </span>
                   </div>
                 )}
@@ -600,17 +601,17 @@ export function GroceriesDashboard() {
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-foreground">
                     {nearYou?.meat.length
-                      ? `${nearYou.meat.length} meat item${nearYou.meat.length === 1 ? '' : 's'} on your list`
-                      : 'Meat on your list'}
+                      ? tr('{0} meat item{1} on your list', [nearYou.meat.length, nearYou.meat.length === 1 ? '' : 's'])
+                      : tr('Meat on your list')}
                   </p>
                   <p className="truncate text-sm text-muted-foreground">
-                    {nearYou?.meat.length ? `${listNames(nearYou.meat)}. ` : ''}Buy it from a halal butcher.
+                    {nearYou?.meat.length ? `${listNames(nearYou.meat)}. ` : ''}{tr('Buy it from a halal butcher.')}
                   </p>
                 </div>
                 <Button asChild className="shrink-0">
                   <Link href="/dashboard/halal-places?category=butcher">
                     <MapPin className="mr-2 h-4 w-4" />
-                    Find a halal butcher
+                    {tr('Find a halal butcher')}
                   </Link>
                 </Button>
               </div>
@@ -623,14 +624,14 @@ export function GroceriesDashboard() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-foreground">
-                    {onAmazon.length} item{onAmazon.length === 1 ? '' : 's'} available on Amazon.ca
+                    {onAmazon.length} {tr('item')}{onAmazon.length === 1 ? '' : tr('s')} {tr('available on Amazon.ca')}
                   </p>
                   <p className="truncate text-sm text-muted-foreground">{listNames(onAmazon.map((i) => i.name))}.</p>
                 </div>
                 <Button asChild variant="outline" className="shrink-0">
                   <a href="#on-amazon">
                     <ShoppingCart className="mr-2 h-4 w-4" />
-                    See on Amazon
+                    {tr('See on Amazon')}
                   </a>
                 </Button>
               </div>
@@ -640,7 +641,7 @@ export function GroceriesDashboard() {
               <Card>
                 <CardContent className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading items…
+                  {tr('Loading items…')}
                 </CardContent>
               </Card>
             ) : items.length === 0 ? (
@@ -650,14 +651,14 @@ export function GroceriesDashboard() {
                     <ShoppingCart className="h-7 w-7" />
                   </span>
                   <h3 className="mt-5 text-lg font-semibold text-foreground">
-                    {activeList ? `${activeList.name} is empty` : 'No list selected'}
+                    {activeList ? tr('{0} is empty', [activeList.name]) : tr('No list selected')}
                   </h3>
                   <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-                    Add items above, or fill the list from this week&apos;s meal plan in one tap.
+                    {tr('Add items above, or fill the list from this week\'s meal plan in one tap.')}
                   </p>
                   <Button size="sm" className="mt-6" onClick={() => setMealPlanOpen(true)} disabled={!activeId}>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Add from meal plan
+                    {tr('Add from meal plan')}
                   </Button>
                 </CardContent>
               </Card>
@@ -670,7 +671,7 @@ export function GroceriesDashboard() {
                       <div className="flex items-center gap-2 border-b border-border/70 bg-muted/40 px-4 py-2">
                         <Icon className="h-4 w-4 text-primary" />
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          {group.category}
+                          {trn(group.category)}
                         </p>
                         <span className="ml-auto text-xs text-muted-foreground">{group.items.length}</span>
                       </div>
@@ -693,16 +694,16 @@ export function GroceriesDashboard() {
                     <div className="flex items-center gap-2 border-b border-border/70 bg-muted/40 px-4 py-2">
                       <ShoppingCart className="h-4 w-4 text-primary" />
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Available on Amazon.ca ({onAmazon.length})
+                        {tr('Available on Amazon.ca (')}{onAmazon.length})
                       </p>
                     </div>
                     <ul className="divide-y divide-border/60">
                       {onAmazon.map((item) => (
                         <li key={item.id} className="flex items-center gap-3 px-4 py-2.5">
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium text-foreground">{item.name}</p>
+                            <p className="truncate text-sm font-medium text-foreground">{trn(item.name)}</p>
                             {needsHalalCheck(item.name) && (
-                              <p className="text-xs text-muted-foreground">Halal options shown · check the label for a halal certificate</p>
+                              <p className="text-xs text-muted-foreground">{tr('Halal options shown · check the label for a halal certificate')}</p>
                             )}
                           </div>
                           <a
@@ -711,20 +712,20 @@ export function GroceriesDashboard() {
                             rel="sponsored noopener noreferrer"
                             className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-primary hover:bg-muted"
                           >
-                            See on Amazon <ExternalLink className="h-3 w-3" />
+                            {tr('See on Amazon')} <ExternalLink className="h-3 w-3" />
                           </a>
                         </li>
                       ))}
                     </ul>
                     <p className="border-t border-border/60 px-4 py-2 text-xs text-muted-foreground">
-                      {AFFILIATE_NOTE}
+                      {trn(AFFILIATE_NOTE)}
                     </p>
                   </Card>
                 )}
 
                 {remaining.length === 0 && (
                   <p className="rounded-2xl bg-brand-sage/10 px-4 py-3 text-center text-sm font-medium text-brand-sage">
-                    Everything is in the basket. Alhamdulillah!
+                    {tr('Everything is in the basket. Alhamdulillah!')}
                   </p>
                 )}
 
@@ -732,7 +733,7 @@ export function GroceriesDashboard() {
                   <Card className="overflow-hidden">
                     <div className="flex flex-wrap items-center gap-2 border-b border-border/70 bg-muted/40 px-4 py-2">
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        In the basket ({checked.length})
+                        {tr('In the basket (')}{checked.length})
                       </p>
                       <div className="ml-auto flex gap-1">
                         <Button
@@ -747,17 +748,17 @@ export function GroceriesDashboard() {
                           ) : (
                             <Archive className="mr-1.5 h-3.5 w-3.5" />
                           )}
-                          Put away in pantry
+                          {tr('Put away in pantry')}
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
                           <a href="/dashboard/pantry?scan=1">
                             <Receipt className="mr-1.5 h-3.5 w-3.5" />
-                            Scan receipt
+                            {tr('Scan receipt')}
                           </a>
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearChecked}>
                           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                          Clear
+                          {tr('Clear')}
                         </Button>
                       </div>
                     </div>

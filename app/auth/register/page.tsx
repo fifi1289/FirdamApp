@@ -21,6 +21,7 @@ import {
   passwordStrength,
   STRENGTH_LABELS,
 } from '@/lib/auth/validation';
+import { tr, trn } from '@/lib/i18n';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function RegisterPage() {
     }
 
     if (TURNSTILE_SITE_KEY && !captcha) {
-      toast.message('One moment — we’re checking you’re not a bot.');
+      toast.message(tr('One moment — we’re checking you’re not a bot.'));
       return;
     }
 
@@ -100,19 +101,19 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      title="Create your account"
-      description="Start organizing your life — free, no credit card required."
+      title={tr('Create your account')}
+      description={tr('Start organizing your life — free, no credit card required.')}
     >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First name</Label>
+            <Label htmlFor="firstName">{tr('First name')}</Label>
             <div className="relative">
               <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="firstName"
                 type="text"
-                placeholder="Sami"
+                placeholder={tr('Sami')}
                 className="pl-9"
                 autoComplete="given-name"
                 required
@@ -122,15 +123,15 @@ export default function RegisterPage() {
               />
             </div>
             {errors.firstName && (
-              <p className="text-xs text-destructive">{errors.firstName}</p>
+              <p className="text-xs text-destructive">{trn(errors.firstName)}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last name</Label>
+            <Label htmlFor="lastName">{tr('Last name')}</Label>
             <Input
               id="lastName"
               type="text"
-              placeholder="Khan"
+              placeholder={tr('Khan')}
               autoComplete="family-name"
               required
               value={lastName}
@@ -138,19 +139,19 @@ export default function RegisterPage() {
               aria-invalid={!!errors.lastName}
             />
             {errors.lastName && (
-              <p className="text-xs text-destructive">{errors.lastName}</p>
+              <p className="text-xs text-destructive">{trn(errors.lastName)}</p>
             )}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{tr('Email')}</Label>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={tr('you@example.com')}
               className="pl-9"
               autoComplete="email"
               required
@@ -165,13 +166,13 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{tr('Password')}</Label>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="password"
               type="password"
-              placeholder="At least 8 characters"
+              placeholder={tr('At least 8 characters')}
               className="pl-9"
               autoComplete="new-password"
               required
@@ -199,23 +200,23 @@ export default function RegisterPage() {
                 ))}
               </div>
               <span className="text-xs text-muted-foreground">
-                {STRENGTH_LABELS[strength]}
+                {trn(STRENGTH_LABELS[strength])}
               </span>
             </div>
           )}
           {errors.password && (
-            <p className="text-xs text-destructive">{errors.password}</p>
+            <p className="text-xs text-destructive">{trn(errors.password)}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{tr('Confirm password')}</Label>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="confirm"
               type="password"
-              placeholder="Re-enter your password"
+              placeholder={tr('Re-enter your password')}
               className="pl-9"
               autoComplete="new-password"
               required
@@ -225,7 +226,7 @@ export default function RegisterPage() {
             />
           </div>
           {errors.confirm && (
-            <p className="text-xs text-destructive">{errors.confirm}</p>
+            <p className="text-xs text-destructive">{trn(errors.confirm)}</p>
           )}
         </div>
 
@@ -237,19 +238,19 @@ export default function RegisterPage() {
             onCheckedChange={(v) => setAgreed(v === true)}
           />
           <span className="text-sm text-muted-foreground">
-            I’m 18 or older and I agree to the{' '}
+            {tr('I’m 18 or older and I agree to the')}{' '}
             <Link href="/terms" target="_blank" className="font-medium text-primary hover:underline">
-              Terms of Use
+              {tr('Terms of Use')}
             </Link>{' '}
-            and{' '}
+            {tr('and')}{' '}
             <Link href="/privacy" target="_blank" className="font-medium text-primary hover:underline">
-              Privacy Policy
+              {tr('Privacy Policy')}
             </Link>
             .
           </span>
         </label>
         {errors.terms && (
-          <p className="text-xs text-destructive">{errors.terms}</p>
+          <p className="text-xs text-destructive">{trn(errors.terms)}</p>
         )}
 
         <Turnstile onToken={setCaptcha} resetKey={captchaReset} />
@@ -258,11 +259,11 @@ export default function RegisterPage() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating account…
+              {tr('Creating account…')}
             </>
           ) : (
             <>
-              Create account
+              {tr('Create account')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </>
           )}
@@ -272,7 +273,7 @@ export default function RegisterPage() {
       <div className="my-6 flex items-center gap-3">
         <Separator className="flex-1" />
         <span className="text-xs uppercase tracking-wider text-muted-foreground">
-          or
+          {tr('or')}
         </span>
         <Separator className="flex-1" />
       </div>
@@ -287,27 +288,27 @@ export default function RegisterPage() {
         {googleLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Connecting…
+            {tr('Connecting…')}
           </>
         ) : (
-          'Sign up with Google'
+          tr('Sign up with Google')
         )}
       </Button>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{' '}
+        {tr('Already have an account?')}{' '}
         <Link
           href="/auth/login"
           className="font-medium text-primary hover:underline"
         >
-          Sign in
+          {tr('Sign in')}
         </Link>
       </p>
 
       <div className="mt-4 rounded-lg bg-muted/40 p-3 text-center text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <Check className="h-3 w-3 text-primary" />
-          We&apos;ll send a verification link to your email after signup.
+          {tr('We\'ll send a verification link to your email after signup.')}
         </span>
       </div>
     </AuthShell>

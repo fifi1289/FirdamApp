@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { NoPartnersHere, PartnerCard, usePartnerShops, useVisiblePartners } from '@/features/groceries/partner-shops';
 import { LEARNING_NOTE, learningPartners, learningTopicsInUse, matchesWorks } from '@/features/groceries/partners';
 import { PartnerFilters, type WorksFilter } from '@/features/partners/partner-filters';
+import { tr, trn } from '@/lib/i18n';
 
 const COMING = [
   { icon: BookOpenText, title: 'Quran & tajweed', text: 'Online and local teachers for reading, tajweed and hifz.' },
@@ -32,15 +33,15 @@ export function LearningDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Learning"
-        description="Learn Quran, tajweed, Arabic, hadith and more with trusted teachers and Islamic schools, for kids and adults."
+        title={tr('Learning')}
+        description={tr('Learn Quran, tajweed, Arabic, hadith and more with trusted teachers and Islamic schools, for kids and adults.')}
       />
 
       {all.length > 0 && <PartnerFilters shops={allShops} works={works} onWorks={setWorks} />}
       {all.length > 0 ? (
         <div className="space-y-4">
           {topics.length > 1 && (
-            <nav aria-label="Topics" className="flex flex-wrap gap-2">
+            <nav aria-label={tr('Topics')} className="flex flex-wrap gap-2">
               {[null, ...topics].map((t) => (
                 <button
                   key={t ?? 'all'}
@@ -52,37 +53,37 @@ export function LearningDashboard() {
                     topic === t ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
                   )}
                 >
-                  {t ?? 'All'}
+                  {trn(t) ?? tr('All')}
                 </button>
               ))}
             </nav>
           )}
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Learning partners</p>
-          {list.length ? list.map((s) => <PartnerCard key={s.id} shop={s} />) : <NoPartnersHere what="learning partners" />}
-          <p className="text-xs text-muted-foreground">{LEARNING_NOTE}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr('Learning partners')}</p>
+          {list.length ? list.map((s) => <PartnerCard key={s.id} shop={s} />) : <NoPartnersHere what={tr('learning partners')} />}
+          <p className="text-xs text-muted-foreground">{tr(LEARNING_NOTE)}</p>
         </div>
       ) : (
         <Card>
           <CardContent className="space-y-5 p-6">
             <div>
-              <p className="font-semibold text-foreground">Teachers and schools are joining soon, insha’Allah</p>
+              <p className="font-semibold text-foreground">{tr('Teachers and schools are joining soon, insha’Allah')}</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                We’re partnering with trusted teachers so your family can learn in one place.
+                {tr('We’re partnering with trusted teachers so your family can learn in one place.')}
               </p>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {COMING.map(({ icon: Icon, title, text }) => (
                 <div key={title} className="rounded-xl border border-border p-4">
                   <Icon className="h-5 w-5 text-primary" />
-                  <p className="mt-2 text-sm font-semibold text-foreground">{title}</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{text}</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">{trn(title)}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{trn(text)}</p>
                 </div>
               ))}
             </div>
             <p className="text-sm text-muted-foreground">
-              Meanwhile, keep reading with{' '}
+              {tr('Meanwhile, keep reading with')}{' '}
               <Link href="/dashboard/quran" className="font-semibold text-primary underline-offset-2 hover:underline">
-                Quran &amp; Duas
+                {tr('Quran & Duas')}
               </Link>
               .
             </p>
@@ -91,11 +92,11 @@ export function LearningDashboard() {
       )}
 
       <p className="mt-6 text-sm text-muted-foreground">
-        Teach Quran, Arabic or Islamic studies?{' '}
+        {tr('Teach Quran, Arabic or Islamic studies?')}{' '}
         <Link href="/partners" className="font-semibold text-primary underline-offset-2 hover:underline">
-          Become a Firdam learning partner
+          {tr('Become a Firdam learning partner')}
         </Link>
-        , free for founding partners.
+        {tr(', free for founding partners.')}
       </p>
     </AppShell>
   );

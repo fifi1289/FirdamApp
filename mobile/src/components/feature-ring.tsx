@@ -134,7 +134,16 @@ function Ring({
               transform: [{ rotate: upright }],
             }}
           >
-            <Pressable accessibilityRole="button" accessibilityLabel={tr(f.label)} onPress={() => router.push(f.app as Href)}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={tr(f.label)}
+              onPress={() => router.push(f.app as Href)}
+              // The ring turns on the native side, so React Native measures the
+              // bubble where it started, not where it is now. Without this, the
+              // tiny finger movement of a tap counts as "moved away" and the tap
+              // is dropped (very visible on tablets). Scrolling still cancels it.
+              pressRetentionOffset={{ top: size, bottom: size, left: size, right: size }}
+            >
               {({ pressed }) => (
                 <View
                   style={[

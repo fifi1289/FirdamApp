@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import { alertsAllowed } from './adhan-alerts';
+import { tr } from '@/lib/i18n';
 
 const KIND = 'weekly-plan';
 const ON_KEY = 'firdam.notify.weeklyPlan';
@@ -33,8 +34,8 @@ export async function scheduleWeeklyPlanReminder(): Promise<void> {
   }
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'Your plan for next week is ready',
-      body: 'Halal meals for the whole family, sized for your home. Tap to see it and swap anything you like.',
+      title: tr('Your plan for next week is ready'),
+      body: tr('Halal meals for the whole family, sized for your home. Tap to see it and swap anything you like.'),
       data: { kind: KIND, url: '/kitchen' },
     },
     trigger: {

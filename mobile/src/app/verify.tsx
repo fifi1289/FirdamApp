@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { AuthShell, FormMessage } from '@/components/auth-shell';
 import { Button, Field } from '@/components/ui';
 import { friendlyAuthError, useAuth } from '@/lib/auth';
+import { tr } from '@/lib/i18n';
 
 /** Shown after the password when two-step verification is on. */
 export default function Verify() {
@@ -14,7 +15,7 @@ export default function Verify() {
   const submit = async () => {
     const clean = code.replace(/\D/g, '');
     if (clean.length !== 6) {
-      setError('Enter the 6-digit code from your authenticator app.');
+      setError(tr('Enter the 6-digit code from your authenticator app.'));
       return;
     }
     setError(null);
@@ -30,9 +31,9 @@ export default function Verify() {
   };
 
   return (
-    <AuthShell canGoBack={false} title="Enter your code" subtitle="Two-step verification is on. Open your authenticator app and enter the 6-digit code for Firdam.">
+    <AuthShell canGoBack={false} title={tr('Enter your code')} subtitle={tr('Two-step verification is on. Open your authenticator app and enter the 6-digit code for Firdam.')}>
       <Field
-        label="6-digit code"
+        label={tr('6-digit code')}
         value={code}
         onChangeText={setCode}
         keyboardType="number-pad"
@@ -44,8 +45,8 @@ export default function Verify() {
         style={{ fontSize: 24, letterSpacing: 8, textAlign: 'center' }}
       />
       <FormMessage text={error} />
-      <Button label="Verify" onPress={submit} busy={busy} />
-      <Button label="Use a different account" variant="text" onPress={signOut} />
+      <Button label={tr('Verify')} onPress={submit} busy={busy} />
+      <Button label={tr('Use a different account')} variant="text" onPress={signOut} />
     </AuthShell>
   );
 }

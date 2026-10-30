@@ -9,6 +9,7 @@ import {
   type CalculationParameters,
 } from 'adhan';
 import { useCallback, useEffect, useState } from 'react';
+import { locale, tr } from '@/lib/i18n';
 
 /**
  * Prayer times are calculated on the phone (no internet needed), so they and
@@ -155,15 +156,15 @@ export function qiblaDirection(place: PrayerPlace): number {
 }
 
 export function formatTime(d: Date): string {
-  return d.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' }).replace('a.m.', 'am').replace('p.m.', 'pm');
+  return d.toLocaleTimeString(locale(), { hour: 'numeric', minute: '2-digit' }).replace('a.m.', 'am').replace('p.m.', 'pm');
 }
 
 export function formatCountdown(ms: number): string {
   const mins = Math.max(0, Math.round(ms / 60000));
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  if (h === 0) return `in ${m} min`;
-  return `in ${h} h ${m} min`;
+  if (h === 0) return tr('in {0} min', [m]);
+  return tr('in {0} h {1} min', [h, m]);
 }
 
 export function compassWord(deg: number): string {

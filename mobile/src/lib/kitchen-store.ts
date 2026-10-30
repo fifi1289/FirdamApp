@@ -18,6 +18,7 @@ import {
   type MealPreferencesState,
   type WeekPlan,
 } from './kitchen';
+import { tr } from '@/lib/i18n';
 
 /** Everything the kitchen screens share, loaded once and refreshed on demand. */
 export interface KitchenState {
@@ -99,7 +100,7 @@ export async function refreshKitchen(): Promise<void> {
       set({ loading: false, error: null, prefs, household, pantry, week, nextWeek: nextWeekPlan, listId: list.id, items, paid, aiUsed });
       ensureNextWeekPlan().catch(() => {});
     } catch (e) {
-      set({ loading: false, error: e instanceof Error ? e.message : 'Could not load your kitchen.' });
+      set({ loading: false, error: e instanceof Error ? e.message : tr('Could not load your kitchen.') });
     } finally {
       inflight = null;
     }

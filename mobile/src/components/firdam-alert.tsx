@@ -4,6 +4,7 @@ import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { Logo } from '@/components/art';
 import { Button, T } from '@/components/ui';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 export interface AlertButton {
   text?: string;
@@ -53,30 +54,30 @@ export function FirdamAlertHost() {
   const actions = current.buttons.filter((b) => b.style !== 'cancel');
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => close(cancel)}>
-      <Pressable style={styles.backdrop} onPress={() => close(cancel)} accessibilityLabel="Close">
+      <Pressable style={styles.backdrop} onPress={() => close(cancel)} accessibilityLabel={tr('Close')}>
         <Pressable style={styles.sheet} onPress={() => {}}>
           <View style={styles.brand}>
             <Logo size={34} />
           </View>
           <T weight="extrabold" size={19} style={{ textAlign: 'center' }} accessibilityRole="header">
-            {current.title}
+            {tr(current.title)}
           </T>
           {current.message ? (
             <T size={14.5} color="#5F5048" style={{ textAlign: 'center', lineHeight: 21 }}>
-              {current.message}
+              {tr(current.message)}
             </T>
           ) : null}
           <View style={{ gap: 8, marginTop: 6, alignSelf: 'stretch' }}>
             {actions.map((b, i) => (
               <Button
                 key={`${b.text}-${i}`}
-                label={b.text ?? 'OK'}
+                label={tr(b.text ?? 'OK')}
                 variant={i === 0 && b.style !== 'destructive' ? 'primary' : 'secondary'}
                 onPress={() => close(b)}
                 style={b.style === 'destructive' ? { borderColor: colors.brickText } : undefined}
               />
             ))}
-            {cancel ? <Button label={cancel.text ?? 'Cancel'} variant="text" onPress={() => close(cancel)} /> : null}
+            {cancel ? <Button label={tr(cancel.text ?? 'Cancel')} variant="text" onPress={() => close(cancel)} /> : null}
           </View>
         </Pressable>
       </Pressable>

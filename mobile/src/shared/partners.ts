@@ -213,10 +213,14 @@ export function partnerCountryOptions(shops: PartnerShop[], home: string | null)
   return home ? [home, ...rest] : rest;
 }
 
+/** Translator for the app's French (and later Arabic); the website passes nothing and gets English. */
+export type Translate = (en: string, vars?: (string | number)[]) => string;
+const fill: Translate = (en, vars) => en.replace(/\{(\d+)\}/g, (m, i) => (vars && vars[Number(i)] !== undefined ? String(vars[Number(i)]) : m));
+
 /** Joins names: "Canada", "Canada & United States", "Canada, Morocco & United States". */
-function joinNames(codes: string[]): string {
-  const names = codes.map(countryName);
-  return names.length <= 1 ? names.join('') : `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}`;
+function joinNames(codes: string[], t: Translate): string {
+  const names = codes.map((c) => t(countryName(c)));
+  return names.length <= 1 ? names.join('') : t('{0} & {1}', [names.slice(0, -1).join(', '), names[names.length - 1]]);
 }
 
 /** Whether a partner delivers things or serves people (services and learning). */
@@ -225,22 +229,23 @@ export function isServicePartner(shop: Pick<PartnerShop, 'department'>): boolean
 }
 
 /** "Ships to Canada & United States", "Serves clients worldwide", "Ships worldwide except Australia". */
-export function reachLabel(shop: PartnerShop): string {
+export function reachLabel(shop: PartnerShop, t: Translate = fill): string {
   if (!shop.country) return '';
   const serves = isServicePartner(shop);
   const mode = shop.ships_mode ?? 'country';
   if (mode === 'worldwide') {
     const ex = shop.exclude_countries ?? [];
-    return `${serves ? 'Serves clients worldwide' : 'Ships worldwide'}${ex.length ? ` except ${joinNames(ex)}` : ''}`;
+    if (ex.length) return t(serves ? 'Serves clients worldwide except {0}' : 'Ships worldwide except {0}', [joinNames(ex, t)]);
+    return t(serves ? 'Serves clients worldwide' : 'Ships worldwide');
   }
   const codes = mode === 'countries' ? [shop.country, ...(shop.ship_countries ?? []).filter((c) => c !== shop.country)] : [shop.country];
-  if (serves) return `Serves clients in ${joinNames(codes)}`;
-  return codes.length === 1 ? `Ships within ${joinNames(codes)}` : `Ships to ${joinNames(codes)}`;
+  if (serves) return t('Serves clients in {0}', [joinNames(codes, t)]);
+  return t(codes.length === 1 ? 'Ships within {0}' : 'Ships to {0}', [joinNames(codes, t)]);
 }
 
 /** Shown on a card when the family browses partners that can't reach them. */
-export function notReachLabel(shop: PartnerShop, country: string): string {
-  return `${isServicePartner(shop) ? 'Doesn’t serve' : 'Doesn’t ship to'} ${countryName(country)}`;
+export function notReachLabel(shop: PartnerShop, country: string, t: Translate = fill): string {
+  return t(isServicePartner(shop) ? 'Doesn’t serve {0}' : 'Doesn’t ship to {0}', [t(countryName(country))]);
 }
 
 /** How a service or learning partner works. */

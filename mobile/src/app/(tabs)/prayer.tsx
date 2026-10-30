@@ -23,6 +23,7 @@ import {
   type PrayerId,
 } from '@/lib/prayer';
 import { colors, fonts } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 function Bell({ on }: { on: boolean }) {
   return (
@@ -54,18 +55,18 @@ function SetLocation() {
   return (
     <Card style={{ gap: 12 }}>
       <T weight="extrabold" size={18}>
-        Where do you pray?
+        {tr('Where do you pray?')}
       </T>
       <T size={14} color={colors.muted} style={{ lineHeight: 20 }}>
-        Firdam works out prayer times on your phone from your location, so they keep working offline. Your location stays on your phone.
+        {tr('Firdam works out prayer times on your phone from your location, so they keep working offline. Your location stays on your phone.')}
       </T>
       {denied && (
         <T size={13.5} weight="semibold" color={colors.brickText}>
-          Location is off for Firdam. Choose your city instead, or allow location in your iPhone Settings.
+          {tr('Location is off for Firdam. Choose your city instead, or allow location in your iPhone Settings.')}
         </T>
       )}
-      <Button label="Use my location" onPress={useMine} busy={busy} />
-      <Button label="Choose a city" variant="secondary" onPress={() => router.push('/prayer-settings')} />
+      <Button label={tr('Use my location')} onPress={useMine} busy={busy} />
+      <Button label={tr('Choose a city')} variant="secondary" onPress={() => router.push('/prayer-settings')} />
     </Card>
   );
 }
@@ -97,7 +98,7 @@ export default function Prayer() {
             <HomeButton />
           </View>
           <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-            Prayer
+            {tr('Prayer')}
           </T>
           <SetLocation />
         </ScrollView>
@@ -119,7 +120,7 @@ export default function Prayer() {
           </View>
           <View style={styles.heroTop}>
             <HomeButton onDark />
-            <Pressable accessibilityRole="button" accessibilityLabel="Prayer settings" onPress={() => router.push('/prayer-settings')} style={styles.gear}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tr('Prayer settings')} onPress={() => router.push('/prayer-settings')} style={styles.gear}>
               <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
                 <Path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke={colors.goldText} strokeWidth={1.8} strokeLinecap="round" />
                 <Path d="M16 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM10 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" stroke={colors.goldText} strokeWidth={1.8} />
@@ -133,7 +134,7 @@ export default function Prayer() {
             {nextInfo.arabic}
           </T>
           <T weight="extrabold" size={44} color={colors.linen} style={{ letterSpacing: -1 }}>
-            {`${nextInfo.name} ${formatTime(next.at)}`}
+            {`${tr(nextInfo.name)} ${formatTime(next.at)}`}
           </T>
           <T size={15} color="#E9DCCD">
             {formatCountdown(next.at.getTime() - now.getTime())}
@@ -149,12 +150,12 @@ export default function Prayer() {
                 <View key={p.id} style={[styles.row, i < PRAYERS.length - 1 && styles.rowLine]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <T size={15.5} weight={isNext ? 'extrabold' : 'semibold'} color={p.alert ? colors.espresso : colors.muted}>
-                      {p.name}
+                      {tr(p.name)}
                     </T>
                     {isNext && (
                       <View style={styles.nextPill}>
                         <T size={11} weight="bold" color={colors.white}>
-                          NEXT
+                          {tr('NEXT')}
                         </T>
                       </View>
                     )}
@@ -167,7 +168,7 @@ export default function Prayer() {
                       <Pressable
                         accessibilityRole="switch"
                         accessibilityState={{ checked: on }}
-                        accessibilityLabel={`Adhan alert for ${p.name}`}
+                        accessibilityLabel={tr('Adhan alert for {0}', [p.name])}
                         onPress={() => toggle(p.id)}
                         style={[styles.bell, { backgroundColor: on ? colors.tint : '#F3EEE8' }]}
                       >
@@ -188,16 +189,16 @@ export default function Prayer() {
             </Card>
             <View style={[styles.ramadan]}>
               <T size={14} weight="bold" color="#1F3F2C">
-                Ramadan mode
+                {tr('Ramadan mode')}
               </T>
               <T size={12.5} color={colors.sageDark} style={{ marginTop: 4, lineHeight: 18 }}>
-                Suhoor and iftar meals timed to Fajr and Maghrib. Coming before Ramadan.
+                {tr('Suhoor and iftar meals timed to Fajr and Maghrib. Coming before Ramadan.')}
               </T>
             </View>
           </View>
 
           <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18 }}>
-            Times are calculated with the {method.name} method. If your mosque&apos;s timetable differs, follow your mosque.
+            {tr('Times are calculated with the {0} method. If your mosque’s timetable differs, follow your mosque.', [method.name])}
           </T>
         </View>
       </ScrollView>

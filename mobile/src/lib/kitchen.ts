@@ -33,6 +33,7 @@ import {
   type MockMeal,
   type RecipeRow,
 } from '@/shared/plan-core';
+import { tr } from '@/lib/i18n';
 
 export type { GeneratedMealPlan, MockMeal, RecipeRow, MealPreferencesState, Household };
 export { formatWeekRange, getStartOfWeek, formatDateISO };
@@ -282,7 +283,7 @@ export class AIPlanError extends Error {
 /** Asks the AI chef (the generate-meal-plan function) for a plan. Counts toward the monthly limit. */
 export async function buildAIPlan(prefs: MealPreferencesState, portions: number, pantry: PantryItem[], weekStart: string): Promise<GeneratedMealPlan> {
   const { data } = await supabase.auth.getSession();
-  if (!data.session) throw new AIPlanError('Please sign in again.', 401);
+  if (!data.session) throw new AIPlanError(tr('Please sign in again.'), 401);
   const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-meal-plan`, {
     method: 'POST',
     headers: {
@@ -311,7 +312,7 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
     | { days?: { dayIndex: number; dayName: string; date: string; meals: Record<string, unknown>[] }[]; error?: string }
     | null;
   if (!res.ok || !json?.days?.length) {
-    throw new AIPlanError(json?.error ?? `The AI chef could not make a plan (${res.status}).`, res.status);
+    throw new AIPlanError(json?.error ?? tr('The AI chef could not make a plan ({0}).', [res.status]), res.status);
   }
   const plan = normalizePlan({
     id: newPlanId(),
@@ -334,7 +335,7 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
 /** One new meal from the AI chef for a Swap (uses an AI swap, not a plan). */
 export async function aiSwapMeal(prefs: MealPreferencesState, portions: number, type: string, avoid: string[]): Promise<MockMeal> {
   const { data } = await supabase.auth.getSession();
-  if (!data.session) throw new AIPlanError('Please sign in again.', 401);
+  if (!data.session) throw new AIPlanError(tr('Please sign in again.'), 401);
   const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-meal-plan`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}`, apikey: SUPABASE_ANON_KEY },
@@ -347,11 +348,11 @@ export async function aiSwapMeal(prefs: MealPreferencesState, portions: number, 
     }),
   });
   const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string } | null;
-  if (!res.ok || !json?.meal) throw new AIPlanError(json?.error ?? `The AI chef could not swap this meal (${res.status}).`, res.status);
+  if (!res.ok || !json?.meal) throw new AIPlanError(json?.error ?? tr('The AI chef could not swap this meal ({0}).', [res.status]), res.status);
   // The server saves the dish in the recipe library and returns its id.
   const meal = normalizeMeal({ ...json.meal, id: (json.meal.id as string | undefined) ?? newPlanId(), type });
   if (json.meal.id) await loadRecipes(true).catch(() => []);
-  if (mealConflicts(meal, prefs.allergies)) throw new AIPlanError('The AI chef suggested something with a family allergy. Please try again.', 422);
+  if (mealConflicts(meal, prefs.allergies)) throw new AIPlanError(tr('The AI chef suggested something with a family allergy. Please try again.'), 422);
   return meal;
 }
 

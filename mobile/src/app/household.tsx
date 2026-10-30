@@ -21,12 +21,13 @@ import {
 } from '@/lib/household';
 import { refreshKitchen } from '@/lib/kitchen-store';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 const SHARED = ['Family calendar', 'Shopping lists', 'Meal plans', 'Pantry', 'Family profiles'];
 const MAX = 8;
 
 function message(e: unknown): string {
-  return e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : 'Something went wrong. Please try again.';
+  return e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : tr('Something went wrong. Please try again.');
 }
 
 /** Share Firdam with your family: one household, invites by link, the same as on firdam.com. */
@@ -72,15 +73,15 @@ export default function HouseholdScreen() {
 
   const share = (inv: HouseholdInvite) =>
     Share.share({
-      message: `Assalamu alaikum! Join our family on Firdam: we share our calendar, shopping list, meal plans and pantry. Sign in with ${inv.email}, then open this link: ${inviteLink(inv.token)}`,
+      message: tr('Assalamu alaikum! Join our family on Firdam: we share our calendar, shopping list, meal plans and pantry. Sign in with {0}, then open this link: {1}', [inv.email, inviteLink(inv.token)]),
     }).catch(() => {});
 
   const invite = async () => {
     const value = email.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return setProblem('Enter a valid email address.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return setProblem(tr('Enter a valid email address.'));
     if (!state?.household) return;
     if (state.members.length + state.invites.length >= state.capacity) {
-      return setProblem(`Your household is full (${state.capacity} people).`);
+      return setProblem(tr('Your household is full ({0} people).', [state.capacity]));
     }
     setBusy('invite');
     setProblem(null);
@@ -98,8 +99,8 @@ export default function HouseholdScreen() {
 
   const join = () => {
     const token = tokenFrom(code);
-    if (!token) return setProblem('Paste the whole invite link you received.');
-    run('join', () => acceptInvite(token), 'Welcome! You now share your family’s calendar, lists, plans and pantry.');
+    if (!token) return setProblem(tr('Paste the whole invite link you received.'));
+    run('join', () => acceptInvite(token), tr('Welcome! You now share your family’s calendar, lists, plans and pantry.'));
     setCode('');
   };
 
@@ -113,21 +114,21 @@ export default function HouseholdScreen() {
           <HomeButton />
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          {household ? household.name : 'Share with your family'}
+          {household ? household.name : tr('Share with your family')}
         </T>
         <T size={14.5} color={colors.muted} style={{ lineHeight: 21 }}>
-          One home for everyone: plan together, shop together, never miss a family date.
+          {tr('One home for everyone: plan together, shop together, never miss a family date.')}
         </T>
 
         <View style={styles.wrap}>
           {SHARED.map((s) => (
             <View key={s} style={styles.pill}>
-              <T size={12.5} weight="semibold" color={colors.sageDark}>{`✓ ${s}`}</T>
+              <T size={12.5} weight="semibold" color={colors.sageDark}>{`✓ ${tr(s)}`}</T>
             </View>
           ))}
         </View>
         <T size={12.5} color={colors.muted}>
-          Budget, Quran and personal trackers stay private.
+          {tr('Budget, Quran and personal trackers stay private.')}
         </T>
 
         {problem ? (
@@ -147,27 +148,27 @@ export default function HouseholdScreen() {
           <>
             <Card style={{ gap: 10 }}>
               <T weight="bold" size={16}>
-                Start your family household
+                {tr('Start your family household')}
               </T>
-              <Field label="Household name" value={name} onChangeText={setName} placeholder="The Rahman family" maxLength={80} />
-              <Button label="Create household" onPress={() => run('create', () => createHousehold(name), 'Your household is ready. Now invite your family.')} busy={busy === 'create'} />
+              <Field label={tr('Household name')} value={name} onChangeText={setName} placeholder={tr('The Rahman family')} maxLength={80} />
+              <Button label={tr('Create household')} onPress={() => run('create', () => createHousehold(name), tr('Your household is ready. Now invite your family.'))} busy={busy === 'create'} />
             </Card>
             <Card style={{ gap: 10 }}>
               <T weight="bold" size={16}>
-                Were you invited?
+                {tr('Were you invited?')}
               </T>
               <T size={13.5} color={colors.muted}>
-                Paste the invite link you received by message or email.
+                {tr('Paste the invite link you received by message or email.')}
               </T>
-              <Field label="Invite link" value={code} onChangeText={setCode} placeholder="https://firdam.com/join/…" autoCapitalize="none" autoCorrect={false} />
-              <Button label="Join household" variant="secondary" onPress={join} busy={busy === 'join'} />
+              <Field label={tr('Invite link')} value={code} onChangeText={setCode} placeholder={tr('https://firdam.com/join/…')} autoCapitalize="none" autoCorrect={false} />
+              <Button label={tr('Join household')} variant="secondary" onPress={join} busy={busy === 'join'} />
             </Card>
           </>
         ) : (
           <>
             <Card style={{ gap: 2 }}>
               <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4, marginBottom: 4 }}>
-                {`MEMBERS · ${state.members.length} OF ${Math.min(state.capacity, MAX)}`}
+                {tr('MEMBERS · {0} OF {1}', [state.members.length, Math.min(state.capacity, MAX)])}
               </T>
               {state.members.map((m, i) => (
                 <View key={m.user_id} style={[styles.row, i < state.members.length - 1 && styles.line]}>
@@ -177,17 +178,17 @@ export default function HouseholdScreen() {
                     </T>
                   </View>
                   <T size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
-                    {`${m.display_name ?? 'Family member'}${m.user_id === me ? ' (you)' : ''}${m.role === 'owner' ? ' · owner' : ''}`}
+                    {`${m.display_name ?? tr('Family member')}${m.user_id === me ? ` ${tr('(you)')}` : ''}${m.role === 'owner' ? ` · ${tr('owner')}` : ''}`}
                   </T>
                   {isOwner && m.user_id !== me ? (
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={`Remove ${m.display_name ?? 'member'}`}
-                      onPress={() => (confirm === m.user_id ? run('remove', () => removeMember(m.user_id), 'Member removed.') : setConfirm(m.user_id))}
+                      accessibilityLabel={tr('Remove {0}', [m.display_name ?? 'member'])}
+                      onPress={() => (confirm === m.user_id ? run('remove', () => removeMember(m.user_id), tr('Member removed.')) : setConfirm(m.user_id))}
                       hitSlop={8}
                     >
                       <T size={13} weight="bold" color={colors.brickText}>
-                        {confirm === m.user_id ? 'Remove?' : 'Remove'}
+                        {confirm === m.user_id ? tr('Remove?') : tr('Remove')}
                       </T>
                     </Pressable>
                   ) : null}
@@ -197,19 +198,19 @@ export default function HouseholdScreen() {
 
             <Card style={{ gap: 10 }}>
               <T weight="bold" size={16}>
-                Invite a family member
+                {tr('Invite a family member')}
               </T>
               <T size={13.5} color={colors.muted}>
-                Enter the email they use for Firdam. You’ll get a link to send them by message or email.
+                {tr('Enter the email they use for Firdam. You’ll get a link to send them by message or email.')}
               </T>
-              <Field label="Their email" value={email} onChangeText={setEmail} placeholder="name@example.com" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
-              <Button label="Create invite link" onPress={invite} busy={busy === 'invite'} />
+              <Field label={tr('Their email')} value={email} onChangeText={setEmail} placeholder={tr('name@example.com')} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+              <Button label={tr('Create invite link')} onPress={invite} busy={busy === 'invite'} />
             </Card>
 
             {state.invites.length ? (
               <Card style={{ gap: 2 }}>
                 <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4, marginBottom: 4 }}>
-                  WAITING TO JOIN
+                  {tr('WAITING TO JOIN')}
                 </T>
                 {state.invites.map((inv, i) => (
                   <View key={inv.id} style={[styles.row, i < state.invites.length - 1 && styles.line]}>
@@ -218,12 +219,12 @@ export default function HouseholdScreen() {
                     </T>
                     <Pressable accessibilityRole="button" onPress={() => share(inv)} hitSlop={8} style={styles.small}>
                       <T size={13} weight="bold" color={colors.walnut}>
-                        Send again
+                        {tr('Send again')}
                       </T>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityLabel={`Cancel invite for ${inv.email}`} onPress={() => run('revoke', () => revokeInvite(inv.id))} hitSlop={8}>
+                    <Pressable accessibilityRole="button" accessibilityLabel={tr('Cancel invite for {0}', [inv.email])} onPress={() => run('revoke', () => revokeInvite(inv.id))} hitSlop={8}>
                       <T size={13} weight="bold" color={colors.muted}>
-                        Cancel
+                        {tr('Cancel')}
                       </T>
                     </Pressable>
                   </View>
@@ -232,9 +233,9 @@ export default function HouseholdScreen() {
             ) : null}
 
             <Button
-              label={confirm === 'leave' ? 'Tap again to leave the household' : 'Leave household'}
+              label={confirm === 'leave' ? tr('Tap again to leave the household') : tr('Leave household')}
               variant="text"
-              onPress={() => (confirm === 'leave' ? run('leave', leaveHousehold, 'You left the household.') : setConfirm('leave'))}
+              onPress={() => (confirm === 'leave' ? run('leave', leaveHousehold, tr('You left the household.')) : setConfirm('leave'))}
             />
           </>
         )}

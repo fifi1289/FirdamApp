@@ -20,9 +20,10 @@ import { buildCalendarItems, iso, parseISODate, type CalendarItem } from '@/shar
 import { formatPortions } from '@/shared/pantry-portions';
 import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
 import { colors, fonts } from '@/theme';
+import { locale, tr } from '@/lib/i18n';
 
 function todayLabel(now: Date) {
-  return now.toLocaleDateString('en-CA', { weekday: 'long', day: 'numeric', month: 'short' });
+  return now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'short' });
 }
 
 function PrayerCard() {
@@ -41,13 +42,13 @@ function PrayerCard() {
         <StarPattern size={190} color={colors.gold} strokeWidth={0.8} />
       </View>
       <T size={13} weight="semibold" color={colors.goldText} style={{ letterSpacing: 0.4 }}>
-        {place ? `NEXT PRAYER · ${place.label.toUpperCase()}` : 'PRAYER TIMES'}
+        {place ? tr('NEXT PRAYER · {0}', [place.label.toUpperCase()]) : tr('PRAYER TIMES')}
       </T>
       {next && nextInfo && today ? (
         <>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 6 }}>
             <T size={34} weight="extrabold" color={colors.linen}>
-              {nextInfo.name}
+              {tr(nextInfo.name)}
             </T>
             <T size={30} weight="regular" color={colors.goldText}>
               {formatTime(next.at)}
@@ -55,7 +56,7 @@ function PrayerCard() {
           </View>
           <T size={14} color="#E9DCCD">
             {formatCountdown(next.at.getTime() - now.getTime())}
-            {settings?.alerts[next.id] ? ' · adhan alert on' : ''}
+            {settings?.alerts[next.id] ? tr(' · adhan alert on') : ''}
           </T>
           <View style={styles.row}>
             {PRAYERS.filter((p) => p.alert).map((p) => {
@@ -63,7 +64,7 @@ function PrayerCard() {
               return (
                 <View key={p.id} style={[styles.cell, active && styles.cellActive]}>
                   <T size={12} weight={active ? 'bold' : 'regular'} color={active ? colors.espresso : '#CDB9A5'}>
-                    {p.name}
+                    {tr(p.name)}
                   </T>
                   <T size={12} weight={active ? 'bold' : 'semibold'} color={active ? colors.espresso : '#E9DCCD'}>
                     {formatTime(today.times[p.id]).replace(/ ?[ap]m$/, '')}
@@ -76,10 +77,10 @@ function PrayerCard() {
       ) : (
         <>
           <T size={24} weight="extrabold" color={colors.linen} style={{ marginTop: 6 }}>
-            Set your location
+            {tr('Set your location')}
           </T>
           <T size={14} color="#E9DCCD" style={{ marginTop: 4 }}>
-            Tap here to see today’s prayer times and turn on adhan alerts.
+            {tr('Tap here to see today’s prayer times and turn on adhan alerts.')}
           </T>
         </>
       )}
@@ -101,18 +102,18 @@ function UseSoonCard() {
   return (
     <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/kitchen', params: { section: 'pantry' } })} style={[styles.warn, expired ? styles.warnRed : null]}>
       <T size={12.5} weight="bold" color={expired ? colors.brickText : '#8A5A16'} style={{ letterSpacing: 0.4 }}>
-        {expired ? `USE SOON · ${expired} EXPIRED` : 'USE SOON'}
+        {expired ? tr('USE SOON · {0} EXPIRED', [expired]) : tr('USE SOON')}
       </T>
       {soon.slice(0, 4).map(({ i, d }) => (
         <View key={i.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <T size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
             {i.name}
           </T>
-          <Badge label={d < 0 ? 'Expired' : d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : `${d} days`} tone={d <= 0 ? 'brick' : 'amber'} />
+          <Badge label={d < 0 ? tr('Expired') : d === 0 ? tr('Today') : d === 1 ? tr('Tomorrow') : tr('{0} days', [d])} tone={d <= 0 ? 'brick' : 'amber'} />
         </View>
       ))}
       <T size={12.5} color={colors.muted}>
-        {soon.length > 4 ? `+ ${soon.length - 4} more · ` : ''}Tap to see them in your pantry.
+        {soon.length > 4 ? tr('+ {0} more · ', [soon.length - 4]) : ''}{tr('Tap to see them in your pantry.')}
       </T>
     </Pressable>
   );
@@ -139,22 +140,22 @@ function MoneyCard() {
       .catch(() => setMonth(null));
   }, []);
   return (
-    <Pressable accessibilityRole="button" accessibilityHint="Opens Finance and zakat" onPress={() => router.push('/finance')}>
+    <Pressable accessibilityRole="button" accessibilityHint={tr('Opens Finance and zakat')} onPress={() => router.push('/finance')}>
       <Card style={{ gap: 8 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          FINANCE & ZAKAT
+          {tr('FINANCE & ZAKAT')}
         </T>
         {month && (month.spent > 0 || month.giving > 0) ? (
           <T size={15} weight="semibold">
-            {`${formatMoney(month.spent, month.currency)} spent · ${formatMoney(month.giving, month.currency)} given this month`}
+            {tr('{0} spent · {1} given this month', [formatMoney(month.spent, month.currency), formatMoney(month.giving, month.currency)])}
           </T>
         ) : (
           <T size={15} weight="semibold">
-            Budget, savings goals, sadaqah, and zakat al-mal and al-fitr
+            {tr('Budget, savings goals, sadaqah, and zakat al-mal and al-fitr')}
           </T>
         )}
         <T size={14} weight="bold" color={colors.walnut}>
-          Open Finance ›
+          {tr('Open Finance ›')}
         </T>
       </Card>
     </Pressable>
@@ -176,23 +177,23 @@ function UpcomingCard() {
   if (!items || items.length === 0) return null;
   const today = iso(new Date());
   return (
-    <Pressable accessibilityRole="button" accessibilityHint="Opens the family calendar" onPress={() => router.push('/calendar')}>
+    <Pressable accessibilityRole="button" accessibilityHint={tr('Opens the family calendar')} onPress={() => router.push('/calendar')}>
       <Card style={{ gap: 8 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          COMING UP
+          {tr('COMING UP')}
         </T>
         {items.map((it) => (
           <View key={it.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <T size={13} weight="bold" color={colors.walnut} style={{ width: 64 }}>
-              {it.date === today ? 'Today' : parseISODate(it.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' })}
+              {it.date === today ? tr('Today') : parseISODate(it.date).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric' })}
             </T>
             <T size={14.5} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
-              {it.title}
+              {tr(it.title)}
             </T>
           </View>
         ))}
         <T size={13.5} weight="bold" color={colors.walnut}>
-          Open the calendar ›
+          {tr('Open the calendar ›')}
         </T>
       </Card>
     </Pressable>
@@ -203,10 +204,10 @@ function UpcomingCard() {
 function DuaCard() {
   const dua = duaOfTheDay();
   return (
-    <Pressable accessibilityRole="button" accessibilityHint="Opens Quran and Duas" onPress={() => router.push('/quran')}>
+    <Pressable accessibilityRole="button" accessibilityHint={tr('Opens Quran and Duas')} onPress={() => router.push('/quran')}>
       <Card style={{ gap: 8 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          {`DUA OF THE DAY · ${dua.title.toUpperCase()}`}
+          {tr('DUA OF THE DAY · {0}', [dua.title.toUpperCase()])}
         </T>
         <T style={{ fontFamily: fonts.arabic, textAlign: 'right', writingDirection: 'rtl', lineHeight: 40 }} size={21}>
           {dua.arabic}
@@ -215,7 +216,7 @@ function DuaCard() {
           {dua.translation}
         </T>
         <T size={13.5} weight="bold" color={colors.walnut}>
-          More duas ›
+          {tr('More duas ›')}
         </T>
       </Card>
     </Pressable>
@@ -226,20 +227,20 @@ function ComingSoonCard() {
   return (
     <Card style={{ gap: 10 }}>
       <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-        COMING SOON TO THE APP
+        {tr('COMING SOON TO THE APP')}
       </T>
       {COMING.map((c) => (
         <View key={c.title} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <View style={styles.soonDot} />
           <View style={{ flex: 1 }}>
             <T size={14.5} weight="semibold">
-              {c.title}
+              {tr(c.title)}
             </T>
             <T size={12.5} color={colors.muted}>
-              {c.text}
+              {tr(c.text)}
             </T>
           </View>
-          <Badge label="Soon" tone="amber" />
+          <Badge label={tr('Soon')} tone="amber" />
         </View>
       ))}
     </Card>
@@ -263,24 +264,24 @@ function TonightCard() {
           <Photo uri={mealImage(meal)} size={92} radius={18} />
           <View style={{ flex: 1, minWidth: 0 }}>
             <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-              {meal.type === 'dinner' ? 'TONIGHT’S DINNER' : `TODAY · ${meal.type.toUpperCase()}`}
+              {meal.type === 'dinner' ? tr('TONIGHT’S DINNER') : tr('TODAY · {0}', [meal.type.toUpperCase()])}
             </T>
             <T size={18} weight="bold" numberOfLines={2} style={{ marginTop: 3 }}>
               {meal.name}
             </T>
-            <T size={13} color={colors.muted}>{`${meal.prepTime + meal.cookTime} min · for ${formatPortions(meal.servings)}`}</T>
-            <Button label="Start cooking" onPress={() => openMeal(meal, today)} style={{ height: 36, alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 14 }} />
+            <T size={13} color={colors.muted}>{tr('{0} min · for {1}', [meal.prepTime + meal.cookTime, formatPortions(meal.servings)])}</T>
+            <Button label={tr('Start cooking')} onPress={() => openMeal(meal, today)} style={{ height: 36, alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 14 }} />
           </View>
         </Card>
       ) : (
         <Card style={{ gap: 10 }}>
           <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            THIS WEEK’S MEALS
+            {tr('THIS WEEK’S MEALS')}
           </T>
           <T size={15} color="#5F5048">
-            No plan yet. Firdam can plan your week in seconds, sized for your family.
+            {tr('No plan yet. Firdam can plan your week in seconds, sized for your family.')}
           </T>
-          <Button label="Plan my week" onPress={() => router.push('/kitchen')} style={{ height: 44 }} />
+          <Button label={tr('Plan my week')} onPress={() => router.push('/kitchen')} style={{ height: 44 }} />
         </Card>
       )}
       {openItems ? (
@@ -291,9 +292,9 @@ function TonightCard() {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <T size={12.5} weight="bold" color={colors.sageDark} style={{ letterSpacing: 0.4 }}>
-              SHOPPING LIST
+              {tr('SHOPPING LIST')}
             </T>
-            <Badge label={`${openItems} to buy`} tone="sage" />
+            <Badge label={tr('{0} to buy', [openItems])} tone="sage" />
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
             {k.items
@@ -307,11 +308,11 @@ function TonightCard() {
                 </View>
               ))}
             {openItems > 5 ? (
-              <T size={13} color={colors.muted} style={{ alignSelf: 'center' }}>{`+${openItems - 5} more`}</T>
+              <T size={13} color={colors.muted} style={{ alignSelf: 'center' }}>{tr('+{0} more', [openItems - 5])}</T>
             ) : null}
           </View>
           <T size={13.5} weight="bold" color={colors.sageDark}>
-            Open the shopping list ›
+            {tr('Open the shopping list ›')}
           </T>
         </Pressable>
       ) : null}
@@ -322,7 +323,7 @@ function TonightCard() {
 /** Opens Notifications: every reminder Firdam sends, in one place. */
 function BellButton() {
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel="Notifications" onPress={() => router.push('/notifications')} hitSlop={8} style={styles.bell}>
+    <Pressable accessibilityRole="button" accessibilityLabel={tr('Notifications')} onPress={() => router.push('/notifications')} hitSlop={8} style={styles.bell}>
       <Icon name="bell" size={22} color={colors.walnut} />
     </Pressable>
   );
@@ -342,7 +343,7 @@ export default function Today() {
   const { firstName } = useAuth();
   const now = useNow(60000);
   return (
-    <TabScreen home action={<BellButton />} title={todayLabel(now)} subtitle={`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}>
+    <TabScreen home action={<BellButton />} title={todayLabel(now)} subtitle={tr('Assalamu alaikum{0}', [firstName ? `, ${firstName}` : ''])}>
       <FeatureRing />
       <PrayerCard />
       <DuaCard />

@@ -1,5 +1,6 @@
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from './config';
 import { supabase } from './supabase';
+import { tr } from '@/lib/i18n';
 
 /** Calls a Supabase edge function as the signed-in user. GET by default; pass body to POST. */
 export async function callFunction<T>(name: string, params?: Record<string, string | number>, body?: unknown): Promise<T> {
@@ -15,6 +16,6 @@ export async function callFunction<T>(name: string, params?: Record<string, stri
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const json = (await res.json().catch(() => null)) as (T & { error?: string }) | null;
-  if (!res.ok || !json) throw new Error(json?.error ?? `Something went wrong (${res.status}).`);
+  if (!res.ok || !json) throw new Error(json?.error ?? tr('Something went wrong ({0}).', [res.status]));
   return json;
 }

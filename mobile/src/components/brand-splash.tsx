@@ -3,20 +3,21 @@ import { StyleSheet, View } from 'react-native';
 import { Logo, StarPattern } from '@/components/art';
 import { T } from '@/components/ui';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /** Shown while the app starts: the logo, the name and the slogan. */
 export function BrandSplash() {
   return (
-    <View style={styles.screen} accessibilityLabel="Firdam. One home for your Muslim life.">
+    <View style={styles.screen} accessibilityLabel={tr('Firdam. One home for your Muslim life.')}>
       <View style={styles.star} pointerEvents="none">
         <StarPattern size={460} />
       </View>
       <Logo size={88} />
       <T weight="extrabold" size={34} style={{ marginTop: 18 }}>
-        Firdam
+        {tr('Firdam')}
       </T>
       <T size={16} color="#5F5048" style={styles.slogan}>
-        One home for your Muslim life.
+        {tr('One home for your Muslim life.')}
       </T>
     </View>
   );

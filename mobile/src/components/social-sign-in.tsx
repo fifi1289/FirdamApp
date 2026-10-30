@@ -5,6 +5,7 @@ import { T } from '@/components/ui';
 import { appleSignInAvailable, signInWithApple, signInWithGoogle } from '@/lib/social-auth';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { tr } from '@/lib/i18n';
 
 /** "Continue with Apple" (iPhone) and "Continue with Google", above the email form. */
 export function SocialSignIn() {
@@ -20,7 +21,7 @@ export function SocialSignIn() {
     try {
       await fn();
     } catch (e) {
-      showAlert('Could not sign in', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not sign in'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setBusy(false);
     }
@@ -30,27 +31,27 @@ export function SocialSignIn() {
     <View style={{ gap: 10 }}>
       {apple ? (
         // Apple's style: black button, Apple logo, "Continue with Apple".
-        <Pressable accessibilityRole="button" accessibilityLabel="Continue with Apple" onPress={() => run(signInWithApple)} style={styles.apple} disabled={busy}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('Continue with Apple')} onPress={() => run(signInWithApple)} style={styles.apple} disabled={busy}>
           <T weight="bold" size={18} color="#FFFFFF">
             {'\uF8FF'}
           </T>
           <T weight="bold" size={15.5} color="#FFFFFF">
-            Continue with Apple
+            {tr('Continue with Apple')}
           </T>
         </Pressable>
       ) : null}
       <Pressable accessibilityRole="button" onPress={() => run(signInWithGoogle)} style={styles.google} disabled={busy}>
         <T weight="extrabold" size={17} color="#4285F4">
-          G
+          {tr('G')}
         </T>
         <T weight="bold" size={15.5}>
-          Continue with Google
+          {tr('Continue with Google')}
         </T>
       </Pressable>
       <View style={styles.or}>
         <View style={styles.line} />
         <T size={12.5} color={colors.muted}>
-          or with email
+          {tr('or with email')}
         </T>
         <View style={styles.line} />
       </View>

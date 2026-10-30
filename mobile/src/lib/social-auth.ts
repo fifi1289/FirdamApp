@@ -4,6 +4,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
 import { supabase } from './supabase';
+import { tr } from '@/lib/i18n';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -18,7 +19,7 @@ export async function signInWithApple(): Promise<boolean> {
     const credential = await AppleAuthentication.signInAsync({
       requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
     });
-    if (!credential.identityToken) throw new Error('Apple did not return a sign-in token.');
+    if (!credential.identityToken) throw new Error(tr('Apple did not return a sign-in token.'));
     const { error } = await supabase.auth.signInWithIdToken({ provider: 'apple', token: credential.identityToken });
     if (error) throw error;
     // Apple shares the name only on the very first sign-in: keep it.
@@ -29,7 +30,7 @@ export async function signInWithApple(): Promise<boolean> {
     if ((e as { code?: string }).code === 'ERR_REQUEST_CANCELED') return false;
     // The Expo Go preview doesn't include Apple's sign-in; the real app does.
     if (e instanceof Error && /not available|native dependencies|linked/i.test(e.message)) {
-      throw new Error('Sign in with Apple works in the Firdam app from TestFlight or the App Store, not in this preview. Use Google or email here.');
+      throw new Error(tr('Sign in with Apple works in the Firdam app from TestFlight or the App Store, not in this preview. Use Google or email here.'));
     }
     throw e;
   }
@@ -42,7 +43,7 @@ export async function signInWithGoogle(): Promise<boolean> {
     provider: 'google',
     options: { redirectTo, skipBrowserRedirect: true },
   });
-  if (error || !data.url) throw error ?? new Error('Google sign-in is not available right now.');
+  if (error || !data.url) throw error ?? new Error(tr('Google sign-in is not available right now.'));
   // Start on firdam.com (it forwards to the sign-in), so the iPhone prompt names firdam.com.
   const start = `https://firdam.com/auth/mobile?to=${encodeURIComponent(data.url)}`;
   const result = await WebBrowser.openAuthSessionAsync(start, redirectTo);
@@ -51,7 +52,7 @@ export async function signInWithGoogle(): Promise<boolean> {
   const code = url.searchParams.get('code');
   const problem = url.searchParams.get('error_description');
   if (problem) throw new Error(problem);
-  if (!code) throw new Error('Google sign-in did not finish. Please try again.');
+  if (!code) throw new Error(tr('Google sign-in did not finish. Please try again.'));
   const { error: exchange } = await supabase.auth.exchangeCodeForSession(code);
   if (exchange) throw exchange;
   return true;

@@ -32,6 +32,7 @@ import { swapPlanMeal } from '@/shared/plan-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { locale, tr } from '@/lib/i18n';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TYPE_LABEL: Record<string, string> = { breakfast: 'BREAKFAST', lunch: 'LUNCH', dinner: 'DINNER', snack: 'SNACK' };
@@ -95,8 +96,8 @@ export function PlanView() {
         if (!res) {
           const cuisine = (k.prefs.cuisinePreferences?.[m.type] ?? []).join(' or ');
           showAlert(
-            cuisine ? `No other ${cuisine} ${m.type} in the library` : 'No other library recipe fits',
-            'The AI chef can create a new one that suits your family, and it joins the recipe library.',
+            cuisine ? tr('No other {0} {1} in the library', [cuisine, m.type]) : tr('No other library recipe fits'),
+            tr('The AI chef can create a new one that suits your family, and it joins the recipe library.'),
             [
               { text: 'Create with the AI chef', onPress: () => swapFrom(m, 'ai') },
               { text: 'Not now', style: 'cancel' },
@@ -117,15 +118,15 @@ export function PlanView() {
       }
       const id = await saveWeekPlan(next, k.prefs, wk.id);
       patchKitchen({ [weekKey]: { id, plan: next } });
-      if (note) showAlert('Swapped', note);
+      if (note) showAlert(tr('Swapped'), note);
     } catch (e) {
-      showAlert('Could not swap this meal', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not swap this meal'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setSwapping(null);
     }
   };
   const swap = (m: MockMeal) =>
-    showAlert(`Swap this ${m.type}`, 'Library swaps are unlimited. AI chef swaps: 10 a month on the free plan, 40 with Firdam Family.', [
+    showAlert(tr('Swap this {0}', [m.type]), tr('Library swaps are unlimited. AI chef swaps: 10 a month on the free plan, 40 with Firdam Family.'), [
       { text: 'From the recipe library', onPress: () => swapFrom(m, 'library') },
       { text: 'Ask the AI chef', onPress: () => swapFrom(m, 'ai') },
       { text: 'Cancel', style: 'cancel' },
@@ -146,8 +147,8 @@ export function PlanView() {
           } catch (e) {
             const used = e instanceof AIPlanError && (e.status === 402 || e.status === 429);
             showAlert(
-              used ? 'No AI plans left this month' : 'The AI chef is busy',
-              used ? 'Here is a plan from the recipe library instead — those are always unlimited.' : 'Here is a plan from the recipe library instead.'
+              used ? tr('No AI plans left this month') : tr('The AI chef is busy'),
+              used ? tr('Here is a plan from the recipe library instead — those are always unlimited.') : tr('Here is a plan from the recipe library instead.')
             );
             if (used) patchKitchen({ aiUsed: limit });
             next = await buildLibraryPlan(prefs, portions, k.pantry, weekStart);
@@ -157,20 +158,20 @@ export function PlanView() {
         }
         const id = await saveWeekPlan(next, prefs, wk?.id ?? null);
         patchKitchen({ [weekKey]: { id, plan: next } });
-        showAlert('Your new plan is ready', 'Tap any day to see its meals. Use “Swap” on a meal to change just that one. Each Sunday Firdam prepares next week’s plan and lets you know.');
+        showAlert(tr('Your new plan is ready'), tr('Tap any day to see its meals. Use “Swap” on a meal to change just that one. Each Sunday Firdam prepares next week’s plan and lets you know.'));
         askForAlerts()
           .then((ok) => {
             if (ok) return scheduleWeeklyPlanReminder();
           })
           .catch(() => {});
       } catch (e) {
-        showAlert('Could not plan your week', e instanceof Error ? e.message : 'Please try again.');
+        showAlert(tr('Could not plan your week'), e instanceof Error ? e.message : tr('Please try again.'));
       } finally {
         setBusy(null);
       }
     };
     if (wk) {
-      showAlert(offset ? 'Replace next week’s plan?' : 'Replace this week’s plan?', 'Your family will see the new plan on the website and in the app.', [
+      showAlert(offset ? tr('Replace next week’s plan?') : tr('Replace this week’s plan?'), tr('Your family will see the new plan on the website and in the app.'), [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Replace', style: 'destructive', onPress: run },
       ]);
@@ -184,9 +185,9 @@ export function PlanView() {
       const needs = shoppingForPlan(plan, k.pantry, offset ? formatDateISO(weekStartDate) : today, k.items);
       const added = await addShoppingItems(k.listId, needs.map((n) => ({ ...n, fromMealPlan: true })), k.items);
       await refreshShopping();
-      showAlert(added ? `Updated ${added} item${added === 1 ? '' : 's'}` : 'Nothing to add', added ? 'Amounts for the same food are added together. Find them in Shopping.' : 'Your pantry and list already cover the rest of this week.');
+      showAlert(added ? tr('Updated {0} item{1}', [added, added === 1 ? '' : 's']) : tr('Nothing to add'), added ? tr('Amounts for the same food are added together. Find them in Shopping.') : tr('Your pantry and list already cover the rest of this week.'));
     } catch (e) {
-      showAlert('Could not update the list', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not update the list'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setBusy(null);
     }
@@ -195,8 +196,8 @@ export function PlanView() {
   return (
     <View style={{ gap: 14 }}>
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        <Chip label="This week" selected={offset === 0} onPress={() => switchWeek(0)} />
-        <Chip label={k.nextWeek ? 'Next week · ready' : 'Next week'} selected={offset === 1} onPress={() => switchWeek(1)} />
+        <Chip label={tr('This week')} selected={offset === 0} onPress={() => switchWeek(0)} />
+        <Chip label={k.nextWeek ? tr('Next week · ready') : tr('Next week')} selected={offset === 1} onPress={() => switchWeek(1)} />
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
         {days.map((d) => {
@@ -206,7 +207,7 @@ export function PlanView() {
           return (
             <Pressable key={iso} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => setSelected(iso)} style={[styles.day, on && styles.dayOn]}>
               <T size={11} weight="semibold" color={on ? colors.linen : colors.muted}>
-                {d.toLocaleDateString('en-CA', { weekday: 'short' })}
+                {d.toLocaleDateString(locale(), { weekday: 'short' })}
               </T>
               <T size={17} weight="extrabold" color={on ? colors.linen : colors.espresso}>
                 {d.getDate()}
@@ -228,12 +229,12 @@ export function PlanView() {
                     <T size={11.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
                       {TYPE_LABEL[m.type] ?? m.type.toUpperCase()}
                     </T>
-                    <T size={14.5} weight="bold">{`No ${m.needsAI} ${m.type} in the library yet`}</T>
+                    <T size={14.5} weight="bold">{tr('No {0} {1} in the library yet', [m.needsAI, m.type])}</T>
                     <T size={12.5} color={colors.muted}>
-                      The AI chef can create one for your family. It joins the recipe library too.
+                      {tr('The AI chef can create one for your family. It joins the recipe library too.')}
                     </T>
                     <Button
-                      label={busyHere ? 'Creating…' : 'Create with the AI chef'}
+                      label={busyHere ? tr('Creating…') : tr('Create with the AI chef')}
                       onPress={() => swapFrom(m, 'ai')}
                       busy={busyHere}
                       style={{ height: 40, alignSelf: 'flex-start', paddingHorizontal: 14, marginTop: 4 }}
@@ -257,32 +258,32 @@ export function PlanView() {
                   </T>
                   {k.pantry.length ? (
                     <T size={12.5} weight="semibold" color={missing ? '#8A5A16' : colors.sage}>
-                      {missing ? `${total - missing} of ${total} at home · ${missing} to buy` : `All ${total} ingredients at home`}
+                      {missing ? tr('{0} of {1} at home · {2} to buy', [total - missing, total, missing]) : tr('All {0} ingredients at home', [total])}
                     </T>
                   ) : (
-                    <T size={12.5} color={colors.muted}>{`${m.prepTime + m.cookTime} min · for ${formatPortions(m.servings)}`}</T>
+                    <T size={12.5} color={colors.muted}>{tr('{0} min · for {1}', [m.prepTime + m.cookTime, formatPortions(m.servings)])}</T>
                   )}
                 </View>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`Swap ${m.type}`}
+                  accessibilityLabel={tr('Swap {0}', [m.type])}
                   hitSlop={10}
                   onPress={() => swap(m)}
                   style={styles.swap}
                 >
                   <T size={12.5} weight="bold" color={colors.walnut}>
-                    {swapping === `${selected}-${m.type}` ? '…' : 'Swap'}
+                    {swapping === `${selected}-${m.type}` ? '…' : tr('Swap')}
                   </T>
                 </Pressable>
               </Pressable>
             );
           })}
-          <Button label="Add this week’s missing food to Shopping" variant="secondary" onPress={shopForWeek} busy={busy === 'shop'} />
+          <Button label={tr('Add this week’s missing food to Shopping')} variant="secondary" onPress={shopForWeek} busy={busy === 'shop'} />
         </View>
       ) : (
         <Card>
           <T size={14.5} color={colors.muted}>
-            {plan ? 'No meals planned for this day.' : 'No plan for this week yet. Let Firdam plan it for you.'}
+            {plan ? tr('No meals planned for this day.') : tr('No plan for this week yet. Let Firdam plan it for you.')}
           </T>
         </Card>
       )}
@@ -292,26 +293,26 @@ export function PlanView() {
           <StarPattern size={150} strokeWidth={1} />
         </View>
         <T weight="extrabold" size={17}>
-          {plan ? (offset ? 'Plan next week again' : 'Plan this week again') : offset ? 'Plan next week' : 'Plan my week'}
+          {plan ? (offset ? tr('Plan next week again') : tr('Plan this week again')) : offset ? tr('Plan next week') : tr('Plan my week')}
         </T>
         <T size={13.5} color="#5F5048" style={{ marginTop: 4, lineHeight: 20 }}>
-          {`For ${formatPortions(portions)} portions`}
-          {k.prefs?.allergies.length ? ` · no ${k.prefs.allergies.join(', ').toLowerCase()}` : ''}
-          {k.prefs?.usePantryFirst ? ' · uses your pantry first' : ''}
+          {tr('For {0} portions', [formatPortions(portions)])}
+          {k.prefs?.allergies.length ? tr(' · no {0}', [k.prefs.allergies.join(', ').toLowerCase()]) : ''}
+          {k.prefs?.usePantryFirst ? tr(' · uses your pantry first') : ''}
         </T>
         <View style={{ gap: 8, marginTop: 14 }}>
-          {aiLeft > 0 ? <Button label={`Plan with the AI chef (${aiLeft} left this month)`} onPress={() => generate(true)} busy={busy === 'ai'} disabled={!!busy} /> : null}
-          <Button label="Quick plan from the recipe library" variant={aiLeft > 0 ? 'secondary' : 'primary'} onPress={() => generate(false)} busy={busy === 'library'} disabled={!!busy} />
+          {aiLeft > 0 ? <Button label={tr('Plan with the AI chef ({0} left this month)', [aiLeft])} onPress={() => generate(true)} busy={busy === 'ai'} disabled={!!busy} /> : null}
+          <Button label={tr('Quick plan from the recipe library')} variant={aiLeft > 0 ? 'secondary' : 'primary'} onPress={() => generate(false)} busy={busy === 'library'} disabled={!!busy} />
           <Pressable accessibilityRole="button" onPress={() => router.push('/meal-preferences')} style={styles.filters}>
             <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-              PLAN FILTERS
+              {tr('PLAN FILTERS')}
             </T>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
               {[
                 ...(k.prefs?.mealTypes ?? []).map((m) => m[0].toUpperCase() + m.slice(1)),
                 ...(k.prefs?.dietaryPreferences ?? []).filter((d) => d.toLowerCase() !== 'halal'),
                 ...Object.values(k.prefs?.cuisinePreferences ?? {}).flat(),
-                ...(k.prefs?.usePantryFirst ? ['Pantry first'] : []),
+                ...(k.prefs?.usePantryFirst ? [tr('Pantry first')] : []),
               ]
                 .filter((v, i, a) => a.indexOf(v) === i)
                 .map((f) => (
@@ -319,13 +320,13 @@ export function PlanView() {
                 ))}
             </View>
             <T size={13} weight="bold" color={colors.walnut}>
-              Change meals, diets, cuisines ›
+              {tr('Change meals, diets, cuisines ›')}
             </T>
           </Pressable>
         </View>
         {aiLeft === 0 ? (
           <View style={{ marginTop: 6 }}>
-            <Badge label="AI chef plans refresh next month · library plans are unlimited" tone="walnut" />
+            <Badge label={tr('AI chef plans refresh next month · library plans are unlimited')} tone="walnut" />
           </View>
         ) : null}
       </View>

@@ -2,11 +2,12 @@ import type { ColorValue } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /** Firdam's F leaf mark. */
 export function Logo({ size = 40 }: { size?: number }) {
   return (
-    <Svg width={size * 0.85} height={size} viewBox="0 0 34 40" accessibilityLabel="Firdam logo">
+    <Svg width={size * 0.85} height={size} viewBox="0 0 34 40" accessibilityLabel={tr('Firdam logo')}>
       <Path d="M2 40V14C2 6.3 8.3 0 16 0h18c-0.8 6.2-6 11-12.3 11H15c-2.2 0-4 1.8-4 4v25z" fill="#9A5B3E" />
       <Path d="M13 29.5V22c0-4.4 3.6-8 8-8h11c-0.6 4.4-4.4 7.8-8.9 7.8H20c-1.7 0-3 1.3-3 3v2.7c0 1.1-.9 2-2 2z" fill="#B8784F" />
       <Path d="M18 40V31c0-3.3 2.7-6 6-6h0v15z" fill="#D9A27A" />

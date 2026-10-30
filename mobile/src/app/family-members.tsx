@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { formatPortions, portionFor } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { tr } from '@/lib/i18n';
 
 // How much each person eats. "Auto" works it out from their age.
 const PORTIONS: { label: string; value: number | null }[] = [
@@ -41,7 +42,7 @@ function age(birth: string | null): string {
   const b = new Date(birth);
   if (Number.isNaN(b.getTime())) return '';
   const years = Math.floor((Date.now() - b.getTime()) / (365.25 * 24 * 3600 * 1000));
-  return years < 1 ? 'under 1' : `${years} yrs`;
+  return years < 1 ? tr('under 1') : tr('{0} yrs', [years]);
 }
 
 /** Add, edit and remove family members — the same list the website uses. */
@@ -52,7 +53,7 @@ export default function FamilyMembers() {
 
   const load = useCallback(async () => {
     const { data, error } = await supabase.from('family_members').select('id, first_name, relationship, birth_date, portion').order('created_at', { ascending: true });
-    if (error) showAlert('Could not load your family', error.message);
+    if (error) showAlert(tr('Could not load your family'), error.message);
     setMembers((data ?? []) as Member[]);
   }, []);
 
@@ -66,29 +67,29 @@ export default function FamilyMembers() {
   const save = async () => {
     if (!draft) return;
     const name = draft.first_name.trim();
-    if (!name) return showAlert('Add a name');
+    if (!name) return showAlert(tr('Add a name'));
     const birth = draft.birth_date.trim();
-    if (birth && !/^\d{4}-\d{2}-\d{2}$/.test(birth)) return showAlert('Birth date', 'Use the format YYYY-MM-DD, for example 2018-04-21.');
+    if (birth && !/^\d{4}-\d{2}-\d{2}$/.test(birth)) return showAlert(tr('Birth date'), tr('Use the format YYYY-MM-DD, for example 2018-04-21.'));
     setSaving(true);
     const payload = { first_name: name, relationship: draft.relationship, birth_date: birth || null, portion: draft.portion };
     const { error } = draft.id
       ? await supabase.from('family_members').update(payload).eq('id', draft.id)
       : await supabase.from('family_members').insert(payload);
     setSaving(false);
-    if (error) return showAlert('Could not save', error.message);
+    if (error) return showAlert(tr('Could not save'), error.message);
     setDraft(null);
     await Promise.all([load(), refreshHousehold()]);
   };
 
   const remove = (m: Member) =>
-    showAlert(`Remove ${m.first_name}?`, 'Meal plans will cook for one person less.', [
+    showAlert(tr('Remove {0}?', [m.first_name]), tr('Meal plans will cook for one person less.'), [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Remove',
         style: 'destructive',
         onPress: async () => {
           const { error } = await supabase.from('family_members').delete().eq('id', m.id);
-          if (error) return showAlert('Could not remove', error.message);
+          if (error) return showAlert(tr('Could not remove'), error.message);
           setDraft(null);
           await Promise.all([load(), refreshHousehold()]);
         },
@@ -99,13 +100,13 @@ export default function FamilyMembers() {
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
         <T weight="extrabold" size={22} accessibilityRole="header">
-          Family members
+          {tr('Family members')}
         </T>
-        <Button label="Done" variant="text" onPress={() => router.back()} />
+        <Button label={tr('Done')} variant="text" onPress={() => router.back()} />
       </View>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 12 }} keyboardShouldPersistTaps="handled">
         <T size={14} color={colors.muted}>
-          Meal plans and shopping amounts are sized for everyone here. Children count as smaller portions.
+          {tr('Meal plans and shopping amounts are sized for everyone here. Children count as smaller portions.')}
         </T>
 
         {!members ? (
@@ -116,18 +117,18 @@ export default function FamilyMembers() {
               <Pressable
                 key={m.id}
                 accessibilityRole="button"
-                accessibilityHint="Edit this family member"
+                accessibilityHint={tr('Edit this family member')}
                 onPress={() => setDraft({ id: m.id, first_name: m.first_name, relationship: m.relationship, birth_date: m.birth_date ?? '', portion: m.portion })}
                 style={styles.row}
               >
                 <View style={{ flex: 1 }}>
                   <T weight="bold">{m.first_name}</T>
                   <T size={13} color={colors.muted}>
-                    {[m.relationship, age(m.birth_date), `eats ${formatPortions(portionFor(m))} portion`].filter(Boolean).join(' · ')}
+                    {[m.relationship, age(m.birth_date), tr('eats {0} portion', [formatPortions(portionFor(m))])].filter(Boolean).join(' · ')}
                   </T>
                 </View>
                 <T size={13} weight="semibold" color={colors.walnut}>
-                  Edit
+                  {tr('Edit')}
                 </T>
               </Pressable>
             ),
@@ -136,9 +137,9 @@ export default function FamilyMembers() {
 
         {draft ? (
           <Card style={{ gap: 12 }}>
-            <Field label="First name" value={draft.first_name} onChangeText={(t) => setDraft({ ...draft, first_name: t })} autoFocus={!draft.id} />
+            <Field label={tr('First name')} value={draft.first_name} onChangeText={(t) => setDraft({ ...draft, first_name: t })} autoFocus={!draft.id} />
             <T weight="semibold" size={14}>
-              Relationship
+              {tr('Relationship')}
             </T>
             <View style={styles.wrap}>
               {RELATIONSHIPS.map((r) => (
@@ -146,29 +147,29 @@ export default function FamilyMembers() {
               ))}
             </View>
             <Field
-              label="Birth date (optional, YYYY-MM-DD)"
+              label={tr('Birth date (optional, YYYY-MM-DD)')}
               value={draft.birth_date}
               onChangeText={(t) => setDraft({ ...draft, birth_date: t })}
               placeholder="2018-04-21"
               keyboardType="numbers-and-punctuation"
             />
             <T weight="semibold" size={14}>
-              Portion
+              {tr('Portion')}
             </T>
             <View style={styles.wrap}>
               {PORTIONS.map((p) => (
-                <Chip key={p.label} label={p.label} selected={draft.portion === p.value} onPress={() => setDraft({ ...draft, portion: p.value })} />
+                <Chip key={p.label} label={tr(p.label)} selected={draft.portion === p.value} onPress={() => setDraft({ ...draft, portion: p.value })} />
               ))}
             </View>
-            <Button label={draft.id ? 'Save changes' : 'Add to family'} onPress={save} busy={saving} />
-            {draft.id ? <Button label="Remove from family" variant="text" onPress={() => remove(members!.find((m) => m.id === draft.id)!)} /> : null}
-            <Button label="Cancel" variant="secondary" onPress={() => setDraft(null)} />
+            <Button label={draft.id ? tr('Save changes') : tr('Add to family')} onPress={save} busy={saving} />
+            {draft.id ? <Button label={tr('Remove from family')} variant="text" onPress={() => remove(members!.find((m) => m.id === draft.id)!)} /> : null}
+            <Button label={tr('Cancel')} variant="secondary" onPress={() => setDraft(null)} />
           </Card>
         ) : (
-          <Button label="Add a family member" onPress={() => setDraft({ ...EMPTY })} />
+          <Button label={tr('Add a family member')} onPress={() => setDraft({ ...EMPTY })} />
         )}
 
-        <Button label="Allergies and food preferences" variant="secondary" onPress={() => router.push('/meal-preferences')} />
+        <Button label={tr('Allergies and food preferences')} variant="secondary" onPress={() => router.push('/meal-preferences')} />
       </ScrollView>
     </SafeAreaView>
   );

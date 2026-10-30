@@ -17,9 +17,10 @@ import {
   type MakeupRecord,
 } from '@/shared/makeup-core';
 import { colors } from '@/theme';
+import { locale, tr } from '@/lib/i18n';
 
 const monthYear = (year: number) =>
-  RAMADAN_STARTS[year] ? new Date(`${RAMADAN_STARTS[year]}T12:00:00`).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : '';
+  RAMADAN_STARTS[year] ? new Date(`${RAMADAN_STARTS[year]}T12:00:00`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' }) : '';
 
 /** Days to make up (qada) from Ramadan, the same as Fasting on firdam.com. Private to you. */
 export function MakeupCard() {
@@ -41,7 +42,7 @@ export function MakeupCard() {
       if (remaining(next) > 0) await askForAlerts().catch(() => false);
       scheduleEventAlerts().catch(() => {});
     } catch {
-      setProblem('Couldn’t save. Check your connection and try again.');
+      setProblem(tr('Couldn’t save. Check your connection and try again.'));
       load();
     }
   };
@@ -59,15 +60,15 @@ export function MakeupCard() {
     <Card style={{ gap: 12 }}>
       <View style={{ gap: 4 }}>
         <T weight="bold" size={16}>
-          Days to make up
+          {tr('Days to make up')}
         </T>
         <T size={13} color={colors.muted} style={{ lineHeight: 18 }}>
-          {MAKEUP_NOTE}
+          {tr(MAKEUP_NOTE)}
         </T>
       </View>
 
       {shown.map((r) => (
-        <MakeupRow key={r.ramadan_year} record={r} label={`RAMADAN ${r.ramadan_year} · ${monthYear(r.ramadan_year).toUpperCase()}`} onChange={save} />
+        <MakeupRow key={r.ramadan_year} record={r} label={tr('RAMADAN {0} · {1}', [r.ramadan_year, monthYear(r.ramadan_year).toUpperCase()])} onChange={save} />
       ))}
 
       {problem ? (
@@ -77,15 +78,15 @@ export function MakeupCard() {
       ) : null}
 
       <T size={14} weight="semibold">
-        {summary ?? (next ? `All caught up, alhamdulillah. Next Ramadan in ${next.daysAway} days.` : 'All caught up, alhamdulillah.')}
+        {summary ?? (next ? tr('All caught up, alhamdulillah. Next Ramadan in {0} days.', [next.daysAway]) : tr('All caught up, alhamdulillah.'))}
       </T>
       {summary ? (
         <T size={12.5} color={colors.muted}>
-          We’ll remind you a month and a week before Ramadan.
+          {tr('We’ll remind you a month and a week before Ramadan.')}
         </T>
       ) : null}
       <T size={12} color={colors.muted}>
-        🔒 Only you can see this. It isn’t shared with your family.
+        {tr('🔒 Only you can see this. It isn’t shared with your family.')}
       </T>
     </Card>
   );
@@ -104,38 +105,38 @@ function MakeupRow({ record, label, onChange }: { record: MakeupRecord; label: s
         {label}
       </T>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <T size={14.5}>Days I didn’t fast</T>
+        <T size={14.5}>{tr('Days I didn’t fast')}</T>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Step label="−" a11y="One day less" disabled={record.missed <= done} onPress={() => onChange({ ...record, missed: record.missed - 1 })} />
+          <Step label="−" a11y={tr('One day less')} disabled={record.missed <= done} onPress={() => onChange({ ...record, missed: record.missed - 1 })} />
           <T size={20} weight="extrabold" style={{ minWidth: 26, textAlign: 'center' }}>
             {String(record.missed)}
           </T>
-          <Step label="+" a11y="One day more" disabled={record.missed >= 30} onPress={() => onChange({ ...record, missed: record.missed + 1 })} />
+          <Step label="+" a11y={tr('One day more')} disabled={record.missed >= 30} onPress={() => onChange({ ...record, missed: record.missed + 1 })} />
         </View>
       </View>
 
       {record.missed > 0 ? (
         <>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <T size={13.5}>{`Made up ${done} of ${record.missed}`}</T>
+            <T size={13.5}>{tr('Made up {0} of {1}', [done, record.missed])}</T>
             <T size={13.5} color={colors.muted}>
-              {left ? `${left} left` : 'Done ✓'}
+              {left ? tr('{0} left', [left]) : tr('Done ✓')}
             </T>
           </View>
           <View style={styles.track}>
             <View style={[styles.fill, { width: `${(done / record.missed) * 100}%` }]} />
           </View>
           <Button
-            label={loggedToday ? 'Today is logged ✓' : 'I made up a fast today'}
+            label={loggedToday ? tr('Today is logged ✓') : tr('I made up a fast today')}
             onPress={() => onChange({ ...record, made_up: [...record.made_up, today].sort() })}
             disabled={!left || loggedToday || blocked}
           />
           {done > 0 ? (
-            <Button label="Undo last" variant="text" onPress={() => onChange({ ...record, made_up: record.made_up.slice(0, -1) })} style={{ height: 36 }} />
+            <Button label={tr('Undo last')} variant="text" onPress={() => onChange({ ...record, made_up: record.made_up.slice(0, -1) })} style={{ height: 36 }} />
           ) : null}
           {blocked ? (
             <T size={12.5} color={colors.muted}>
-              Make-up fasts are logged after Ramadan.
+              {tr('Make-up fasts are logged after Ramadan.')}
             </T>
           ) : null}
         </>

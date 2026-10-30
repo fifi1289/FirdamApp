@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '@/components/art';
 import { T } from '@/components/ui';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /** The frame shared by the sign-in, sign-up and code screens. */
 export function AuthShell({
@@ -26,7 +27,7 @@ export function AuthShell({
           {canGoBack && (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Back"
+              accessibilityLabel={tr('Back')}
               onPress={() => (router.canGoBack() ? router.back() : router.replace('/welcome'))}
               style={styles.back}
             >

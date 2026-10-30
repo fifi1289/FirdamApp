@@ -10,6 +10,7 @@ import { Card, T } from '@/components/ui';
 import { usePartnerShops } from '@/lib/partners';
 import { LEARNING_NOTE, learningPartners, learningTopicsInUse, matchesWorks } from '@/shared/partners';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 const COMING = [
   { title: 'Quran & tajweed', text: 'Online and local teachers for reading, tajweed and hifz.' },
@@ -35,10 +36,10 @@ export default function Learning() {
           <HomeButton />
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          Learning
+          {tr('Learning')}
         </T>
         <T size={14.5} color={colors.muted} style={{ lineHeight: 21 }}>
-          Learn Quran, tajweed, Arabic, hadith and more with trusted teachers and Islamic schools, for kids and adults.
+          {tr('Learn Quran, tajweed, Arabic, hadith and more with trusted teachers and Islamic schools, for kids and adults.')}
         </T>
 
         {all.length ? (
@@ -47,40 +48,40 @@ export default function Learning() {
             {topics.length > 1 ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                 {[null, ...topics].map((t) => (
-                  <Chip key={t ?? 'all'} label={t ?? 'All'} selected={topic === t} onPress={() => setTopic(t)} />
+                  <Chip key={t ?? 'all'} label={t ? tr(t) : tr('All')} selected={topic === t} onPress={() => setTopic(t)} />
                 ))}
               </ScrollView>
             ) : null}
             <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-              LEARNING PARTNERS
+              {tr('LEARNING PARTNERS')}
             </T>
-            {list.length ? list.map((s) => <PartnerCard key={s.id} shop={s} />) : <NoPartnersHere what="learning partners" />}
+            {list.length ? list.map((s) => <PartnerCard key={s.id} shop={s} />) : <NoPartnersHere what={tr('learning partners')} />}
             <T size={12} color={colors.muted}>
-              {LEARNING_NOTE}
+              {tr(LEARNING_NOTE)}
             </T>
           </>
         ) : (
           <Card style={{ gap: 12 }}>
             <T weight="bold" size={16}>
-              Teachers and schools are joining soon, insha’Allah
+              {tr('Teachers and schools are joining soon, insha’Allah')}
             </T>
             <T size={13.5} color={colors.muted}>
-              We’re partnering with trusted teachers so your family can learn in one place.
+              {tr('We’re partnering with trusted teachers so your family can learn in one place.')}
             </T>
             {COMING.map((c) => (
               <View key={c.title} style={styles.coming}>
                 <T size={14.5} weight="semibold">
-                  {c.title}
+                  {tr(c.title)}
                 </T>
                 <T size={13} color={colors.muted}>
-                  {c.text}
+                  {tr(c.text)}
                 </T>
               </View>
             ))}
             <T size={13.5} color={colors.muted}>
-              {'Meanwhile, keep reading with '}
+              {tr('Meanwhile, keep reading with ')}
               <T size={13.5} weight="bold" color={colors.walnut} accessibilityRole="link" onPress={() => router.push('/quran')}>
-                Quran & Duas
+                {tr('Quran & Duas')}
               </T>
               .
             </T>
@@ -88,9 +89,9 @@ export default function Learning() {
         )}
 
         <T size={13} color={colors.muted}>
-          {'Teach Quran, Arabic or Islamic studies? '}
+          {tr('Teach Quran, Arabic or Islamic studies? ')}
           <T size={13} weight="bold" color={colors.walnut} accessibilityRole="link" onPress={() => Linking.openURL('https://firdam.com/partners')}>
-            Become a Firdam learning partner ↗
+            {tr('Become a Firdam learning partner ↗')}
           </T>
         </T>
       </ScrollView>

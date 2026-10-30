@@ -7,6 +7,7 @@ import { getFastingPrefs, upcomingFasts } from './fasting';
 import { loadMakeup } from './makeup';
 import { makeupReminderDates } from '@/shared/makeup-core';
 import { buildCalendarItems, formatTime, parseISODate, type FastingDay } from '@/shared/calendar-core';
+import { tr } from '@/lib/i18n';
 
 const KIND = 'family-event';
 /** iPhones keep at most 64 scheduled alerts; adhan alerts use up to 35, so events get the next 20. */
@@ -43,8 +44,8 @@ export async function scheduleEventAlerts(): Promise<number> {
   // Days to make up: a month and a week before the next Ramadan, while any are left.
   const makeupAlerts = makeupReminderDates(makeup).map((r) => ({
     when: r.when,
-    title: `${r.left} ${r.left === 1 ? 'fast' : 'fasts'} to make up before Ramadan`,
-    body: r.daysBefore === 30 ? 'Ramadan starts in about a month. Plan your make-up fasts, in sha Allah.' : 'Ramadan starts in a week. Log each day in Fasting as you make it up.',
+    title: tr('{0} {1} to make up before Ramadan', [r.left, r.left === 1 ? 'fast' : 'fasts']),
+    body: r.daysBefore === 30 ? tr('Ramadan starts in about a month. Plan your make-up fasts, in sha Allah.') : tr('Ramadan starts in a week. Log each day in Fasting as you make it up.'),
     url: '/fasting',
   }));
   if (!eventsOn && !fasting.remind && !makeupAlerts.length) return 0;
@@ -60,17 +61,17 @@ export async function scheduleEventAlerts(): Promise<number> {
   const now = new Date();
   const alerts: { when: Date; title: string; body: string; url?: string }[] = [];
   for (const f of fasts) {
-    alerts.push({ when: at(f.date, 20, 0, -1), title: `Fast tomorrow: ${f.title}`, body: 'Remember your suhoor. May Allah accept it from you.', url: '/fasting' });
+    alerts.push({ when: at(f.date, 20, 0, -1), title: tr('Fast tomorrow: {0}', [f.title]), body: tr('Remember your suhoor. May Allah accept it from you.'), url: '/fasting' });
   }
   for (const it of items) {
     const time = formatTime(it.startTime);
-    alerts.push({ when: at(it.date, 19, 0, -1), title: `Tomorrow: ${it.title}`, body: time ? `At ${time}${it.location ? ` · ${it.location}` : ''}` : 'From your family calendar' });
+    alerts.push({ when: at(it.date, 19, 0, -1), title: tr('Tomorrow: {0}', [it.title]), body: time ? tr('At {0}{1}', [time, it.location ? ` · ${it.location}` : '']) : tr('From your family calendar') });
     if (it.startTime) {
       const [h, m] = it.startTime.split(':').map(Number);
       const startAt = at(it.date, h ?? 9, m ?? 0);
-      alerts.push({ when: new Date(startAt.getTime() - 60 * 60_000), title: `In an hour: ${it.title}`, body: it.location ? `At ${it.location}` : `At ${time}` });
+      alerts.push({ when: new Date(startAt.getTime() - 60 * 60_000), title: tr('In an hour: {0}', [it.title]), body: it.location ? tr('At {0}', [it.location]) : tr('At {0}', [time]) });
     } else {
-      alerts.push({ when: at(it.date, 8), title: `Today: ${it.title}`, body: 'From your family calendar' });
+      alerts.push({ when: at(it.date, 8), title: tr('Today: {0}', [it.title]), body: tr('From your family calendar') });
     }
   }
 

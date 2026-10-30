@@ -13,6 +13,8 @@ import { useKitchen } from '@/lib/kitchen-store';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { tr } from '@/lib/i18n';
+import { LanguageCard } from '@/components/language-picker';
 
 /** Opens the phone's email app with the app version filled in, so we can help faster. */
 function feedbackUrl(): string {
@@ -38,8 +40,8 @@ export default function Family() {
   // Apple and Google require that people can delete their account from the app.
   const deleteAccount = () => {
     showAlert(
-      'Delete your account?',
-      'This permanently deletes your account and your personal data: pantry, plans, shopping lists, budget and family details. It can’t be undone.',
+      tr('Delete your account?'),
+      tr('This permanently deletes your account and your personal data: pantry, plans, shopping lists, budget and family details. It can’t be undone.'),
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -51,7 +53,7 @@ export default function Family() {
               await callFunction('delete-account', undefined, { confirm: 'DELETE' });
               await signOut();
             } catch (e) {
-              showAlert('Could not delete your account', e instanceof Error ? e.message : 'Please try again, or email support@firdam.com.');
+              showAlert(tr('Could not delete your account'), e instanceof Error ? e.message : tr('Please try again, or email support@firdam.com.'));
             } finally {
               setDeleting(false);
             }
@@ -63,7 +65,7 @@ export default function Family() {
   const initial = (firstName ?? session?.user.email ?? '?').charAt(0).toUpperCase();
 
   return (
-    <TabScreen title="Family" subtitle="One home, shared by everyone you invite">
+    <TabScreen title={tr('Family')} subtitle={tr('One home, shared by everyone you invite')}>
       <Card style={styles.me}>
         <View style={styles.avatar}>
           <T weight="bold" color={colors.white}>
@@ -71,7 +73,7 @@ export default function Family() {
           </T>
         </View>
         <View style={{ flex: 1 }}>
-          <T weight="bold">{firstName ?? 'You'}</T>
+          <T weight="bold">{firstName ?? tr('You')}</T>
           <T size={13} color={colors.muted} numberOfLines={1}>
             {session?.user.email ?? ''}
           </T>
@@ -80,33 +82,35 @@ export default function Family() {
 
       <Card style={{ gap: 4 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          YOUR HOUSEHOLD
+          {tr('YOUR HOUSEHOLD')}
         </T>
         <T size={16} weight="bold">
-          {k.household ? `${k.household.people} ${k.household.people === 1 ? 'person' : 'people'} · cooks for ${formatPortions(k.household.portions)}` : 'Loading…'}
+          {k.household ? tr('{0} {1} · cooks for {2}', [k.household.people, k.household.people === 1 ? 'person' : 'people', formatPortions(k.household.portions)]) : tr('Loading…')}
         </T>
         <T size={13.5} color={colors.muted}>
-          {k.prefs?.allergies.length ? `Kept out of every plan: ${k.prefs.allergies.join(', ')}` : 'No allergies set yet.'}
+          {k.prefs?.allergies.length ? tr('Kept out of every plan: {0}', [k.prefs.allergies.join(', ')]) : tr('No allergies set yet.')}
         </T>
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
           <View style={{ flex: 1 }}>
-            <Button label="Family members" variant="secondary" onPress={() => router.push('/family-members')} />
+            <Button label={tr('Family members')} variant="secondary" onPress={() => router.push('/family-members')} />
           </View>
           <View style={{ flex: 1 }}>
-            <Button label="Allergies" variant="secondary" onPress={() => router.push('/meal-preferences')} />
+            <Button label={tr('Allergies')} variant="secondary" onPress={() => router.push('/meal-preferences')} />
           </View>
         </View>
       </Card>
 
       <Card style={{ gap: 8 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          SHARE WITH YOUR FAMILY
+          {tr('SHARE WITH YOUR FAMILY')}
         </T>
         <T size={14} color={colors.muted}>
-          Invite your spouse and children to share the family calendar, shopping list, meal plans and pantry.
+          {tr('Invite your spouse and children to share the family calendar, shopping list, meal plans and pantry.')}
         </T>
-        <Button label="Invite your family" onPress={() => router.push('/household')} />
+        <Button label={tr('Invite your family')} onPress={() => router.push('/household')} />
       </Card>
+
+      <LanguageCard />
 
       <Card style={{ paddingVertical: 4 }}>
         {links.map((l, i) => (
@@ -117,15 +121,15 @@ export default function Family() {
             style={[styles.row, i < links.length - 1 && styles.rowLine]}
           >
             <T weight="semibold" size={15}>
-              {l.label}
+              {tr(l.label)}
             </T>
             <Icon name="chevron" size={18} color="#8A7A70" />
           </Pressable>
         ))}
       </Card>
 
-      <Button label="Sign out" variant="secondary" onPress={signOut} />
-      <Button label="Delete my account" variant="text" onPress={deleteAccount} busy={deleting} />
+      <Button label={tr('Sign out')} variant="secondary" onPress={signOut} />
+      <Button label={tr('Delete my account')} variant="text" onPress={deleteAccount} busy={deleting} />
     </TabScreen>
   );
 }

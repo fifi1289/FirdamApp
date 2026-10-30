@@ -13,6 +13,7 @@ import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 import { ToBuyButton } from '@/components/to-buy-button';
+import { tr } from '@/lib/i18n';
 
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
 
@@ -44,7 +45,7 @@ export default function RecipeScreen() {
       await markHave(l);
       await refreshKitchen();
     } catch (e) {
-      showAlert('Could not add it to the pantry', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not add it to the pantry'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setHaving(null);
     }
@@ -73,8 +74,8 @@ export default function RecipeScreen() {
   if (!recipe || !check) {
     return (
       <SafeAreaView style={[styles.center, { padding: 24, gap: 12 }]}>
-        <T>This recipe could not be found.</T>
-        <Button label="Back" variant="secondary" onPress={() => router.back()} />
+        <T>{tr('This recipe could not be found.')}</T>
+        <Button label={tr('Back')} variant="secondary" onPress={() => router.back()} />
       </SafeAreaView>
     );
   }
@@ -98,9 +99,9 @@ export default function RecipeScreen() {
       );
       await refreshShopping();
       setAdded(true);
-      showAlert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
+      showAlert(added ? tr('Added to Shopping ({0})', [added]) : tr('Already on your list'), added ? tr('If the food was already on the list, the amounts were added together.') : undefined);
     } catch (e) {
-      showAlert('Could not add', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not add'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setAdding(false);
     }
@@ -110,13 +111,13 @@ export default function RecipeScreen() {
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         <Photo uri={recipeImage(recipe)} height={280} radius={0} />
-        <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={[styles.back, { top: insets.top + 8 }]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('Back')} onPress={() => router.back()} style={[styles.back, { top: insets.top + 8 }]}>
           <Icon name="back" size={20} color={colors.espresso} />
         </Pressable>
 
         <View style={styles.sheet}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            {`${(recipe.cuisine?.name ?? 'Halal').toUpperCase()} · ${totalMinutes(recipe) || '–'} MIN`}
+            {tr('{0} · {1} MIN', [(recipe.cuisine?.name ?? 'Halal').toUpperCase(), totalMinutes(recipe) || '–'])}
           </T>
           <T weight="extrabold" size={28} style={{ letterSpacing: -0.5, marginTop: 4 }} accessibilityRole="header">
             {recipe.name}
@@ -129,28 +130,28 @@ export default function RecipeScreen() {
 
           <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
             {allergies.length ? (
-              <Badge label={safe ? `Safe: no ${allergies.join(', ').toLowerCase()}` : 'Contains a family allergy'} tone={safe ? 'sage' : 'brick'} />
+              <Badge label={safe ? tr('Safe: no {0}', [allergies.join(', ').toLowerCase()]) : tr('Contains a family allergy')} tone={safe ? 'sage' : 'brick'} />
             ) : null}
-            <Badge label="Halal ingredients" tone="walnut" />
-            {found.length && !allergies.length ? <Badge label={`Contains ${found.join(', ').toLowerCase()}`} tone="amber" /> : null}
+            <Badge label={tr('Halal ingredients')} tone="walnut" />
+            {found.length && !allergies.length ? <Badge label={tr('Contains {0}', [found.join(', ').toLowerCase()])} tone="amber" /> : null}
             {familyDiets.length ? (
               <Badge
-                label={missedDiets.length ? `Not ${missedDiets.join(', ').toLowerCase()}` : `Fits your diet: ${familyDiets.join(', ').toLowerCase()}`}
+                label={missedDiets.length ? tr('Not {0}', [missedDiets.join(', ').toLowerCase()]) : tr('Fits your diet: {0}', [familyDiets.join(', ').toLowerCase()])}
                 tone={missedDiets.length ? 'brick' : 'sage'}
               />
             ) : null}
           </View>
           {suits.length ? (
             <T size={13} color={colors.muted} style={{ marginTop: 8 }}>
-              {`Suits: ${suits.join(' · ')}`}
+              {tr('Suits: {0}', [suits.join(' · ')])}
             </T>
           ) : null}
 
           <Card style={styles.portions}>
             <View style={{ flex: 1 }}>
-              <T weight="bold">Sized for your family</T>
+              <T weight="bold">{tr('Sized for your family')}</T>
               <T size={12.5} color={colors.muted}>
-                {h ? `${h.people} people${h.children ? `, ${h.children} child${h.children === 1 ? '' : 'ren'}` : ''} · recipe serves ${recipe.servings ?? '–'}` : 'Add your family in Family to size portions'}
+                {h ? tr('{0} people{1} · recipe serves {2}', [h.people, h.children ? `, ${h.children} child${h.children === 1 ? '' : 'ren'}` : '', recipe.servings ?? '–']) : tr('Add your family in Family to size portions')}
               </T>
             </View>
             <T weight="extrabold" size={22} color={colors.walnut}>
@@ -160,11 +161,11 @@ export default function RecipeScreen() {
 
           <View style={styles.sectionHead}>
             <T weight="bold" size={17}>
-              Ingredients
+              {tr('Ingredients')}
             </T>
             {k.pantry.length ? (
               <T size={13} weight="bold" color={toBuy.length ? '#8A5A16' : colors.sage}>
-                {toBuy.length ? `${toBuy.length} to buy` : 'All at home'}
+                {toBuy.length ? tr('{0} to buy', [toBuy.length]) : tr('All at home')}
               </T>
             ) : null}
           </View>
@@ -181,22 +182,22 @@ export default function RecipeScreen() {
                   </T>
                   {l.status === 'missing' || l.status === 'short' ? (
                     <View style={{ alignItems: 'flex-end', gap: 4, minWidth: 84 }}>
-                      <ToBuyButton line={l} label={s.label} color={s.color} />
+                      <ToBuyButton line={l} label={tr(s.label)} color={s.color} />
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={`I have ${l.need.name}`}
+                        accessibilityLabel={tr('I have {0}', [l.need.name])}
                         onPress={() => haveIt(l)}
                         style={styles.have}
                         hitSlop={6}
                       >
                         <T size={11.5} weight="bold" color={colors.sageDark}>
-                          {having === l.need.name ? '…' : 'I have it'}
+                          {having === l.need.name ? '…' : tr('I have it')}
                         </T>
                       </Pressable>
                     </View>
                   ) : k.pantry.length ? (
                     <T size={12.5} weight="bold" color={s.color} style={{ width: 76, textAlign: 'right' }}>
-                      {s.label}
+                      {tr(s.label)}
                     </T>
                   ) : null}
                 </View>
@@ -205,7 +206,7 @@ export default function RecipeScreen() {
           </Card>
 
           <T weight="bold" size={17} style={{ marginTop: 22, marginBottom: 8 }}>
-            Method
+            {tr('Method')}
           </T>
           <View style={{ gap: 12 }}>
             {steps.map((s, i) => (
@@ -222,16 +223,16 @@ export default function RecipeScreen() {
             ))}
           </View>
           <T size={12} color={colors.muted} style={{ marginTop: 18, lineHeight: 18 }}>
-            Allergy labels are worked out from the ingredient names. Always check the labels on the products you buy, and choose halal-certified meat, stock and gelatin.
+            {tr('Allergy labels are worked out from the ingredient names. Always check the labels on the products you buy, and choose halal-certified meat, stock and gelatin.')}
           </T>
         </View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         {toBuy.length ? (
-          <Button label={added ? 'Added to Shopping' : k.pantry.length ? `Add ${toBuy.length} missing to Shopping` : `Add ${toBuy.length} ingredients to Shopping`} onPress={addMissing} busy={adding} disabled={added} />
+          <Button label={added ? tr('Added to Shopping') : k.pantry.length ? tr('Add {0} missing to Shopping', [toBuy.length]) : tr('Add {0} ingredients to Shopping', [toBuy.length])} onPress={addMissing} busy={adding} disabled={added} />
         ) : (
-          <Button label="All set — enjoy cooking" variant="secondary" onPress={() => router.back()} />
+          <Button label={tr('All set — enjoy cooking')} variant="secondary" onPress={() => router.back()} />
         )}
       </View>
     </View>

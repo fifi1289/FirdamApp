@@ -13,6 +13,7 @@ import { getFastingPrefs, setFastingPrefs, upcomingFasts, type FastingPrefs } fr
 import { iso, parseISODate, type FastingDay } from '@/shared/calendar-core';
 import { insideRamadan, isoDate, nextRamadan } from '@/shared/makeup-core';
 import { colors } from '@/theme';
+import { locale, tr } from '@/lib/i18n';
 
 /** Sunnah fasts: the recommended fasting days coming up, with a suhoor reminder. Ramadan joins here later. */
 export default function Fasting() {
@@ -32,7 +33,7 @@ export default function Fasting() {
       })
       .catch(() => {
         setDays([]);
-        setProblem('Could not load the Hijri dates. Check your connection and try again.');
+        setProblem(tr('Could not load the Hijri dates. Check your connection and try again.'));
       });
   }, []);
 
@@ -45,7 +46,7 @@ export default function Fasting() {
 
   const update = async (next: FastingPrefs) => {
     if (next.remind && !prefs?.remind && !(await askForAlerts())) {
-      setProblem('Allow notifications for Firdam in your phone’s Settings to get suhoor reminders.');
+      setProblem(tr('Allow notifications for Firdam in your phone’s Settings to get suhoor reminders.'));
       return;
     }
     const reload = next.mondaysThursdays !== prefs?.mondaysThursdays;
@@ -64,15 +65,15 @@ export default function Fasting() {
           <HomeButton />
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          Fasting
+          {tr('Fasting')}
         </T>
         <T size={14.5} color={colors.muted} style={{ lineHeight: 21 }}>
-          Sunnah fasts and Ramadan.
+          {tr('Sunnah fasts and Ramadan.')}
         </T>
 
         <View style={{ flexDirection: 'row', gap: 8 }}>
-          <Chip label="Sunnah fasts" selected={tab === 'sunnah'} onPress={() => setTab('sunnah')} />
-          <Chip label="Ramadan" selected={tab === 'ramadan'} onPress={() => setTab('ramadan')} />
+          <Chip label={tr('Sunnah fasts')} selected={tab === 'sunnah'} onPress={() => setTab('sunnah')} />
+          <Chip label={tr('Ramadan')} selected={tab === 'ramadan'} onPress={() => setTab('ramadan')} />
         </View>
 
         {tab === 'ramadan' ? (
@@ -80,13 +81,13 @@ export default function Fasting() {
             {next ? (
               <Card style={{ gap: 4, backgroundColor: colors.espresso, borderColor: colors.espresso }}>
                 <T size={12.5} weight="bold" color={colors.gold} style={{ letterSpacing: 0.4 }}>
-                  {`RAMADAN ${next.year}`}
+                  {tr('RAMADAN {0}', [next.year])}
                 </T>
                 <T size={26} weight="extrabold" color={colors.white}>
-                  {`In ${next.daysAway} ${next.daysAway === 1 ? 'day' : 'days'}`}
+                  {tr('In {0} {1}', [next.daysAway, next.daysAway === 1 ? 'day' : 'days'])}
                 </T>
                 <T size={13} color={colors.goldText}>
-                  {`Around ${parseISODate(next.start).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}, depending on the moon sighting`}
+                  {tr('Around {0}, depending on the moon sighting', [parseISODate(next.start).toLocaleDateString(locale(), { weekday: 'long', month: 'long', day: 'numeric' })])}
                 </T>
               </Card>
             ) : null}
@@ -98,15 +99,15 @@ export default function Fasting() {
         {prefs ? (
           <Card style={{ gap: 4, paddingVertical: 6 }}>
             <SwitchRow
-              label="Remind me for suhoor"
-              hint="At 8 pm the evening before each fast"
+              label={tr('Remind me for suhoor')}
+              hint={tr('At 8 pm the evening before each fast')}
               on={prefs.remind}
               onPress={() => update({ ...prefs, remind: !prefs.remind })}
             />
             <View style={styles.line} />
             <SwitchRow
-              label="Include Mondays and Thursdays"
-              hint="The weekly Sunnah fasts"
+              label={tr('Include Mondays and Thursdays')}
+              hint={tr('The weekly Sunnah fasts')}
               on={prefs.mondaysThursdays}
               onPress={() => update({ ...prefs, mondaysThursdays: !prefs.mondaysThursdays })}
             />
@@ -121,34 +122,34 @@ export default function Fasting() {
 
         <Card style={{ gap: 2 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4, marginBottom: 4 }}>
-            NEXT TWO MONTHS
+            {tr('NEXT TWO MONTHS')}
           </T>
           {!days ? (
             <ActivityIndicator color={colors.walnut} style={{ marginVertical: 16 }} />
           ) : days.length === 0 ? (
             <View style={{ gap: 10, paddingVertical: 6 }}>
               <T size={14} color={colors.muted}>
-                No Sunnah fasts found in the next two months.
+                {tr('No Sunnah fasts found in the next two months.')}
               </T>
-              {problem && prefs ? <Button label="Try again" variant="secondary" onPress={() => load(prefs)} /> : null}
+              {problem && prefs ? <Button label={tr('Try again')} variant="secondary" onPress={() => load(prefs)} /> : null}
             </View>
           ) : (
             days.map((d, i) => (
               <View key={`${d.date}-${d.title}`} style={[styles.row, i < days.length - 1 && styles.rowLine]}>
                 <View style={styles.date}>
                   <T size={11} weight="bold" color={colors.walnut}>
-                    {parseISODate(d.date).toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase()}
+                    {parseISODate(d.date).toLocaleDateString(locale(), { weekday: 'short' }).toUpperCase()}
                   </T>
                   <T size={18} weight="extrabold">
                     {parseISODate(d.date).getDate()}
                   </T>
                   <T size={11} color={colors.muted}>
-                    {parseISODate(d.date).toLocaleDateString(undefined, { month: 'short' })}
+                    {parseISODate(d.date).toLocaleDateString(locale(), { month: 'short' })}
                   </T>
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
                   <T size={15} weight="semibold">
-                    {d.date === today ? `Today · ${d.title}` : d.title}
+                    {d.date === today ? tr('Today · {0}', [d.title]) : tr(d.title)}
                   </T>
                   <T size={12.5} color={colors.muted} style={{ lineHeight: 17 }}>
                     {d.why}
@@ -160,8 +161,7 @@ export default function Fasting() {
         </Card>
 
         <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18 }}>
-          Islamic dates may differ by a day from your local moon sighting. No voluntary fasts are listed in Ramadan, on the Eids or the days of
-          Tashreeq.
+          {tr('Islamic dates may differ by a day from your local moon sighting. No voluntary fasts are listed in Ramadan, on the Eids or the days of Tashreeq.')}
         </T>
           </>
         )}

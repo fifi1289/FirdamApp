@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { WEBSITE } from './config';
 import { resetKitchen } from './kitchen-store';
 import { supabase } from './supabase';
+import { tr } from '@/lib/i18n';
 
 interface AuthState {
   /** True until the saved sign-in has been checked on launch. */
@@ -130,12 +131,12 @@ export function useAuth(): AuthState {
 /** Turns Supabase's sign-in errors into plain words. */
 export function friendlyAuthError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
-  if (/invalid login credentials/i.test(message)) return 'That email and password don’t match. Try again.';
-  if (/email not confirmed/i.test(message)) return 'Please confirm your email first — check your inbox for the link.';
-  if (/already registered|already exists/i.test(message)) return 'An account with this email already exists. Sign in instead.';
-  if (/password should be/i.test(message)) return 'Choose a password of at least 8 characters.';
-  if (/captcha/i.test(message)) return 'Sign-in from the app is blocked by bot protection. Please try again later.';
-  if (/network|fetch/i.test(message)) return 'No internet connection. Check your connection and try again.';
-  if (/invalid.*(totp|code)|expired/i.test(message)) return 'That code didn’t work. Check the time on your phone and try the newest code.';
-  return 'Something went wrong. Please try again.';
+  if (/invalid login credentials/i.test(message)) return tr('That email and password don’t match. Try again.');
+  if (/email not confirmed/i.test(message)) return tr('Please confirm your email first — check your inbox for the link.');
+  if (/already registered|already exists/i.test(message)) return tr('An account with this email already exists. Sign in instead.');
+  if (/password should be/i.test(message)) return tr('Choose a password of at least 8 characters.');
+  if (/captcha/i.test(message)) return tr('Sign-in from the app is blocked by bot protection. Please try again later.');
+  if (/network|fetch/i.test(message)) return tr('No internet connection. Check your connection and try again.');
+  if (/invalid.*(totp|code)|expired/i.test(message)) return tr('That code didn’t work. Check the time on your phone and try the newest code.');
+  return tr('Something went wrong. Please try again.');
 }

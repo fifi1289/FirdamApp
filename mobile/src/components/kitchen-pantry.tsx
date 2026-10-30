@@ -15,6 +15,7 @@ import { isNonFood, suggestedExpiry } from '@/shared/kitchen-items';
 import { formatAmount } from '@/shared/pantry-units';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { locale, tr } from '@/lib/i18n';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -37,10 +38,10 @@ const aisleColor = (c: string) => AISLE_COLORS[c] ?? '#9C8D84';
 function expiryBadge(date: string | null): { label: string; tone: 'brick' | 'amber' | 'sage' } | null {
   const d = daysLeft(date);
   if (d == null) return null;
-  if (d < 0) return { label: 'Expired', tone: 'brick' };
-  if (d === 0) return { label: 'Use today', tone: 'brick' };
-  if (d <= 3) return { label: d === 1 ? 'Use tomorrow' : `Use in ${d} days`, tone: 'amber' };
-  return { label: `Until ${new Date(`${date}T12:00:00`).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}`, tone: 'sage' };
+  if (d < 0) return { label: tr('Expired'), tone: 'brick' };
+  if (d === 0) return { label: tr('Use today'), tone: 'brick' };
+  if (d <= 3) return { label: d === 1 ? tr('Use tomorrow') : tr('Use in {0} days', [d]), tone: 'amber' };
+  return { label: tr('Until {0}', [new Date(`${date}T12:00:00`).toLocaleDateString(locale(), { month: 'short', day: 'numeric' })]), tone: 'sage' };
 }
 
 function inDays(n: number): string {
@@ -50,7 +51,7 @@ function inDays(n: number): string {
 }
 
 function amount(i: PantryItem): string {
-  if (i.tracking === 'level') return i.level === 'low' ? 'running low' : i.level === 'out' ? 'out' : i.level ?? 'some';
+  if (i.tracking === 'level') return i.level === 'low' ? tr('running low') : i.level === 'out' ? tr('out') : tr(i.level ?? 'some');
   return formatAmount(i.quantity, i.unit === 'Pieces' ? 'pieces' : i.unit);
 }
 
@@ -91,11 +92,11 @@ export function PantryView() {
         const { error } = await supabase.from('pantry_items').insert(rows);
         if (error) throw error;
       }
-      if (refused.length) showAlert('Not added', refused.join('\n\n'));
+      if (refused.length) showAlert(tr('Not added'), refused.join('\n\n'));
       setText('');
       await refreshKitchen();
     } catch (e) {
-      showAlert('Could not add', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not add'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setBusy(false);
     }
@@ -106,7 +107,7 @@ export function PantryView() {
   const [scanning, setScanning] = useState(false);
   const scanWith = async (source: 'camera' | 'library') => {
     const perm = source === 'camera' ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return showAlert('Permission needed', 'Allow access in Settings to scan a receipt.');
+    if (!perm.granted) return showAlert(tr('Permission needed'), tr('Allow access in Settings to scan a receipt.'));
     const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.5, base64: true };
     const shot = source === 'camera' ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
     const asset = shot.canceled ? null : shot.assets[0];
@@ -118,10 +119,10 @@ export function PantryView() {
         skipped?: { name: string }[];
       }>('receipt-scan', undefined, { image: `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` });
       const items = (res.items ?? []).filter((i) => !isNonFood(i.name));
-      if (!items.length) return showAlert('No food found', 'Try again with the whole receipt flat and in good light.');
+      if (!items.length) return showAlert(tr('No food found'), tr('Try again with the whole receipt flat and in good light.'));
       const list = items.map((i) => `• ${i.quantity} ${i.unit} ${i.name}`).join('\n');
-      const skipped = res.skipped?.length ? `\n\nLeft out (not halal): ${res.skipped.map((x) => x.name).join(', ')}` : '';
-      showAlert(`Add ${items.length} item${items.length === 1 ? '' : 's'} to your pantry?`, list + skipped, [
+      const skipped = res.skipped?.length ? `\n\n${tr('Left out (not halal): {0}', [res.skipped.map((x) => x.name).join(', ')])}` : '';
+      showAlert(tr('Add {0} item{1} to your pantry?', [items.length, items.length === 1 ? '' : 's']), list + skipped, [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Add',
@@ -137,19 +138,19 @@ export function PantryView() {
                 expiration_date: i.staple ? null : suggestedExpiry(i.category),
               })),
             );
-            if (error) showAlert('Could not add', error.message);
+            if (error) showAlert(tr('Could not add'), error.message);
             await refreshKitchen();
           },
         },
       ]);
     } catch (e) {
-      showAlert('Could not read the receipt', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not read the receipt'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setScanning(false);
     }
   };
   const scanReceipt = () =>
-    showAlert('Scan a receipt', 'Food on the receipt goes into your pantry. The free plan includes one scan a month.', [
+    showAlert(tr('Scan a receipt'), tr('Food on the receipt goes into your pantry. The free plan includes one scan a month.'), [
       { text: 'Take a photo', onPress: () => scanWith('camera') },
       { text: 'Choose a photo', onPress: () => scanWith('library') },
       { text: 'Cancel', style: 'cancel' },
@@ -162,28 +163,28 @@ export function PantryView() {
         <TextInput
           value={text}
           onChangeText={setText}
-          placeholder="Add: 2 kg rice, 6 eggs…"
+          placeholder={tr('Add: 2 kg rice, 6 eggs…')}
           placeholderTextColor="#9C8D84"
-          accessibilityLabel="Add to the pantry"
+          accessibilityLabel={tr('Add to the pantry')}
           style={styles.input}
           returnKeyType="done"
           onSubmitEditing={add}
         />
-        <Button label="Add" onPress={add} busy={busy} style={{ height: 48, paddingHorizontal: 18 }} />
+        <Button label={tr('Add')} onPress={add} busy={busy} style={{ height: 48, paddingHorizontal: 18 }} />
       </View>
-      <Button label={scanning ? 'Reading your receipt…' : 'Scan a receipt'} variant="secondary" onPress={scanReceipt} busy={scanning} />
+      <Button label={scanning ? tr('Reading your receipt…') : tr('Scan a receipt')} variant="secondary" onPress={scanReceipt} busy={scanning} />
 
       {soon.length ? (
         <Card style={{ gap: 8 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            USE SOON
+            {tr('USE SOON')}
           </T>
           {soon.map(({ i, d }) => (
             <View key={i.id} style={styles.soonRow}>
               <T size={15} weight="semibold" style={{ flex: 1 }}>
                 {i.name}
               </T>
-              <Badge label={d! < 0 ? 'Past its date' : d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : `${d} days`} tone={d! <= 0 ? 'brick' : 'amber'} />
+              <Badge label={d! < 0 ? tr('Past its date') : d === 0 ? tr('Today') : d === 1 ? tr('Tomorrow') : tr('{0} days', [d])} tone={d! <= 0 ? 'brick' : 'amber'} />
             </View>
           ))}
         </Card>
@@ -192,7 +193,7 @@ export function PantryView() {
       {k.pantry.length === 0 ? (
         <Card>
           <T size={14.5} color={colors.muted}>
-            Your pantry is empty. Add what you have at home, and the Plan and Recipes will show what you can cook and what to buy.
+            {tr('Your pantry is empty. Add what you have at home, and the Plan and Recipes will show what you can cook and what to buy.')}
           </T>
         </Card>
       ) : (
@@ -209,7 +210,7 @@ export function PantryView() {
                 <Pressable
                   key={i.id}
                   accessibilityRole="button"
-                  accessibilityHint="Edit amount or expiry date"
+                  accessibilityHint={tr('Edit amount or expiry date')}
                   onPress={() => setEditing(i)}
                   style={[styles.row, idx < g.items.length - 1 && styles.line]}
                 >
@@ -225,7 +226,7 @@ export function PantryView() {
                   {expiryBadge(i.expiration_date) ? <Badge {...expiryBadge(i.expiration_date)!} /> : null}
                   <View style={styles.edit}>
                     <T size={12.5} weight="bold" color={colors.walnut}>
-                      Edit
+                      {tr('Edit')}
                     </T>
                   </View>
                 </Pressable>
@@ -235,7 +236,7 @@ export function PantryView() {
         ))
       )}
       <T size={12} color={colors.muted} style={{ textAlign: 'center' }}>
-        Tap Edit to change an item’s amount or use-by date, or to mark it used up.
+        {tr('Tap Edit to change an item’s amount or use-by date, or to mark it used up.')}
       </T>
       <PantryItemSheet item={editing} onClose={() => setEditing(null)} />
     </View>
@@ -280,15 +281,15 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
 
   const save = async () => {
     const n = Number(qty.replace(',', '.'));
-    if (item.tracking !== 'level' && (!Number.isFinite(n) || n < 0)) return setProblem('Enter an amount as a number, for example 2 or 0.5.');
-    if (expiry && !/^\d{4}-\d{2}-\d{2}$/.test(expiry)) return setProblem('Type the date as YYYY-MM-DD, for example 2026-10-20.');
+    if (item.tracking !== 'level' && (!Number.isFinite(n) || n < 0)) return setProblem(tr('Enter an amount as a number, for example 2 or 0.5.'));
+    if (expiry && !/^\d{4}-\d{2}-\d{2}$/.test(expiry)) return setProblem(tr('Type the date as YYYY-MM-DD, for example 2026-10-20.'));
     setSaving(true);
     const patch = { expiration_date: expiry || null, ...(item.tracking === 'level' ? {} : { quantity: n }), updated_at: new Date().toISOString() };
     const { error } = n === 0 && item.tracking !== 'level'
       ? await supabase.from('pantry_items').delete().eq('id', item.id)
       : await supabase.from('pantry_items').update(patch).eq('id', item.id);
     setSaving(false);
-    if (error) return setProblem(`Could not save: ${error.message}`);
+    if (error) return setProblem(tr('Could not save: {0}', [error.message]));
     onClose();
     await refreshKitchen();
   };
@@ -309,7 +310,7 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
+      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel={tr('Close')}>
         <Pressable style={styles.sheet} onPress={() => {}}>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 14 }}>
             <T weight="extrabold" size={20}>
@@ -319,26 +320,26 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
               <View style={styles.wrap}>
                 {(['full', 'low', 'out'] as const).map((l) => (
                   <Pressable key={l} onPress={() => setLevel(l)} accessibilityRole="button">
-                    <Badge label={l === 'full' ? 'Plenty' : l === 'low' ? 'Running low' : 'Out'} tone={item.level === l ? (l === 'out' ? 'brick' : l === 'low' ? 'amber' : 'sage') : 'walnut'} />
+                    <Badge label={l === 'full' ? tr('Plenty') : l === 'low' ? tr('Running low') : tr('Out')} tone={item.level === l ? (l === 'out' ? 'brick' : l === 'low' ? 'amber' : 'sage') : 'walnut'} />
                   </Pressable>
                 ))}
               </View>
             ) : (
               <View style={{ gap: 6 }}>
-                <T weight="semibold" size={14}>{`Amount (${item.unit === 'Pieces' ? 'pieces' : item.unit})`}</T>
-                <TextInput value={qty} onChangeText={setQty} keyboardType="decimal-pad" style={styles.input} accessibilityLabel="Amount" />
+                <T weight="semibold" size={14}>{tr('Amount ({0})', [item.unit === 'Pieces' ? 'pieces' : item.unit])}</T>
+                <TextInput value={qty} onChangeText={setQty} keyboardType="decimal-pad" style={styles.input} accessibilityLabel={tr('Amount')} />
               </View>
             )}
             <View style={{ gap: 6 }}>
               <T weight="semibold" size={14}>
-                Use by
+                {tr('Use by')}
               </T>
               <View style={styles.wrap}>
                 {EXPIRY_CHOICES.map((c) => {
                   const value = c.days == null ? null : inDays(c.days);
                   return (
                     <Pressable key={c.label} onPress={() => setExpiry(value)} accessibilityRole="button">
-                      <Badge label={c.label} tone={expiry === value ? 'sage' : 'walnut'} />
+                      <Badge label={tr(c.label)} tone={expiry === value ? 'sage' : 'walnut'} />
                     </Pressable>
                   );
                 })}
@@ -346,10 +347,10 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
               <TextInput
                 value={expiry ?? ''}
                 onChangeText={(t) => setExpiry(t || null)}
-                placeholder="or type a date: 2026-10-20"
+                placeholder={tr('or type a date: 2026-10-20')}
                 placeholderTextColor="#9C8D84"
                 style={styles.input}
-                accessibilityLabel="Expiry date"
+                accessibilityLabel={tr('Expiry date')}
               />
             </View>
             {problem ? (
@@ -357,9 +358,9 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
                 {problem}
               </T>
             ) : null}
-            <Button label="Save" onPress={save} busy={saving} />
-            <Button label="Used it all — remove" variant="secondary" onPress={usedUp} />
-            <Button label="Cancel" variant="text" onPress={onClose} />
+            <Button label={tr('Save')} onPress={save} busy={saving} />
+            <Button label={tr('Used it all — remove')} variant="secondary" onPress={usedUp} />
+            <Button label={tr('Cancel')} variant="text" onPress={onClose} />
           </ScrollView>
         </Pressable>
       </Pressable>

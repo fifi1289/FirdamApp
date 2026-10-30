@@ -7,6 +7,7 @@ import { Icon, type IconName, Logo } from '@/components/art';
 import { T } from '@/components/ui';
 import { HOME_FEATURES, ringPoint, type HomeFeatureId } from '@/shared/home-features';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 const ICONS: Record<HomeFeatureId, IconName> = {
   prayer: 'prayer',
@@ -74,7 +75,7 @@ export function FeatureRing() {
   const spin = useSpin(TURN_MS);
 
   return (
-    <View style={{ width: size, height: size, alignSelf: 'center' }} accessibilityLabel="Firdam features">
+    <View style={{ width: size, height: size, alignSelf: 'center' }} accessibilityLabel={tr('Firdam features')}>
       <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
         <Circle cx={center} cy={center} r={OUTER_R * k} stroke={colors.sand} strokeWidth={1} strokeDasharray="2 7" fill="none" />
         <Circle cx={center} cy={center} r={INNER_R * k} stroke={colors.gold} strokeWidth={1} strokeDasharray="2 6" fill="none" opacity={0.7} />
@@ -86,11 +87,11 @@ export function FeatureRing() {
       <View
         style={[styles.hub, { width: HUB * k, height: HUB * k, borderRadius: (HUB * k) / 2, left: center - (HUB * k) / 2, top: center - (HUB * k) / 2 }]}
         accessibilityRole="image"
-        accessibilityLabel="Firdam"
+        accessibilityLabel={tr('Firdam')}
       >
         <Logo size={Math.round(26 * k)} />
         <T weight="extrabold" size={Math.round(12.5 * k)} color={colors.walnut} style={{ marginTop: 2 }}>
-          Firdam
+          {tr('Firdam')}
         </T>
       </View>
     </View>
@@ -133,7 +134,7 @@ function Ring({
               transform: [{ rotate: upright }],
             }}
           >
-            <Pressable accessibilityRole="button" accessibilityLabel={f.label} onPress={() => router.push(f.app as Href)}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tr(f.label)} onPress={() => router.push(f.app as Href)}>
               {({ pressed }) => (
                 <View
                   style={[
@@ -151,7 +152,7 @@ function Ring({
                     numberOfLines={2}
                     style={{ textAlign: 'center', lineHeight: Math.round(11 * scale), marginTop: 2, paddingHorizontal: 5 }}
                   >
-                    {f.label}
+                    {tr(f.label)}
                   </T>
                 </View>
               )}

@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import { PRAYERS, formatTime, timesFor, type PrayerSettings } from './prayer';
+import { tr } from '@/lib/i18n';
 
 const KIND = 'adhan';
 /** iPhones keep at most 64 scheduled alerts, so plan a week ahead and top up on each open. */
@@ -47,7 +48,7 @@ export async function scheduleAdhanAlerts(settings: PrayerSettings): Promise<num
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(KIND, {
-      name: 'Prayer times',
+      name: tr('Prayer times'),
       importance: Notifications.AndroidImportance.HIGH,
       sound: 'default',
     });
@@ -65,8 +66,11 @@ export async function scheduleAdhanAlerts(settings: PrayerSettings): Promise<num
       if (at <= now) continue;
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: `${p.name} · ${formatTime(at)}`,
-          body: `It's time for ${p.name}${settings.place.label !== 'Your location' ? ` in ${settings.place.label}` : ''}.`,
+          title: `${tr(p.name)} · ${formatTime(at)}`,
+          body:
+            settings.place.label !== 'Your location'
+              ? tr('It’s time for {0} in {1}.', [tr(p.name), settings.place.label])
+              : tr('It’s time for {0}.', [tr(p.name)]),
           sound: 'default',
           data: { kind: KIND, prayer: p.id },
         },

@@ -66,7 +66,7 @@ export function LegalPage({
                   {i + 1}. {tr(s.title)}
                 </h2>
                 <div className="legal-body mt-3 space-y-3 text-[15px] leading-relaxed text-muted-foreground [&_a]:text-primary [&_a:hover]:underline [&_li]:pl-1 [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5">
-                  {tr(s.body)}
+                  {trn(s.body)}
                 </div>
               </section>
             ))}

@@ -91,11 +91,11 @@ export function CommunityModeration() {
             </ul>
             <div className="flex gap-2">
               {event.status === 'active' ? (
-                <Button size="sm" variant="outline" onClick={() => setStatus(event, tr('hidden'))}>
+                <Button size="sm" variant="outline" onClick={() => setStatus(event, 'hidden')}>
                   <EyeOff className="mr-1.5 h-4 w-4" /> {tr('Hide')}
                 </Button>
               ) : (
-                <Button size="sm" variant="outline" onClick={() => setStatus(event, tr('active'))}>
+                <Button size="sm" variant="outline" onClick={() => setStatus(event, 'active')}>
                   <Eye className="mr-1.5 h-4 w-4" /> {tr('Restore')}
                 </Button>
               )}

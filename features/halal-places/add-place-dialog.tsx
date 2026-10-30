@@ -83,7 +83,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
     if (!open) return;
     setName('');
     setCategory('grocery');
-    setStatus(tr('halal'));
+    setStatus('halal');
     setCert(NOT_CERTIFIED);
     setCertOther('');
     setAddress('');

@@ -138,9 +138,9 @@ export function PlacesMap({
         L.control.zoom({ position: 'bottomright' }).addTo(map);
         map.setView([center?.latitude ?? 21.4225, center?.longitude ?? 39.8262], center ? 13 : 3);
         mapRef.current = map;
-        setStatus(tr('ready'));
+        setStatus('ready');
       })
-      .catch(() => !cancelled && setStatus(tr('error')));
+      .catch(() => !cancelled && setStatus('error'));
 
     return () => {
       cancelled = true;

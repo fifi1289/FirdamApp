@@ -276,7 +276,7 @@ export function HomeDashboard() {
           href="/dashboard/meals"
           icon={Utensils}
           label={tr('Today\'s meals')}
-          value={snap ? (snap.meals.length ? `${snap.meals.length} planned` : 'Not planned') : '—'}
+          value={snap ? (snap.meals.length ? tr('{0} planned', [snap.meals.length]) : tr('Not planned')) : '—'}
           sub={
             snap?.meals.length ? (
               <span className="line-clamp-1">{snap.meals.map((m) => m.name).join(' · ')}</span>

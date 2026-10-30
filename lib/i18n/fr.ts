@@ -3106,6 +3106,7 @@ export const FR: Record<string, string> = {
   "{0} page{1} to reach today’s goal. {2}": "{0} page{1} pour atteindre l’objectif du jour. {2}",
   "{0} partners{1}": "Partenaires {0}{1}",
   "{0} people{1} · recipe serves {2}": "{0} personne{1} · la recette est pour {2}",
+  "{0} planned": "{0} planifié(s)",
   "{0} recipe{1}": "{0} recette{1}",
   "{0} spent so far": "{0} dépensé jusqu’ici",
   "{0} spent · {1} given this month": "{0} dépensé · {1} donné ce mois-ci",

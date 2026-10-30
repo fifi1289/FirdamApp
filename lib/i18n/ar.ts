@@ -3220,6 +3220,7 @@ export const AR: Record<string, string> = {
   "{0} page{1} to reach today’s goal. {2}": "{0} صفحة لبلوغ هدف اليوم. {2}",
   "{0} partners{1}": "شركاء {0}{1}",
   "{0} people{1} · recipe serves {2}": "{0} أشخاص · الوصفة لـ {2}",
+  "{0} planned": "{0} مخططة",
   "{0} recipe{1}": "{0} وصفة",
   "{0} spent so far": "صُرف {0} حتى الآن",
   "{0} spent · {1} given this month": "صُرف {0} · أُعطي {1} هذا الشهر",

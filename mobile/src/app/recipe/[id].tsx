@@ -8,6 +8,7 @@ import { Badge, Photo } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
 import { addShoppingItems, markHave, checkRecipe, fitsDiets, isSafeFor, loadRecipes, recipeAllergens, recipeImage, totalMinutes, type RecipeRow } from '@/lib/kitchen';
 import { refreshKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
+import { addRecipeSteps } from '@/lib/recipe-i18n';
 import type { Line } from '@/shared/pantry-engine';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
@@ -55,6 +56,14 @@ export default function RecipeScreen() {
     loadRecipes()
       // A recipe the AI chef just added may not be in the saved list yet: reload once.
       .then(async (all) => all.find((r) => r.id === id) ?? (await loadRecipes(true)).find((r) => r.id === id) ?? null)
+      .then(async (r) => {
+        // French / Arabic steps for this recipe, when they exist.
+        if (r) {
+          const english = r.recipe_steps.slice().sort((a, b) => a.step_number - b.step_number).map((s) => s.instruction);
+          await addRecipeSteps(r.id, english).catch(() => {});
+        }
+        return r;
+      })
       .then(setRecipe)
       .catch(() => setRecipe(null));
   }, [id]);
@@ -117,14 +126,14 @@ export default function RecipeScreen() {
 
         <View style={styles.sheet}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            {tr('{0} · {1} MIN', [(recipe.cuisine?.name ?? 'Halal').toUpperCase(), totalMinutes(recipe) || '–'])}
+            {tr('{0} · {1} MIN', [tr(recipe.cuisine?.name ?? 'Halal').toUpperCase(), totalMinutes(recipe) || '–'])}
           </T>
           <T weight="extrabold" size={28} style={{ letterSpacing: -0.5, marginTop: 4 }} accessibilityRole="header">
-            {recipe.name}
+            {tr(recipe.name)}
           </T>
           {recipe.short_description ? (
             <T size={14.5} color="#5F5048" style={{ marginTop: 6, lineHeight: 21 }}>
-              {recipe.short_description}
+              {tr(recipe.short_description)}
             </T>
           ) : null}
 
@@ -175,7 +184,7 @@ export default function RecipeScreen() {
               return (
                 <View key={`${l.need.name}-${i}`} style={[styles.ing, i < check.lines.length - 1 && styles.line]}>
                   <T size={14.5} style={{ flex: 1 }}>
-                    {l.need.name}
+                    {tr(l.need.name)}
                   </T>
                   <T size={13} color={colors.muted}>
                     {l.neededText}
@@ -217,7 +226,7 @@ export default function RecipeScreen() {
                   </T>
                 </View>
                 <T size={15} style={{ flex: 1, lineHeight: 22 }}>
-                  {s.instruction}
+                  {tr(s.instruction)}
                 </T>
               </View>
             ))}

@@ -130,7 +130,7 @@ export function ShoppingView() {
                 <Pressable key={i.id} accessibilityRole="checkbox" accessibilityState={{ checked: i.checked }} onPress={() => toggle(i)} style={[styles.row, idx < g.items.length - 1 && styles.line]}>
                   <Checkbox checked={i.checked} />
                   <T size={15} weight="semibold" style={{ flex: 1 }}>
-                    {i.name}
+                    {tr(i.name)}
                   </T>
                   <T size={13} color={colors.muted}>
                     {formatQty(i.quantity, i.unit)}
@@ -151,7 +151,7 @@ export function ShoppingView() {
               <View key={i.id} style={[styles.row, idx < onAmazon.length - 1 && styles.line]}>
                 <View style={{ flex: 1 }}>
                   <T size={15} weight="semibold" numberOfLines={1}>
-                    {i.name}
+                    {tr(i.name)}
                   </T>
                   {needsHalalCheck(i.name) ? (
                     <T size={12} color={colors.muted}>
@@ -192,7 +192,7 @@ export function ShoppingView() {
               <Pressable key={i.id} accessibilityRole="checkbox" accessibilityState={{ checked: true }} onPress={() => toggle(i)} style={[styles.row, idx < done.length - 1 && styles.line]}>
                 <Checkbox checked />
                 <T size={15} color={colors.muted} style={{ flex: 1, textDecorationLine: 'line-through' }}>
-                  {i.name}
+                  {tr(i.name)}
                 </T>
               </Pressable>
             ))}

@@ -17,6 +17,7 @@ import type { Business, Database } from '@/types/database';
 import { BUSINESS_CATEGORIES } from '@/features/directory/directory-config';
 import { CommunityModeration } from '@/features/community/community-moderation';
 import { HalalPlaceReview } from '@/features/admin/halal-place-review';
+import { AdminProfiles, useAdminProfiles } from '@/features/admin/admin-profiles';
 import { PartnerAdmin } from '@/features/admin/partner-admin';
 import { RecipeFill } from '@/features/admin/recipe-fill';
 import { RecipePhotoRegenerate } from '@/features/admin/recipe-photo-regenerate';
@@ -29,6 +30,7 @@ export function AdminDashboard() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [enquiryCounts, setEnquiryCounts] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [partnerCounts, setPartnerCounts] = useState<{ live: number; hidden: number; newRequests: number } | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: biz }, { data: enq }] = await Promise.all([
@@ -39,6 +41,16 @@ export function AdminDashboard() {
     const counts: Record<string, number> = {};
     for (const e of enq ?? []) counts[e.business_id] = (counts[e.business_id] ?? 0) + 1;
     setEnquiryCounts(counts);
+    // Partner shops (Groceries) and requests waiting for an answer.
+    const [{ data: shops }, { data: apps }] = await Promise.all([
+      supabase.from('partner_shops').select('active'),
+      supabase.from('partner_applications').select('status'),
+    ]);
+    setPartnerCounts({
+      live: (shops ?? []).filter((x) => x.active).length,
+      hidden: (shops ?? []).filter((x) => !x.active).length,
+      newRequests: (apps ?? []).filter((x) => x.status === 'new' || x.status === 'contacted').length,
+    });
   }, [supabase]);
 
   useEffect(() => {
@@ -48,6 +60,8 @@ export function AdminDashboard() {
       if (ok) load();
     });
   }, [supabase, load]);
+
+  const people = useAdminProfiles(isAdmin === true);
 
   const update = async (b: Business, patch: Database['public']['Tables']['businesses']['Update']) => {
     setBusinesses((prev) => prev.map((x) => (x.id === b.id ? { ...x, ...patch } : x)));
@@ -154,32 +168,39 @@ export function AdminDashboard() {
 
   return (
     <AppShell>
-      <PageHeader title="Admin" description="Review business listings, manage partners and moderate the community." />
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <PageHeader title="Admin" description="Profiles, partners, business listings and the community." />
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         {[
-          { label: 'Awaiting review', value: pending.length },
+          { label: 'Profiles', value: people.profiles?.length ?? '…' },
+          { label: 'Approved partners', value: partnerCounts ? partnerCounts.live : '…', note: partnerCounts?.hidden ? `${partnerCounts.hidden} hidden` : undefined },
+          { label: 'New partner requests', value: partnerCounts ? partnerCounts.newRequests : '…' },
+          { label: 'Listings awaiting review', value: pending.length },
           { label: 'Live listings', value: approved.length },
-          { label: 'Partners', value: approved.filter((b) => b.is_partner).length },
           { label: 'Enquiries sent', value: totalEnquiries },
         ].map((s) => (
           <Card key={s.label}>
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground">{s.label}</p>
               <p className="mt-1 font-display text-2xl font-bold text-foreground">{s.value}</p>
+              {s.note && <p className="text-xs text-muted-foreground">{s.note}</p>}
             </CardContent>
           </Card>
         ))}
       </div>
-      <Tabs defaultValue="review">
+      <Tabs defaultValue="profiles">
         <TabsList className="mb-4 h-auto flex-wrap">
+          <TabsTrigger value="profiles">Profiles ({people.profiles?.length ?? '…'})</TabsTrigger>
           <TabsTrigger value="review">Review ({pending.length})</TabsTrigger>
           <TabsTrigger value="live">Live listings</TabsTrigger>
-          <TabsTrigger value="partners">Partner shops</TabsTrigger>
+          <TabsTrigger value="partners">Partner shops{partnerCounts?.newRequests ? ` (${partnerCounts.newRequests} new)` : ''}</TabsTrigger>
           <TabsTrigger value="places">Halal places</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
           <TabsTrigger value="recipes">Recipes</TabsTrigger>
           <TabsTrigger value="photos">Recipe photos</TabsTrigger>
         </TabsList>
+        <TabsContent value="profiles" className="mt-0">
+          <AdminProfiles profiles={people.profiles} error={people.error} />
+        </TabsContent>
         <TabsContent value="review" className="mt-0 space-y-3">
           {pending.length === 0 ? (
             <p className="py-8 text-sm text-muted-foreground">Nothing waiting for review.</p>

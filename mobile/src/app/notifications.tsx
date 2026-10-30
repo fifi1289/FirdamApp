@@ -118,7 +118,7 @@ export default function NotificationsScreen() {
           {settings
             ? PRAYERS.filter((p) => p.alert).map((p, i, list) => (
                 <View key={p.id}>
-                  <SwitchRow label={p.name} hint={tr('At {0} time{1}', [p.name, settings.place ? ` in ${settings.place.label}` : ''])} on={!!settings.alerts[p.id]} onPress={() => togglePrayer(p.id)} />
+                  <SwitchRow label={tr(p.name)} hint={settings.place ? tr('At {0} time in {1}', [tr(p.name), settings.place.label]) : tr('At {0} time', [tr(p.name)])} on={!!settings.alerts[p.id]} onPress={() => togglePrayer(p.id)} />
                   {i < list.length - 1 ? <View style={styles.line} /> : null}
                 </View>
               ))

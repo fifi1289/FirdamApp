@@ -2,7 +2,7 @@ import type { ColorValue } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { colors } from '@/theme';
-import { tr } from '@/lib/i18n';
+import { isRTL, tr } from '@/lib/i18n';
 
 /** Firdam's F leaf mark. */
 export function Logo({ size = 40 }: { size?: number }) {
@@ -134,8 +134,8 @@ export function Icon({ name, size = 24, color = colors.walnut, fill = 'none' }: 
           <Path d="M10 21a2 2 0 0 0 4 0" {...common} />
         </>
       )}
-      {name === 'chevron' && <Path d="M9 6l6 6-6 6" {...common} strokeWidth={2} />}
-      {name === 'back' && <Path d="M15 6l-6 6 6 6" {...common} strokeWidth={2} />}
+      {name === 'chevron' && <Path d={isRTL() ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} {...common} strokeWidth={2} />}
+      {name === 'back' && <Path d={isRTL() ? 'M9 6l6 6-6 6' : 'M15 6l-6 6 6 6'} {...common} strokeWidth={2} />}
     </Svg>
   );
 }

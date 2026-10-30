@@ -84,7 +84,7 @@ export default function Fasting() {
                   {tr('RAMADAN {0}', [next.year])}
                 </T>
                 <T size={26} weight="extrabold" color={colors.white}>
-                  {tr('In {0} {1}', [next.daysAway, next.daysAway === 1 ? 'day' : 'days'])}
+                  {next.daysAway === 1 ? tr('In 1 day') : tr('In {0} days', [next.daysAway])}
                 </T>
                 <T size={13} color={colors.goldText}>
                   {tr('Around {0}, depending on the moon sighting', [parseISODate(next.start).toLocaleDateString(locale(), { weekday: 'long', month: 'long', day: 'numeric' })])}

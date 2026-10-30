@@ -55,13 +55,16 @@ export function setLang(lang: Lang) {
  * Translates English text. Placeholders: tr('{0} days left', [n]) or
  * t('Hello {name}', { name }). Unknown text comes back as it is (in English).
  */
-export function tr(en: string, vars?: (string | number)[] | Record<string, string | number>): string {
+type Value = string | number | null | undefined;
+
+export function tr(en: string | null | undefined, vars?: Value[] | Record<string, Value>): string {
+  if (en == null) return '';
   const dict = DICTS[current];
   let out = (dict && dict[en]) || en;
   if (vars) {
     out = out.replace(/\{(\w+)\}/g, (m, k) => {
       const v = Array.isArray(vars) ? vars[Number(k)] : vars[k];
-      return v === undefined ? m : String(v);
+      return v == null ? '' : String(v);
     });
   }
   return out;

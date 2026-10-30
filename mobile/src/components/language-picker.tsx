@@ -1,31 +1,11 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import { Chip } from '@/components/kitchen-ui';
-import { Card, T } from '@/components/ui';
+import { T } from '@/components/ui';
 import { LANGUAGES, tr, useLanguage, type Lang } from '@/lib/i18n';
 import { colors } from '@/theme';
 
-/** Language choice in the Family tab: every screen redraws in the new language. */
-export function LanguageCard() {
-  const { lang, setLang } = useLanguage();
-  return (
-    <Card style={{ gap: 10 }}>
-      <T weight="bold" size={15}>
-        {tr('Language')}
-      </T>
-      <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-        {LANGUAGES.map((l) => (
-          <Chip key={l.id} label={l.label} selected={lang === l.id} onPress={() => setLang(l.id)} />
-        ))}
-      </View>
-      <T size={12.5} color={colors.muted}>
-        {tr('Duas and hadith meanings stay in English for now; Arabic and transliteration are always shown.')}
-      </T>
-    </Card>
-  );
-}
-
-/** Small EN / FR switch for the welcome screen, before signing in. */
+/** Small EN / FR / AR switch for the welcome screen, before signing in. */
 export function LanguageToggle() {
   const { lang, setLang } = useLanguage();
   return (
@@ -53,7 +33,66 @@ export function LanguageToggle() {
 }
 
 const styles = StyleSheet.create({
+  button: { minWidth: 42, height: 42, borderRadius: 21, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
+  backdrop: { flex: 1, backgroundColor: 'rgba(59,42,36,0.35)', justifyContent: 'center', padding: 28 },
+  sheet: { backgroundColor: colors.linen, borderRadius: 20, padding: 20, gap: 8 },
+  row: { minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: colors.sand, justifyContent: 'center', paddingHorizontal: 16 },
+  rowOn: { backgroundColor: colors.espresso, borderColor: colors.espresso },
   toggle: { flexDirection: 'row', borderWidth: 1, borderColor: colors.sand, borderRadius: 999, padding: 3, gap: 2 },
   option: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
   on: { backgroundColor: colors.espresso },
 });
+
+const SHORT: Record<Lang, string> = { en: 'EN', fr: 'FR', ar: 'ع' };
+
+/** Language button at the top of Home: shows the current language, tap to pick another. */
+export function LanguageButton() {
+  const { lang, setLang } = useLanguage();
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={tr('Language')}
+        onPress={() => setOpen(true)}
+        hitSlop={8}
+        style={styles.button}
+      >
+        <T size={13} weight="bold" color={colors.walnut}>
+          {SHORT[lang]}
+        </T>
+      </Pressable>
+      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setOpen(false)} accessibilityLabel={tr('Close')}>
+          <View style={styles.sheet} accessibilityRole="radiogroup">
+            <T weight="bold" size={16} style={{ marginBottom: 6 }}>
+              {tr('Language')}
+            </T>
+            {LANGUAGES.map((l) => {
+              const on = lang === l.id;
+              return (
+                <Pressable
+                  key={l.id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  onPress={() => {
+                    setOpen(false);
+                    if (!on) setLang(l.id);
+                  }}
+                  style={[styles.row, on && styles.rowOn]}
+                >
+                  <T size={16} weight={on ? 'bold' : 'semibold'} color={on ? colors.linen : colors.espresso}>
+                    {l.label}
+                  </T>
+                </Pressable>
+              );
+            })}
+            <T size={12} color={colors.muted} style={{ marginTop: 6 }}>
+              {tr('Duas and hadith meanings stay in English for now; Arabic and transliteration are always shown.')}
+            </T>
+          </View>
+        </Pressable>
+      </Modal>
+    </>
+  );
+}

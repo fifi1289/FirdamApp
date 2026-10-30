@@ -45,13 +45,14 @@ import {
   emptyValues,
   type GoalFormValues,
 } from '@/features/planner/goal-form-dialog';
+import { locale, tr, trn } from '@/lib/i18n';
 
 export const PLANNER_GOALS_CHANGED = 'planner-goals-changed';
 
 function formatDate(iso: string | null): string | null {
   if (!iso) return null;
   const d = new Date(`${iso}T00:00:00`);
-  return d.toLocaleDateString(undefined, {
+  return d.toLocaleDateString(locale(), {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -88,7 +89,7 @@ function GoalCard({
         <Checkbox
           checked={goal.completed}
           onCheckedChange={() => onToggle(goal)}
-          aria-label="Toggle goal completed"
+          aria-label={tr('Toggle goal completed')}
           className="mt-0.5 h-5 w-5"
         />
         <div className="min-w-0 flex-1">
@@ -101,7 +102,7 @@ function GoalCard({
                   : 'text-foreground'
               )}
             >
-              {goal.title}
+              {tr(goal.title)}
             </p>
             <div className="flex shrink-0 items-center gap-2">
               <Badge
@@ -113,7 +114,7 @@ function GoalCard({
                     : 'border-border text-muted-foreground'
                 )}
               >
-                {goal.completed ? 'Completed' : 'Active'}
+                {goal.completed ? tr('Completed') : tr('Active')}
               </Badge>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -121,7 +122,7 @@ function GoalCard({
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"
-                    aria-label="Goal actions"
+                    aria-label={tr('Goal actions')}
                   >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
@@ -129,14 +130,14 @@ function GoalCard({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onSelect={() => onEdit(goal)}>
                     <Pencil className="mr-2 h-4 w-4" />
-                    Edit
+                    {tr('Edit')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={() => onDelete(goal)}
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    {tr('Delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -145,14 +146,14 @@ function GoalCard({
 
           {variant === 'full' && goal.description && (
             <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-              {goal.description}
+              {tr(goal.description)}
             </p>
           )}
 
           {target && (
             <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
               <CalendarDays className="h-3.5 w-3.5" />
-              {target}
+              {trn(target)}
             </p>
           )}
 
@@ -163,7 +164,7 @@ function GoalCard({
                 className={cn('h-2', goal.completed && 'opacity-60')}
               />
               <span className="ml-3 w-10 shrink-0 text-right text-xs font-medium tabular-nums text-muted-foreground">
-                {goal.progress}%
+                {trn(goal.progress)}%
               </span>
             </div>
             <Slider
@@ -172,7 +173,7 @@ function GoalCard({
               min={0}
               max={100}
               step={1}
-              aria-label="Update progress"
+              aria-label={tr('Update progress')}
             />
           </div>
         </div>
@@ -265,7 +266,7 @@ export function GoalsList({ limit }: { limit?: number }) {
     setGoals((prev) => prev.filter((g) => g.id !== id));
     setDeleteOpen(false);
     setDeletingGoal(null);
-    toast.success('Goal deleted');
+    toast.success(tr('Goal deleted'));
   };
 
   const activeGoals = goals.filter((g) => !g.completed);
@@ -281,12 +282,12 @@ export function GoalsList({ limit }: { limit?: number }) {
     <>
       <Card className="h-full">
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base font-semibold">Goals</CardTitle>
+          <CardTitle className="text-base font-semibold">{tr('Goals')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {loading ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              Loading goals…
+              {tr('Loading goals…')}
             </p>
           ) : goals.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-10 text-center">
@@ -295,10 +296,10 @@ export function GoalsList({ limit }: { limit?: number }) {
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-foreground">
-                  No goals yet
+                  {tr('No goals yet')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Create your first goal to start tracking your progress.
+                  {tr('Create your first goal to start tracking your progress.')}
                 </p>
               </div>
             </div>
@@ -329,12 +330,12 @@ export function GoalsList({ limit }: { limit?: number }) {
                   {showAllActive ? (
                     <>
                       <ChevronUp className="mr-2 h-4 w-4" />
-                      Show fewer goals
+                      {tr('Show fewer goals')}
                     </>
                   ) : (
                     <>
                       <ChevronDown className="mr-2 h-4 w-4" />
-                      View all goals
+                      {tr('View all goals')}
                     </>
                   )}
                 </Button>
@@ -344,10 +345,10 @@ export function GoalsList({ limit }: { limit?: number }) {
                 <div className="flex flex-col items-center gap-2 py-6 text-center">
                   <CheckCircle2 className="h-7 w-7 text-success" />
                   <p className="text-sm font-medium text-foreground">
-                    You&apos;re all caught up.
+                    {tr('You\'re all caught up.')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    All your goals are complete.
+                    {tr('All your goals are complete.')}
                   </p>
                 </div>
               )}
@@ -362,7 +363,7 @@ export function GoalsList({ limit }: { limit?: number }) {
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
                       <Trophy className="h-4 w-4 text-amber-500" />
-                      Achieved
+                      {tr('Achieved')}
                       <Badge
                         variant="secondary"
                         className="text-[10px] font-medium"
@@ -414,22 +415,22 @@ export function GoalsList({ limit }: { limit?: number }) {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete goal?</AlertDialogTitle>
+            <AlertDialogTitle>{tr('Delete goal?')}</AlertDialogTitle>
             <AlertDialogDescription>
               {deletingGoal
-                ? `"${deletingGoal.title}" will be permanently removed.`
-                : 'This goal will be permanently removed.'}{' '}
-              This action cannot be undone.
+                ? tr('"{0}" will be permanently removed.', [deletingGoal.title])
+                : tr('This goal will be permanently removed.')}{' '}
+              {tr('This action cannot be undone.')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{tr('Cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? tr('Deleting…') : tr('Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

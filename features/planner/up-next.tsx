@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import type { PlannerTask, TaskPriority } from '@/types/database';
 import { usePlannerDate } from '@/features/planner/planner-context';
 import { PLANNER_TASKS_CHANGED } from '@/features/planner/tasks-list';
+import { tr, trn } from '@/lib/i18n';
 
 const PRIORITY_BADGE_STYLES: Record<TaskPriority, string> = {
   high: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
@@ -100,18 +101,18 @@ export function UpNext() {
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Sparkles className="h-4 w-4 text-primary" />
-          Up Next
+          {tr('Up Next')}
         </CardTitle>
         {!loading && incomplete.length > 0 && (
           <span className="text-xs text-muted-foreground">
-            {incomplete.length} remaining
+            {incomplete.length} {tr('remaining')}
           </span>
         )}
       </CardHeader>
       <CardContent>
         {loading ? (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            Loading…
+            {tr('Loading…')}
           </p>
         ) : tasks.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-10 text-center">
@@ -120,10 +121,10 @@ export function UpNext() {
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground">
-                No tasks for today yet
+                {tr('No tasks for today yet')}
               </p>
               <p className="text-xs text-muted-foreground">
-                Add a task to start planning your day.
+                {tr('Add a task to start planning your day.')}
               </p>
             </div>
           </div>
@@ -133,10 +134,10 @@ export function UpNext() {
               <CheckCircle2 className="h-6 w-6 text-success" />
             </div>
             <p className="text-sm font-medium text-foreground">
-              You&apos;re all caught up for today.
+              {tr('You\'re all caught up for today.')}
             </p>
             <p className="text-xs text-muted-foreground">
-              Great work — enjoy the rest of your day.
+              {tr('Great work — enjoy the rest of your day.')}
             </p>
           </div>
         ) : (
@@ -147,14 +148,14 @@ export function UpNext() {
                 <div className="mb-2 flex items-center gap-1.5">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-                    Next Task
+                    {tr('Next Task')}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Checkbox
                     checked={nextTask.completed}
                     onCheckedChange={() => toggleTask(nextTask)}
-                    aria-label="Toggle task complete"
+                    aria-label={tr('Toggle task complete')}
                     className="h-5 w-5"
                   />
                   <div className="flex flex-1 flex-col gap-1">
@@ -163,7 +164,7 @@ export function UpNext() {
                       {formatTime(nextTask.time)}
                     </span>
                     <span className="text-base font-semibold text-foreground">
-                      {nextTask.title}
+                      {tr(nextTask.title)}
                     </span>
                   </div>
                   <Badge
@@ -173,7 +174,7 @@ export function UpNext() {
                       PRIORITY_BADGE_STYLES[nextTask.priority]
                     )}
                   >
-                    {PRIORITY_LABELS[nextTask.priority]}
+                    {trn(PRIORITY_LABELS[nextTask.priority])}
                   </Badge>
                 </div>
               </div>
@@ -190,14 +191,14 @@ export function UpNext() {
                     <Checkbox
                       checked={task.completed}
                       onCheckedChange={() => toggleTask(task)}
-                      aria-label="Toggle task complete"
+                      aria-label={tr('Toggle task complete')}
                       className="h-4 w-4"
                     />
                     <span className="w-20 shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
                       {formatTime(task.time)}
                     </span>
                     <span className="flex-1 truncate text-sm text-foreground">
-                      {task.title}
+                      {tr(task.title)}
                     </span>
                     <Badge
                       variant="outline"
@@ -206,7 +207,7 @@ export function UpNext() {
                         PRIORITY_BADGE_STYLES[task.priority]
                       )}
                     >
-                      {PRIORITY_LABELS[task.priority]}
+                      {trn(PRIORITY_LABELS[task.priority])}
                     </Badge>
                   </li>
                 ))}

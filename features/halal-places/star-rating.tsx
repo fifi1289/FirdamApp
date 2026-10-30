@@ -3,6 +3,7 @@
 import { Star } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { tr } from '@/lib/i18n';
 
 export function StarRating({
   value,
@@ -17,7 +18,7 @@ export function StarRating({
   return (
     <span
       className={cn('inline-flex items-center gap-0.5', className)}
-      aria-label={`${value.toFixed(1)} out of 5`}
+      aria-label={tr('{0} out of 5', [value.toFixed(1)])}
     >
       {[1, 2, 3, 4, 5].map((i) => {
         const fill = Math.max(0, Math.min(1, value - (i - 1)));
@@ -42,14 +43,14 @@ export function StarInput({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-1" role="radiogroup" aria-label="Rating">
+    <div className="flex items-center gap-1" role="radiogroup" aria-label={tr('Rating')}>
       {[1, 2, 3, 4, 5].map((i) => (
         <button
           key={i}
           type="button"
           role="radio"
           aria-checked={value === i}
-          aria-label={`${i} star${i > 1 ? 's' : ''}`}
+          aria-label={tr('{0} star{1}', [i, i > 1 ? 's' : ''])}
           onClick={() => onChange(i)}
           className="rounded-md p-0.5 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >

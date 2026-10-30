@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Utensils } from 'lucide-react';
 
 import { getCategoryImage } from '@/features/meals/meal-images';
+import { trn } from '@/lib/i18n';
 
 interface MealImageProps {
   src: string;
@@ -44,7 +45,7 @@ export function MealImage({ src, alt, category, className }: MealImageProps) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={currentSrc}
-      alt={alt}
+      alt={trn(alt)}
       className={className}
       onError={handleError}
       // Recipe lists show dozens of photos: only fetch the ones near the screen.

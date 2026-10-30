@@ -13,6 +13,7 @@ import type { Business, BusinessCategory } from '@/types/database';
 import { BUSINESS_CATEGORIES } from '@/features/directory/directory-config';
 import { BusinessSheet } from '@/features/directory/business-sheet';
 import { BusinessFormDialog } from '@/features/directory/business-form-dialog';
+import { tr, trn } from '@/lib/i18n';
 
 export const BUSINESSES_CHANGED = 'firdam-businesses-changed';
 
@@ -41,27 +42,27 @@ export function BusinessRow({
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-start justify-between gap-2">
-          <span className="truncate font-semibold text-foreground">{business.name}</span>
+          <span className="truncate font-semibold text-foreground">{trn(business.name)}</span>
           {distance !== undefined && (
             <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{formatDistance(distance)}</span>
           )}
         </span>
         <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-          {meta.label}
-          {business.city && <span>· {business.city}</span>}
-          {business.serves_online && <span>· Online</span>}
+          {tr(meta.label)}
+          {business.city && <span>· {trn(business.city)}</span>}
+          {business.serves_online && <span>{tr('· Online')}</span>}
           {business.is_partner && (
             <span className="inline-flex items-center gap-0.5 font-medium text-[#7a5a30] dark:text-brand-gold">
-              <BadgeCheck className="h-3.5 w-3.5" /> Firdam Partner
+              <BadgeCheck className="h-3.5 w-3.5" /> {tr('Firdam Partner')}
             </span>
           )}
         </span>
         {business.description && (
-          <span className="mt-1.5 line-clamp-2 block text-sm text-muted-foreground">{business.description}</span>
+          <span className="mt-1.5 line-clamp-2 block text-sm text-muted-foreground">{tr(business.description)}</span>
         )}
         {business.partner_offer && (
           <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-brand-gold/15 px-2 py-0.5 text-xs font-medium text-[#7a5a30] dark:text-brand-gold">
-            <Sparkles className="h-3 w-3" /> {business.partner_offer}
+            <Sparkles className="h-3 w-3" /> {trn(business.partner_offer)}
           </span>
         )}
       </span>
@@ -150,7 +151,7 @@ export function DirectoryList({
                   category === 'all' ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground'
                 )}
               >
-                All
+                {tr('All')}
               </button>
               {categories.map((c) => (
                 <button
@@ -162,7 +163,7 @@ export function DirectoryList({
                     category === c ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground'
                   )}
                 >
-                  {BUSINESS_CATEGORIES[c].plural}
+                  {trn(BUSINESS_CATEGORIES[c].plural)}
                 </button>
               ))}
             </>
@@ -174,19 +175,19 @@ export function DirectoryList({
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search name, city, service"
+              placeholder={tr('Search name, city, service')}
               className="h-9 pl-9"
             />
           </div>
           <Button size="sm" variant="outline" className="h-9 shrink-0" onClick={() => setApplyOpen(true)}>
-            <Plus className="mr-1.5 h-4 w-4" /> List your business
+            <Plus className="mr-1.5 h-4 w-4" /> {tr('List your business')}
           </Button>
         </div>
       </div>
 
       {loading ? (
         <p className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading trusted businesses…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading trusted businesses…')}
         </p>
       ) : visible.length === 0 ? (
         <Card className="border-dashed">
@@ -194,13 +195,13 @@ export function DirectoryList({
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Store className="h-6 w-6" />
             </span>
-            <p className="mt-4 font-semibold text-foreground">No listings here yet</p>
+            <p className="mt-4 font-semibold text-foreground">{tr('No listings here yet')}</p>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              {emptyHint ??
-                'Firdam is onboarding trusted Muslim-friendly businesses. Own one? List it for free and reach families near you.'}
+              {trn(emptyHint) ??
+                tr('Firdam is onboarding trusted Muslim-friendly businesses. Own one? List it for free and reach families near you.')}
             </p>
             <Button size="sm" className="mt-5" onClick={() => setApplyOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> List your business
+              <Plus className="mr-2 h-4 w-4" /> {tr('List your business')}
             </Button>
           </CardContent>
         </Card>
@@ -214,7 +215,7 @@ export function DirectoryList({
 
       {location && visible.some((v) => v.distance !== undefined) && (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5" /> Distances from {location.label}
+          <MapPin className="h-3.5 w-3.5" /> {tr('Distances from')} {tr(location.label)}
         </p>
       )}
 

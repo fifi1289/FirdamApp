@@ -5,6 +5,7 @@ import { UpNext } from '@/features/planner/up-next';
 import { GoalsList } from '@/features/planner/goals-list';
 import { NewGoalDialog } from '@/features/planner/goal-form-dialog';
 import { PlannerProvider } from '@/features/planner/planner-context';
+import { tr } from '@/lib/i18n';
 
 export const metadata = { title: 'Planner' };
 
@@ -31,7 +32,7 @@ export default function PlannerPage() {
         <section aria-labelledby="goals-heading" className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 id="goals-heading" className="text-base font-semibold">
-              Goals
+              {tr('Goals')}
             </h2>
             <NewGoalDialog />
           </div>

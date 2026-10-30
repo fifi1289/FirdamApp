@@ -35,6 +35,7 @@ import { directionsUrl, formatDistance } from '@/lib/geo/location';
 import { displayNameFor } from '@/lib/auth/display-name';
 import type { Business } from '@/types/database';
 import { BUSINESS_CATEGORIES, TRAVEL_CATEGORIES } from '@/features/directory/directory-config';
+import { tr, trn } from '@/lib/i18n';
 
 function site(url: string) {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
@@ -80,8 +81,8 @@ export function BusinessSheet({
   const isOwn = business.owner_id === user?.id;
 
   const send = async () => {
-    if (!message.trim()) return toast.error('Write a short message.');
-    if (!email.trim()) return toast.error('Add your email so they can reply.');
+    if (!message.trim()) return toast.error(tr('Write a short message.'));
+    if (!email.trim()) return toast.error(tr('Add your email so they can reply.'));
     setSending(true);
     const { error } = await supabase.from('business_enquiries').insert({
       business_id: business.id,
@@ -94,11 +95,11 @@ export function BusinessSheet({
     });
     setSending(false);
     if (error) {
-      toast.error('Could not send your enquiry', { description: error.message });
+      toast.error(tr('Could not send your enquiry'), { description: error.message });
       return;
     }
     setSent(true);
-    toast.success(`Enquiry sent to ${business.name}`);
+    toast.success(tr('Enquiry sent to {0}', [business.name]));
   };
 
   return (
@@ -110,9 +111,9 @@ export function BusinessSheet({
               <Icon className="h-6 w-6" />
             </span>
             <div className="min-w-0">
-              <SheetTitle className="font-display text-xl leading-tight">{business.name}</SheetTitle>
+              <SheetTitle className="font-display text-xl leading-tight">{trn(business.name)}</SheetTitle>
               <SheetDescription>
-                {meta.label}
+                {tr(meta.label)}
                 {business.city ? ` · ${business.city}` : ''}
                 {distanceKm !== undefined ? ` · ${formatDistance(distanceKm)}` : ''}
               </SheetDescription>
@@ -121,17 +122,17 @@ export function BusinessSheet({
           <div className="flex flex-wrap gap-1.5">
             {business.is_partner && (
               <Badge className="gap-1 bg-brand-gold text-brand-espresso hover:bg-brand-gold">
-                <BadgeCheck className="h-3 w-3" /> Firdam Partner
+                <BadgeCheck className="h-3 w-3" /> {tr('Firdam Partner')}
               </Badge>
             )}
             {business.licence_number && (
               <Badge variant="outline" className="gap-1 border-brand-sage/30 bg-brand-sage/10 text-brand-sage">
-                <ShieldCheck className="h-3 w-3" /> Licensed
+                <ShieldCheck className="h-3 w-3" /> {tr('Licensed')}
               </Badge>
             )}
-            {business.serves_online && <Badge variant="secondary">Serves online</Badge>}
+            {business.serves_online && <Badge variant="secondary">{tr('Serves online')}</Badge>}
             {business.status !== 'approved' && (
-              <Badge variant="outline">{business.status === 'pending' ? 'Awaiting review' : 'Not approved'}</Badge>
+              <Badge variant="outline">{business.status === 'pending' ? tr('Awaiting review') : tr('Not approved')}</Badge>
             )}
           </div>
         </SheetHeader>
@@ -140,21 +141,21 @@ export function BusinessSheet({
           <div className="mt-5 flex items-start gap-2 rounded-xl border border-brand-gold/40 bg-brand-gold/10 p-3 text-sm">
             <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#7a5a30] dark:text-brand-gold" />
             <span className="text-foreground">
-              <span className="font-semibold">Firdam member offer: </span>
-              {business.partner_offer}
+              <span className="font-semibold">{tr('Firdam member offer:')} </span>
+              {trn(business.partner_offer)}
             </span>
           </div>
         )}
 
         {business.description && (
-          <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-foreground/90">{business.description}</p>
+          <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-foreground/90">{tr(business.description)}</p>
         )}
 
         {business.services.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {business.services.map((s) => (
               <span key={s} className="rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground">
-                {s}
+                {trn(s)}
               </span>
             ))}
           </div>
@@ -200,13 +201,13 @@ export function BusinessSheet({
           {business.licence_number && (
             <p className="flex items-center gap-3 text-muted-foreground">
               <ShieldCheck className="h-4 w-4" />
-              Licence: {business.licence_number}
+              {tr('Licence:')} {trn(business.licence_number)}
             </p>
           )}
           {business.latitude != null && business.longitude != null && (
             <Button asChild variant="outline" size="sm">
               <a href={directionsUrl(business.latitude, business.longitude)} target="_blank" rel="noreferrer">
-                <Navigation className="mr-2 h-4 w-4" /> Directions
+                <Navigation className="mr-2 h-4 w-4" /> {tr('Directions')}
               </a>
             </Button>
           )}
@@ -217,34 +218,33 @@ export function BusinessSheet({
             <Separator className="my-6" />
             {sent ? (
               <div className="rounded-2xl bg-brand-sage/10 p-4 text-sm text-brand-sage">
-                Your enquiry was sent. {business.name} will reply to {email}. You can see your enquiries
-                under Directory → My enquiries.
+                {tr('Your enquiry was sent. {0} will reply to {1}. You can see your enquiries under Directory → My enquiries.', [business.name, email])}
               </div>
             ) : (
               <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Send an enquiry</h3>
+                <h3 className="text-sm font-semibold text-foreground">{tr('Send an enquiry')}</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <Label htmlFor="e-name" className="text-xs">Name</Label>
+                    <Label htmlFor="e-name" className="text-xs">{tr('Name')}</Label>
                     <Input id="e-name" value={name} onChange={(e) => setName(e.target.value)} />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="e-phone" className="text-xs">Phone (optional)</Label>
+                    <Label htmlFor="e-phone" className="text-xs">{tr('Phone (optional)')}</Label>
                     <Input id="e-phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="e-email" className="text-xs">Email</Label>
+                  <Label htmlFor="e-email" className="text-xs">{tr('Email')}</Label>
                   <Input id="e-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
                 {isTravel && (
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                      <Label htmlFor="e-date" className="text-xs">Travel date</Label>
+                      <Label htmlFor="e-date" className="text-xs">{tr('Travel date')}</Label>
                       <Input id="e-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="e-trav" className="text-xs">Travellers</Label>
+                      <Label htmlFor="e-trav" className="text-xs">{tr('Travellers')}</Label>
                       <Input
                         id="e-trav"
                         inputMode="numeric"
@@ -255,7 +255,7 @@ export function BusinessSheet({
                   </div>
                 )}
                 <div className="space-y-1">
-                  <Label htmlFor="e-msg" className="text-xs">Message</Label>
+                  <Label htmlFor="e-msg" className="text-xs">{tr('Message')}</Label>
                   <Textarea
                     id="e-msg"
                     value={message}
@@ -264,17 +264,17 @@ export function BusinessSheet({
                     maxLength={2000}
                     placeholder={
                       business.category === 'hajj_umrah'
-                        ? 'Assalamu alaikum, we are a family of 4 interested in an Umrah package in…'
-                        : 'Assalamu alaikum, I’d like to know more about…'
+                        ? tr('Assalamu alaikum, we are a family of 4 interested in an Umrah package in…')
+                        : tr('Assalamu alaikum, I’d like to know more about…')
                     }
                   />
                 </div>
                 <Button onClick={send} disabled={sending} className="w-full">
                   {sending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Send enquiry
+                  {tr('Send enquiry')}
                 </Button>
                 <p className="text-[11px] text-muted-foreground">
-                  Your name, email and message are shared with this business so they can reply.
+                  {tr('Your name, email and message are shared with this business so they can reply.')}
                 </p>
               </section>
             )}

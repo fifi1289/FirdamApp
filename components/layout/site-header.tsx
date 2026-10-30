@@ -9,7 +9,9 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/brand/logo';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { LanguageSwitcher } from '@/components/i18n/language-switcher';
 import { useAuth } from '@/components/auth/auth-provider';
+import { tr } from '@/lib/i18n';
 
 const navLinks = [
   { label: 'Features', href: '/#features' },
@@ -33,36 +35,38 @@ export function SiteHeader() {
               href={link.href}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {link.label}
+              {tr(link.label)}
             </Link>
           ))}
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <LanguageSwitcher />
           <ThemeToggle />
           {loading ? null : authenticated ? (
             <Button asChild size="sm">
-              <Link href="/dashboard">Go to dashboard</Link>
+              <Link href="/dashboard">{tr('Go to dashboard')}</Link>
             </Button>
           ) : (
             <>
               <Button variant="ghost" asChild size="sm">
-                <Link href="/auth/login">Sign in</Link>
+                <Link href="/auth/login">{tr('Sign in')}</Link>
               </Button>
               <Button asChild size="sm">
-                <Link href="/auth/register">Get started</Link>
+                <Link href="/auth/register">{tr('Get started')}</Link>
               </Button>
             </>
           )}
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
+          <LanguageSwitcher />
           <ThemeToggle />
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setOpen((o) => !o)}
-            aria-label="Toggle menu"
+            aria-label={tr('Toggle menu')}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
@@ -84,26 +88,26 @@ export function SiteHeader() {
               onClick={() => setOpen(false)}
               className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
-              {link.label}
+              {tr(link.label)}
             </Link>
           ))}
           <div className="mt-2 flex flex-col gap-2">
             {loading ? null : authenticated ? (
               <Button asChild>
                 <Link href="/dashboard" onClick={() => setOpen(false)}>
-                  Go to dashboard
+                  {tr('Go to dashboard')}
                 </Link>
               </Button>
             ) : (
               <>
                 <Button variant="outline" asChild>
                   <Link href="/auth/login" onClick={() => setOpen(false)}>
-                    Sign in
+                    {tr('Sign in')}
                   </Link>
                 </Button>
                 <Button asChild>
                   <Link href="/auth/register" onClick={() => setOpen(false)}>
-                    Get started
+                    {tr('Get started')}
                   </Link>
                 </Button>
               </>

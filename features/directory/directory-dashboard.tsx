@@ -23,6 +23,7 @@ import type { Business, BusinessCategory, BusinessEnquiry } from '@/types/databa
 import { BUSINESS_CATEGORIES } from '@/features/directory/directory-config';
 import { BUSINESSES_CHANGED, DirectoryList } from '@/features/directory/directory-list';
 import { BusinessFormDialog } from '@/features/directory/business-form-dialog';
+import { locale, tr, trn } from '@/lib/i18n';
 
 const ALL_CATEGORIES = Object.keys(BUSINESS_CATEGORIES) as BusinessCategory[];
 
@@ -30,18 +31,18 @@ function StatusBadge({ status }: { status: Business['status'] }) {
   if (status === 'approved')
     return (
       <Badge variant="outline" className="gap-1 border-brand-sage/30 bg-brand-sage/10 text-brand-sage">
-        <BadgeCheck className="h-3 w-3" /> Live
+        <BadgeCheck className="h-3 w-3" /> {tr('Live')}
       </Badge>
     );
   if (status === 'pending')
     return (
       <Badge variant="outline" className="gap-1">
-        <Clock className="h-3 w-3" /> Awaiting review
+        <Clock className="h-3 w-3" /> {tr('Awaiting review')}
       </Badge>
     );
   return (
     <Badge variant="outline" className="gap-1 border-destructive/30 text-destructive">
-      <XCircle className="h-3 w-3" /> Not approved
+      <XCircle className="h-3 w-3" /> {tr('Not approved')}
     </Badge>
   );
 }
@@ -90,7 +91,7 @@ function MyBusinesses() {
     setEnquiries((prev) => prev.map((x) => (x.id === e.id ? { ...x, status } : x)));
     const { error } = await supabase.from('business_enquiries').update({ status }).eq('id', e.id);
     if (error) {
-      toast.error('Could not update enquiry');
+      toast.error(tr('Could not update enquiry'));
       load();
     }
   };
@@ -98,7 +99,7 @@ function MyBusinesses() {
   if (loading) {
     return (
       <p className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+        <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading…')}
       </p>
     );
   }
@@ -111,13 +112,12 @@ function MyBusinesses() {
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Store className="h-6 w-6" />
             </span>
-            <p className="mt-4 font-semibold text-foreground">Reach Muslim families with Firdam</p>
+            <p className="mt-4 font-semibold text-foreground">{tr('Reach Muslim families with Firdam')}</p>
             <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              Listing is free. Approved businesses appear in Travel, Learning and the Directory,
-              receive enquiries here, and can apply to become a featured Firdam Partner.
+              {tr('Listing is free. Approved businesses appear in Travel, Learning and the Directory, receive enquiries here, and can apply to become a featured Firdam Partner.')}
             </p>
             <Button size="sm" className="mt-5" onClick={() => setFormOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> List your business
+              <Plus className="mr-2 h-4 w-4" /> {tr('List your business')}
             </Button>
           </CardContent>
         </Card>
@@ -130,22 +130,22 @@ function MyBusinesses() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-semibold text-foreground">{b.name}</p>
-                      <p className="text-xs text-muted-foreground">{BUSINESS_CATEGORIES[b.category].label}</p>
+                      <p className="font-semibold text-foreground">{trn(b.name)}</p>
+                      <p className="text-xs text-muted-foreground">{tr(BUSINESS_CATEGORIES[b.category].label)}</p>
                     </div>
                     <StatusBadge status={b.status} />
                   </div>
                   {b.is_partner && (
                     <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#7a5a30] dark:text-brand-gold">
-                      <BadgeCheck className="h-3.5 w-3.5" /> Firdam Partner{b.featured ? ' · Featured' : ''}
+                      <BadgeCheck className="h-3.5 w-3.5" /> {tr('Firdam Partner')}{b.featured ? tr(' · Featured') : ''}
                     </p>
                   )}
                   {b.admin_note && b.status !== 'approved' && (
-                    <p className="mt-2 rounded-lg bg-muted p-2 text-xs text-muted-foreground">{b.admin_note}</p>
+                    <p className="mt-2 rounded-lg bg-muted p-2 text-xs text-muted-foreground">{trn(b.admin_note)}</p>
                   )}
                   <div className="mt-3 flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">
-                      {count > 0 ? `${count} new enquir${count === 1 ? 'y' : 'ies'}` : 'No new enquiries'}
+                      {count > 0 ? tr('{0} new enquir{1}', [count, count === 1 ? 'y' : 'ies']) : tr('No new enquiries')}
                     </span>
                     <Button
                       variant="ghost"
@@ -155,7 +155,7 @@ function MyBusinesses() {
                         setFormOpen(true);
                       }}
                     >
-                      <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit
+                      <Pencil className="mr-1.5 h-3.5 w-3.5" /> {tr('Edit')}
                     </Button>
                   </div>
                 </CardContent>
@@ -168,10 +168,10 @@ function MyBusinesses() {
       {listings.length > 0 && (
         <section>
           <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Inbox className="h-4 w-4 text-primary" /> Enquiries from Firdam families
+            <Inbox className="h-4 w-4 text-primary" /> {tr('Enquiries from Firdam families')}
           </h2>
           {enquiries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No enquiries yet. They’ll appear here as soon as families get in touch.</p>
+            <p className="text-sm text-muted-foreground">{tr('No enquiries yet. They’ll appear here as soon as families get in touch.')}</p>
           ) : (
             <div className="space-y-3">
               {enquiries.map((e) => (
@@ -179,12 +179,12 @@ function MyBusinesses() {
                   <CardContent className="p-4 text-sm">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <p className="font-medium text-foreground">{e.name}</p>
+                        <p className="font-medium text-foreground">{trn(e.name)}</p>
                         <p className="text-xs text-muted-foreground">
-                          {listings.find((b) => b.id === e.business_id)?.name} ·{' '}
-                          {new Date(e.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                          {e.travel_date ? ` · travelling ${new Date(`${e.travel_date}T00:00:00`).toLocaleDateString()}` : ''}
-                          {e.travellers ? ` · ${e.travellers} travellers` : ''}
+                          {trn(listings.find((b) => b.id === e.business_id)?.name)} ·{' '}
+                          {new Date(e.created_at).toLocaleDateString(locale(), { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {e.travel_date ? tr(' · travelling {0}', [new Date(`${e.travel_date}T00:00:00`).toLocaleDateString()]) : ''}
+                          {e.travellers ? tr(' · {0} travellers', [e.travellers]) : ''}
                         </p>
                       </div>
                       <Select value={e.status} onValueChange={(v) => setStatus(e, v as BusinessEnquiry['status'])}>
@@ -192,13 +192,13 @@ function MyBusinesses() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="new">New</SelectItem>
-                          <SelectItem value="contacted">Contacted</SelectItem>
-                          <SelectItem value="closed">Closed</SelectItem>
+                          <SelectItem value="new">{tr('New')}</SelectItem>
+                          <SelectItem value="contacted">{tr('Contacted')}</SelectItem>
+                          <SelectItem value="closed">{tr('Closed')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <p className="mt-2 whitespace-pre-line text-foreground/90">{e.message}</p>
+                    <p className="mt-2 whitespace-pre-line text-foreground/90">{trn(e.message)}</p>
                     <div className="mt-3 flex flex-wrap gap-3 text-xs">
                       <a href={`mailto:${e.email}`} className="inline-flex items-center gap-1 text-primary hover:underline">
                         <Mail className="h-3.5 w-3.5" /> {e.email}
@@ -258,12 +258,12 @@ function MyEnquiries() {
   if (loading) {
     return (
       <p className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+        <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading…')}
       </p>
     );
   }
   if (rows.length === 0) {
-    return <p className="py-10 text-sm text-muted-foreground">You haven’t sent any enquiries yet.</p>;
+    return <p className="py-10 text-sm text-muted-foreground">{tr('You haven’t sent any enquiries yet.')}</p>;
   }
   return (
     <div className="space-y-3">
@@ -271,15 +271,15 @@ function MyEnquiries() {
         <Card key={e.id}>
           <CardContent className="p-4 text-sm">
             <div className="flex items-center justify-between gap-2">
-              <p className="font-medium text-foreground">{e.businessName ?? 'Business'}</p>
+              <p className="font-medium text-foreground">{trn(e.businessName) ?? tr('Business')}</p>
               <Badge variant="outline" className="capitalize">
-                {e.status === 'new' ? 'Sent' : e.status}
+                {e.status === 'new' ? tr('Sent') : trn(e.status)}
               </Badge>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {new Date(e.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+              {new Date(e.created_at).toLocaleDateString(locale(), { month: 'short', day: 'numeric', year: 'numeric' })}
             </p>
-            <p className="mt-2 whitespace-pre-line text-foreground/90">{e.message}</p>
+            <p className="mt-2 whitespace-pre-line text-foreground/90">{trn(e.message)}</p>
           </CardContent>
         </Card>
       ))}
@@ -297,14 +297,14 @@ export function DirectoryDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Directory"
-        description="Trusted Muslim-friendly businesses: Hajj & Umrah operators, travel agencies, tutors, schools, caterers and Islamic finance."
+        title={tr('Directory')}
+        description={tr('Trusted Muslim-friendly businesses: Hajj & Umrah operators, travel agencies, tutors, schools, caterers and Islamic finance.')}
       />
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-5">
-          <TabsTrigger value="browse">Browse</TabsTrigger>
-          <TabsTrigger value="enquiries">My enquiries</TabsTrigger>
-          <TabsTrigger value="business">For businesses</TabsTrigger>
+          <TabsTrigger value="browse">{tr('Browse')}</TabsTrigger>
+          <TabsTrigger value="enquiries">{tr('My enquiries')}</TabsTrigger>
+          <TabsTrigger value="business">{tr('For businesses')}</TabsTrigger>
         </TabsList>
         <TabsContent value="browse" className="mt-0">
           <DirectoryList categories={ALL_CATEGORIES} />

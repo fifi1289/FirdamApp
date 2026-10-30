@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/page-header';
 import { Placeholder } from '@/components/common/placeholder';
 import { CalendarDashboard } from '@/features/calendar/calendar-dashboard';
 import { getModuleById, moduleIconMap } from '@/features/modules/module-config';
+import { tr, trn } from '@/lib/i18n';
 
 export const metadata = { title: 'Family Calendar' };
 
@@ -21,11 +22,11 @@ export default function CalendarPage() {
     const Icon = moduleIconMap[mod.icon] ?? CalendarHeart;
     return (
       <AppShell>
-        <PageHeader title={mod.name} description={mod.description} />
+        <PageHeader title={trn(mod.name)} description={tr(mod.description)} />
         <Placeholder
           icon={Icon}
-          title={`${mod.name} is coming soon`}
-          description={`${mod.description} We're putting the finishing touches on it, in sha Allah.`}
+          title={tr('{0} is coming soon', [mod.name])}
+          description={tr('{0} We\'re putting the finishing touches on it, in sha Allah.', [mod.description])}
         />
       </AppShell>
     );

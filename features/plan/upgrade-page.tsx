@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { callEdgeFunction, EdgeFunctionError } from '@/lib/supabase/functions';
 import { PLAN_NAMES, PRICES, refreshPlan, usePlan } from '@/lib/plan/plan';
 import { cn } from '@/lib/utils';
+import { locale, tr, trn } from '@/lib/i18n';
 
 type Interval = 'month' | 'year';
 
@@ -48,11 +49,11 @@ export function UpgradePage() {
     const status = new URLSearchParams(window.location.search).get('checkout');
     if (status === 'success') {
       refreshPlan();
-      toast.success('Welcome to Firdam Family! Your trial has started.', {
-        description: 'It can take a few seconds for your plan to update.',
+      toast.success(tr('Welcome to Firdam Family! Your trial has started.'), {
+        description: tr('It can take a few seconds for your plan to update.'),
       });
     } else if (status === 'cancelled') {
-      toast.message('Checkout cancelled — you have not been charged.');
+      toast.message(tr('Checkout cancelled — you have not been charged.'));
     }
   }, []);
 
@@ -66,12 +67,12 @@ export function UpgradePage() {
     } catch (err) {
       setBusy(null);
       if (err instanceof EdgeFunctionError && err.status === 501) {
-        toast.error('Payments are not switched on yet', {
-          description: 'The Firdam team is finishing billing setup. Please try again soon.',
+        toast.error(tr('Payments are not switched on yet'), {
+          description: tr('The Firdam team is finishing billing setup. Please try again soon.'),
         });
         return;
       }
-      toast.error('Could not open checkout', {
+      toast.error(tr('Could not open checkout'), {
         description: err instanceof Error ? err.message : undefined,
       });
     }
@@ -86,13 +87,13 @@ export function UpgradePage() {
   return (
     <AppShell>
       <PageHeader
-        title="Plans"
-        description="One low price for your whole household. Firdam Family starts with a 14-day free trial."
+        title={tr('Plans')}
+        description={tr('One low price for your whole household. Firdam Family starts with a 14-day free trial.')}
       >
         {plan !== 'free' && (
           <Button variant="outline" size="sm" onClick={() => go('portal')} disabled={busy === 'portal'}>
             {busy === 'portal' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Manage billing
+            {tr('Manage billing')}
           </Button>
         )}
       </PageHeader>
@@ -102,13 +103,13 @@ export function UpgradePage() {
           <CardContent className="flex flex-wrap items-center gap-3 p-4 text-sm">
             <Crown className="h-5 w-5 text-[#7a5a30] dark:text-brand-gold" />
             <span className="font-medium text-foreground">
-              You&apos;re on {PLAN_NAMES[plan]}
-              {subscription?.status === 'trialing' ? ' (free trial)' : ''}.
+              {tr('You\'re on')} {trn(PLAN_NAMES[plan])}
+              {subscription?.status === 'trialing' ? tr(' (free trial)') : ''}.
             </span>
             {subscription?.current_period_end && (
               <span className="text-muted-foreground">
-                {subscription.cancel_at_period_end ? 'Ends' : 'Renews'} on{' '}
-                {new Date(subscription.current_period_end).toLocaleDateString(undefined, {
+                {subscription.cancel_at_period_end ? tr('Ends') : tr('Renews')} {tr('on')}{' '}
+                {new Date(subscription.current_period_end).toLocaleDateString(locale(), {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric',
@@ -131,7 +132,7 @@ export function UpgradePage() {
                 interval === i ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'
               )}
             >
-              {i === 'month' ? 'Monthly' : `Yearly · ${PRICES.year.saving.toLowerCase()}`}
+              {i === 'month' ? tr('Monthly') : tr('Yearly · {0}', [PRICES.year.saving.toLowerCase()])}
             </button>
           ))}
         </div>
@@ -152,31 +153,31 @@ export function UpgradePage() {
             >
               {t.highlighted && (
                 <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 gap-1">
-                  <Sparkles className="h-3 w-3" /> Most popular
+                  <Sparkles className="h-3 w-3" /> {tr('Most popular')}
                 </Badge>
               )}
               <CardContent className="flex flex-1 flex-col p-6">
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h2 className="mt-4 font-display text-xl font-semibold text-foreground">{t.title}</h2>
-                <p className="text-sm text-muted-foreground">{t.blurb}</p>
+                <h2 className="mt-4 font-display text-xl font-semibold text-foreground">{tr(t.title)}</h2>
+                <p className="text-sm text-muted-foreground">{tr(t.blurb)}</p>
                 <p className="mt-5 font-display text-4xl font-bold tracking-tight text-foreground">
-                  {price.amount}
-                  <span className="ml-1 text-sm font-normal text-muted-foreground">{price.note}</span>
+                  {trn(price.amount)}
+                  <span className="ml-1 text-sm font-normal text-muted-foreground">{tr(price.note)}</span>
                 </p>
                 {t.id === 'family' && (
-                  <p className="mt-2 text-xs font-medium text-brand-sage">{PRICES.founding}</p>
+                  <p className="mt-2 text-xs font-medium text-brand-sage">{trn(PRICES.founding)}</p>
                 )}
                 <div className="mt-auto pt-6">
                   {current ? (
                     <Button variant="outline" className="w-full" disabled>
-                      Current plan
+                      {tr('Current plan')}
                     </Button>
                   ) : t.id === 'free' ? (
                     plan !== 'free' ? (
                       <Button variant="outline" className="w-full" onClick={() => go('portal')}>
-                        Switch in billing
+                        {tr('Switch in billing')}
                       </Button>
                     ) : null
                   ) : (
@@ -187,7 +188,7 @@ export function UpgradePage() {
                       disabled={busy !== null}
                     >
                       {busy === t.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {plan === 'free' ? 'Start 14-day free trial' : 'Manage billing'}
+                      {plan === 'free' ? tr('Start 14-day free trial') : tr('Manage billing')}
                     </Button>
                   )}
                 </div>
@@ -202,15 +203,15 @@ export function UpgradePage() {
           <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-left">
-                <th className="px-4 py-3 font-medium text-muted-foreground">Compare plans</th>
-                <th className="px-4 py-3 text-center font-semibold text-foreground">Free</th>
-                <th className="px-4 py-3 text-center font-semibold text-foreground">Firdam Family</th>
+                <th className="px-4 py-3 font-medium text-muted-foreground">{tr('Compare plans')}</th>
+                <th className="px-4 py-3 text-center font-semibold text-foreground">{tr('Free')}</th>
+                <th className="px-4 py-3 text-center font-semibold text-foreground">{tr('Firdam Family')}</th>
               </tr>
             </thead>
             <tbody>
               {FEATURES.map((f) => (
                 <tr key={f.label} className="border-b border-border/60 last:border-0">
-                  <td className="px-4 py-2.5 text-foreground">{f.label}</td>
+                  <td className="px-4 py-2.5 text-foreground">{tr(f.label)}</td>
                   <td className="px-4 py-2.5 text-center"><Cell value={f.free} /></td>
                   <td className="px-4 py-2.5 text-center"><Cell value={f.family} /></td>
                 </tr>
@@ -221,7 +222,7 @@ export function UpgradePage() {
       </Card>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Prices in Canadian dollars. Payments are handled securely by Stripe. Cancel anytime from “Manage billing”.
+        {tr('Prices in Canadian dollars. Payments are handled securely by Stripe. Cancel anytime from “Manage billing”.')}
       </p>
     </AppShell>
   );

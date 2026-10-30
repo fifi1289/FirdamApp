@@ -24,6 +24,7 @@ import {
 } from '@/features/meals/pantry-check';
 import { guessCategory } from '@/features/groceries/grocery-utils';
 import type { GroceryItem } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 interface FromMealPlanDialogProps {
   open: boolean;
@@ -116,10 +117,10 @@ export function FromMealPlanDialog({
     const { error } = await supabase.from('grocery_items').insert(rows);
     setSaving(false);
     if (error) {
-      toast.error('Could not add items', { description: error.message });
+      toast.error(tr('Could not add items'), { description: error.message });
       return;
     }
-    toast.success(`Added ${rows.length} item${rows.length === 1 ? '' : 's'} from your meal plan`);
+    toast.success(tr('Added {0} item{1} from your meal plan', [rows.length, rows.length === 1 ? '' : 's']));
     onAdded();
     onOpenChange(false);
   };
@@ -128,40 +129,40 @@ export function FromMealPlanDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add from your meal plan</DialogTitle>
+          <DialogTitle>{tr('Add from your meal plan')}</DialogTitle>
           <DialogDescription>
             {planLabel
-              ? `Ingredients for ${planLabel} that aren't already in your pantry.`
-              : 'Ingredients from your latest meal plan that you still need.'}
+              ? tr('Ingredients for {0} that aren\'t already in your pantry.', [planLabel])
+              : tr('Ingredients from your latest meal plan that you still need.')}
           </DialogDescription>
         </DialogHeader>
 
         {loading ? (
           <div className="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Checking your plan against the pantry…
+            {tr('Checking your plan against the pantry…')}
           </div>
         ) : noPlan ? (
           <div className="flex flex-col items-center py-10 text-center">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Utensils className="h-6 w-6" />
             </span>
-            <p className="mt-4 text-sm font-medium text-foreground">No meal plan yet</p>
+            <p className="mt-4 text-sm font-medium text-foreground">{tr('No meal plan yet')}</p>
             <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-              Create a halal meal plan first, then come back to turn it into a grocery list.
+              {tr('Create a halal meal plan first, then come back to turn it into a grocery list.')}
             </p>
             <Button asChild size="sm" className="mt-4">
-              <Link href="/dashboard/meals">Plan meals</Link>
+              <Link href="/dashboard/meals">{tr('Plan meals')}</Link>
             </Button>
           </div>
         ) : missing.length === 0 ? (
           <p className="py-10 text-center text-sm text-muted-foreground">
-            Alhamdulillah — you already have everything for this plan.
+            {tr('Alhamdulillah — you already have everything for this plan.')}
           </p>
         ) : (
           <>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{selected.size} of {missing.length} selected</span>
+              <span>{tr('{0} of {1} selected', [selected.size, missing.length])}</span>
               <button
                 type="button"
                 className="font-medium text-primary hover:underline"
@@ -171,7 +172,7 @@ export function FromMealPlanDialog({
                   )
                 }
               >
-                {selected.size === missing.length ? 'Select none' : 'Select all'}
+                {selected.size === missing.length ? tr('Select none') : tr('Select all')}
               </button>
             </div>
             <ul className="divide-y divide-border rounded-xl border border-border">
@@ -185,7 +186,7 @@ export function FromMealPlanDialog({
                     />
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
-                        <span className="text-sm font-medium capitalize text-foreground">{m.name}</span>
+                        <span className="text-sm font-medium capitalize text-foreground">{trn(m.name)}</span>
                         <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
                           {formatQuantityWithUnit(m.missingQuantity, m.missingUnit)}
                         </span>
@@ -203,12 +204,12 @@ export function FromMealPlanDialog({
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           {!noPlan && missing.length > 0 && (
             <Button onClick={add} disabled={saving || selected.size === 0 || !listId}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Add {selected.size} item{selected.size === 1 ? '' : 's'}
+              {tr('Add {0} item', [selected.size])}{selected.size === 1 ? '' : tr('s')}
             </Button>
           )}
         </DialogFooter>

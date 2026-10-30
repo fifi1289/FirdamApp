@@ -20,6 +20,7 @@ import {
   passwordStrength,
   STRENGTH_LABELS,
 } from '@/lib/auth/validation';
+import { tr, trn } from '@/lib/i18n';
 
 /**
  * Signs in with the link from the reset email. Works whichever device or
@@ -90,11 +91,11 @@ export default function ResetPasswordPage() {
       // Start fresh: sign in with the new password (and code, if two-step is on).
       await supabase.auth.signOut();
       setDone(true);
-      toast.success('Password updated. You can now sign in.');
+      toast.success(tr('Password updated. You can now sign in.'));
     } catch (err) {
       const message = err instanceof Error ? err.message : '';
       if (/aal2|assurance/i.test(message)) {
-        toast.error('Two-step verification is on for this account. Sign in with your code first, then change your password in Settings.');
+        toast.error(tr('Two-step verification is on for this account. Sign in with your code first, then change your password in Settings.'));
       } else if (/session|expired|invalid|otp|token/i.test(message)) {
         setLinkProblem(true);
       } else {
@@ -107,14 +108,14 @@ export default function ResetPasswordPage() {
 
   if (linkProblem) {
     return (
-      <AuthShell title="This link has expired" description="Reset links work once and expire after an hour.">
+      <AuthShell title={tr('This link has expired')} description={tr('Reset links work once and expire after an hour.')}>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Ask for a new link and use the newest email. If you have several reset emails, older links stop working.
+            {tr('Ask for a new link and use the newest email. If you have several reset emails, older links stop working.')}
           </p>
           <Button asChild className="w-full" size="lg">
             <Link href="/auth/forgot-password">
-              Send me a new link
+              {tr('Send me a new link')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -125,19 +126,19 @@ export default function ResetPasswordPage() {
 
   if (done) {
     return (
-      <AuthShell title="Password updated" description="Your new password is active.">
+      <AuthShell title={tr('Password updated')} description={tr('Your new password is active.')}>
         <div className="space-y-6">
           <div className="flex flex-col items-center text-center">
             <span className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
               <CheckCircle2 className="h-7 w-7 text-primary" />
             </span>
             <p className="text-sm text-muted-foreground">
-              You can now sign in with your new password.
+              {tr('You can now sign in with your new password.')}
             </p>
           </div>
           <Button asChild className="w-full" size="lg" onClick={() => router.push('/auth/login')}>
             <Link href="/auth/login">
-              Continue to sign in
+              {tr('Continue to sign in')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -148,18 +149,18 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthShell
-      title="Set a new password"
-      description="Choose a strong password for your Firdam account."
+      title={tr('Set a new password')}
+      description={tr('Choose a strong password for your Firdam account.')}
     >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <Label htmlFor="password">New password</Label>
+          <Label htmlFor="password">{tr('New password')}</Label>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="password"
               type="password"
-              placeholder="At least 8 characters"
+              placeholder={tr('At least 8 characters')}
               className="pl-9"
               autoComplete="new-password"
               required
@@ -187,23 +188,23 @@ export default function ResetPasswordPage() {
                 ))}
               </div>
               <span className="text-xs text-muted-foreground">
-                {STRENGTH_LABELS[strength]}
+                {trn(STRENGTH_LABELS[strength])}
               </span>
             </div>
           )}
           {errors.password && (
-            <p className="text-xs text-destructive">{errors.password}</p>
+            <p className="text-xs text-destructive">{trn(errors.password)}</p>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm password</Label>
+          <Label htmlFor="confirm">{tr('Confirm password')}</Label>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="confirm"
               type="password"
-              placeholder="Re-enter your password"
+              placeholder={tr('Re-enter your password')}
               className="pl-9"
               autoComplete="new-password"
               required
@@ -213,7 +214,7 @@ export default function ResetPasswordPage() {
             />
           </div>
           {errors.confirm && (
-            <p className="text-xs text-destructive">{errors.confirm}</p>
+            <p className="text-xs text-destructive">{trn(errors.confirm)}</p>
           )}
         </div>
 
@@ -221,11 +222,11 @@ export default function ResetPasswordPage() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Updating password…
+              {tr('Updating password…')}
             </>
           ) : (
             <>
-              Update password
+              {tr('Update password')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </>
           )}

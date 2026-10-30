@@ -46,6 +46,7 @@ import { cn } from '@/lib/utils';
 import type { FastStatus, RamadanDay } from '@/types/database';
 import { DuaCard } from '@/features/quran/duas-view';
 import { DUAS } from '@/features/quran/duas';
+import { locale, tr, trn } from '@/lib/i18n';
 
 const PREP_KEY = 'firdam.ramadan.prep';
 
@@ -84,7 +85,7 @@ function DayEditor({
   return (
     <div className="space-y-4">
       <div>
-        <p className="mb-1.5 text-xs font-medium text-muted-foreground">Fast</p>
+        <p className="mb-1.5 text-xs font-medium text-muted-foreground">{tr('Fast')}</p>
         <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">
           {statuses.map((s) => (
             <button
@@ -98,19 +99,19 @@ function DayEditor({
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              {s.label}
+              {tr(s.label)}
             </button>
           ))}
         </div>
         {record.fast_status === 'excused' && (
           <p className="mt-1.5 text-[11px] text-muted-foreground">
-            Travel, illness or another valid reason — it will count towards fasts to make up.
+            {tr('Travel, illness or another valid reason — it will count towards fasts to make up.')}
           </p>
         )}
       </div>
       <div className="flex items-center justify-between">
         <Label htmlFor={`tar-${record.day}`} className="text-sm">
-          Prayed taraweeh
+          {tr('Prayed taraweeh')}
         </Label>
         <Switch
           id={`tar-${record.day}`}
@@ -120,7 +121,7 @@ function DayEditor({
       </div>
       <div className="flex items-center justify-between">
         <Label htmlFor={`char-${record.day}`} className="text-sm">
-          Gave charity
+          {tr('Gave charity')}
         </Label>
         <Switch
           id={`char-${record.day}`}
@@ -130,7 +131,7 @@ function DayEditor({
       </div>
       <div className="flex items-center justify-between gap-3">
         <Label htmlFor={`pages-${record.day}`} className="text-sm">
-          Quran pages
+          {tr('Quran pages')}
         </Label>
         <Input
           id={`pages-${record.day}`}
@@ -212,7 +213,7 @@ export function RamadanDashboard() {
         if (cancelled) return;
         setDays(month);
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Could not load Ramadan times.');
+        if (!cancelled) setError(e instanceof Error ? e.message : tr('Could not load Ramadan times.'));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -267,7 +268,7 @@ export function RamadanDashboard() {
       { onConflict: 'user_id,hijri_year,day' }
     );
     if (err) {
-      toast.error('Could not save', { description: err.message });
+      toast.error(tr('Could not save'), { description: err.message });
       loadRecords(hijriYear);
     }
   };
@@ -312,8 +313,8 @@ export function RamadanDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Ramadan"
-        description="Suhoor and iftar times, a daily fasting tracker, and your Quran goal for the blessed month."
+        title={tr('Ramadan')}
+        description={tr('Suhoor and iftar times, a daily fasting tracker, and your Quran goal for the blessed month.')}
       />
 
       <div className="mb-5">
@@ -326,9 +327,9 @@ export function RamadanDashboard() {
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <MapPin className="h-6 w-6" />
             </span>
-            <p className="text-sm font-medium text-foreground">Set your location</p>
+            <p className="text-sm font-medium text-foreground">{tr('Set your location')}</p>
             <p className="max-w-xs text-xs text-muted-foreground">
-              Suhoor and iftar times depend on where you are.
+              {tr('Suhoor and iftar times depend on where you are.')}
             </p>
           </CardContent>
         </Card>
@@ -336,12 +337,12 @@ export function RamadanDashboard() {
         <Card>
           <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Preparing your Ramadan planner…
+            {tr('Preparing your Ramadan planner…')}
           </CardContent>
         </Card>
       ) : error && days.length === 0 ? (
         <Card>
-          <CardContent className="py-16 text-center text-sm text-muted-foreground">{error}</CardContent>
+          <CardContent className="py-16 text-center text-sm text-muted-foreground">{trn(error)}</CardContent>
         </Card>
       ) : (
         <div className="space-y-5">
@@ -351,42 +352,42 @@ export function RamadanDashboard() {
               <MoonStar className="absolute right-6 top-6 h-16 w-16 text-brand-gold/30 md:h-24 md:w-24" />
               {isRamadan ? (
                 <>
-                  <p className="text-sm font-medium text-brand-gold">Ramadan Mubarak</p>
+                  <p className="text-sm font-medium text-brand-gold">{tr('Ramadan Mubarak')}</p>
                   <h2 className="mt-1 font-display text-3xl font-bold md:text-4xl">
-                    Day {todayIndex} of Ramadan {hijriYear}
+                    {tr('Day {0} of Ramadan {1}', [todayIndex, hijriYear])}
                   </h2>
                   {fastInfo ? (
                     <div className="mt-5 inline-flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 backdrop-blur">
-                      <span className="text-sm text-brand-linen/80">{fastInfo.label}</span>
+                      <span className="text-sm text-brand-linen/80">{tr(fastInfo.label)}</span>
                       <span className="font-mono text-2xl font-semibold tabular-nums">
                         {formatCountdown(fastInfo.target.getTime() - now.getTime())}
                       </span>
                     </div>
                   ) : (
                     <p className="mt-4 text-sm text-brand-linen/85">
-                      May Allah accept your fast today. Taraweeh tonight — and suhoor before{' '}
+                      {tr('May Allah accept your fast today. Taraweeh tonight — and suhoor before')}{' '}
                       {format12h(days[todayIndex ?? 0]?.timings.Imsak ?? today?.timings.Imsak ?? '')}.
                     </p>
                   )}
                 </>
               ) : (
                 <>
-                  <p className="text-sm font-medium text-brand-gold">Ramadan {hijriYear}</p>
+                  <p className="text-sm font-medium text-brand-gold">{tr('Ramadan')} {trn(hijriYear)}</p>
                   <h2 className="mt-1 font-display text-3xl font-bold md:text-4xl">
                     {daysUntil !== null && daysUntil > 0
-                      ? `${daysUntil} day${daysUntil === 1 ? '' : 's'} to go`
-                      : 'Coming soon'}
+                      ? tr('{0} day{1} to go', [daysUntil, daysUntil === 1 ? '' : 's'])
+                      : tr('Coming soon')}
                   </h2>
                   {start && (
                     <p className="mt-2 text-sm text-brand-linen/85">
-                      Expected to begin around{' '}
-                      {start.toLocaleDateString(undefined, {
+                      {tr('Expected to begin around')}{' '}
+                      {start.toLocaleDateString(locale(), {
                         weekday: 'long',
                         month: 'long',
                         day: 'numeric',
                         year: 'numeric',
                       })}
-                      , in sha Allah.
+                      {tr(', in sha Allah.')}
                     </p>
                   )}
                 </>
@@ -395,13 +396,13 @@ export function RamadanDashboard() {
                 <div className="mt-6 flex flex-wrap gap-6 text-sm">
                   <span className="flex items-center gap-2">
                     <Sunrise className="h-4 w-4 text-brand-gold" />
-                    Suhoor ends {format12h(today.timings.Imsak || today.timings.Fajr)}
+                    {tr('Suhoor ends')} {format12h(today.timings.Imsak || today.timings.Fajr)}
                   </span>
                   <span className="flex items-center gap-2">
                     <Sunset className="h-4 w-4 text-brand-gold" />
-                    Iftar {format12h(today.timings.Maghrib)}
+                    {tr('Iftar')} {format12h(today.timings.Maghrib)}
                   </span>
-                  <span className="flex items-center gap-2 text-brand-linen/70">Today · {location.name}</span>
+                  <span className="flex items-center gap-2 text-brand-linen/70">{tr('Today ·')} {trn(location.name)}</span>
                 </div>
               )}
             </div>
@@ -411,29 +412,29 @@ export function RamadanDashboard() {
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs font-medium text-muted-foreground">Fasts completed</p>
+                <p className="text-xs font-medium text-muted-foreground">{tr('Fasts completed')}</p>
                 <p className="mt-1 font-display text-2xl font-bold tabular-nums text-foreground">
-                  {stats.fasted}
+                  {trn(stats.fasted)}
                   <span className="text-base font-medium text-muted-foreground">/{days.length || 30}</span>
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs font-medium text-muted-foreground">To make up</p>
+                <p className="text-xs font-medium text-muted-foreground">{tr('To make up')}</p>
                 <p className="mt-1 font-display text-2xl font-bold tabular-nums text-foreground">
-                  {stats.toMakeUp}
+                  {trn(stats.toMakeUp)}
                 </p>
                 {lastYearQada > 0 && (
-                  <p className="text-[11px] text-muted-foreground">+{lastYearQada} from last Ramadan</p>
+                  <p className="text-[11px] text-muted-foreground">+{trn(lastYearQada)} {tr('from last Ramadan')}</p>
                 )}
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs font-medium text-muted-foreground">Quran pages</p>
+                <p className="text-xs font-medium text-muted-foreground">{tr('Quran pages')}</p>
                 <p className="mt-1 font-display text-2xl font-bold tabular-nums text-foreground">
-                  {stats.pages}
+                  {trn(stats.pages)}
                   <span className="text-base font-medium text-muted-foreground">/604</span>
                 </p>
                 <Progress value={Math.min(100, (stats.pages / 604) * 100)} className="mt-2 h-1.5" />
@@ -441,11 +442,11 @@ export function RamadanDashboard() {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs font-medium text-muted-foreground">Taraweeh nights</p>
+                <p className="text-xs font-medium text-muted-foreground">{tr('Taraweeh nights')}</p>
                 <p className="mt-1 font-display text-2xl font-bold tabular-nums text-foreground">
-                  {stats.taraweeh}
+                  {trn(stats.taraweeh)}
                 </p>
-                <p className="text-[11px] text-muted-foreground">Charity on {stats.charity} days</p>
+                <p className="text-[11px] text-muted-foreground">{tr('Charity on {0} days', [stats.charity])}</p>
               </CardContent>
             </Card>
           </div>
@@ -455,19 +456,19 @@ export function RamadanDashboard() {
             <Card>
               <CardContent className="p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-sm font-semibold text-foreground">Your 30 days</h3>
+                  <h3 className="text-sm font-semibold text-foreground">{tr('Your 30 days')}</h3>
                   <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-full bg-brand-sage" /> Fasted
+                      <span className="h-2.5 w-2.5 rounded-full bg-brand-sage" /> {tr('Fasted')}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-full bg-destructive" /> Missed
+                      <span className="h-2.5 w-2.5 rounded-full bg-destructive" /> {tr('Missed')}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span className="h-2.5 w-2.5 rounded-full bg-warning" /> Excused
+                      <span className="h-2.5 w-2.5 rounded-full bg-warning" /> {tr('Excused')}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-brand-gold text-brand-gold" /> Odd nights
+                      <Star className="h-3 w-3 fill-brand-gold text-brand-gold" /> {tr('Odd nights')}
                     </span>
                   </div>
                 </div>
@@ -494,15 +495,15 @@ export function RamadanDashboard() {
                               rec.fast_status === 'excused' && 'border-warning/50 bg-warning/15',
                               isFuture && !rec.fast_status && 'opacity-70'
                             )}
-                            aria-label={`Ramadan day ${dayNum}`}
+                            aria-label={tr('Ramadan day {0}', [dayNum])}
                           >
                             {oddNight && (
                               <Star className="absolute right-1 top-1 h-2.5 w-2.5 fill-brand-gold text-brand-gold" />
                             )}
-                            <span className="text-sm font-semibold tabular-nums text-foreground">{dayNum}</span>
+                            <span className="text-sm font-semibold tabular-nums text-foreground">{trn(dayNum)}</span>
                             {date && (
                               <span className="text-[9px] leading-tight text-muted-foreground">
-                                {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                {date.toLocaleDateString(locale(), { month: 'short', day: 'numeric' })}
                               </span>
                             )}
                             <span className="mt-0.5 flex gap-0.5">
@@ -515,21 +516,21 @@ export function RamadanDashboard() {
                         <PopoverContent className="w-72">
                           <div className="mb-3">
                             <p className="font-semibold text-foreground">
-                              Day {dayNum}
+                              {tr('Day')} {trn(dayNum)}
                               {oddNight && (
                                 <span className="ml-2 text-xs font-normal text-brand-gold">
-                                  Seek Laylat al-Qadr tonight
+                                  {tr('Seek Laylat al-Qadr tonight')}
                                 </span>
                               )}
                             </p>
                             {d && (
                               <p className="text-xs text-muted-foreground">
-                                {date?.toLocaleDateString(undefined, {
+                                {date?.toLocaleDateString(locale(), {
                                   weekday: 'long',
                                   month: 'long',
                                   day: 'numeric',
                                 })}{' '}
-                                · Suhoor {format12h(d.timings.Imsak || d.timings.Fajr)} · Iftar{' '}
+                                {tr('· Suhoor')} {format12h(d.timings.Imsak || d.timings.Fajr)} {tr('· Iftar')}{' '}
                                 {format12h(d.timings.Maghrib)}
                               </p>
                             )}
@@ -541,8 +542,7 @@ export function RamadanDashboard() {
                   })}
                 </div>
                 <p className="mt-4 text-xs text-muted-foreground">
-                  Tap a day to record your fast, taraweeh, Quran and charity. Dates follow the
-                  calculated calendar and may differ by a day from your local moon sighting.
+                  {tr('Tap a day to record your fast, taraweeh, Quran and charity. Dates follow the calculated calendar and may differ by a day from your local moon sighting.')}
                 </p>
               </CardContent>
             </Card>
@@ -554,7 +554,7 @@ export function RamadanDashboard() {
                   <CardContent className="p-5">
                     <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                       <Sparkles className="h-4 w-4 text-primary" />
-                      Get ready for Ramadan
+                      {tr('Get ready for Ramadan')}
                     </h3>
                     <ul className="mt-3 space-y-1">
                       {PREP_ITEMS.map((item) => {
@@ -564,7 +564,7 @@ export function RamadanDashboard() {
                             <button
                               type="button"
                               onClick={() => togglePrep(item.id)}
-                              aria-label={done ? `Mark "${item.label}" not done` : `Mark "${item.label}" done`}
+                              aria-label={done ? tr('Mark "{0}" not done', [item.label]) : tr('Mark "{0}" done', [item.label])}
                               className="shrink-0"
                             >
                               {done ? (
@@ -581,7 +581,7 @@ export function RamadanDashboard() {
                                   done ? 'text-muted-foreground line-through' : 'text-foreground'
                                 )}
                               >
-                                {item.label}
+                                {tr(item.label)}
                               </Link>
                             ) : (
                               <span
@@ -590,7 +590,7 @@ export function RamadanDashboard() {
                                   done ? 'text-muted-foreground line-through' : 'text-foreground'
                                 )}
                               >
-                                {item.label}
+                                {tr(item.label)}
                               </span>
                             )}
                           </li>
@@ -604,15 +604,14 @@ export function RamadanDashboard() {
               {inLastTen && (
                 <Card className="border-brand-gold/40 bg-brand-gold/10">
                   <CardContent className="p-5 text-sm">
-                    <p className="font-semibold text-foreground">The last ten nights</p>
+                    <p className="font-semibold text-foreground">{tr('The last ten nights')}</p>
                     <p className="mt-1 text-muted-foreground">
-                      Seek Laylat al-Qadr in the odd nights, and remember to give Zakat al-Fitr
-                      before the Eid prayer.
+                      {tr('Seek Laylat al-Qadr in the odd nights, and remember to give Zakat al-Fitr before the Eid prayer.')}
                     </p>
                     <Button asChild size="sm" variant="outline" className="mt-3">
                       <Link href="/dashboard/finance">
                         <HandHeart className="mr-2 h-4 w-4" />
-                        Record Zakat al-Fitr
+                        {tr('Record Zakat al-Fitr')}
                       </Link>
                     </Button>
                   </CardContent>
@@ -627,11 +626,11 @@ export function RamadanDashboard() {
                     <Utensils className="h-5 w-5" />
                   </span>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">Suhoor & iftar meals</p>
-                    <p className="text-xs text-muted-foreground">Plan a week of halal meals in one go.</p>
+                    <p className="text-sm font-semibold text-foreground">{tr('Suhoor & iftar meals')}</p>
+                    <p className="text-xs text-muted-foreground">{tr('Plan a week of halal meals in one go.')}</p>
                   </div>
                   <Button asChild size="sm" variant="outline">
-                    <Link href="/dashboard/meals">Plan</Link>
+                    <Link href="/dashboard/meals">{tr('Plan')}</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -643,21 +642,21 @@ export function RamadanDashboard() {
             <Card>
               <CardContent className="p-0">
                 <div className="flex items-center justify-between border-b border-border p-4">
-                  <h3 className="text-sm font-semibold text-foreground">Ramadan timetable · {location.name}</h3>
+                  <h3 className="text-sm font-semibold text-foreground">{tr('Ramadan timetable ·')} {trn(location.name)}</h3>
                   <Button variant="ghost" size="sm" onClick={() => window.print()}>
-                    Print
+                    {tr('Print')}
                   </Button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[520px] text-sm">
                     <thead>
                       <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                        <th className="px-4 py-2.5 font-medium">Day</th>
-                        <th className="px-3 py-2.5 font-medium">Date</th>
-                        <th className="px-3 py-2.5 font-medium">Suhoor ends</th>
-                        <th className="px-3 py-2.5 font-medium">Fajr</th>
-                        <th className="px-3 py-2.5 font-medium">Iftar (Maghrib)</th>
-                        <th className="px-3 py-2.5 font-medium">Isha</th>
+                        <th className="px-4 py-2.5 font-medium">{tr('Day')}</th>
+                        <th className="px-3 py-2.5 font-medium">{tr('Date')}</th>
+                        <th className="px-3 py-2.5 font-medium">{tr('Suhoor ends')}</th>
+                        <th className="px-3 py-2.5 font-medium">{tr('Fajr')}</th>
+                        <th className="px-3 py-2.5 font-medium">{tr('Iftar (Maghrib)')}</th>
+                        <th className="px-3 py-2.5 font-medium">{tr('Isha')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -677,7 +676,7 @@ export function RamadanDashboard() {
                               {isToday && <Check className="ml-1 inline h-3.5 w-3.5 text-primary" />}
                             </td>
                             <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
-                              {parseGregorian(d.gregorian.date).toLocaleDateString(undefined, {
+                              {parseGregorian(d.gregorian.date).toLocaleDateString(locale(), {
                                 weekday: 'short',
                                 month: 'short',
                                 day: 'numeric',

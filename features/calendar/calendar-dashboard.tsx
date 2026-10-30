@@ -12,10 +12,11 @@ import type { FamilyEvent } from '@/types/database';
 import { EVENT_KINDS, formatTime, iso, parseISODate } from '@/features/calendar/calendar-config';
 import { useCalendarData, type CalendarItem } from '@/features/calendar/use-calendar';
 import { EventDialog } from '@/features/calendar/event-dialog';
+import { locale, tr, trn } from '@/lib/i18n';
 
 const WEEKDAYS = Array.from({ length: 7 }, (_, i) =>
   // 2024-01-01 was a Monday
-  new Date(2024, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'short' })
+  new Date(2024, 0, 1 + i).toLocaleDateString(locale(), { weekday: 'short' })
 );
 
 function startOfGrid(year: number, month: number): Date {
@@ -46,20 +47,20 @@ function ItemLine({ item, onEdit }: { item: CalendarItem; onEdit: (e: FamilyEven
         <Icon className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium text-foreground">{item.title}</span>
+        <span className="block truncate text-sm font-medium text-foreground">{tr(item.title)}</span>
         <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-          <span>{meta.label}</span>
+          <span>{tr(meta.label)}</span>
           {time && (
             <span className="inline-flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              {time}
+              {trn(time)}
               {end ? `–${end}` : ''}
             </span>
           )}
           {item.location && (
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-3 w-3" />
-              {item.location}
+              {trn(item.location)}
             </span>
           )}
           {item.memberNames && item.memberNames.length > 0 && (
@@ -79,11 +80,11 @@ function ItemLine({ item, onEdit }: { item: CalendarItem; onEdit: (e: FamilyEven
         onClick={() => onEdit(item.event!)}
         className="flex w-full items-start gap-3 rounded-xl p-2 text-left transition-colors hover:bg-muted"
       >
-        {content}
+        {trn(content)}
       </button>
     );
   }
-  return <div className="flex items-start gap-3 p-2">{content}</div>;
+  return <div className="flex items-start gap-3 p-2">{trn(content)}</div>;
 }
 
 export function CalendarDashboard() {
@@ -132,7 +133,7 @@ export function CalendarDashboard() {
     return d;
   });
 
-  const monthTitle = new Date(view.year, view.month, 1).toLocaleDateString(undefined, {
+  const monthTitle = new Date(view.year, view.month, 1).toLocaleDateString(locale(), {
     month: 'long',
     year: 'numeric',
   });
@@ -164,12 +165,12 @@ export function CalendarDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Family Calendar"
-        description="Eid, Aqiqah, Nikah, school events and appointments — everything your family has coming up."
+        title={tr('Family Calendar')}
+        description={tr('Eid, Aqiqah, Nikah, school events and appointments — everything your family has coming up.')}
       >
         <Button size="sm" onClick={openNew}>
           <Plus className="mr-2 h-4 w-4" />
-          New event
+          {tr('New event')}
         </Button>
       </PageHeader>
 
@@ -177,8 +178,8 @@ export function CalendarDashboard() {
         <Card className="overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4">
             <div>
-              <p className="font-display text-lg font-semibold text-foreground">{monthTitle}</p>
-              {hijriTitle && <p className="text-xs text-muted-foreground">{hijriTitle}</p>}
+              <p className="font-display text-lg font-semibold text-foreground">{trn(monthTitle)}</p>
+              {hijriTitle && <p className="text-xs text-muted-foreground">{trn(hijriTitle)}</p>}
             </div>
             <div className="flex items-center gap-1">
               <Button
@@ -189,12 +190,12 @@ export function CalendarDashboard() {
                   setSelected(todayKey);
                 }}
               >
-                Today
+                {tr('Today')}
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => shift(-1)} aria-label="Previous month">
+              <Button variant="ghost" size="icon" onClick={() => shift(-1)} aria-label={tr('Previous month')}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => shift(1)} aria-label="Next month">
+              <Button variant="ghost" size="icon" onClick={() => shift(1)} aria-label={tr('Next month')}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -203,7 +204,7 @@ export function CalendarDashboard() {
           <div className="grid grid-cols-7 border-b border-border bg-muted/40 text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             {WEEKDAYS.map((d) => (
               <div key={d} className="py-2">
-                {d}
+                {trn(d)}
               </div>
             ))}
           </div>
@@ -242,7 +243,7 @@ export function CalendarDashboard() {
                     </span>
                     {h && (
                       <span className={cn('text-[10px] tabular-nums', inMonth ? 'text-muted-foreground' : 'text-muted-foreground/50')}>
-                        {h.day}
+                        {trn(h.day)}
                       </span>
                     )}
                   </div>
@@ -252,11 +253,11 @@ export function CalendarDashboard() {
                         key={it.id}
                         className={cn('truncate rounded-md px-1.5 py-0.5 text-[10px] font-medium', EVENT_KINDS[it.kind].pill)}
                       >
-                        {it.title}
+                        {tr(it.title)}
                       </p>
                     ))}
                     {dayItems.length > 2 && (
-                      <p className="px-1.5 text-[10px] text-muted-foreground">+{dayItems.length - 2} more</p>
+                      <p className="px-1.5 text-[10px] text-muted-foreground">+{dayItems.length - 2} {tr('more')}</p>
                     )}
                   </div>
                   {dayItems.length > 0 && (
@@ -278,7 +279,7 @@ export function CalendarDashboard() {
               <div className="flex items-start justify-between gap-2 px-2">
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    {parseISODate(selected).toLocaleDateString(undefined, {
+                    {parseISODate(selected).toLocaleDateString(locale(), {
                       weekday: 'long',
                       month: 'long',
                       day: 'numeric',
@@ -286,17 +287,17 @@ export function CalendarDashboard() {
                   </p>
                   {selectedHijri && (
                     <p className="text-xs text-muted-foreground">
-                      {selectedHijri.day} {selectedHijri.month} {selectedHijri.year} AH
+                      {trn(selectedHijri.day)} {trn(selectedHijri.month)} {trn(selectedHijri.year)} {tr('AH')}
                     </p>
                   )}
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={openNew} aria-label="Add event on this day">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={openNew} aria-label={tr('Add event on this day')}>
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
               <div className="mt-2">
                 {selectedItems.length === 0 ? (
-                  <p className="px-2 py-4 text-sm text-muted-foreground">Nothing planned.</p>
+                  <p className="px-2 py-4 text-sm text-muted-foreground">{tr('Nothing planned.')}</p>
                 ) : (
                   selectedItems.map((it) => <ItemLine key={it.id} item={it} onEdit={openEdit} />)
                 )}
@@ -306,12 +307,12 @@ export function CalendarDashboard() {
 
           <Card>
             <CardContent className="p-4">
-              <p className="px-2 text-sm font-semibold text-foreground">Coming up</p>
+              <p className="px-2 text-sm font-semibold text-foreground">{tr('Coming up')}</p>
               {loading ? (
-                <p className="px-2 py-4 text-sm text-muted-foreground">Loading…</p>
+                <p className="px-2 py-4 text-sm text-muted-foreground">{tr('Loading…')}</p>
               ) : upcoming.length === 0 ? (
                 <div className="px-2 py-4 text-sm text-muted-foreground">
-                  No upcoming events.
+                  {tr('No upcoming events.')}
                 </div>
               ) : (
                 <ul className="mt-1">
@@ -322,7 +323,7 @@ export function CalendarDashboard() {
                         {showHeader && (
                           <p className="px-2 pb-0.5 pt-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                             {relativeDays(it.date)} ·{' '}
-                            {parseISODate(it.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                            {parseISODate(it.date).toLocaleDateString(locale(), { month: 'short', day: 'numeric' })}
                           </p>
                         )}
                         <ItemLine item={it} onEdit={openEdit} />

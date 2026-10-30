@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { tr, trn } from '@/lib/i18n';
 
 interface Enrolment {
   factorId: string;
@@ -49,7 +50,7 @@ export function TwoFactorCard() {
       setEnrolment({ factorId: data.id, qr: data.totp.qr_code, secret: data.totp.secret });
       setCode('');
     } catch (err) {
-      toast.error('Could not start setup', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not start setup'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setBusy(false);
     }
@@ -62,10 +63,10 @@ export function TwoFactorCard() {
       const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: enrolment.factorId, code: code.replace(/\D/g, '') });
       if (error) throw error;
       setEnrolment(null);
-      toast.success('Two-step verification is on. You’ll be asked for a code when you sign in.');
+      toast.success(tr('Two-step verification is on. You’ll be asked for a code when you sign in.'));
       load();
     } catch {
-      toast.error('That code didn’t work — try the newest one in your app.');
+      toast.error(tr('That code didn’t work — try the newest one in your app.'));
     } finally {
       setBusy(false);
     }
@@ -79,10 +80,10 @@ export function TwoFactorCard() {
       const { error } = await supabase.auth.mfa.unenroll({ factorId });
       if (error) throw error;
       await supabase.auth.refreshSession();
-      toast.success('Two-step verification is off.');
+      toast.success(tr('Two-step verification is off.'));
       load();
     } catch (err) {
-      toast.error('Could not turn it off', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not turn it off'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setBusy(false);
     }
@@ -93,42 +94,41 @@ export function TwoFactorCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <ShieldCheck className="h-4 w-4" />
-          Two-step verification
+          {tr('Two-step verification')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Protect your family’s information with a code from an authenticator app (like Google Authenticator or
-          Microsoft Authenticator) as well as your password. Recommended if you track your savings, gold or zakat.
+          {tr('Protect your family’s information with a code from an authenticator app (like Google Authenticator or Microsoft Authenticator) as well as your password. Recommended if you track your savings, gold or zakat.')}
         </p>
 
         {factorId === undefined ? (
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Checking…
+            <Loader2 className="h-4 w-4 animate-spin" /> {tr('Checking…')}
           </p>
         ) : factorId ? (
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-sage/15 px-3 py-1 text-sm font-medium text-brand-sage">
-              <Check className="h-4 w-4" /> On
+              <Check className="h-4 w-4" /> {tr('On')}
             </span>
             <Button variant="outline" size="sm" onClick={turnOff} disabled={busy}>
-              <ShieldOff className="mr-2 h-4 w-4" /> Turn off
+              <ShieldOff className="mr-2 h-4 w-4" /> {tr('Turn off')}
             </Button>
           </div>
         ) : enrolment ? (
           <div className="space-y-3">
             <ol className="list-decimal space-y-1 pl-5 text-sm text-foreground">
-              <li>Open your authenticator app and scan this code.</li>
-              <li>Type the 6-digit code it shows.</li>
+              <li>{tr('Open your authenticator app and scan this code.')}</li>
+              <li>{tr('Type the 6-digit code it shows.')}</li>
             </ol>
             <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-white p-4 sm:flex-row sm:items-start">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={enrolment.qr} alt="QR code for your authenticator app" className="h-40 w-40" />
+              <img src={enrolment.qr} alt={tr('QR code for your authenticator app')} className="h-40 w-40" />
               <div className="text-xs text-muted-foreground">
                 <p className="flex items-center gap-1 font-medium text-foreground">
-                  <KeyRound className="h-3.5 w-3.5" /> Can’t scan? Enter this key:
+                  <KeyRound className="h-3.5 w-3.5" /> {tr('Can’t scan? Enter this key:')}
                 </p>
-                <code className="mt-1 block break-all rounded bg-muted px-2 py-1 text-foreground">{enrolment.secret}</code>
+                <code className="mt-1 block break-all rounded bg-muted px-2 py-1 text-foreground">{trn(enrolment.secret)}</code>
               </div>
             </div>
             <div className="flex gap-2">
@@ -140,21 +140,21 @@ export function TwoFactorCard() {
                 placeholder="123456"
                 maxLength={7}
                 className="max-w-[10rem] text-center tracking-widest"
-                aria-label="6-digit code"
+                aria-label={tr('6-digit code')}
               />
               <Button onClick={confirm} disabled={busy || code.replace(/\D/g, '').length !== 6}>
                 {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Turn on
+                {tr('Turn on')}
               </Button>
               <Button variant="ghost" onClick={() => setEnrolment(null)} disabled={busy}>
-                Cancel
+                {tr('Cancel')}
               </Button>
             </div>
           </div>
         ) : (
           <Button onClick={start} disabled={busy}>
             {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
-            Set up two-step verification
+            {tr('Set up two-step verification')}
           </Button>
         )}
       </CardContent>

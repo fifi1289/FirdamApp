@@ -29,6 +29,7 @@ import { callEdgeFunction } from '@/lib/supabase/functions';
 import { cn } from '@/lib/utils';
 import type { Business, BusinessCategory } from '@/types/database';
 import { BUSINESS_CATEGORIES, SERVICE_SUGGESTIONS } from '@/features/directory/directory-config';
+import { tr, trn } from '@/lib/i18n';
 
 interface GeoResult {
   id: number;
@@ -99,9 +100,9 @@ export function BusinessFormDialog({
     try {
       const res = await callEdgeFunction<{ results: GeoResult[] }>('halal-places', { address: address.trim() });
       setResults(res.results);
-      if (!res.results.length) toast.message('No matches — try adding the city.');
+      if (!res.results.length) toast.message(tr('No matches — try adding the city.'));
     } catch {
-      toast.error('Address search failed');
+      toast.error(tr('Address search failed'));
     } finally {
       setFinding(false);
     }
@@ -111,10 +112,10 @@ export function BusinessFormDialog({
     setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
 
   const save = async () => {
-    if (name.trim().length < 2) return toast.error('Enter the business name.');
+    if (name.trim().length < 2) return toast.error(tr('Enter the business name.'));
     if (!email.trim() && !phone.trim() && !website.trim())
-      return toast.error('Add at least one way for families to contact you.');
-    if (!point && !online) return toast.error('Set your location, or mark that you serve customers online.');
+      return toast.error(tr('Add at least one way for families to contact you.'));
+    if (!point && !online) return toast.error(tr('Set your location, or mark that you serve customers online.'));
     const row = {
       name: name.trim(),
       category,
@@ -142,11 +143,11 @@ export function BusinessFormDialog({
       : await supabase.from('businesses').insert(row);
     setSaving(false);
     if (error) {
-      toast.error('Could not save your listing', { description: error.message });
+      toast.error(tr('Could not save your listing'), { description: error.message });
       return;
     }
     toast.success(
-      business ? 'Listing updated' : 'Thank you! Your listing has been submitted for review.',
+      business ? tr('Listing updated') : tr('Thank you! Your listing has been submitted for review.'),
       business ? undefined : { description: 'We usually review new businesses within 2 working days.' }
     );
     onSaved();
@@ -159,21 +160,20 @@ export function BusinessFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{business ? 'Edit your listing' : 'List your business on Firdam'}</DialogTitle>
+          <DialogTitle>{business ? tr('Edit your listing') : tr('List your business on Firdam')}</DialogTitle>
           <DialogDescription>
-            Reach Muslim families looking for trusted travel agencies, Umrah operators, tutors,
-            caterers and more. Listings are reviewed before they appear.
+            {tr('Reach Muslim families looking for trusted travel agencies, Umrah operators, tutors, caterers and more. Listings are reviewed before they appear.')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="b-name">Business name</Label>
+              <Label htmlFor="b-name">{tr('Business name')}</Label>
               <Input id="b-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
             </div>
             <div className="space-y-1.5">
-              <Label>Category</Label>
+              <Label>{tr('Category')}</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as BusinessCategory)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -181,7 +181,7 @@ export function BusinessFormDialog({
                 <SelectContent>
                   {(Object.keys(BUSINESS_CATEGORIES) as BusinessCategory[]).map((c) => (
                     <SelectItem key={c} value={c}>
-                      {BUSINESS_CATEGORIES[c].label}
+                      {tr(BUSINESS_CATEGORIES[c].label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -190,19 +190,19 @@ export function BusinessFormDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="b-desc">About your business</Label>
+            <Label htmlFor="b-desc">{tr('About your business')}</Label>
             <Textarea
               id="b-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               maxLength={2000}
-              placeholder="What you offer, who you serve, what makes you trustworthy"
+              placeholder={tr('What you offer, who you serve, what makes you trustworthy')}
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label>Services</Label>
+            <Label>{tr('Services')}</Label>
             <div className="flex flex-wrap gap-1.5">
               {Array.from(new Set([...suggestions, ...services])).map((s) => (
                 <button
@@ -216,7 +216,7 @@ export function BusinessFormDialog({
                       : 'border-border bg-card text-muted-foreground hover:text-foreground'
                   )}
                 >
-                  {s}
+                  {trn(s)}
                 </button>
               ))}
             </div>
@@ -224,7 +224,7 @@ export function BusinessFormDialog({
               <Input
                 value={customService}
                 onChange={(e) => setCustomService(e.target.value)}
-                placeholder="Add another service"
+                placeholder={tr('Add another service')}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && customService.trim()) {
                     e.preventDefault();
@@ -243,13 +243,13 @@ export function BusinessFormDialog({
                   }
                 }}
               >
-                Add
+                {tr('Add')}
               </Button>
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="b-address">Location</Label>
+            <Label htmlFor="b-address">{tr('Location')}</Label>
             <div className="flex gap-2">
               <Input
                 id="b-address"
@@ -264,9 +264,9 @@ export function BusinessFormDialog({
                     find();
                   }
                 }}
-                placeholder="Street address and city"
+                placeholder={tr('Street address and city')}
               />
-              <Button type="button" variant="outline" onClick={find} disabled={finding} aria-label="Find address">
+              <Button type="button" variant="outline" onClick={find} disabled={finding} aria-label={tr('Find address')}>
                 {finding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               </Button>
             </div>
@@ -284,7 +284,7 @@ export function BusinessFormDialog({
                       className="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-xs hover:bg-accent"
                     >
                       <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      {r.label}
+                      {tr(r.label)}
                     </button>
                   </li>
                 ))}
@@ -292,71 +292,71 @@ export function BusinessFormDialog({
             )}
             {point && (
               <p className="flex items-center gap-1.5 text-xs text-brand-sage">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Location set{point.city ? ` — ${point.city}` : ''}
+                <CheckCircle2 className="h-3.5 w-3.5" /> {tr('Location set')}{point.city ? ` — ${point.city}` : ''}
               </p>
             )}
             <div className="flex items-center gap-2 pt-1">
               <Switch id="b-online" checked={online} onCheckedChange={setOnline} />
               <Label htmlFor="b-online" className="text-sm font-normal text-muted-foreground">
-                We serve customers online / nationwide
+                {tr('We serve customers online / nationwide')}
               </Label>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <Label htmlFor="b-phone">Phone</Label>
+              <Label htmlFor="b-phone">{tr('Phone')}</Label>
               <Input id="b-phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="b-email">Email for enquiries</Label>
+              <Label htmlFor="b-email">{tr('Email for enquiries')}</Label>
               <Input id="b-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="b-web">Website</Label>
+              <Label htmlFor="b-web">{tr('Website')}</Label>
               <Input id="b-web" value={website} onChange={(e) => setWebsite(e.target.value)} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="b-licence">Licence / registration (optional)</Label>
+              <Label htmlFor="b-licence">{tr('Licence / registration (optional)')}</Label>
               <Input
                 id="b-licence"
                 value={licence}
                 onChange={(e) => setLicence(e.target.value)}
-                placeholder="e.g. TICO, ATOL, Saudi Ministry licence"
+                placeholder={tr('e.g. TICO, ATOL, Saudi Ministry licence')}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="b-lang">Languages</Label>
+              <Label htmlFor="b-lang">{tr('Languages')}</Label>
               <Input
                 id="b-lang"
                 value={languages}
                 onChange={(e) => setLanguages(e.target.value)}
-                placeholder="English, Arabic, Urdu"
+                placeholder={tr('English, Arabic, Urdu')}
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="b-offer">Offer for Firdam members (optional)</Label>
+            <Label htmlFor="b-offer">{tr('Offer for Firdam members (optional)')}</Label>
             <Input
               id="b-offer"
               value={offer}
               onChange={(e) => setOffer(e.target.value)}
-              placeholder="e.g. 5% off Ramadan Umrah packages"
+              placeholder={tr('e.g. 5% off Ramadan Umrah packages')}
             />
           </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {business ? 'Save changes' : 'Submit for review'}
+            {business ? tr('Save changes') : tr('Submit for review')}
           </Button>
         </DialogFooter>
       </DialogContent>

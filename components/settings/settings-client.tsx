@@ -41,6 +41,7 @@ import { useReminderSettings } from '@/lib/reminders/reminders';
 import type { Profile } from '@/types/database';
 import { DeleteAccountCard } from '@/components/settings/delete-account-card';
 import { TwoFactorCard } from '@/components/settings/two-factor-card';
+import { tr, trn } from '@/lib/i18n';
 
 const themeOptions = [
   { value: 'light', label: 'Light', icon: Sun },
@@ -111,7 +112,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
       router.push('/auth/login');
       router.refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not sign out. Please try again.');
+      toast.error(error instanceof Error ? error.message : tr('Could not sign out. Please try again.'));
     } finally {
       setSigningOut(false);
     }
@@ -120,17 +121,17 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
   const changePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 8) {
-      toast.error('Use at least 8 characters.');
+      toast.error(tr('Use at least 8 characters.'));
       return;
     }
     if (password !== confirm) {
-      toast.error('The passwords do not match.');
+      toast.error(tr('The passwords do not match.'));
       return;
     }
     setSavingPassword(true);
     try {
       await updatePassword(createSupabaseBrowserClient(), password);
-      toast.success('Password updated');
+      toast.success(tr('Password updated'));
       setPassword('');
       setConfirm('');
     } catch (error) {
@@ -171,29 +172,29 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
     a.click();
     URL.revokeObjectURL(url);
     setExporting(false);
-    toast.success('Your data has been downloaded');
+    toast.success(tr('Your data has been downloaded'));
   };
 
   return (
     <>
-      <PageHeader title="Settings" description="Appearance, prayer calculation, reminders and your account." />
+      <PageHeader title={tr('Settings')} description={tr('Appearance, prayer calculation, reminders and your account.')} />
 
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="grid w-full max-w-lg grid-cols-4">
-          <TabsTrigger value="appearance">Appearance</TabsTrigger>
-          <TabsTrigger value="prayer">Prayer</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="appearance">{tr('Appearance')}</TabsTrigger>
+          <TabsTrigger value="prayer">{tr('Prayer')}</TabsTrigger>
+          <TabsTrigger value="notifications">{tr('Notifications')}</TabsTrigger>
+          <TabsTrigger value="account">{tr('Account')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="appearance" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Theme</CardTitle>
+              <CardTitle className="text-base">{tr('Theme')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-4 text-sm text-muted-foreground">
-                Choose how Firdam looks. System follows your device preference.
+                {tr('Choose how Firdam looks. System follows your device preference.')}
               </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {themeOptions.map((opt) => {
@@ -218,7 +219,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                       >
                         <Icon className="h-4 w-4" />
                       </span>
-                      <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                      <span className="text-sm font-medium text-foreground">{tr(opt.label)}</span>
                     </button>
                   );
                 })}
@@ -232,23 +233,23 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <MoonStar className="h-4 w-4" />
-                Location
+                {tr('Location')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-3 text-sm text-muted-foreground">
-                Used for prayer times, Ramadan and Halal Places.
+                {tr('Used for prayer times, Ramadan and Halal Places.')}
               </p>
               <LocationPicker value={location} onChange={saveLocation} />
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Calculation</CardTitle>
+              <CardTitle className="text-base">{tr('Calculation')}</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Method</Label>
+                <Label>{tr('Method')}</Label>
                 <Select
                   value={String(prayer.method)}
                   onValueChange={(v) => updatePrayer({ ...prayer, method: Number(v) })}
@@ -259,14 +260,14 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                   <SelectContent>
                     {CALCULATION_METHODS.map((m) => (
                       <SelectItem key={m.id} value={String(m.id)}>
-                        {m.name} · {m.region}
+                        {trn(m.name)} · {trn(m.region)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Asr time</Label>
+                <Label>{tr('Asr time')}</Label>
                 <Select
                   value={String(prayer.school)}
                   onValueChange={(v) => updatePrayer({ ...prayer, school: v === '1' ? 1 : 0 })}
@@ -275,8 +276,8 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">Standard (Shafi&apos;i, Maliki, Hanbali)</SelectItem>
-                    <SelectItem value="1">Hanafi</SelectItem>
+                    <SelectItem value="0">{tr('Standard (Shafi\'i, Maliki, Hanbali)')}</SelectItem>
+                    <SelectItem value="1">{tr('Hanafi')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -289,24 +290,23 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Bell className="h-4 w-4" />
-                Notifications
+                {tr('Notifications')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               {permission === 'unsupported' ? (
                 <p className="text-sm text-muted-foreground">
-                  This browser doesn&apos;t support notifications.
+                  {tr('This browser doesn\'t support notifications.')}
                 </p>
               ) : permission === 'denied' ? (
                 <p className="rounded-xl bg-warning/10 p-3 text-sm text-foreground">
-                  Notifications are blocked for this site. Allow them in your browser&apos;s site
-                  settings to turn reminders on.
+                  {tr('Notifications are blocked for this site. Allow them in your browser\'s site settings to turn reminders on.')}
                 </p>
               ) : null}
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">Prayer reminders</Label>
-                  <p className="text-xs text-muted-foreground">A gentle alert before each prayer.</p>
+                  <Label className="text-sm font-medium">{tr('Prayer reminders')}</Label>
+                  <p className="text-xs text-muted-foreground">{tr('A gentle alert before each prayer.')}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {reminders.prayers && (
@@ -320,7 +320,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                       <SelectContent>
                         {[0, 5, 10, 15, 30].map((m) => (
                           <SelectItem key={m} value={String(m)}>
-                            {m === 0 ? 'At prayer time' : `${m} min before`}
+                            {m === 0 ? tr('At prayer time') : tr('{0} min before', [m])}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -335,9 +335,9 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
               </div>
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">Family events</Label>
+                  <Label className="text-sm font-medium">{tr('Family events')}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Ceremonies, gatherings and events — the day before and on the day.
+                    {tr('Ceremonies, gatherings and events — the day before and on the day.')}
                   </p>
                 </div>
                 <Switch
@@ -348,9 +348,9 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
               </div>
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
-                  <Label className="text-sm font-medium">Suhoor reminders</Label>
+                  <Label className="text-sm font-medium">{tr('Suhoor reminders')}</Label>
                   <p className="text-xs text-muted-foreground">
-                    The evening before each Sunnah fast (Arafah, Ashura, the white days, and Mondays and Thursdays if you chose them in Fasting).
+                    {tr('The evening before each Sunnah fast (Arafah, Ashura, the white days, and Mondays and Thursdays if you chose them in Fasting).')}
                   </p>
                 </div>
                 <Switch
@@ -360,7 +360,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Reminders appear while Firdam is open in a browser tab on this device.
+                {tr('Reminders appear while Firdam is open in a browser tab on this device.')}
               </p>
             </CardContent>
           </Card>
@@ -371,16 +371,16 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <KeyRound className="h-4 w-4" />
-                Password
+                {tr('Password')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-4 text-sm text-muted-foreground">
-                Signed in as <span className="font-medium text-foreground">{user?.email}</span>
+                {tr('Signed in as')} <span className="font-medium text-foreground">{user?.email}</span>
               </p>
               <form onSubmit={changePassword} className="grid max-w-md grid-cols-1 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="new-password">New password</Label>
+                  <Label htmlFor="new-password">{tr('New password')}</Label>
                   <Input
                     id="new-password"
                     type="password"
@@ -390,7 +390,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirm-password">Confirm new password</Label>
+                  <Label htmlFor="confirm-password">{tr('Confirm new password')}</Label>
                   <Input
                     id="confirm-password"
                     type="password"
@@ -401,7 +401,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                 </div>
                 <Button type="submit" className="w-fit" disabled={savingPassword || !password}>
                   {savingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Update password
+                  {tr('Update password')}
                 </Button>
               </form>
             </CardContent>
@@ -411,13 +411,12 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Download className="h-4 w-4" />
-                Your data
+                {tr('Your data')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-4 text-sm text-muted-foreground">
-                Download everything you have stored in Firdam as a JSON file. Your data belongs to
-                you.
+                {tr('Download everything you have stored in Firdam as a JSON file. Your data belongs to you.')}
               </p>
               <Button variant="outline" onClick={exportData} disabled={exporting}>
                 {exporting ? (
@@ -425,7 +424,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                 ) : (
                   <Download className="mr-2 h-4 w-4" />
                 )}
-                Export my data
+                {tr('Export my data')}
               </Button>
             </CardContent>
           </Card>
@@ -434,12 +433,12 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <LogOut className="h-4 w-4" />
-                Sign out
+                {tr('Sign out')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="mb-4 text-sm text-muted-foreground">
-                End your session on this device. You can sign back in anytime.
+                {tr('End your session on this device. You can sign back in anytime.')}
               </p>
               <Button variant="outline" onClick={handleLogout} disabled={signingOut}>
                 {signingOut ? (
@@ -447,7 +446,7 @@ export function SettingsClient({ profile: _profile }: { profile?: Profile | null
                 ) : (
                   <LogOut className="mr-2 h-4 w-4" />
                 )}
-                {signingOut ? 'Signing out…' : 'Sign out'}
+                {signingOut ? tr('Signing out…') : tr('Sign out')}
               </Button>
             </CardContent>
           </Card>

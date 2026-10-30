@@ -22,6 +22,7 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { usePlan } from '@/lib/plan/plan';
 import type { Household, HouseholdInvite, HouseholdMember } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 const SHARED = ['Family calendar', 'Shopping lists', 'Household tasks', 'Meal plans', 'Pantry', 'Family profiles'];
 /** A household holds 4 people on Free and up to 8 with Firdam Family (enforced in the database). */
@@ -100,19 +101,19 @@ export function SharedHouseholdCard() {
       toast.error(errorMessage(error));
       return;
     }
-    toast.success('Your family household is ready. Now invite your family.');
+    toast.success(tr('Your family household is ready. Now invite your family.'));
     load();
   };
 
   const invite = async () => {
     const value = email.trim().toLowerCase();
     if (!household || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      toast.error('Enter a valid email address.');
+      toast.error(tr('Enter a valid email address.'));
       return;
     }
     if (members.length + invites.length >= capacity) {
       if (capacity < MAX_MEMBERS) setUpgradeOpen(true);
-      else toast.error(`A household can have up to ${MAX_MEMBERS} people.`);
+      else toast.error(tr('A household can have up to {0} people.', [MAX_MEMBERS]));
       return;
     }
     setBusy(true);
@@ -129,7 +130,7 @@ export function SharedHouseholdCard() {
     setEmail('');
     setInvites((list) => [data, ...list]);
     copy(data.token);
-    toast.success('Invite link copied — send it to them by message or email.');
+    toast.success(tr('Invite link copied — send it to them by message or email.'));
   };
 
   const copy = async (token: string) => {
@@ -161,7 +162,7 @@ export function SharedHouseholdCard() {
       toast.error(errorMessage(error));
       return;
     }
-    toast.success(confirm.kind === 'leave' ? 'You left the household.' : 'Member removed.');
+    toast.success(confirm.kind === 'leave' ? tr('You left the household.') : tr('Member removed.'));
     load();
   };
 
@@ -169,7 +170,7 @@ export function SharedHouseholdCard() {
     return (
       <Card className="mb-6">
         <CardContent className="flex items-center gap-2 p-5 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading your household…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading your household…')}
         </CardContent>
       </Card>
     );
@@ -185,12 +186,12 @@ export function SharedHouseholdCard() {
             </span>
             <div>
               <p className="font-display text-lg font-semibold">
-                {household ? household.name : 'Share Firdam with your family'}
+                {household ? trn(household.name) : tr('Share Firdam with your family')}
               </p>
               <p className="text-sm text-brand-linen/80">
                 {household
-                  ? `${members.length} ${members.length === 1 ? 'person' : 'people'} share this home.`
-                  : 'One home for everyone: plan together, shop together, never miss a family date.'}
+                  ? tr('{0} {1} share this home.', [members.length, members.length === 1 ? 'person' : 'people'])
+                  : tr('One home for everyone: plan together, shop together, never miss a family date.')}
               </p>
             </div>
           </div>
@@ -201,7 +202,7 @@ export function SharedHouseholdCard() {
               className="border-brand-linen/30 bg-transparent text-brand-linen hover:bg-brand-linen/10 hover:text-brand-linen"
               onClick={() => setConfirm({ kind: 'leave' })}
             >
-              <LogOut className="mr-2 h-4 w-4" /> Leave
+              <LogOut className="mr-2 h-4 w-4" /> {tr('Leave')}
             </Button>
           )}
         </div>
@@ -210,11 +211,11 @@ export function SharedHouseholdCard() {
           <div className="flex flex-wrap gap-1.5">
             {SHARED.map((s) => (
               <span key={s} className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs text-foreground">
-                <Check className="h-3 w-3 text-brand-sage" /> {s}
+                <Check className="h-3 w-3 text-brand-sage" /> {trn(s)}
               </span>
             ))}
             <span className="rounded-full px-2.5 py-1 text-xs text-muted-foreground">
-              Budget, Quran and personal trackers stay private.
+              {tr('Budget, Quran and personal trackers stay private.')}
             </span>
           </div>
 
@@ -223,19 +224,19 @@ export function SharedHouseholdCard() {
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Household name, e.g. The Rahman family"
+                placeholder={tr('Household name, e.g. The Rahman family')}
                 maxLength={80}
-                aria-label="Household name"
+                aria-label={tr('Household name')}
               />
               <Button onClick={create} disabled={busy || planLoading} className="shrink-0">
                 {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-4 w-4" />}
-                Create household
+                {tr('Create household')}
               </Button>
             </div>
           ) : (
             <>
               <div>
-                <p className="mb-2 text-sm font-medium text-foreground">Members</p>
+                <p className="mb-2 text-sm font-medium text-foreground">{tr('Members')}</p>
                 <ul className="divide-y divide-border rounded-xl border border-border">
                   {members.map((m) => (
                     <li key={m.user_id} className="flex items-center justify-between gap-3 px-3 py-2.5">
@@ -244,12 +245,12 @@ export function SharedHouseholdCard() {
                           {(m.display_name ?? '?').charAt(0).toUpperCase()}
                         </span>
                         <span className="truncate text-sm text-foreground">
-                          {m.display_name ?? 'Family member'}
-                          {m.user_id === user?.id && <span className="text-muted-foreground"> (you)</span>}
+                          {trn(m.display_name) ?? tr('Family member')}
+                          {m.user_id === user?.id && <span className="text-muted-foreground"> {tr('(you)')}</span>}
                         </span>
                         {m.role === 'owner' && (
                           <span className="rounded-full bg-brand-gold/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#7a5a30] dark:text-brand-gold">
-                            Owner
+                            {tr('Owner')}
                           </span>
                         )}
                       </div>
@@ -258,7 +259,7 @@ export function SharedHouseholdCard() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setConfirm({ kind: 'remove', member: m })}
-                          aria-label={`Remove ${m.display_name ?? 'member'}`}
+                          aria-label={tr('Remove {0}', [m.display_name ?? 'member'])}
                         >
                           <UserMinus className="h-4 w-4" />
                         </Button>
@@ -270,7 +271,7 @@ export function SharedHouseholdCard() {
 
               {isOwner && (
                 <div className="space-y-3">
-                  <p className="text-sm font-medium text-foreground">Invite family</p>
+                  <p className="text-sm font-medium text-foreground">{tr('Invite family')}</p>
                   <form
                     className="flex flex-col gap-2 sm:flex-row"
                     onSubmit={(e) => {
@@ -282,16 +283,15 @@ export function SharedHouseholdCard() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Their email address"
-                      aria-label="Email to invite"
+                      placeholder={tr('Their email address')}
+                      aria-label={tr('Email to invite')}
                     />
                     <Button type="submit" disabled={busy} className="shrink-0">
-                      <Mail className="mr-2 h-4 w-4" /> Create invite link
+                      <Mail className="mr-2 h-4 w-4" /> {tr('Create invite link')}
                     </Button>
                   </form>
                   <p className="text-xs text-muted-foreground">
-                    They sign in to Firdam with this email and open the link. Links last 14 days. Up to {MAX_MEMBERS} people
-                    per household.
+                    {tr('They sign in to Firdam with this email and open the link. Links last 14 days. Up to {0} people per household.', [MAX_MEMBERS])}
                   </p>
                   {invites.length > 0 && (
                     <ul className="space-y-2">
@@ -301,14 +301,14 @@ export function SharedHouseholdCard() {
                           className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm"
                         >
                           <span className="truncate text-foreground">
-                            {inv.email} <span className="text-muted-foreground">· pending</span>
+                            {inv.email} <span className="text-muted-foreground">{tr('· pending')}</span>
                           </span>
                           <span className="flex shrink-0 gap-1">
                             <Button variant="ghost" size="sm" onClick={() => copy(inv.token)}>
                               {copied === inv.token ? <Check className="mr-1 h-4 w-4" /> : <Copy className="mr-1 h-4 w-4" />}
-                              {copied === inv.token ? 'Copied' : 'Copy link'}
+                              {copied === inv.token ? tr('Copied') : tr('Copy link')}
                             </Button>
-                            <Button variant="ghost" size="sm" onClick={() => revoke(inv.id)} aria-label="Cancel invite">
+                            <Button variant="ghost" size="sm" onClick={() => revoke(inv.id)} aria-label={tr('Cancel invite')}>
                               <X className="h-4 w-4" />
                             </Button>
                           </span>
@@ -327,18 +327,18 @@ export function SharedHouseholdCard() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirm?.kind === 'leave' ? 'Leave this household?' : `Remove ${confirm?.kind === 'remove' ? confirm.member.display_name ?? 'this member' : ''}?`}
+              {confirm?.kind === 'leave' ? tr('Leave this household?') : tr('Remove {0}?', [confirm?.kind === 'remove' ? confirm.member.display_name ?? 'this member' : ''])}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirm?.kind === 'leave'
-                ? 'Your own items become private again. Items you added to the family’s shopping lists stay with the family.'
-                : 'Their own items become private to them again. You can invite them back later.'}
+                ? tr('Your own items become private again. Items you added to the family’s shopping lists stay with the family.')
+                : tr('Their own items become private to them again. You can invite them back later.')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tr('Cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={runConfirm} disabled={busy}>
-              {confirm?.kind === 'leave' ? 'Leave' : 'Remove'}
+              {confirm?.kind === 'leave' ? tr('Leave') : tr('Remove')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -347,8 +347,8 @@ export function SharedHouseholdCard() {
       <UpgradeDialog
         open={upgradeOpen}
         onOpenChange={setUpgradeOpen}
-        title="Bigger households come with Firdam Family"
-        description="A free household holds 4 people. With Firdam Family, up to 8 people share the calendar, shopping lists, meals and pantry — for CA$4.99 a month."
+        title={tr('Bigger households come with Firdam Family')}
+        description={tr('A free household holds 4 people. With Firdam Family, up to 8 people share the calendar, shopping lists, meals and pantry — for CA$4.99 a month.')}
       />
     </>
   );

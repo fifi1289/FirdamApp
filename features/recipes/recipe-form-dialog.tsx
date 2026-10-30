@@ -27,6 +27,7 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { displayNameFor } from '@/lib/auth/display-name';
 import type { UserRecipe } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 type Line = { name: string; quantity: string; unit: string };
 
@@ -88,10 +89,10 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
       .split('\n')
       .map((s) => s.replace(/^\s*\d+[.)]\s*/, '').trim())
       .filter(Boolean);
-    if (!name.trim()) return toast.error('Give your recipe a name.');
-    if (ingredients.length === 0) return toast.error('Add at least one ingredient.');
-    if (stepList.length === 0) return toast.error('Add the method — one step per line.');
-    if (imageUrl && !/^https:\/\//i.test(imageUrl.trim())) return toast.error('Image link must start with https://');
+    if (!name.trim()) return toast.error(tr('Give your recipe a name.'));
+    if (ingredients.length === 0) return toast.error(tr('Add at least one ingredient.'));
+    if (stepList.length === 0) return toast.error(tr('Add the method — one step per line.'));
+    if (imageUrl && !/^https:\/\//i.test(imageUrl.trim())) return toast.error(tr('Image link must start with https://'));
 
     const row = {
       name: name.trim(),
@@ -116,10 +117,10 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
       : await supabase.from('user_recipes').insert(row).select('id').single();
     setSaving(false);
     if (result.error) {
-      toast.error('Could not save recipe', { description: result.error.message });
+      toast.error(tr('Could not save recipe'), { description: result.error.message });
       return;
     }
-    toast.success(recipe ? 'Recipe updated' : 'Recipe saved to your collection');
+    toast.success(recipe ? tr('Recipe updated') : tr('Recipe saved to your collection'));
     onOpenChange(false);
     onSaved(result.data.id);
   };
@@ -128,35 +129,34 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{recipe ? 'Edit recipe' : 'Add your own recipe'}</DialogTitle>
+          <DialogTitle>{recipe ? tr('Edit recipe') : tr('Add your own recipe')}</DialogTitle>
           <DialogDescription>
-            Save family favourites — grandma&apos;s biryani, your Eid cookies — and plan them like any
-            other recipe.
+            {tr('Save family favourites — grandma\'s biryani, your Eid cookies — and plan them like any other recipe.')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="r-name">Name</Label>
+              <Label htmlFor="r-name">{tr('Name')}</Label>
               <Input id="r-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label htmlFor="r-desc">Short description</Label>
+              <Label htmlFor="r-desc">{tr('Short description')}</Label>
               <Input id="r-desc" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="r-cuisine">Cuisine</Label>
+              <Label htmlFor="r-cuisine">{tr('Cuisine')}</Label>
               <Input
                 id="r-cuisine"
                 value={cuisine}
                 onChange={(e) => setCuisine(e.target.value)}
-                placeholder="e.g. Moroccan"
+                placeholder={tr('e.g. Moroccan')}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Meal</Label>
+                <Label>{tr('Meal')}</Label>
                 <Select value={mealType} onValueChange={(v) => setMealType(v as UserRecipe['meal_type'])}>
                   <SelectTrigger>
                     <SelectValue />
@@ -164,14 +164,14 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
                   <SelectContent>
                     {MEAL_TYPES.map((m) => (
                       <SelectItem key={m.value} value={m.value}>
-                        {m.label}
+                        {tr(m.label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Difficulty</Label>
+                <Label>{tr('Difficulty')}</Label>
                 <Select value={difficulty} onValueChange={(v) => setDifficulty(v as UserRecipe['difficulty'])}>
                   <SelectTrigger>
                     <SelectValue />
@@ -179,7 +179,7 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
                   <SelectContent>
                     {(['Easy', 'Medium', 'Hard'] as const).map((d) => (
                       <SelectItem key={d} value={d}>
-                        {d}
+                        {trn(d)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -188,22 +188,22 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
             </div>
             <div className="grid grid-cols-3 gap-3 sm:col-span-2">
               <div className="space-y-1.5">
-                <Label htmlFor="r-prep">Prep (min)</Label>
+                <Label htmlFor="r-prep">{tr('Prep (min)')}</Label>
                 <Input id="r-prep" inputMode="numeric" value={prep} onChange={(e) => setPrep(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="r-cook">Cook (min)</Label>
+                <Label htmlFor="r-cook">{tr('Cook (min)')}</Label>
                 <Input id="r-cook" inputMode="numeric" value={cook} onChange={(e) => setCook(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="r-serv">Serves</Label>
+                <Label htmlFor="r-serv">{tr('Serves')}</Label>
                 <Input id="r-serv" inputMode="numeric" value={servings} onChange={(e) => setServings(e.target.value)} />
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Ingredients</Label>
+            <Label>{tr('Ingredients')}</Label>
             {lines.map((l, i) => (
               <div key={i} className="flex gap-2">
                 <Input
@@ -211,20 +211,20 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
                   onChange={(e) => updateLine(i, { quantity: e.target.value })}
                   placeholder="2"
                   className="w-16"
-                  aria-label="Quantity"
+                  aria-label={tr('Quantity')}
                 />
                 <Input
                   value={l.unit}
                   onChange={(e) => updateLine(i, { unit: e.target.value })}
-                  placeholder="cups"
+                  placeholder={tr('cups')}
                   className="w-24"
-                  aria-label="Unit"
+                  aria-label={tr('Unit')}
                 />
                 <Input
                   value={l.name}
                   onChange={(e) => updateLine(i, { name: e.target.value })}
-                  placeholder="basmati rice"
-                  aria-label="Ingredient"
+                  placeholder={tr('basmati rice')}
+                  aria-label={tr('Ingredient')}
                 />
                 <Button
                   type="button"
@@ -232,7 +232,7 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
                   size="icon"
                   onClick={() => setLines((prev) => prev.filter((_, idx) => idx !== i))}
                   disabled={lines.length === 1}
-                  aria-label="Remove ingredient"
+                  aria-label={tr('Remove ingredient')}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -245,37 +245,37 @@ export function RecipeFormDialog({ open, onOpenChange, recipe, onSaved }: Recipe
               onClick={() => setLines((prev) => [...prev, { name: '', quantity: '', unit: '' }])}
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add ingredient
+              {tr('Add ingredient')}
             </Button>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="r-steps">Method — one step per line</Label>
+            <Label htmlFor="r-steps">{tr('Method — one step per line')}</Label>
             <Textarea id="r-steps" value={steps} onChange={(e) => setSteps(e.target.value)} rows={6} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="r-tips">Tips (optional)</Label>
+            <Label htmlFor="r-tips">{tr('Tips (optional)')}</Label>
             <Textarea id="r-tips" value={tips} onChange={(e) => setTips(e.target.value)} rows={2} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="r-img">Photo link (optional)</Label>
+            <Label htmlFor="r-img">{tr('Photo link (optional)')}</Label>
             <Input
               id="r-img"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://…"
+              placeholder={tr('https://…')}
             />
           </div>
-          <p className="text-xs text-muted-foreground">Your recipes are private: only your family sees them.</p>
+          <p className="text-xs text-muted-foreground">{tr('Your recipes are private: only your family sees them.')}</p>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {recipe ? 'Save changes' : 'Save recipe'}
+            {recipe ? tr('Save changes') : tr('Save recipe')}
           </Button>
         </DialogFooter>
       </DialogContent>

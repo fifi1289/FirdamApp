@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, MapPinOff } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { tr } from '@/lib/i18n';
 
 /*
  * Lightweight Leaflet map. Leaflet is loaded from cdnjs at runtime so the app
@@ -241,17 +242,17 @@ export function PlacesMap({
 
   return (
     <div className={cn('relative overflow-hidden rounded-2xl border border-border bg-muted', className)}>
-      <div ref={containerRef} className="absolute inset-0 z-0" aria-label="Map of halal places" />
+      <div ref={containerRef} className="absolute inset-0 z-0" aria-label={tr('Map of halal places')} />
       {status === 'loading' && (
         <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Loading map…
+          {tr('Loading map…')}
         </div>
       )}
       {status === 'error' && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 px-6 text-center text-sm text-muted-foreground">
           <MapPinOff className="h-6 w-6" />
-          The map could not be loaded. The list still works.
+          {tr('The map could not be loaded. The list still works.')}
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { moduleIconMap } from '@/features/modules/module-config';
 import type { LifeModule } from '@/types';
+import { tr, trn } from '@/lib/i18n';
 
 interface ModuleCardProps {
   module: LifeModule;
@@ -35,20 +36,20 @@ export function ModuleCard({ module, className }: ModuleCardProps) {
         </div>
         {module.status !== 'active' && (
           <Badge variant="secondary" className="text-[10px]">
-            {module.status === 'beta' ? 'Beta' : 'Coming soon'}
+            {module.status === 'beta' ? tr('Beta') : tr('Coming soon')}
           </Badge>
         )}
       </div>
 
       <h3 className="mt-4 text-base font-semibold text-foreground">
-        {module.name}
+        {trn(module.name)}
       </h3>
       <p className="mt-1.5 flex-1 text-sm leading-relaxed text-muted-foreground">
-        {module.description}
+        {tr(module.description)}
       </p>
 
       <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
-        {comingSoon ? 'Coming soon' : 'Open module'}
+        {comingSoon ? tr('Coming soon') : tr('Open module')}
         {!comingSoon && (
           <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         )}
@@ -60,13 +61,13 @@ export function ModuleCard({ module, className }: ModuleCardProps) {
     return (
       <div
         aria-disabled="true"
-        title="Coming soon"
+        title={tr('Coming soon')}
         className={cn(
           'group relative flex cursor-not-allowed flex-col overflow-hidden rounded-xl border border-border/60 bg-card p-6 opacity-75',
           className
         )}
       >
-        {body}
+        {trn(body)}
       </div>
     );
   }
@@ -79,7 +80,7 @@ export function ModuleCard({ module, className }: ModuleCardProps) {
         className
       )}
     >
-      {body}
+      {trn(body)}
     </Link>
   );
 }

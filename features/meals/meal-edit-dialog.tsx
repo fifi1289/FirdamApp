@@ -28,6 +28,7 @@ import type {
   MealIngredient,
   MockMeal,
 } from '@/features/meals/meal-plan-generator';
+import { tr, trn } from '@/lib/i18n';
 
 interface MealEditDialogProps {
   meal: MockMeal | null;
@@ -110,7 +111,7 @@ export function MealEditDialog({
     if (!meal) return;
     const trimmedName = name.trim();
     if (!trimmedName) {
-      toast.error('Meal name is required');
+      toast.error(tr('Meal name is required'));
       return;
     }
     const parsedPrep = parseInt(prepTime, 10);
@@ -148,36 +149,35 @@ export function MealEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Customize Meal</DialogTitle>
+          <DialogTitle>{tr('Customize Meal')}</DialogTitle>
           <DialogDescription>
-            Edit this meal's details. Your changes are saved as part of the
-            meal plan when you save the plan.
+            {tr('Edit this meal\'s details. Your changes are saved as part of the meal plan when you save the plan.')}
           </DialogDescription>
         </DialogHeader>
         <div className="max-h-[60vh] space-y-4 overflow-y-auto py-2 pr-1">
           <div className="space-y-2">
-            <Label htmlFor="meal-name">Meal name</Label>
+            <Label htmlFor="meal-name">{tr('Meal name')}</Label>
             <Input
               id="meal-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Grilled Chicken Shawarma Bowl"
+              placeholder={tr('e.g. Grilled Chicken Shawarma Bowl')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="meal-description">Description</Label>
+            <Label htmlFor="meal-description">{tr('Description')}</Label>
             <Textarea
               id="meal-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="A short description of the meal…"
+              placeholder={tr('A short description of the meal…')}
               rows={2}
             />
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Ingredients</Label>
+              <Label>{tr('Ingredients')}</Label>
               <Button
                 variant="outline"
                 size="sm"
@@ -186,7 +186,7 @@ export function MealEditDialog({
                 type="button"
               >
                 <Plus className="mr-1 h-3.5 w-3.5" />
-                Add
+                {tr('Add')}
               </Button>
             </div>
             <div className="space-y-2">
@@ -196,7 +196,7 @@ export function MealEditDialog({
                     className="flex-1"
                     value={ing.name}
                     onChange={(e) => updateIngredient(i, 'name', e.target.value)}
-                    placeholder="Ingredient name"
+                    placeholder={tr('Ingredient name')}
                   />
                   <Input
                     className="w-16"
@@ -204,19 +204,19 @@ export function MealEditDialog({
                     onChange={(e) =>
                       updateIngredient(i, 'quantity', e.target.value)
                     }
-                    placeholder="Qty"
+                    placeholder={tr('Qty')}
                   />
                   <Select
                     value={ing.unit}
                     onValueChange={(v) => updateIngredient(i, 'unit', v)}
                   >
                     <SelectTrigger className="w-24">
-                      <SelectValue placeholder="Unit" />
+                      <SelectValue placeholder={tr('Unit')} />
                     </SelectTrigger>
                     <SelectContent>
                       {UNIT_OPTIONS.map((u) => (
                         <SelectItem key={u} value={u}>
-                          {u}
+                          {trn(u)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -227,7 +227,7 @@ export function MealEditDialog({
                     className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
                     onClick={() => removeIngredient(i)}
                     type="button"
-                    aria-label="Remove ingredient"
+                    aria-label={tr('Remove ingredient')}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -235,7 +235,7 @@ export function MealEditDialog({
               ))}
               {ingredients.length === 0 && (
                 <p className="text-xs text-muted-foreground">
-                  No ingredients added yet.
+                  {tr('No ingredients added yet.')}
                 </p>
               )}
             </div>
@@ -243,23 +243,23 @@ export function MealEditDialog({
 
           <div className="space-y-2">
             <Label htmlFor="meal-recipe">
-              Recipe{' '}
+              {tr('Recipe')}{' '}
               <span className="text-xs font-normal text-muted-foreground">
-                (one step per line)
+                {tr('(one step per line)')}
               </span>
             </Label>
             <Textarea
               id="meal-recipe"
               value={recipe}
               onChange={(e) => setRecipe(e.target.value)}
-              placeholder="Step 1: ...&#10;Step 2: ..."
+              placeholder={tr('Step 1: ...&#10;Step 2: ...')}
               rows={5}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="meal-prep-time">Prep time (min)</Label>
+              <Label htmlFor="meal-prep-time">{tr('Prep time (min)')}</Label>
               <Input
                 id="meal-prep-time"
                 type="number"
@@ -270,7 +270,7 @@ export function MealEditDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="meal-cook-time">Cook time (min)</Label>
+              <Label htmlFor="meal-cook-time">{tr('Cook time (min)')}</Label>
               <Input
                 id="meal-cook-time"
                 type="number"
@@ -281,7 +281,7 @@ export function MealEditDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="meal-servings">Servings</Label>
+              <Label htmlFor="meal-servings">{tr('Servings')}</Label>
               <Input
                 id="meal-servings"
                 type="number"
@@ -292,7 +292,7 @@ export function MealEditDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Difficulty</Label>
+              <Label>{tr('Difficulty')}</Label>
               <Select
                 value={difficulty}
                 onValueChange={(v) => setDifficulty(v as MealDifficulty)}
@@ -303,7 +303,7 @@ export function MealEditDialog({
                 <SelectContent>
                   {DIFFICULTY_OPTIONS.map((d) => (
                     <SelectItem key={d} value={d}>
-                      {d}
+                      {trn(d)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -313,9 +313,9 @@ export function MealEditDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {tr('Cancel')}
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave}>{tr('Save Changes')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

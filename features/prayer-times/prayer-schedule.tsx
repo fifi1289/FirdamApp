@@ -47,6 +47,7 @@ import {
 } from '@/lib/prayer/prayer';
 import { cn } from '@/lib/utils';
 import { QiblaCompass } from '@/features/prayer-times/qibla-compass';
+import { locale, tr, trn } from '@/lib/i18n';
 
 function SettingsPopover({
   settings,
@@ -60,12 +61,12 @@ function SettingsPopover({
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <Settings2 className="mr-2 h-4 w-4" />
-          Calculation
+          {tr('Calculation')}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 space-y-4">
         <div className="space-y-1.5">
-          <Label>Calculation method</Label>
+          <Label>{tr('Calculation method')}</Label>
           <Select
             value={String(settings.method)}
             onValueChange={(v) => onChange({ ...settings, method: Number(v) })}
@@ -76,17 +77,17 @@ function SettingsPopover({
             <SelectContent>
               {CALCULATION_METHODS.map((m) => (
                 <SelectItem key={m.id} value={String(m.id)}>
-                  {m.name} <span className="text-muted-foreground">· {m.region}</span>
+                  {trn(m.name)} <span className="text-muted-foreground">· {trn(m.region)}</span>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
-            Choose the method your local mosque follows.
+            {tr('Choose the method your local mosque follows.')}
           </p>
         </div>
         <div className="space-y-1.5">
-          <Label>Asr time</Label>
+          <Label>{tr('Asr time')}</Label>
           <Select
             value={String(settings.school)}
             onValueChange={(v) => onChange({ ...settings, school: v === '1' ? 1 : 0 })}
@@ -95,8 +96,8 @@ function SettingsPopover({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="0">Standard (Shafi&apos;i, Maliki, Hanbali)</SelectItem>
-              <SelectItem value="1">Hanafi</SelectItem>
+              <SelectItem value="0">{tr('Standard (Shafi\'i, Maliki, Hanbali)')}</SelectItem>
+              <SelectItem value="1">{tr('Hanafi')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -106,7 +107,7 @@ function SettingsPopover({
 }
 
 const MONTH_NAMES = Array.from({ length: 12 }, (_, i) =>
-  new Date(2000, i, 1).toLocaleDateString(undefined, { month: 'long' })
+  new Date(2000, i, 1).toLocaleDateString(locale(), { month: 'long' })
 );
 
 function MonthlyTimetable({
@@ -130,7 +131,7 @@ function MonthlyTimetable({
     setError(null);
     fetchPrayerMonth(latitude, longitude, settings, period)
       .then((d) => !cancelled && setDays(d))
-      .catch((e: unknown) => !cancelled && setError(e instanceof Error ? e.message : 'Could not load'))
+      .catch((e: unknown) => !cancelled && setError(e instanceof Error ? e.message : tr('Could not load')))
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
@@ -150,45 +151,45 @@ function MonthlyTimetable({
       <CardContent className="p-0">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4 print:hidden">
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => shift(-1)} aria-label="Previous month">
+            <Button variant="ghost" size="icon" onClick={() => shift(-1)} aria-label={tr('Previous month')}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <p className="min-w-[150px] text-center text-sm font-semibold text-foreground">
-              {MONTH_NAMES[period.month - 1]} {period.year}
+              {trn(MONTH_NAMES[period.month - 1])} {trn(period.year)}
             </p>
-            <Button variant="ghost" size="icon" onClick={() => shift(1)} aria-label="Next month">
+            <Button variant="ghost" size="icon" onClick={() => shift(1)} aria-label={tr('Next month')}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="mr-2 h-4 w-4" />
-            Print timetable
+            {tr('Print timetable')}
           </Button>
         </div>
         <h2 className="hidden p-4 text-lg font-semibold print:block">
-          Prayer timetable — {MONTH_NAMES[period.month - 1]} {period.year}
+          {tr('Prayer timetable —')} {trn(MONTH_NAMES[period.month - 1])} {trn(period.year)}
         </h2>
 
         {loading ? (
           <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Loading timetable…
+            {tr('Loading timetable…')}
           </div>
         ) : error ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">{error}</p>
+          <p className="py-12 text-center text-sm text-muted-foreground">{trn(error)}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="px-4 py-2.5 font-medium">Date</th>
-                  <th className="px-3 py-2.5 font-medium">Hijri</th>
-                  <th className="px-3 py-2.5 font-medium">Fajr</th>
-                  <th className="px-3 py-2.5 font-medium">Sunrise</th>
-                  <th className="px-3 py-2.5 font-medium">Dhuhr</th>
-                  <th className="px-3 py-2.5 font-medium">Asr</th>
-                  <th className="px-3 py-2.5 font-medium">Maghrib</th>
-                  <th className="px-3 py-2.5 font-medium">Isha</th>
+                  <th className="px-4 py-2.5 font-medium">{tr('Date')}</th>
+                  <th className="px-3 py-2.5 font-medium">{tr('Hijri')}</th>
+                  <th className="px-3 py-2.5 font-medium">{tr('Fajr')}</th>
+                  <th className="px-3 py-2.5 font-medium">{tr('Sunrise')}</th>
+                  <th className="px-3 py-2.5 font-medium">{tr('Dhuhr')}</th>
+                  <th className="px-3 py-2.5 font-medium">{tr('Asr')}</th>
+                  <th className="px-3 py-2.5 font-medium">{tr('Maghrib')}</th>
+                  <th className="px-3 py-2.5 font-medium">{tr('Isha')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -206,10 +207,10 @@ function MonthlyTimetable({
                       )}
                     >
                       <td className="whitespace-nowrap px-4 py-2 text-foreground">
-                        {date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' })}
+                        {date.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric' })}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
-                        {d.hijri.day} {d.hijri.month.split(' ')[0]}
+                        {trn(d.hijri.day)} {trn(d.hijri.month.split(' ')[0])}
                       </td>
                       {(['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const).map((k) => (
                         <td key={k} className="px-3 py-2 text-foreground/90">
@@ -259,7 +260,7 @@ export function PrayerSchedule() {
     fetchPrayerDay(location.latitude, location.longitude, settings)
       .then((d) => !cancelled && setData(d))
       .catch((e: unknown) =>
-        !cancelled && setError(e instanceof Error ? e.message : 'Could not load prayer times.')
+        !cancelled && setError(e instanceof Error ? e.message : tr('Could not load prayer times.'))
       )
       .finally(() => !cancelled && setLoading(false));
     return () => {
@@ -275,8 +276,8 @@ export function PrayerSchedule() {
   return (
     <AppShell>
       <PageHeader
-        title="Prayer Times"
-        description="Accurate daily prayer times, the Qibla direction and a monthly timetable."
+        title={tr('Prayer Times')}
+        description={tr('Accurate daily prayer times, the Qibla direction and a monthly timetable.')}
       >
         <SettingsPopover settings={settings} onChange={update} />
       </PageHeader>
@@ -291,9 +292,9 @@ export function PrayerSchedule() {
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <MapPin className="h-6 w-6" />
             </span>
-            <p className="text-sm font-medium text-foreground">Set your location</p>
+            <p className="text-sm font-medium text-foreground">{tr('Set your location')}</p>
             <p className="max-w-xs text-xs text-muted-foreground">
-              Use your location or search for your city above to see today&apos;s prayer times.
+              {tr('Use your location or search for your city above to see today\'s prayer times.')}
             </p>
           </CardContent>
         </Card>
@@ -317,7 +318,7 @@ export function PrayerSchedule() {
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                {label}
+                {trn(label)}
               </button>
             ))}
           </div>
@@ -335,7 +336,7 @@ export function PrayerSchedule() {
                   <Card>
                     <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Loading prayer times…
+                      {tr('Loading prayer times…')}
                     </CardContent>
                   </Card>
                 )}
@@ -343,7 +344,7 @@ export function PrayerSchedule() {
                 {error && !data && (
                   <Card>
                     <CardContent className="py-16 text-center text-sm text-muted-foreground">
-                      {error}
+                      {trn(error)}
                     </CardContent>
                   </Card>
                 )}
@@ -355,7 +356,7 @@ export function PrayerSchedule() {
                         <div>
                           <p className="flex items-center gap-2 text-sm text-brand-linen/80">
                             <CalendarDays className="h-4 w-4" />
-                            {parseGregorian(data.gregorian.date).toLocaleDateString(undefined, {
+                            {parseGregorian(data.gregorian.date).toLocaleDateString(locale(), {
                               weekday: 'long',
                               month: 'long',
                               day: 'numeric',
@@ -363,7 +364,7 @@ export function PrayerSchedule() {
                             })}
                           </p>
                           <p className="mt-1 font-display text-lg font-semibold">
-                            {data.hijri.day} {data.hijri.month} {data.hijri.year} AH
+                            {trn(data.hijri.day)} {trn(data.hijri.month)} {trn(data.hijri.year)} {tr('AH')}
                           </p>
                           {data.hijri.holidays && data.hijri.holidays.length > 0 && (
                             <p className="mt-1 text-xs font-medium text-brand-gold">
@@ -373,7 +374,7 @@ export function PrayerSchedule() {
                         </div>
                         {data.hijri.monthAr && (
                           <p className="font-arabic text-2xl text-brand-gold" lang="ar" dir="rtl">
-                            {data.hijri.monthAr}
+                            {trn(data.hijri.monthAr)}
                           </p>
                         )}
                       </div>
@@ -381,10 +382,10 @@ export function PrayerSchedule() {
                       <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
                         <div>
                           <p className="text-xs font-medium uppercase tracking-wider text-brand-linen/70">
-                            Next prayer
+                            {tr('Next prayer')}
                           </p>
                           <p className="mt-1 font-display text-3xl font-bold">
-                            {current.nextKey === 'Dhuhr' && isFriday ? "Jumu'ah" : current.nextKey}
+                            {current.nextKey === 'Dhuhr' && isFriday ? tr('Jumu\'ah') : trn(current.nextKey)}
                             <span className="ml-3 text-lg font-medium text-brand-linen/80">
                               {format12h(data.timings[current.nextKey])}
                             </span>
@@ -426,14 +427,14 @@ export function PrayerSchedule() {
                                     isCurrent ? 'text-primary' : 'text-foreground'
                                   )}
                                 >
-                                  {p.key === 'Dhuhr' && isFriday ? "Dhuhr · Jumu'ah" : p.label}
+                                  {p.key === 'Dhuhr' && isFriday ? tr('Dhuhr · Jumu\'ah') : tr(p.label)}
                                 </span>
                                 <span className="font-arabic text-sm text-muted-foreground" lang="ar">
-                                  {p.arabic}
+                                  {trn(p.arabic)}
                                 </span>
                                 {isCurrent && (
                                   <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                                    Now
+                                    {tr('Now')}
                                   </span>
                                 )}
                               </div>
@@ -453,10 +454,10 @@ export function PrayerSchedule() {
                       <div className="mt-3 flex flex-wrap justify-center gap-x-6 gap-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1.5">
                           <Sunrise className="h-3.5 w-3.5" />
-                          Sunrise {format12h(data.timings.Sunrise)}
+                          {tr('Sunrise')} {format12h(data.timings.Sunrise)}
                         </span>
-                        {data.timings.Imsak && <span>Imsak {format12h(data.timings.Imsak)}</span>}
-                        {data.method && <span>{data.method}</span>}
+                        {data.timings.Imsak && <span>{tr('Imsak')} {format12h(data.timings.Imsak)}</span>}
+                        {data.method && <span>{trn(data.method)}</span>}
                       </div>
                     </CardContent>
                   </Card>

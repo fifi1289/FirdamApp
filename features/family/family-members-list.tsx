@@ -38,6 +38,7 @@ import {
   type FamilyMemberFormValues,
 } from '@/features/family/family-member-form-dialog';
 import { HouseholdSummary } from '@/features/family/household-summary';
+import { tr, trn } from '@/lib/i18n';
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -97,14 +98,14 @@ function FamilyMemberCard({
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-semibold text-foreground">{member.first_name}</p>
+            <p className="text-sm font-semibold text-foreground">{trn(member.first_name)}</p>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"
-                  aria-label="Member actions"
+                  aria-label={tr('Member actions')}
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -112,14 +113,14 @@ function FamilyMemberCard({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => onEdit(member)}>
                   <Pencil className="mr-2 h-4 w-4" />
-                  Edit
+                  {tr('Edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => onDelete(member)}
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
+                  {tr('Delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -132,17 +133,17 @@ function FamilyMemberCard({
                 (RELATIONSHIP_STYLES[member.relationship] ?? RELATIONSHIP_STYLES.Other)
               }
             >
-              {member.relationship}
+              {trn(member.relationship)}
             </Badge>
             {age !== null && (
               <span className="text-xs font-medium text-muted-foreground">
-                {age} {age === 1 ? 'year' : 'years'} old
+                {trn(age)} {age === 1 ? tr('year') : tr('years')} {tr('old')}
               </span>
             )}
           </div>
           {member.notes && (
             <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
-              {member.notes}
+              {trn(member.notes)}
             </p>
           )}
         </div>
@@ -196,20 +197,20 @@ export function FamilyMembersList() {
     setDeleting(false);
     if (error) {
       console.error('Failed to delete member:', error.message);
-      toast.error('Could not delete member', { description: error.message });
+      toast.error(tr('Could not delete member'), { description: error.message });
       return;
     }
     setMembers((prev) => prev.filter((m) => m.id !== id));
     setDeleteOpen(false);
     setDeletingMember(null);
-    toast.success('Member removed from family');
+    toast.success(tr('Member removed from family'));
   };
 
   if (loading) {
     return (
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center px-6 py-20 text-center">
-          <p className="text-sm text-muted-foreground">Loading your family…</p>
+          <p className="text-sm text-muted-foreground">{tr('Loading your family…')}</p>
         </CardContent>
       </Card>
     );
@@ -223,17 +224,17 @@ export function FamilyMembersList() {
             <Users className="h-7 w-7" />
           </span>
           <h3 className="mt-5 text-lg font-semibold text-foreground">
-            No household members yet
+            {tr('No household members yet')}
           </h3>
           <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-            Add your first family member to start managing your household and keeping everyone in sync.
+            {tr('Add your first family member to start managing your household and keeping everyone in sync.')}
           </p>
           <Button
             size="sm"
             className="mt-6"
             onClick={() => window.dispatchEvent(new Event('family-open-add'))}
           >
-            Add your first member
+            {tr('Add your first member')}
           </Button>
         </CardContent>
       </Card>
@@ -272,22 +273,22 @@ export function FamilyMembersList() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete member?</AlertDialogTitle>
+            <AlertDialogTitle>{tr('Delete member?')}</AlertDialogTitle>
             <AlertDialogDescription>
               {deletingMember
-                ? `"${deletingMember.first_name}" will be permanently removed from your family.`
-                : 'This member will be permanently removed.'}{' '}
-              This action cannot be undone.
+                ? tr('"{0}" will be permanently removed from your family.', [deletingMember.first_name])
+                : tr('This member will be permanently removed.')}{' '}
+              {tr('This action cannot be undone.')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{tr('Cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? tr('Deleting…') : tr('Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

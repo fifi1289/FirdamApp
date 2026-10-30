@@ -13,6 +13,7 @@ import {
   emptyMemberValues,
   type FamilyMemberFormValues,
 } from '@/features/family/family-member-form-dialog';
+import { tr } from '@/lib/i18n';
 
 export function FamilyDashboard() {
   const [open, setOpen] = useState(false);
@@ -31,12 +32,12 @@ export function FamilyDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Family"
-        description="Manage your household members and keep track of everyone in one place."
+        title={tr('Family')}
+        description={tr('Manage your household members and keep track of everyone in one place.')}
       >
         <Button size="sm" onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Member
+          {tr('Add Member')}
         </Button>
       </PageHeader>
 

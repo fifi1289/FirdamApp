@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils';
 import { PartnerCountryPicker } from '@/features/partners/partner-country';
 import type { PartnerShop } from '@/features/groceries/partners';
+import { tr } from '@/lib/i18n';
 
 export type WorksFilter = 'online' | 'in_person' | null;
 
@@ -16,7 +17,7 @@ export function PartnerFilters({ shops, works, onWorks }: { shops: PartnerShop[]
   return (
     <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-3">
       <PartnerCountryPicker shops={shops} />
-      <div role="group" aria-label="How they work" className="flex gap-1.5">
+      <div role="group" aria-label={tr('How they work')} className="flex gap-1.5">
         {opts.map((o) => (
           <button
             key={o.label}
@@ -28,7 +29,7 @@ export function PartnerFilters({ shops, works, onWorks }: { shops: PartnerShop[]
               works === o.id ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
             )}
           >
-            {o.label}
+            {tr(o.label)}
           </button>
         ))}
       </div>

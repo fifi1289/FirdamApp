@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react';
+import { tr } from '@/lib/i18n';
 
 const features = [
   {
@@ -52,13 +53,13 @@ export function Features() {
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Features
+            {tr('Features')}
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Designed around Muslim family life
+            {tr('Designed around Muslim family life')}
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
-            One trusted app instead of a dozen disconnected ones.
+            {tr('One trusted app instead of a dozen disconnected ones.')}
           </p>
         </div>
 
@@ -71,10 +72,10 @@ export function Features() {
                   <Icon className="h-5 w-5" />
                 </div>
                 <h3 className="text-base font-semibold text-foreground">
-                  {f.title}
+                  {tr(f.title)}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {f.description}
+                  {tr(f.description)}
                 </p>
               </div>
             );

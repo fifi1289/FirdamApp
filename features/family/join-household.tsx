@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/components/auth/auth-provider';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { tr, trn } from '@/lib/i18n';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -51,7 +52,7 @@ export function JoinHousehold({ token }: { token: string }) {
       setError(err.message);
       return;
     }
-    toast.success(`Welcome to ${preview?.household_name ?? 'the household'}!`);
+    toast.success(tr('Welcome to {0}!', [preview?.household_name ?? 'the household']));
     router.push('/dashboard/family');
   };
 
@@ -73,40 +74,39 @@ export function JoinHousehold({ token }: { token: string }) {
           <CardContent className="space-y-4 p-6 text-center">
             {loading ? (
               <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Checking your invite…
+                <Loader2 className="h-4 w-4 animate-spin" /> {tr('Checking your invite…')}
               </p>
             ) : !preview || !preview.valid ? (
               <>
-                <p className="font-display text-lg font-semibold text-foreground">This invite has expired</p>
+                <p className="font-display text-lg font-semibold text-foreground">{tr('This invite has expired')}</p>
                 <p className="text-sm text-muted-foreground">
-                  Ask the person who invited you to send a new link from their Family page.
+                  {tr('Ask the person who invited you to send a new link from their Family page.')}
                 </p>
                 <Button asChild variant="outline">
-                  <Link href="/dashboard">Go to dashboard</Link>
+                  <Link href="/dashboard">{tr('Go to dashboard')}</Link>
                 </Button>
               </>
             ) : (
               <>
                 <p className="font-display text-lg font-semibold text-foreground">
-                  Join {preview.household_name}
+                  {tr('Join')} {trn(preview.household_name)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {preview.invited_by_name ?? 'A family member'} invited you to share your family calendar, shopping
-                  lists, tasks, meal plans and pantry. Your budget and personal trackers stay private.
+                  {trn(preview.invited_by_name) ?? tr('A family member')} {tr('invited you to share your family calendar, shopping lists, tasks, meal plans and pantry. Your budget and personal trackers stay private.')}
                 </p>
                 {wrongEmail && (
                   <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                    This invite was sent to {preview.email}. Sign in with that email to accept it.
+                    {tr('This invite was sent to {0}. Sign in with that email to accept it.', [preview.email])}
                   </p>
                 )}
-                {error && <p className="text-sm text-destructive">{error}</p>}
+                {error && <p className="text-sm text-destructive">{trn(error)}</p>}
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
                   <Button onClick={join} disabled={joining || wrongEmail}>
                     {joining && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Join household
+                    {tr('Join household')}
                   </Button>
                   <Button asChild variant="ghost">
-                    <Link href="/dashboard">Not now</Link>
+                    <Link href="/dashboard">{tr('Not now')}</Link>
                   </Button>
                 </div>
               </>

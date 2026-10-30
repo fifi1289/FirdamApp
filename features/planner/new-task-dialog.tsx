@@ -28,6 +28,7 @@ import {
 import { toast } from 'sonner';
 import { PLANNER_TASKS_CHANGED } from '@/features/planner/tasks-list';
 import type { PlannerTask, TaskPriority } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 const MAX_HIGH_PRIORITY_PER_DAY = 3;
 
@@ -93,7 +94,7 @@ export function NewTaskDialog() {
       trigger={
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          New task
+          {tr('New task')}
         </Button>
       }
     />
@@ -132,8 +133,8 @@ export function TaskFormDialog({
     if (!trimmed) return;
 
     if (values.startTime && values.endTime && values.endTime < values.startTime) {
-      toast.error('End time is before start time', {
-        description: 'Please choose an end time that is after the start time.',
+      toast.error(tr('End time is before start time'), {
+        description: tr('Please choose an end time that is after the start time.'),
       });
       return;
     }
@@ -156,7 +157,7 @@ export function TaskFormDialog({
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       setSubmitting(false);
-      toast.error('Your session has expired. Please sign in again.');
+      toast.error(tr('Your session has expired. Please sign in again.'));
       return;
     }
 
@@ -172,9 +173,9 @@ export function TaskFormDialog({
       const { count } = await highQuery;
       if ((count ?? 0) >= MAX_HIGH_PRIORITY_PER_DAY) {
         setSubmitting(false);
-        toast('Only 3 High Priority tasks per day', {
+        toast(tr('Only 3 High Priority tasks per day'), {
           description:
-            'You already have 3 High Priority tasks for this day. Try changing this one to Medium or Low.',
+            tr('You already have 3 High Priority tasks for this day. Try changing this one to Medium or Low.'),
         });
         return;
       }
@@ -187,53 +188,53 @@ export function TaskFormDialog({
 
     if (result.error) {
       toast.error(
-        isEdit ? 'Could not update task' : 'Could not create task',
+        isEdit ? tr('Could not update task') : tr('Could not create task'),
         { description: result.error.message }
       );
       return;
     }
     onOpenChange(false);
-    toast.success(isEdit ? 'Task updated' : 'Task created');
+    toast.success(isEdit ? tr('Task updated') : tr('Task created'));
     window.dispatchEvent(new Event(PLANNER_TASKS_CHANGED));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {trigger && <DialogTrigger asChild>{trn(trigger)}</DialogTrigger>}
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Edit task' : 'New task'}</DialogTitle>
+            <DialogTitle>{isEdit ? tr('Edit task') : tr('New task')}</DialogTitle>
             <DialogDescription>
               {isEdit
-                ? 'Update the details of your task.'
-                : 'Add a task to your planner.'}
+                ? tr('Update the details of your task.')
+                : tr('Add a task to your planner.')}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="task-title">Title</Label>
+              <Label htmlFor="task-title">{tr('Title')}</Label>
               <Input
                 id="task-title"
                 value={values.title}
                 onChange={(e) => update({ title: e.target.value })}
-                placeholder="What do you need to do?"
+                placeholder={tr('What do you need to do?')}
                 autoFocus
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="task-description">Description (optional)</Label>
+              <Label htmlFor="task-description">{tr('Description (optional)')}</Label>
               <Textarea
                 id="task-description"
                 value={values.description}
                 onChange={(e) => update({ description: e.target.value })}
-                placeholder="Add any details about this task"
+                placeholder={tr('Add any details about this task')}
                 rows={3}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="task-date">Date</Label>
+              <Label htmlFor="task-date">{tr('Date')}</Label>
               <Input
                 id="task-date"
                 type="date"
@@ -244,7 +245,7 @@ export function TaskFormDialog({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="task-start-time">Start time (optional)</Label>
+                <Label htmlFor="task-start-time">{tr('Start time (optional)')}</Label>
                 <Input
                   id="task-start-time"
                   type="time"
@@ -253,7 +254,7 @@ export function TaskFormDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="task-end-time">End time (optional)</Label>
+                <Label htmlFor="task-end-time">{tr('End time (optional)')}</Label>
                 <Input
                   id="task-end-time"
                   type="time"
@@ -270,12 +271,12 @@ export function TaskFormDialog({
                   onCheckedChange={(c) => update({ completed: c === true })}
                 />
                 <Label htmlFor="task-completed" className="text-sm font-normal">
-                  Mark as completed
+                  {tr('Mark as completed')}
                 </Label>
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="task-priority">Priority</Label>
+              <Label htmlFor="task-priority">{tr('Priority')}</Label>
               <Select
                 value={values.priority}
                 onValueChange={(v) => update({ priority: v as TaskPriority })}
@@ -286,13 +287,13 @@ export function TaskFormDialog({
                 <SelectContent>
                   {(Object.keys(PRIORITY_LABELS) as TaskPriority[]).map((p) => (
                     <SelectItem key={p} value={p}>
-                      {PRIORITY_LABELS[p]}
+                      {trn(PRIORITY_LABELS[p])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Up to {MAX_HIGH_PRIORITY_PER_DAY} High-priority tasks per day.
+                {tr('Up to {0} High-priority tasks per day.', [MAX_HIGH_PRIORITY_PER_DAY])}
               </p>
             </div>
           </div>
@@ -303,16 +304,16 @@ export function TaskFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Cancel
+              {tr('Cancel')}
             </Button>
             <Button type="submit" disabled={submitting || !values.title.trim()}>
               {submitting
                 ? isEdit
-                  ? 'Saving…'
-                  : 'Adding…'
+                  ? tr('Saving…')
+                  : tr('Adding…')
                 : isEdit
-                ? 'Save changes'
-                : 'Add task'}
+                ? tr('Save changes')
+                : tr('Add task')}
             </Button>
           </DialogFooter>
         </form>

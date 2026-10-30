@@ -18,6 +18,7 @@ import { formatAmount, isBasic, matchScore } from '@/lib/pantry/units';
 import { formatPortions, useHousehold } from '@/lib/pantry/portions';
 import { CookDialog } from '@/features/pantry/cook-dialog';
 import type { PantryItem } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 interface Match {
   recipe: RecipeSummary;
@@ -104,9 +105,9 @@ export function CookWithWhatIHave({ recipes }: { recipes: RecipeSummary[] }) {
     setAdding(m.recipe.key);
     try {
       const n = await addAmountsToShopping(items, `For ${m.recipe.name}`);
-      toast.success(`Added ${n} item${n === 1 ? '' : 's'} to Shopping`);
+      toast.success(tr('Added {0} item{1} to Shopping', [n, n === 1 ? '' : 's']));
     } catch {
-      toast.error('Could not add to your shopping list');
+      toast.error(tr('Could not add to your shopping list'));
     } finally {
       setAdding(null);
     }
@@ -119,43 +120,43 @@ export function CookWithWhatIHave({ recipes }: { recipes: RecipeSummary[] }) {
     return (
       <Card key={r.key} className="flex flex-col overflow-hidden">
         <Link href={`/dashboard/recipes/${r.key}`} className="block">
-          <MealImage src={r.image} alt={r.name} category={r.mealType} className="h-36 w-full object-cover" />
+          <MealImage src={r.image} alt={trn(r.name)} category={r.mealType} className="h-36 w-full object-cover" />
         </Link>
         <CardContent className="flex flex-1 flex-col gap-2 p-4">
           <Link href={`/dashboard/recipes/${r.key}`} className="font-semibold text-foreground hover:text-primary">
-            {r.name}
+            {trn(r.name)}
           </Link>
           <p className="text-xs text-muted-foreground">
             {[r.cuisine, formatDuration(totalMinutes(r))].filter(Boolean).join(' · ')}
-            {m.usesExpiring && <span className="ml-1 font-medium text-amber-600 dark:text-amber-400">· uses food expiring soon</span>}
+            {m.usesExpiring && <span className="ml-1 font-medium text-amber-600 dark:text-amber-400">{tr('· uses food expiring soon')}</span>}
           </p>
           {gaps.length === 0 ? (
             <p className="inline-flex w-fit items-center gap-1 rounded-full bg-brand-sage/15 px-2.5 py-1 text-xs font-medium text-brand-sage">
-              <Check className="h-3 w-3" /> You have enough for {formatPortions(p)}
+              <Check className="h-3 w-3" /> {tr('You have enough for')} {formatPortions(p)}
             </p>
           ) : (
             <ul className="space-y-0.5 text-xs">
               {gaps.map((g, i) => (
                 <li key={i} className="text-muted-foreground">
                   <span className="font-medium text-foreground">
-                    Buy {g.shortfall?.quantity != null ? formatAmount(g.shortfall.quantity, g.shortfall.unit) + ' ' : ''}
-                    {g.need.name}
+                    {tr('Buy')} {g.shortfall?.quantity != null ? formatAmount(g.shortfall.quantity, g.shortfall.unit) + ' ' : ''}
+                    {trn(g.need.name)}
                   </span>
-                  {g.status === 'short' && <> — you have {g.haveText}, need {g.neededText}</>}
+                  {g.status === 'short' && <> {tr('— you have {0}, need {1}', [g.haveText, g.neededText])}</>}
                 </li>
               ))}
             </ul>
           )}
-          {low.length > 0 && <p className="text-xs text-amber-600 dark:text-amber-400">Running low: {low.map((l) => l.item?.name).join(', ')}</p>}
+          {low.length > 0 && <p className="text-xs text-amber-600 dark:text-amber-400">{tr('Running low:')} {low.map((l) => l.item?.name).join(', ')}</p>}
           <div className="mt-auto flex flex-wrap gap-2 pt-1">
             {gaps.length === 0 ? (
               <Button size="sm" onClick={() => setCooking(m)}>
-                <ChefHat className="mr-2 h-4 w-4" /> I cooked this
+                <ChefHat className="mr-2 h-4 w-4" /> {tr('I cooked this')}
               </Button>
             ) : (
               <Button variant="outline" size="sm" disabled={adding === r.key} onClick={() => toShopping(m)}>
                 {adding === r.key ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2 h-4 w-4" />}
-                Add missing to Shopping
+                {tr('Add missing to Shopping')}
               </Button>
             )}
           </div>
@@ -174,27 +175,26 @@ export function CookWithWhatIHave({ recipes }: { recipes: RecipeSummary[] }) {
                 <Refrigerator className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-lg font-semibold text-foreground">What can I cook?</p>
+                <p className="font-display text-lg font-semibold text-foreground">{tr('What can I cook?')}</p>
                 <p className="text-sm text-muted-foreground">
-                  Checks your pantry amounts against each recipe, scaled to your family. Salt, oil, spices and other basics
-                  are assumed.
+                  {tr('Checks your pantry amounts against each recipe, scaled to your family. Salt, oil, spices and other basics are assumed.')}
                 </p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2 rounded-xl bg-muted px-3 py-1.5">
-              <span className="text-xs text-muted-foreground">Cooking for</span>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPortions(Math.max(1, p - 0.5))} aria-label="Fewer portions">
+              <span className="text-xs text-muted-foreground">{tr('Cooking for')}</span>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPortions(Math.max(1, p - 0.5))} aria-label={tr('Fewer portions')}>
                 <Minus className="h-3.5 w-3.5" />
               </Button>
               <span className="w-8 text-center text-sm font-semibold tabular-nums">{formatPortions(p)}</span>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPortions(p + 0.5)} aria-label="More portions">
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setPortions(p + 0.5)} aria-label={tr('More portions')}>
                 <Plus className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
           {household && household.children > 0 && (
             <p className="text-xs text-muted-foreground">
-              {household.people} people · children count as ¾ (6–12) or ½ (under 6) of a portion. Change ages in Family.
+              {trn(household.people)} {tr('people · children count as ¾ (6–12) or ½ (under 6) of a portion. Change ages in Family.')}
             </p>
           )}
 
@@ -205,17 +205,17 @@ export function CookWithWhatIHave({ recipes }: { recipes: RecipeSummary[] }) {
               addExtra();
             }}
           >
-            <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Anything not in your pantry? e.g. chicken, tomato, eggs" aria-label="Ingredients you have" />
+            <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder={tr('Anything not in your pantry? e.g. chicken, tomato, eggs')} aria-label={tr('Ingredients you have')} />
             <Button type="submit" className="shrink-0" disabled={!input.trim()}>
-              <Plus className="mr-2 h-4 w-4" /> Add
+              <Plus className="mr-2 h-4 w-4" /> {tr('Add')}
             </Button>
           </form>
 
           <div className="flex flex-wrap items-center gap-1.5">
             {extra.map((x) => (
               <span key={x} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary">
-                {x}
-                <button type="button" onClick={() => setExtra((cur) => cur.filter((c) => c !== x))} aria-label={`Remove ${x}`}>
+                {trn(x)}
+                <button type="button" onClick={() => setExtra((cur) => cur.filter((c) => c !== x))} aria-label={tr('Remove {0}', [x])}>
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -231,12 +231,12 @@ export function CookWithWhatIHave({ recipes }: { recipes: RecipeSummary[] }) {
                 }
               >
                 {usePantry && <Check className="h-3 w-3" />}
-                {pantry.length} item{pantry.length === 1 ? '' : 's'} from my pantry
+                {pantry.length} {tr('item')}{pantry.length === 1 ? '' : tr('s')} {tr('from my pantry')}
               </button>
             )}
             {pantry.length === 0 && (
               <Link href="/dashboard/pantry" className="text-xs text-primary hover:underline">
-                Set up your pantry for exact suggestions →
+                {tr('Set up your pantry for exact suggestions →')}
               </Link>
             )}
           </div>
@@ -245,25 +245,25 @@ export function CookWithWhatIHave({ recipes }: { recipes: RecipeSummary[] }) {
 
       {!needs ? (
         <p className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Checking recipes…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tr('Checking recipes…')}
         </p>
       ) : stock.length === 0 ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">Add a few ingredients above, or fill your pantry.</p>
+        <p className="py-10 text-center text-sm text-muted-foreground">{tr('Add a few ingredients above, or fill your pantry.')}</p>
       ) : matches.ready.length === 0 && matches.almost.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          No recipes match yet — try adding a main ingredient like chicken, lamb, lentils or rice.
+          {tr('No recipes match yet — try adding a main ingredient like chicken, lamb, lentils or rice.')}
         </p>
       ) : (
         <>
           {matches.ready.length > 0 && (
             <section>
-              <h3 className="mb-3 font-display text-base font-semibold text-foreground">Cook now ({matches.ready.length})</h3>
+              <h3 className="mb-3 font-display text-base font-semibold text-foreground">{tr('Cook now (')}{matches.ready.length})</h3>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{matches.ready.map(card)}</div>
             </section>
           )}
           {matches.almost.length > 0 && (
             <section>
-              <h3 className="mb-3 font-display text-base font-semibold text-foreground">Almost — buy a few things ({matches.almost.length})</h3>
+              <h3 className="mb-3 font-display text-base font-semibold text-foreground">{tr('Almost — buy a few things (')}{matches.almost.length})</h3>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{matches.almost.map(card)}</div>
             </section>
           )}

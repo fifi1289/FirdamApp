@@ -20,6 +20,7 @@ import { formatAmount } from '@/lib/pantry/units';
 import { formatPortions, useHousehold } from '@/lib/pantry/portions';
 import { applyPantryChanges, changesForDeductions, undoPantryBatch, type PantryChange } from '@/lib/pantry/store';
 import type { PantryItem } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 export interface CookableRecipe {
   /** "c-<uuid>" / "u-<uuid>" for library recipes, or a meal-plan meal id. */
@@ -45,10 +46,10 @@ export function undoToast(message: string, batchId: string, onUndone?: () => voi
         try {
           await undoPantryBatch(batchId);
           window.dispatchEvent(new Event('pantry-items-changed'));
-          toast.success('Undone — your pantry is back as it was');
+          toast.success(tr('Undone — your pantry is back as it was'));
           onUndone?.();
         } catch {
-          toast.error('Could not undo');
+          toast.error(tr('Could not undo'));
         }
       },
     },
@@ -147,7 +148,7 @@ export function CookDialog({
         () => window.dispatchEvent(new Event('cooking-log-changed'))
       );
     } catch (err) {
-      toast.error('Could not update your pantry', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not update your pantry'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setSaving(false);
     }
@@ -158,21 +159,21 @@ export function CookDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ChefHat className="h-5 w-5 text-primary" /> You cooked {recipe?.name}
+            <ChefHat className="h-5 w-5 text-primary" /> {tr('You cooked')} {trn(recipe?.name)}
           </DialogTitle>
-          <DialogDescription>We’ll take what you used out of your pantry. Change anything that isn’t right.</DialogDescription>
+          <DialogDescription>{tr('We’ll take what you used out of your pantry. Change anything that isn’t right.')}</DialogDescription>
         </DialogHeader>
 
         <div className="flex items-center justify-between rounded-xl bg-muted px-3 py-2">
-          <span className="text-sm text-foreground">Cooked for</span>
+          <span className="text-sm text-foreground">{tr('Cooked for')}</span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPortions((p) => Math.max(0.5, p - 0.5))} aria-label="Fewer portions">
+            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPortions((p) => Math.max(0.5, p - 0.5))} aria-label={tr('Fewer portions')}>
               <Minus className="h-3.5 w-3.5" />
             </Button>
             <span className="w-24 text-center text-sm font-semibold tabular-nums text-foreground">
-              {formatPortions(portions)} portion{portions === 1 ? '' : 's'}
+              {formatPortions(portions)} {tr('portion')}{portions === 1 ? '' : tr('s')}
             </span>
-            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPortions((p) => p + 0.5)} aria-label="More portions">
+            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setPortions((p) => p + 0.5)} aria-label={tr('More portions')}>
               <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -180,13 +181,13 @@ export function CookDialog({
 
         {!check ? (
           <p className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Checking your pantry…
+            <Loader2 className="h-4 w-4 animate-spin" /> {tr('Checking your pantry…')}
           </p>
         ) : (
           <div className="space-y-4">
             {deductions.length > 0 && (
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Taken from your pantry</p>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr('Taken from your pantry')}</p>
                 <ul className="divide-y divide-border rounded-xl border border-border">
                   {deductions.map((d) => (
                     <li key={d.item.id} className="flex items-center gap-3 px-3 py-2 text-sm">
@@ -200,12 +201,12 @@ export function CookDialog({
                             return next;
                           })
                         }
-                        aria-label={`Take ${d.item.name} from pantry`}
+                        aria-label={tr('Take {0} from pantry', [d.item.name])}
                       />
-                      <span className="flex-1 text-foreground">{d.item.name}</span>
+                      <span className="flex-1 text-foreground">{trn(d.item.name)}</span>
                       <span className="text-xs tabular-nums text-muted-foreground">
                         −{formatAmount(d.use, d.item.unit)} ·{' '}
-                        {d.newQuantity <= 0 ? <span className="text-destructive">finished</span> : `${formatAmount(d.newQuantity, d.item.unit)} left`}
+                        {d.newQuantity <= 0 ? <span className="text-destructive">{tr('finished')}</span> : tr('{0} left', [formatAmount(d.newQuantity, d.item.unit)])}
                       </span>
                     </li>
                   ))}
@@ -215,13 +216,13 @@ export function CookDialog({
 
             {staples.length > 0 && (
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Cupboard staples used</p>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr('Cupboard staples used')}</p>
                 <ul className="space-y-1.5">
                   {staples.map((s) => {
                     const current = levels[s.id] ?? s.level ?? 'full';
                     return (
                       <li key={s.id} className="flex items-center justify-between gap-2 text-sm">
-                        <span className="text-foreground">{s.name}</span>
+                        <span className="text-foreground">{trn(s.name)}</span>
                         <span className="flex gap-1">
                           {(['full', 'half', 'low', 'out'] as Level[]).map((l) => (
                             <button
@@ -234,7 +235,7 @@ export function CookDialog({
                                   : 'rounded-full bg-muted px-2.5 py-0.5 text-xs capitalize text-muted-foreground hover:text-foreground'
                               }
                             >
-                              {l}
+                              {trn(l)}
                             </button>
                           ))}
                         </span>
@@ -247,12 +248,12 @@ export function CookDialog({
 
             {missing.length > 0 && (
               <p className="text-xs text-muted-foreground">
-                Not in your pantry, so nothing to take off: {missing.map((m) => m.need.name).join(', ')}.
+                {tr('Not in your pantry, so nothing to take off:')} {missing.map((m) => m.need.name).join(', ')}.
               </p>
             )}
             {deductions.length === 0 && staples.length === 0 && (
               <p className="rounded-xl bg-muted px-3 py-3 text-sm text-muted-foreground">
-                None of this recipe’s ingredients are tracked in your pantry yet. We’ll just mark it as cooked.
+                {tr('None of this recipe’s ingredients are tracked in your pantry yet. We’ll just mark it as cooked.')}
               </p>
             )}
           </div>
@@ -260,11 +261,11 @@ export function CookDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={confirm} disabled={saving || !check}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-            Confirm
+            {tr('Confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -16,6 +16,7 @@ import {
   emptyItemValues,
   type PantryItemFormValues,
 } from '@/features/pantry/pantry-item-form-dialog';
+import { tr } from '@/lib/i18n';
 
 export function PantryDashboard() {
   const [open, setOpen] = useState(false);
@@ -47,25 +48,25 @@ export function PantryDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Pantry"
-        description="What you have at home. Cooking, shopping and the weekly check keep it up to date for you."
+        title={tr('Pantry')}
+        description={tr('What you have at home. Cooking, shopping and the weekly check keep it up to date for you.')}
       >
         <Button size="sm" variant="outline" onClick={() => setScanOpen(true)}>
           <Receipt className="mr-2 h-4 w-4" />
-          Scan receipt
+          {tr('Scan receipt')}
           {!isPaid && <PremiumBadge className="ml-2" />}
         </Button>
         <Button size="sm" variant="outline" onClick={() => setCheckOpen(true)}>
           <ClipboardCheck className="mr-2 h-4 w-4" />
-          Weekly check
+          {tr('Weekly check')}
         </Button>
         <Button size="sm" variant="outline" onClick={() => setSetupOpen(true)}>
           <Sparkles className="mr-2 h-4 w-4" />
-          Quick setup
+          {tr('Quick setup')}
         </Button>
         <Button size="sm" onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Item
+          {tr('Add Item')}
         </Button>
       </PageHeader>
 

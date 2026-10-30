@@ -54,6 +54,7 @@ import { CategoryDialog } from '@/features/budget/category-dialog';
 import { TransactionDialog } from '@/features/budget/transaction-dialog';
 import { ZakatCalculator } from '@/features/budget/zakat-calculator';
 import { SavingsGoals } from '@/features/budget/savings-goals';
+import { locale, tr, trn } from '@/lib/i18n';
 
 // Guards against seeding twice when effects run twice (React Strict Mode).
 let seedingCategories: Promise<BudgetCategory[]> | null = null;
@@ -75,7 +76,7 @@ function SummaryTile({
     <Card>
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          <p className="text-sm font-medium text-muted-foreground">{trn(label)}</p>
           <span
             className={cn(
               'inline-flex h-8 w-8 items-center justify-center rounded-lg',
@@ -91,7 +92,7 @@ function SummaryTile({
         <p className="mt-3 font-display text-2xl font-bold tracking-tight tabular-nums text-foreground">
           {value}
         </p>
-        {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
+        {sub && <p className="mt-1 text-xs text-muted-foreground">{trn(sub)}</p>}
       </CardContent>
     </Card>
   );
@@ -119,19 +120,19 @@ function CategoryBudgetRow({
       type="button"
       onClick={() => onOpen(category)}
       className="flex w-full items-center gap-3 rounded-lg py-3 text-left transition-colors hover:bg-muted/40"
-      aria-label={`Edit ${category.name}`}
+      aria-label={tr('Edit {0}', [category.name])}
     >
       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
         <Icon className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
-          <p className="truncate text-sm font-medium text-foreground">{category.name}</p>
+          <p className="truncate text-sm font-medium text-foreground">{trn(category.name)}</p>
           <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
             <span className={cn('font-medium', over ? 'text-destructive' : 'text-foreground')}>
               {formatMoney(spent, currency)}
             </span>
-            {limit ? ` / ${formatMoney(limit, currency)}` : ' · set limit'}
+            {limit ? ` / ${formatMoney(limit, currency)}` : tr(' · set limit')}
           </span>
         </div>
         {limit !== null && (
@@ -259,7 +260,7 @@ export function BudgetDashboard() {
     setTransactions((prev) => prev.filter((x) => x.id !== t.id));
     const { error } = await supabase.from('budget_transactions').delete().eq('id', t.id);
     if (error) {
-      toast.error('Could not delete entry');
+      toast.error(tr('Could not delete entry'));
       loadTransactions();
     }
   };
@@ -269,7 +270,7 @@ export function BudgetDashboard() {
     setDialogOpen(true);
   };
 
-  const monthLabel = new Date(period.year, period.month - 1, 1).toLocaleDateString(undefined, {
+  const monthLabel = new Date(period.year, period.month - 1, 1).toLocaleDateString(locale(), {
     month: 'long',
     year: 'numeric',
   });
@@ -288,28 +289,28 @@ export function BudgetDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Finance"
-        description="Spend with intention, save for what matters, and keep track of your giving."
+        title={tr('Finance')}
+        description={tr('Spend with intention, save for what matters, and keep track of your giving.')}
       >
         <Select value={currency} onValueChange={setCurrency}>
-          <SelectTrigger className="h-9 w-[96px]" aria-label={`Currency: ${currencyName(currency)}`}>
-            <SelectValue>{currency}</SelectValue>
+          <SelectTrigger className="h-9 w-[96px]" aria-label={tr('Currency: {0}', [currencyName(currency)])}>
+            <SelectValue>{trn(currency)}</SelectValue>
           </SelectTrigger>
           <SelectContent className="max-h-80">
             <SelectGroup>
-              <SelectLabel>Common</SelectLabel>
+              <SelectLabel>{tr('Common')}</SelectLabel>
               {COMMON_CURRENCIES.map((c) => (
                 <SelectItem key={`common-${c}`} value={c}>
-                  {c} · {currencyName(c)}
+                  {trn(c)} · {currencyName(c)}
                 </SelectItem>
               ))}
             </SelectGroup>
             <SelectSeparator />
             <SelectGroup>
-              <SelectLabel>All currencies</SelectLabel>
+              <SelectLabel>{tr('All currencies')}</SelectLabel>
               {CURRENCY_LIST.filter((c) => !COMMON_CURRENCIES.includes(c.code)).map((c) => (
                 <SelectItem key={c.code} value={c.code}>
-                  {c.code} · {c.name}
+                  {trn(c.code)} · {trn(c.name)}
                 </SelectItem>
               ))}
             </SelectGroup>
@@ -317,63 +318,63 @@ export function BudgetDashboard() {
         </Select>
         <Button size="sm" variant="outline" onClick={() => openNew({ type: 'income' })}>
           <ArrowDownLeft className="mr-2 h-4 w-4" />
-          Add income
+          {tr('Add income')}
         </Button>
         <Button size="sm" onClick={() => openNew({ type: 'expense' })}>
           <Plus className="mr-2 h-4 w-4" />
-          Add expense
+          {tr('Add expense')}
         </Button>
       </PageHeader>
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="goals">Savings goals</TabsTrigger>
-          <TabsTrigger value="zakat">Zakat calculator</TabsTrigger>
+          <TabsTrigger value="overview">{tr('Overview')}</TabsTrigger>
+          <TabsTrigger value="goals">{tr('Savings goals')}</TabsTrigger>
+          <TabsTrigger value="zakat">{tr('Zakat calculator')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-0">
           <div className="mb-4 flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => shift(-1)} aria-label="Previous month">
+            <Button variant="ghost" size="icon" onClick={() => shift(-1)} aria-label={tr('Previous month')}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <p className="min-w-[140px] text-center text-sm font-semibold text-foreground">{monthLabel}</p>
-            <Button variant="ghost" size="icon" onClick={() => shift(1)} aria-label="Next month">
+            <p className="min-w-[140px] text-center text-sm font-semibold text-foreground">{trn(monthLabel)}</p>
+            <Button variant="ghost" size="icon" onClick={() => shift(1)} aria-label={tr('Next month')}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <SummaryTile
-              label="Income"
+              label={tr('Income')}
               value={formatMoney(totals.income, currency)}
               icon={ArrowDownLeft}
               tone="positive"
             />
             <SummaryTile
-              label="Spent"
+              label={tr('Spent')}
               value={formatMoney(totals.expense, currency)}
               sub={
                 budgetLeft !== null
                   ? budgetLeft >= 0
-                    ? `${formatMoney(budgetLeft, currency)} left of your budget`
-                    : `${formatMoney(-budgetLeft, currency)} over budget`
-                  : 'Set category limits to plan your month'
+                    ? tr('{0} left of your budget', [formatMoney(budgetLeft, currency)])
+                    : tr('{0} over budget', [formatMoney(-budgetLeft, currency)])
+                  : tr('Set category limits to plan your month')
               }
               icon={ArrowUpRight}
               tone="negative"
             />
             <SummaryTile
-              label="Sadaqah & zakat"
+              label={tr('Sadaqah & zakat')}
               value={formatMoney(totals.giving, currency)}
-              sub={totals.income > 0 ? `${((totals.giving / totals.income) * 100).toFixed(1)}% of income` : undefined}
+              sub={totals.income > 0 ? tr('{0}% of income', [((totals.giving / totals.income) * 100).toFixed(1)]) : trn(undefined)}
               icon={HandHeart}
               tone="giving"
             />
             <SummaryTile
-              label="Balance"
+              label={tr('Balance')}
               value={formatMoney(balance, currency)}
-              sub="Income minus spending and giving"
+              sub={tr('Income minus spending and giving')}
               icon={Wallet}
               tone="default"
             />
@@ -384,12 +385,12 @@ export function BudgetDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-sm font-semibold text-foreground">Category budgets</h2>
-                    <p className="text-xs text-muted-foreground">Click a category to rename it, set a limit or remove it</p>
+                    <h2 className="text-sm font-semibold text-foreground">{tr('Category budgets')}</h2>
+                    <p className="text-xs text-muted-foreground">{tr('Click a category to rename it, set a limit or remove it')}</p>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setCategoryDialog({ open: true, category: null })}>
                     <Plus className="mr-1.5 h-4 w-4" />
-                    Add category
+                    {tr('Add category')}
                   </Button>
                 </div>
                 <div className="mt-2 divide-y divide-border/70">
@@ -409,25 +410,25 @@ export function BudgetDashboard() {
             <Card>
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-foreground">This month&apos;s entries</h2>
+                  <h2 className="text-sm font-semibold text-foreground">{tr('This month\'s entries')}</h2>
                   <Button variant="ghost" size="sm" onClick={() => openNew({ type: 'sadaqah' })}>
                     <HandHeart className="mr-1.5 h-4 w-4" />
-                    Log sadaqah
+                    {tr('Log sadaqah')}
                   </Button>
                 </div>
                 {loading ? (
                   <p className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+                    <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading…')}
                   </p>
                 ) : transactions.length === 0 ? (
                   <div className="py-12 text-center">
-                    <p className="text-sm font-medium text-foreground">No entries for {monthLabel}</p>
+                    <p className="text-sm font-medium text-foreground">{tr('No entries for')} {trn(monthLabel)}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Add your income and expenses to see where your money goes.
+                      {tr('Add your income and expenses to see where your money goes.')}
                     </p>
                     <Button size="sm" className="mt-4" onClick={() => openNew()}>
                       <Plus className="mr-2 h-4 w-4" />
-                      Add entry
+                      {tr('Add entry')}
                     </Button>
                   </div>
                 ) : (
@@ -457,11 +458,11 @@ export function BudgetDashboard() {
                           </span>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-medium text-foreground">
-                              {t.description ||
-                                (isIn ? 'Income' : isGiving ? (t.type === 'zakat' ? 'Zakat' : 'Sadaqah') : categoryName(t.category_id) ?? 'Expense')}
+                              {trn(t.description) ||
+                                (isIn ? tr('Income') : isGiving ? (t.type === 'zakat' ? tr('Zakat') : tr('Sadaqah')) : categoryName(t.category_id) ?? tr('Expense'))}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(`${t.occurred_on}T00:00:00`).toLocaleDateString(undefined, {
+                              {new Date(`${t.occurred_on}T00:00:00`).toLocaleDateString(locale(), {
                                 month: 'short',
                                 day: 'numeric',
                               })}
@@ -486,20 +487,20 @@ export function BudgetDashboard() {
                                 variant="ghost"
                                 size="icon"
                                 className="h-7 w-7 opacity-60 group-hover:opacity-100"
-                                aria-label="Entry actions"
+                                aria-label={tr('Entry actions')}
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onSelect={() => openNew(t)}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                                <Pencil className="mr-2 h-4 w-4" /> {tr('Edit')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onSelect={() => deleteTransaction(t)}
                                 className="text-destructive focus:text-destructive"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                <Trash2 className="mr-2 h-4 w-4" /> {tr('Delete')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

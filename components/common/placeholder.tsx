@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import type { LucideIcon } from 'lucide-react';
+import { trn } from '@/lib/i18n';
 
 interface PlaceholderProps {
   icon: LucideIcon;
@@ -17,9 +18,9 @@ export function Placeholder({ icon: Icon, title, description, className }: Place
         <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Icon className="h-7 w-7" />
         </span>
-        <h3 className="mt-5 text-lg font-semibold text-foreground">{title}</h3>
+        <h3 className="mt-5 text-lg font-semibold text-foreground">{trn(title)}</h3>
         <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-          {description}
+          {trn(description)}
         </p>
       </CardContent>
     </Card>

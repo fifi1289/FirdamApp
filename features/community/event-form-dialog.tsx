@@ -28,6 +28,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { callEdgeFunction } from '@/lib/supabase/functions';
 import type { CommunityEvent, CommunityEventKind } from '@/types/database';
 import { AUDIENCES, EVENT_KIND_META } from '@/features/community/community-config';
+import { tr } from '@/lib/i18n';
 
 interface GeoResult {
   id: number;
@@ -98,19 +99,19 @@ export function EventFormDialog({
     try {
       const res = await callEdgeFunction<{ results: GeoResult[] }>('halal-places', { address: address.trim() });
       setResults(res.results);
-      if (!res.results.length) toast.message('No matches — try adding the city.');
+      if (!res.results.length) toast.message(tr('No matches — try adding the city.'));
     } catch {
-      toast.error('Address search failed');
+      toast.error(tr('Address search failed'));
     } finally {
       setFinding(false);
     }
   };
 
   const save = async () => {
-    if (title.trim().length < 3) return toast.error('Give the event a title.');
-    if (!starts) return toast.error('Choose when it starts.');
-    if (!point && !online.trim()) return toast.error('Add the venue address, or an online link.');
-    if (online && !/^https:\/\//i.test(online.trim())) return toast.error('The online link must start with https://');
+    if (title.trim().length < 3) return toast.error(tr('Give the event a title.'));
+    if (!starts) return toast.error(tr('Choose when it starts.'));
+    if (!point && !online.trim()) return toast.error(tr('Add the venue address, or an online link.'));
+    if (online && !/^https:\/\//i.test(online.trim())) return toast.error(tr('The online link must start with https://'));
     const row = {
       title: title.trim(),
       kind,
@@ -134,10 +135,10 @@ export function EventFormDialog({
       : await supabase.from('community_events').insert(row);
     setSaving(false);
     if (error) {
-      toast.error('Could not save event', { description: error.message });
+      toast.error(tr('Could not save event'), { description: error.message });
       return;
     }
-    toast.success(event ? 'Event updated' : 'Event posted — jazakAllahu khayran!');
+    toast.success(event ? tr('Event updated') : tr('Event posted — jazakAllahu khayran!'));
     onSaved();
     onOpenChange(false);
   };
@@ -146,17 +147,17 @@ export function EventFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{event ? 'Edit event' : 'Share a community event'}</DialogTitle>
-          <DialogDescription>Halaqas, iftars, Eid prayers, fundraisers — let families near you know.</DialogDescription>
+          <DialogTitle>{event ? tr('Edit event') : tr('Share a community event')}</DialogTitle>
+          <DialogDescription>{tr('Halaqas, iftars, Eid prayers, fundraisers — let families near you know.')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="ev-title">Title</Label>
-            <Input id="ev-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={140} placeholder="e.g. Weekly Tafsir circle" />
+            <Label htmlFor="ev-title">{tr('Title')}</Label>
+            <Input id="ev-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={140} placeholder={tr('e.g. Weekly Tafsir circle')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Type</Label>
+              <Label>{tr('Type')}</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as CommunityEventKind)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -164,14 +165,14 @@ export function EventFormDialog({
                 <SelectContent>
                   {(Object.keys(EVENT_KIND_META) as CommunityEventKind[]).map((k) => (
                     <SelectItem key={k} value={k}>
-                      {EVENT_KIND_META[k].label}
+                      {tr(EVENT_KIND_META[k].label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>For</Label>
+              <Label>{tr('For')}</Label>
               <Select value={audience} onValueChange={(v) => setAudience(v as CommunityEvent['audience'])}>
                 <SelectTrigger>
                   <SelectValue />
@@ -179,7 +180,7 @@ export function EventFormDialog({
                 <SelectContent>
                   {AUDIENCES.map((a) => (
                     <SelectItem key={a.value} value={a.value}>
-                      {a.label}
+                      {tr(a.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -188,20 +189,20 @@ export function EventFormDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="ev-start">Starts</Label>
+              <Label htmlFor="ev-start">{tr('Starts')}</Label>
               <Input id="ev-start" type="datetime-local" value={starts} onChange={(e) => setStarts(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ev-end">Ends (optional)</Label>
+              <Label htmlFor="ev-end">{tr('Ends (optional)')}</Label>
               <Input id="ev-end" type="datetime-local" value={ends} onChange={(e) => setEnds(e.target.value)} />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ev-venue">Venue</Label>
-            <Input id="ev-venue" value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="e.g. Ottawa Main Mosque, hall B" />
+            <Label htmlFor="ev-venue">{tr('Venue')}</Label>
+            <Input id="ev-venue" value={venue} onChange={(e) => setVenue(e.target.value)} placeholder={tr('e.g. Ottawa Main Mosque, hall B')} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ev-address">Address</Label>
+            <Label htmlFor="ev-address">{tr('Address')}</Label>
             <div className="flex gap-2">
               <Input
                 id="ev-address"
@@ -217,7 +218,7 @@ export function EventFormDialog({
                   }
                 }}
               />
-              <Button type="button" variant="outline" onClick={find} disabled={finding} aria-label="Find address">
+              <Button type="button" variant="outline" onClick={find} disabled={finding} aria-label={tr('Find address')}>
                 {finding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               </Button>
             </div>
@@ -235,7 +236,7 @@ export function EventFormDialog({
                       className="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-xs hover:bg-accent"
                     >
                       <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      {r.label}
+                      {tr(r.label)}
                     </button>
                   </li>
                 ))}
@@ -243,45 +244,45 @@ export function EventFormDialog({
             )}
             {point && (
               <p className="flex items-center gap-1.5 text-xs text-brand-sage">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Location set
+                <CheckCircle2 className="h-3.5 w-3.5" /> {tr('Location set')}
               </p>
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ev-online">Online link (optional)</Label>
-            <Input id="ev-online" value={online} onChange={(e) => setOnline(e.target.value)} placeholder="https://…" />
+            <Label htmlFor="ev-online">{tr('Online link (optional)')}</Label>
+            <Input id="ev-online" value={online} onChange={(e) => setOnline(e.target.value)} placeholder={tr('https://…')} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="ev-org">Organiser</Label>
+              <Label htmlFor="ev-org">{tr('Organiser')}</Label>
               <Input id="ev-org" value={organizer} onChange={(e) => setOrganizer(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ev-contact">Contact</Label>
-              <Input id="ev-contact" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Email or phone" />
+              <Label htmlFor="ev-contact">{tr('Contact')}</Label>
+              <Input id="ev-contact" value={contact} onChange={(e) => setContact(e.target.value)} placeholder={tr('Email or phone')} />
             </div>
           </div>
           <div className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5">
             <Label htmlFor="ev-free" className="text-sm">
-              Free to attend
+              {tr('Free to attend')}
             </Label>
             <Switch id="ev-free" checked={isFree} onCheckedChange={setIsFree} />
           </div>
           {!isFree && (
-            <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price, e.g. $10 per family" />
+            <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder={tr('Price, e.g. $10 per family')} />
           )}
           <div className="space-y-1.5">
-            <Label htmlFor="ev-desc">Details</Label>
+            <Label htmlFor="ev-desc">{tr('Details')}</Label>
             <Textarea id="ev-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={3000} />
           </div>
         </div>
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {event ? 'Save' : 'Post event'}
+            {event ? tr('Save') : tr('Post event')}
           </Button>
         </DialogFooter>
       </DialogContent>

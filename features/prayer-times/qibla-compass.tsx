@@ -6,6 +6,7 @@ import { Compass, Navigation2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { qiblaBearing } from '@/lib/geo/location';
+import { tr, trn } from '@/lib/i18n';
 
 type OrientationEventWithCompass = DeviceOrientationEvent & { webkitCompassHeading?: number };
 type OrientationPermission = { requestPermission?: () => Promise<'granted' | 'denied'> };
@@ -77,9 +78,9 @@ export function QiblaCompass({ latitude, longitude }: { latitude: number; longit
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-foreground">Qibla direction</p>
+            <p className="text-sm font-semibold text-foreground">{tr('Qibla direction')}</p>
             <p className="text-xs text-muted-foreground">
-              {Math.round(bearing)}° {cardinal(bearing)} from true north
+              {Math.round(bearing)}° {cardinal(bearing)} {tr('from true north')}
             </p>
           </div>
           <Compass className="h-5 w-5 text-primary" />
@@ -98,7 +99,7 @@ export function QiblaCompass({ latitude, longitude }: { latitude: number; longit
                   transform: `rotate(${i * 90}deg) translateY(-92px) rotate(${-i * 90}deg) translate(-50%, -50%)`,
                 }}
               >
-                {d}
+                {trn(d)}
               </span>
             ))}
             {Array.from({ length: 72 }).map((_, i) => (
@@ -132,17 +133,16 @@ export function QiblaCompass({ latitude, longitude }: { latitude: number; longit
 
         <div className="mt-5 text-center">
           {facingQibla ? (
-            <p className="text-sm font-semibold text-brand-sage">You are facing the Qibla</p>
+            <p className="text-sm font-semibold text-brand-sage">{tr('You are facing the Qibla')}</p>
           ) : heading !== null ? (
-            <p className="text-xs text-muted-foreground">Turn until the Kaaba is at the top.</p>
+            <p className="text-xs text-muted-foreground">{tr('Turn until the Kaaba is at the top.')}</p>
           ) : unsupported ? (
             <p className="text-xs text-muted-foreground">
-              No compass on this device. Face {Math.round(bearing)}° ({cardinal(bearing)}) using a
-              map or phone compass.
+              {tr('No compass on this device. Face')} {Math.round(bearing)}° ({cardinal(bearing)}{tr(') using a map or phone compass.')}
             </p>
           ) : (
             <Button variant="outline" size="sm" onClick={startLive}>
-              Use phone compass
+              {tr('Use phone compass')}
             </Button>
           )}
         </div>

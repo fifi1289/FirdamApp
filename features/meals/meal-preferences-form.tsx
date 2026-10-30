@@ -22,6 +22,7 @@ import {
   formatWeekRange,
   getStartOfWeek,
 } from '@/features/meals/meal-plan-generator';
+import { tr, trn } from '@/lib/i18n';
 
 interface MealPreferencesFormProps {
   initial: MealPreferencesState;
@@ -136,11 +137,11 @@ export function MealPreferencesForm({
 
   const handleGenerate = async () => {
     if (!DURATION_OPTIONS.some((o) => o.value === planningDuration)) {
-      toast.error('Please select a planning duration');
+      toast.error(tr('Please select a planning duration'));
       return;
     }
     if (mealTypes.length === 0) {
-      toast.error('Please select at least one meal type');
+      toast.error(tr('Please select at least one meal type'));
       return;
     }
 
@@ -170,10 +171,10 @@ const customAllergies = allergies.filter(
             <section className="p-6">
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Plan Week
+                  {tr('Plan Week')}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Choose which calendar week this meal plan covers.
+                  {tr('Choose which calendar week this meal plan covers.')}
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -202,10 +203,10 @@ const customAllergies = allergies.filter(
                           : 'text-foreground'
                       )}
                     >
-                      {opt.label}
+                      {tr(opt.label)}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {opt.sub}
+                      {tr(opt.sub)}
                     </span>
                   </button>
                 ))}
@@ -233,12 +234,12 @@ const customAllergies = allergies.filter(
                           : 'text-foreground'
                       )}
                     >
-                      Custom Week
+                      {tr('Custom Week')}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {weekOption === 'custom'
                         ? formatWeekRange(formatDateISO(weekStartDate))
-                        : 'Pick a starting Monday'}
+                        : tr('Pick a starting Monday')}
                     </span>
                   </button>
                   {weekOption === 'custom' && calendarOpen && (
@@ -261,10 +262,10 @@ const customAllergies = allergies.filter(
             <section className="p-6">
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Planning Duration
+                  {tr('Planning Duration')}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  How many days should the meal plan cover?
+                  {tr('How many days should the meal plan cover?')}
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-3">
@@ -283,7 +284,7 @@ const customAllergies = allergies.filter(
                     <span className="text-2xl font-bold tabular-nums">
                       {opt.value}
                     </span>
-                    <span className="text-xs font-medium">Days</span>
+                    <span className="text-xs font-medium">{tr('Days')}</span>
                   </button>
                 ))}
               </div>
@@ -292,10 +293,10 @@ const customAllergies = allergies.filter(
             <section className="p-6">
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Meal Types
+                  {tr('Meal Types')}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Choose which meals to include in your plan.
+                  {tr('Choose which meals to include in your plan.')}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -319,12 +320,12 @@ const customAllergies = allergies.filter(
                             : 'text-muted-foreground'
                         )}
                       >
-                        {meal.label}
+                        {tr(meal.label)}
                       </span>
                       <Switch
                         checked={enabled}
                         onCheckedChange={() => toggleMealType(meal.key)}
-                        aria-label={meal.label}
+                        aria-label={tr(meal.label)}
                       />
                     </div>
                   );
@@ -336,16 +337,16 @@ const customAllergies = allergies.filter(
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
-                    Use pantry ingredients first
+                    {tr('Use pantry ingredients first')}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Prioritize ingredients you already have on hand.
+                    {tr('Prioritize ingredients you already have on hand.')}
                   </p>
                 </div>
                 <Switch
                   checked={usePantryFirst}
                   onCheckedChange={setUsePantryFirst}
-                  aria-label="Use pantry ingredients first"
+                  aria-label={tr('Use pantry ingredients first')}
                 />
               </div>
             </section>
@@ -353,10 +354,10 @@ const customAllergies = allergies.filter(
             <section className="p-6">
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Dietary Preferences
+                  {tr('Dietary Preferences')}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Optional preferences for your household.
+                  {tr('Optional preferences for your household.')}
                 </p>
               </div>
 
@@ -366,10 +367,10 @@ const customAllergies = allergies.filter(
                   variant="outline"
                 >
                   <Lock className="h-3 w-3" />
-                  Halal
+                  {tr('Halal')}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  All meal plans and recipes are always halal.
+                  {tr('All meal plans and recipes are always halal.')}
                 </span>
               </div>
 
@@ -388,7 +389,7 @@ const customAllergies = allergies.filter(
                           : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
                       )}
                     >
-                      {option}
+                      {trn(option)}
                     </button>
                   );
                 })}
@@ -398,10 +399,10 @@ const customAllergies = allergies.filter(
             <section className="p-6">
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Cuisine Preferences
+                  {tr('Cuisine Preferences')}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Choose which cuisines to include for each meal type. Leave empty to use all cuisines.
+                  {tr('Choose which cuisines to include for each meal type. Leave empty to use all cuisines.')}
                 </p>
               </div>
               <div className="space-y-4">
@@ -411,7 +412,7 @@ const customAllergies = allergies.filter(
                     <div key={meal.key}>
                       <div className="mb-2 flex items-center justify-between">
                         <span className="text-xs font-semibold text-foreground">
-                          {meal.label}
+                          {tr(meal.label)}
                         </span>
                         {selected.length > 0 && (
                           <button
@@ -419,7 +420,7 @@ const customAllergies = allergies.filter(
                             onClick={() => clearCuisinesForMealType(meal.key)}
                             className="text-xs text-muted-foreground transition-colors hover:text-foreground"
                           >
-                            Clear
+                            {tr('Clear')}
                           </button>
                         )}
                       </div>
@@ -439,7 +440,7 @@ const customAllergies = allergies.filter(
                                   : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
                               )}
                             >
-                              {cuisine}
+                              {trn(cuisine)}
                             </button>
                           );
                         })}
@@ -453,10 +454,10 @@ const customAllergies = allergies.filter(
             <section className="p-6">
               <div className="mb-4">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Allergies
+                  {tr('Allergies')}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Select any allergies to avoid in your meal plan.
+                  {tr('Select any allergies to avoid in your meal plan.')}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -475,7 +476,7 @@ const customAllergies = allergies.filter(
                           : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
                       )}
                     >
-                      {allergy}
+                      {trn(allergy)}
                     </button>
                   );
                 })}
@@ -489,7 +490,7 @@ const customAllergies = allergies.filter(
                       : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
                   )}
                 >
-                  Other
+                  {tr('Other')}
                 </button>
               </div>
 
@@ -504,9 +505,9 @@ const customAllergies = allergies.filter(
                         addCustomAllergy();
                       }
                     }}
-                    placeholder="Enter a custom allergy…"
+                    placeholder={tr('Enter a custom allergy…')}
                     className="flex-1"
-                    aria-label="Enter a custom allergy"
+                    aria-label={tr('Enter a custom allergy')}
                   />
                   <Button
                     type="button"
@@ -516,7 +517,7 @@ const customAllergies = allergies.filter(
                     disabled={!customAllergy.trim()}
                   >
                     <Plus className="mr-1.5 h-4 w-4" />
-                    Add
+                    {tr('Add')}
                   </Button>
                 </div>
               )}
@@ -529,12 +530,12 @@ const customAllergies = allergies.filter(
                       variant="outline"
                       className="gap-1.5 py-1 pl-3 pr-1.5 text-xs"
                     >
-                      {allergy}
+                      {trn(allergy)}
                       <button
                         type="button"
                         onClick={() => removeCustomAllergy(allergy)}
                         className="inline-flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        aria-label={`Remove ${allergy}`}
+                        aria-label={tr('Remove {0}', [allergy])}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -549,18 +550,18 @@ const customAllergies = allergies.filter(
 
       <div className="flex items-center justify-end gap-3">
         <Button variant="outline" onClick={onCancel}>
-          Cancel
+          {tr('Cancel')}
         </Button>
         <Button onClick={handleGenerate} disabled={generating}>
           {generating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating…
+              {tr('Generating…')}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 h-4 w-4" />
-              Generate Meal Plan
+              {tr('Generate Meal Plan')}
             </>
           )}
         </Button>

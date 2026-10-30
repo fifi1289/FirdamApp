@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CommunityEvent } from '@/types/database';
+import { tr, trn } from '@/lib/i18n';
 
 interface Reported {
   event: CommunityEvent;
@@ -45,27 +46,27 @@ export function CommunityModeration() {
 
   const setStatus = async (e: CommunityEvent, status: 'active' | 'hidden') => {
     const { error } = await supabase.from('community_events').update({ status }).eq('id', e.id);
-    if (error) return toast.error('Update failed');
+    if (error) return toast.error(tr('Update failed'));
     if (status === 'active') await supabase.from('event_reports').delete().eq('event_id', e.id);
-    toast.success(status === 'hidden' ? 'Event hidden' : 'Event restored and reports cleared');
+    toast.success(status === 'hidden' ? tr('Event hidden') : tr('Event restored and reports cleared'));
     load();
   };
 
   const remove = async (e: CommunityEvent) => {
     if (!window.confirm(`Delete "${e.title}" permanently?`)) return;
     const { error } = await supabase.from('community_events').delete().eq('id', e.id);
-    if (error) return toast.error('Delete failed');
+    if (error) return toast.error(tr('Delete failed'));
     load();
   };
 
   if (loading) {
     return (
       <p className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading reports…
+        <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading reports…')}
       </p>
     );
   }
-  if (items.length === 0) return <p className="py-8 text-sm text-muted-foreground">No reported events.</p>;
+  if (items.length === 0) return <p className="py-8 text-sm text-muted-foreground">{tr('No reported events.')}</p>;
 
   return (
     <div className="space-y-3">
@@ -74,32 +75,32 @@ export function CommunityModeration() {
           <CardContent className="space-y-2 p-4 text-sm">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="font-semibold text-foreground">{event.title}</p>
+                <p className="font-semibold text-foreground">{tr(event.title)}</p>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(event.starts_at).toLocaleString()} · {event.venue ?? event.address ?? 'Online'}
+                  {new Date(event.starts_at).toLocaleString()} · {trn(event.venue) ?? event.address ?? tr('Online')}
                 </p>
               </div>
               <Badge variant={event.status === 'hidden' ? 'secondary' : 'outline'}>
-                {reasons.length} report{reasons.length === 1 ? '' : 's'} · {event.status}
+                {reasons.length} {tr('report')}{reasons.length === 1 ? '' : tr('s')} · {trn(event.status)}
               </Badge>
             </div>
             <ul className="list-disc pl-5 text-muted-foreground">
               {reasons.map((r, i) => (
-                <li key={i}>{r}</li>
+                <li key={i}>{trn(r)}</li>
               ))}
             </ul>
             <div className="flex gap-2">
               {event.status === 'active' ? (
                 <Button size="sm" variant="outline" onClick={() => setStatus(event, 'hidden')}>
-                  <EyeOff className="mr-1.5 h-4 w-4" /> Hide
+                  <EyeOff className="mr-1.5 h-4 w-4" /> {tr('Hide')}
                 </Button>
               ) : (
                 <Button size="sm" variant="outline" onClick={() => setStatus(event, 'active')}>
-                  <Eye className="mr-1.5 h-4 w-4" /> Restore
+                  <Eye className="mr-1.5 h-4 w-4" /> {tr('Restore')}
                 </Button>
               )}
               <Button size="sm" variant="ghost" className="text-destructive" onClick={() => remove(event)}>
-                <Trash2 className="mr-1.5 h-4 w-4" /> Delete
+                <Trash2 className="mr-1.5 h-4 w-4" /> {tr('Delete')}
               </Button>
             </div>
           </CardContent>

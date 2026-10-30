@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils';
 import type { QuranReadingSession } from '@/types/database';
 import { QURAN_PAGES, SURAHS } from '@/features/quran/surahs';
 import { GOAL_OPTIONS, isoDate, loggedMessage, matchSurah, parsePages, readingStats } from '@/features/quran/quran-core';
+import { locale, tr, trn } from '@/lib/i18n';
 
 const GOAL_KEY = 'firdam.quran.dailyGoal';
 
@@ -52,10 +53,10 @@ function Stat({
       <CardContent className="p-4">
         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
           <Icon className="h-4 w-4 text-primary" />
-          {label}
+          {trn(label)}
         </div>
         <p className="mt-2 font-display text-2xl font-bold tabular-nums text-foreground">{value}</p>
-        {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+        {sub && <p className="text-xs text-muted-foreground">{trn(sub)}</p>}
       </CardContent>
     </Card>
   );
@@ -102,7 +103,7 @@ export function QuranReading() {
     e.preventDefault();
     const n = parsePages(pages);
     if (n == null) {
-      toast.error('Enter how many pages you read (1–604).');
+      toast.error(tr('Enter how many pages you read (1–604).'));
       return;
     }
     setSaving(true);
@@ -113,7 +114,7 @@ export function QuranReading() {
       .single();
     setSaving(false);
     if (error) {
-      toast.error('Could not save', { description: error.message });
+      toast.error(tr('Could not save'), { description: error.message });
       return;
     }
     setSessions((prev) => [data, ...prev]);
@@ -126,7 +127,7 @@ export function QuranReading() {
     setSessions((prev) => prev.filter((x) => x.id !== s.id));
     const { error } = await supabase.from('quran_reading_sessions').delete().eq('id', s.id);
     if (error) {
-      toast.error('Could not delete');
+      toast.error(tr('Could not delete'));
       load();
     }
   };
@@ -147,19 +148,19 @@ export function QuranReading() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Stat icon={Target} label="Today" value={`${stats.todayPages}/${goal}`} sub="pages" />
+        <Stat icon={Target} label={tr('Today')} value={`${stats.todayPages}/${goal}`} sub={tr('pages')} />
         <Stat
           icon={Flame}
-          label="Streak"
+          label={tr('Streak')}
           value={`${stats.streak}`}
-          sub={stats.streak === 1 ? 'day' : 'days'}
+          sub={stats.streak === 1 ? tr('day') : tr('days')}
         />
-        <Stat icon={BookOpen} label="This month" value={`${stats.monthPages}`} sub="pages" />
+        <Stat icon={BookOpen} label={tr('This month')} value={`${stats.monthPages}`} sub={tr('pages')} />
         <Stat
           icon={Trophy}
-          label="Khatm"
+          label={tr('Khatm')}
           value={`${Math.round((stats.intoKhatm / QURAN_PAGES) * 100)}%`}
-          sub={stats.khatms > 0 ? `${stats.khatms} completed` : `${stats.intoKhatm} of ${QURAN_PAGES} pages`}
+          sub={stats.khatms > 0 ? tr('{0} completed', [stats.khatms]) : tr('{0} of {1} pages', [stats.intoKhatm, QURAN_PAGES])}
         />
       </div>
 
@@ -167,15 +168,15 @@ export function QuranReading() {
         <Card>
           <CardContent className="space-y-4 p-5">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold text-foreground">Log today&apos;s reading</h3>
+              <h3 className="text-sm font-semibold text-foreground">{tr('Log today\'s reading')}</h3>
               <Select value={String(goal)} onValueChange={changeGoal}>
-                <SelectTrigger className="h-8 w-[170px] text-xs" aria-label="Daily goal">
+                <SelectTrigger className="h-8 w-[170px] text-xs" aria-label={tr('Daily goal')}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {GOAL_OPTIONS.map((g) => (
                     <SelectItem key={g.pages} value={String(g.pages)}>
-                      {g.label}
+                      {tr(g.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -185,10 +186,8 @@ export function QuranReading() {
               <Progress value={todayPct} className="h-2.5" />
               <p className="mt-1.5 text-xs text-muted-foreground">
                 {todayPct >= 100
-                  ? 'Daily goal complete — alhamdulillah.'
-                  : `${goal - stats.todayPages} page${goal - stats.todayPages === 1 ? '' : 's'} to reach today's goal. ${
-                      GOAL_OPTIONS.find((g) => g.pages === goal)?.hint ?? ''
-                    }`}
+                  ? tr('Daily goal complete — alhamdulillah.')
+                  : tr('{0} page{1} to reach today\'s goal. {2}', [goal - stats.todayPages, goal - stats.todayPages === 1 ? '' : 's', GOAL_OPTIONS.find((g) => g.pages === goal)?.hint ?? ''])}
               </p>
             </div>
             <form onSubmit={logReading} className="flex flex-col gap-2 sm:flex-row">
@@ -196,52 +195,52 @@ export function QuranReading() {
                 inputMode="numeric"
                 value={pages}
                 onChange={(e) => setPages(e.target.value)}
-                placeholder="Pages"
+                placeholder={tr('Pages')}
                 className="sm:w-24"
-                aria-label="Pages read"
+                aria-label={tr('Pages read')}
               />
               <Input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="Where you stopped (optional), e.g. Al-Kahf 45"
+                placeholder={tr('Where you stopped (optional), e.g. Al-Kahf 45')}
                 maxLength={200}
               />
               <Button type="submit" disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                <span className="ml-2">Log</span>
+                <span className="ml-2">{tr('Log')}</span>
               </Button>
             </form>
 
             <div>
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Recent reading
+                {tr('Recent reading')}
               </p>
               {loading ? (
                 <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+                  <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading…')}
                 </p>
               ) : sessions.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Nothing logged yet. Even one page a day adds up — start today.
+                  {tr('Nothing logged yet. Even one page a day adds up — start today.')}
                 </p>
               ) : (
                 <ul className="divide-y divide-border/70">
                   {sessions.slice(0, 8).map((s) => (
                     <li key={s.id} className="group flex items-center gap-3 py-2 text-sm">
                       <span className="w-20 shrink-0 text-xs text-muted-foreground">
-                        {new Date(`${s.read_on}T00:00:00`).toLocaleDateString(undefined, {
+                        {new Date(`${s.read_on}T00:00:00`).toLocaleDateString(locale(), {
                           month: 'short',
                           day: 'numeric',
                         })}
                       </span>
                       <span className="font-medium tabular-nums text-foreground">
-                        {s.pages} page{s.pages === 1 ? '' : 's'}
+                        {trn(s.pages)} {tr('page')}{s.pages === 1 ? '' : tr('s')}
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">{s.note}</span>
+                      <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">{tr(s.note)}</span>
                       <button
                         type="button"
                         onClick={() => remove(s)}
-                        aria-label="Delete entry"
+                        aria-label={tr('Delete entry')}
                         className="rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -257,14 +256,14 @@ export function QuranReading() {
         <Card>
           <CardContent className="p-5">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold text-foreground">Open a surah</h3>
+              <h3 className="text-sm font-semibold text-foreground">{tr('Open a surah')}</h3>
               <a
                 href="https://quran.com"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
               >
-                Quran.com <ExternalLink className="h-3 w-3" />
+                {tr('Quran.com')} <ExternalLink className="h-3 w-3" />
               </a>
             </div>
             <div className="relative mt-3">
@@ -272,9 +271,9 @@ export function QuranReading() {
               <Input
                 value={surahQuery}
                 onChange={(e) => setSurahQuery(e.target.value)}
-                placeholder="Search by name or number"
+                placeholder={tr('Search by name or number')}
                 className="pl-9"
-                aria-label="Search surahs"
+                aria-label={tr('Search surahs')}
               />
             </div>
             <ul className="mt-3 grid max-h-[360px] grid-cols-1 gap-1 overflow-y-auto pr-1 sm:grid-cols-2">
@@ -289,10 +288,10 @@ export function QuranReading() {
                     )}
                   >
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-secondary text-[11px] font-semibold tabular-nums text-primary">
-                      {s.number}
+                      {trn(s.number)}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-foreground">{s.name}</span>
-                    <span className="shrink-0 text-[11px] text-muted-foreground">{s.ayahs} ayahs</span>
+                    <span className="min-w-0 flex-1 truncate text-foreground">{trn(s.name)}</span>
+                    <span className="shrink-0 text-[11px] text-muted-foreground">{trn(s.ayahs)} {tr('ayahs')}</span>
                   </a>
                 </li>
               ))}

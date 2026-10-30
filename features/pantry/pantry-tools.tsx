@@ -22,6 +22,7 @@ import { formatAmount } from '@/lib/pantry/units';
 import { undoToast } from '@/features/pantry/cook-dialog';
 import type { PantryEvent, PantryItem, PantryUnit } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { locale, tr, trn } from '@/lib/i18n';
 
 type Level = NonNullable<PantryItem['level']>;
 const LEVELS: Level[] = ['full', 'half', 'low', 'out'];
@@ -55,7 +56,7 @@ export function LevelChips({ value, onChange, size = 'sm' }: { value: Level; onC
               : 'bg-muted text-muted-foreground hover:text-foreground'
           )}
         >
-          {l}
+          {trn(l)}
         </button>
       ))}
     </span>
@@ -69,7 +70,7 @@ export async function setStapleLevel(item: PantryItem, level: Level) {
     changed();
     undoToast(`${item.name} marked ${level}`, batch);
   } catch {
-    toast.error('Could not update');
+    toast.error(tr('Could not update'));
   }
 }
 
@@ -95,7 +96,7 @@ export function QuickAddBar() {
       changed();
       undoToast(`Added ${preview.length} item${preview.length === 1 ? '' : 's'} to your pantry`, batch);
     } catch (err) {
-      toast.error('Could not add', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not add'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setSaving(false);
     }
@@ -116,22 +117,22 @@ export function QuickAddBar() {
             <Input
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Quick add: 2 kg chicken, a dozen eggs, 5 potatoes, a bag of rice"
+              placeholder={tr('Quick add: 2 kg chicken, a dozen eggs, 5 potatoes, a bag of rice')}
               className="pl-9"
-              aria-label="Quick add to pantry"
+              aria-label={tr('Quick add to pantry')}
             />
           </div>
           <Button type="submit" disabled={!preview.length || saving}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-            Add {preview.length || ''}
+            {tr('Add')} {preview.length || ''}
           </Button>
         </form>
         {preview.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {preview.map((p, i) => (
               <span key={i} className="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground">
-                {p.name}{' '}
-                <span className="text-muted-foreground">· {p.tracking === 'level' ? 'staple (full)' : formatAmount(p.quantity, p.unit)}</span>
+                {trn(p.name)}{' '}
+                <span className="text-muted-foreground">· {p.tracking === 'level' ? tr('staple (full)') : formatAmount(p.quantity, p.unit)}</span>
               </span>
             ))}
           </div>
@@ -173,7 +174,7 @@ export function PantrySetupDialog({ open, onOpenChange }: { open: boolean; onOpe
       onOpenChange(false);
       undoToast(`Pantry set up with ${items.length} items`, batch);
     } catch (err) {
-      toast.error('Could not save', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not save'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setSaving(false);
     }
@@ -184,17 +185,16 @@ export function PantrySetupDialog({ open, onOpenChange }: { open: boolean; onOpe
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" /> Set up your pantry
+            <Sparkles className="h-5 w-5 text-primary" /> {tr('Set up your pantry')}
           </DialogTitle>
           <DialogDescription>
-            Tick what you have. For cupboard staples just say how full; for fresh food adjust the amount if you like. About 2
-            minutes.
+            {tr('Tick what you have. For cupboard staples just say how full; for fresh food adjust the amount if you like. About 2 minutes.')}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-5">
           {groups.map((g) => (
             <div key={g}>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{g}</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{trn(g)}</p>
               <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 {SETUP_ITEMS.filter((i) => i.group === g).map((i) => {
                   const p = picked[i.name];
@@ -215,8 +215,8 @@ export function PantrySetupDialog({ open, onOpenChange }: { open: boolean; onOpe
                           })
                         }
                       >
-                        <span className={cn('font-medium', p ? 'text-foreground' : 'text-muted-foreground')}>{i.name}</span>
-                        {p ? <Check className="h-4 w-4 text-primary" /> : <span className="text-xs text-muted-foreground">tap if you have it</span>}
+                        <span className={cn('font-medium', p ? 'text-foreground' : 'text-muted-foreground')}>{trn(i.name)}</span>
+                        {p ? <Check className="h-4 w-4 text-primary" /> : <span className="text-xs text-muted-foreground">{tr('tap if you have it')}</span>}
                       </button>
                       {p && (
                         <div className="mt-1.5 flex items-center gap-2">
@@ -231,9 +231,9 @@ export function PantrySetupDialog({ open, onOpenChange }: { open: boolean; onOpe
                                 value={p.quantity ?? ''}
                                 onChange={(e) => setPicked((c) => ({ ...c, [i.name]: { quantity: Number(e.target.value) || 0 } }))}
                                 className="h-7 w-20 text-xs"
-                                aria-label={`${i.name} amount`}
+                                aria-label={tr('{0} amount', [i.name])}
                               />
-                              <span className="text-xs text-muted-foreground">{i.unit === 'Pieces' ? 'pieces' : i.unit}</span>
+                              <span className="text-xs text-muted-foreground">{i.unit === 'Pieces' ? tr('pieces') : trn(i.unit)}</span>
                             </>
                           )}
                         </div>
@@ -247,11 +247,11 @@ export function PantrySetupDialog({ open, onOpenChange }: { open: boolean; onOpe
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={saving || count === 0}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-            Add {count} item{count === 1 ? '' : 's'}
+            {tr('Add {0} item', [count])}{count === 1 ? '' : tr('s')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -302,9 +302,9 @@ export function PantryCheckDialog({ open, onOpenChange }: { open: boolean; onOpe
       changed();
       onOpenChange(false);
       if (changes.length) undoToast(`Pantry updated (${changes.length} change${changes.length === 1 ? '' : 's'})`, batch);
-      else toast.success('All checked — see you next week');
+      else toast.success(tr('All checked — see you next week'));
     } catch (err) {
-      toast.error('Could not save', { description: err instanceof Error ? err.message : undefined });
+      toast.error(tr('Could not save'), { description: err instanceof Error ? err.message : undefined });
     } finally {
       setSaving(false);
     }
@@ -329,7 +329,7 @@ export function PantryCheckDialog({ open, onOpenChange }: { open: boolean; onOpe
               value === o.v ? (o.v === 'gone' ? 'bg-destructive text-destructive-foreground' : 'bg-primary text-primary-foreground') : 'bg-muted text-muted-foreground'
             )}
           >
-            {o.label}
+            {tr(o.label)}
           </button>
         ))}
       </span>
@@ -341,16 +341,16 @@ export function PantryCheckDialog({ open, onOpenChange }: { open: boolean; onOpe
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ClipboardCheck className="h-5 w-5 text-primary" /> Weekly pantry check
+            <ClipboardCheck className="h-5 w-5 text-primary" /> {tr('Weekly pantry check')}
           </DialogTitle>
-          <DialogDescription>Everything starts as “Still have”. Only tap what changed — snacks eaten, things finished, staples running low.</DialogDescription>
+          <DialogDescription>{tr('Everything starts as “Still have”. Only tap what changed — snacks eaten, things finished, staples running low.')}</DialogDescription>
         </DialogHeader>
         {!items ? (
           <p className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+            <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading…')}
           </p>
         ) : items.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">Your pantry is empty.</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">{tr('Your pantry is empty.')}</p>
         ) : (
           <div className="space-y-4">
             {counted.length > 0 && (
@@ -358,7 +358,7 @@ export function PantryCheckDialog({ open, onOpenChange }: { open: boolean; onOpe
                 {counted.map((i) => (
                   <li key={i.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm">
                     <span className="text-foreground">
-                      {i.name} <span className="text-xs text-muted-foreground">· {formatAmount(Number(i.quantity), i.unit)}</span>
+                      {trn(i.name)} <span className="text-xs text-muted-foreground">· {formatAmount(Number(i.quantity), i.unit)}</span>
                     </span>
                     <Choice item={i} />
                   </li>
@@ -367,11 +367,11 @@ export function PantryCheckDialog({ open, onOpenChange }: { open: boolean; onOpe
             )}
             {staples.length > 0 && (
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Cupboard staples</p>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr('Cupboard staples')}</p>
                 <ul className="divide-y divide-border rounded-xl border border-border">
                   {staples.map((s) => (
                     <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm">
-                      <span className="text-foreground">{s.name}</span>
+                      <span className="text-foreground">{trn(s.name)}</span>
                       <LevelChips size="xs" value={levels[s.id] ?? s.level ?? 'full'} onChange={(l) => setLevels((c) => ({ ...c, [s.id]: l }))} />
                     </li>
                   ))}
@@ -382,11 +382,11 @@ export function PantryCheckDialog({ open, onOpenChange }: { open: boolean; onOpe
         )}
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={saving}>
-            Later
+            {tr('Later')}
           </Button>
           <Button onClick={save} disabled={saving || !items}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
-            Done
+            {tr('Done')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -437,15 +437,15 @@ export function RecentChanges() {
     <Card className="mt-6">
       <CardContent className="p-4">
         <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-          <History className="h-4 w-4 text-muted-foreground" /> Recent changes
+          <History className="h-4 w-4 text-muted-foreground" /> {tr('Recent changes')}
         </p>
         <ul className="divide-y divide-border">
           {batches.map((b) => (
             <li key={b.id} className="flex items-center justify-between gap-3 py-2 text-sm">
               <div className="min-w-0">
-                <p className="truncate text-foreground">{b.label}</p>
+                <p className="truncate text-foreground">{tr(b.label)}</p>
                 <p className="truncate text-xs text-muted-foreground">
-                  {new Date(b.at).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })} · {b.items.slice(0, 4).join(', ')}
+                  {new Date(b.at).toLocaleString(locale(), { weekday: 'short', hour: 'numeric', minute: '2-digit' })} · {b.items.slice(0, 4).join(', ')}
                   {b.items.length > 4 ? ` +${b.items.length - 4}` : ''}
                 </p>
               </div>
@@ -459,16 +459,16 @@ export function RecentChanges() {
                     await undoPantryBatch(b.id);
                     changed();
                     window.dispatchEvent(new Event('cooking-log-changed'));
-                    toast.success('Undone');
+                    toast.success(tr('Undone'));
                   } catch {
-                    toast.error('Could not undo');
+                    toast.error(tr('Could not undo'));
                   } finally {
                     setBusy(null);
                   }
                 }}
               >
                 {busy === b.id ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Undo2 className="mr-1.5 h-4 w-4" />}
-                Undo
+                {tr('Undo')}
               </Button>
             </li>
           ))}

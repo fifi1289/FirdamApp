@@ -18,6 +18,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { displayNameFor } from '@/lib/auth/display-name';
 import { useSavedLocation } from '@/lib/geo/location';
 import { CALCULATION_METHODS, usePrayerSettings } from '@/lib/prayer/prayer';
+import { locale, tr, trn } from '@/lib/i18n';
 
 function initialsFor(name: string): string {
   const parts = name.split(' ').filter(Boolean);
@@ -67,10 +68,10 @@ export default function ProfilePage() {
     }
     setSaving(false);
     if (error) {
-      toast.error('Could not save your profile', { description: error.message });
+      toast.error(tr('Could not save your profile'), { description: error.message });
       return;
     }
-    toast.success('Profile saved');
+    toast.success(tr('Profile saved'));
   };
 
   const details = [
@@ -79,7 +80,7 @@ export default function ProfilePage() {
       icon: Calendar,
       label: 'Member since',
       value: user?.created_at
-        ? new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+        ? new Date(user.created_at).toLocaleDateString(locale(), { month: 'long', year: 'numeric' })
         : '—',
     },
     { icon: MapPin, label: 'Location', value: location?.label ?? 'Not set' },
@@ -97,7 +98,7 @@ export default function ProfilePage() {
 
   return (
     <AppShell>
-      <PageHeader title="Profile" description="How you appear across Firdam." />
+      <PageHeader title={tr('Profile')} description={tr('How you appear across Firdam.')} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
@@ -107,15 +108,15 @@ export default function ProfilePage() {
                 {initialsFor(displayName)}
               </AvatarFallback>
             </Avatar>
-            <h2 className="mt-4 text-lg font-semibold text-foreground">{displayName}</h2>
-            <p className="text-sm text-muted-foreground">{user?.email ?? 'Not signed in'}</p>
+            <h2 className="mt-4 text-lg font-semibold text-foreground">{trn(displayName)}</h2>
+            <p className="text-sm text-muted-foreground">{user?.email ?? tr('Not signed in')}</p>
           </CardContent>
         </Card>
 
         <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Your name</CardTitle>
+              <CardTitle className="text-base">{tr('Your name')}</CardTitle>
             </CardHeader>
             <CardContent>
               <form
@@ -126,17 +127,17 @@ export default function ProfilePage() {
                 className="grid grid-cols-1 gap-4 sm:grid-cols-2"
               >
                 <div className="space-y-1.5">
-                  <Label htmlFor="first-name">First name</Label>
+                  <Label htmlFor="first-name">{tr('First name')}</Label>
                   <Input id="first-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="last-name">Last name</Label>
+                  <Label htmlFor="last-name">{tr('Last name')}</Label>
                   <Input id="last-name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                 </div>
                 <div className="sm:col-span-2">
                   <Button type="submit" disabled={saving}>
                     {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save changes
+                    {tr('Save changes')}
                   </Button>
                 </div>
               </form>
@@ -145,7 +146,7 @@ export default function ProfilePage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Account details</CardTitle>
+              <CardTitle className="text-base">{tr('Account details')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-1">
               {details.map((d, i) => {
@@ -156,7 +157,7 @@ export default function ProfilePage() {
                     <div className="flex items-center justify-between gap-4">
                       <span className="inline-flex items-center gap-2.5 text-sm text-muted-foreground">
                         <Icon className="h-4 w-4" />
-                        {d.label}
+                        {tr(d.label)}
                       </span>
                       <span className="text-right text-sm font-medium text-foreground">{d.value}</span>
                     </div>
@@ -165,10 +166,10 @@ export default function ProfilePage() {
               })}
               <div className="flex flex-wrap gap-2 pt-4">
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/settings?tab=prayer">Change location & prayer settings</Link>
+                  <Link href="/settings?tab=prayer">{tr('Change location & prayer settings')}</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/dashboard/family">Manage family</Link>
+                  <Link href="/dashboard/family">{tr('Manage family')}</Link>
                 </Button>
               </div>
             </CardContent>

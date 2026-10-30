@@ -20,6 +20,7 @@ import {
   lifeModules,
   moduleIconMap,
 } from '@/features/modules/module-config';
+import { tr, trn } from '@/lib/i18n';
 
 interface NavItem {
   label: string;
@@ -65,7 +66,7 @@ function NavSection({
   return (
     <div className="space-y-1">
       <p className="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
-        {title}
+        {trn(title)}
       </p>
       {items.map((item) => {
         const isActive =
@@ -84,10 +85,10 @@ function NavSection({
               )}
               size={18}
             />
-            <span className="flex-1">{item.label}</span>
+            <span className="flex-1">{tr(item.label)}</span>
             {item.badge && (
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                {item.badge}
+                {trn(item.badge)}
               </span>
             )}
           </>
@@ -97,10 +98,10 @@ function NavSection({
             <span
               key={item.href}
               aria-disabled="true"
-              title="Coming soon"
+              title={tr('Coming soon')}
               className="group flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/60"
             >
-              {inner}
+              {trn(inner)}
             </span>
           );
         }
@@ -115,7 +116,7 @@ function NavSection({
                 : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
             )}
           >
-            {inner}
+            {trn(inner)}
           </Link>
         );
       })}
@@ -135,8 +136,8 @@ function PlanCard() {
       >
         <Crown className="h-5 w-5 text-[#7a5a30] dark:text-brand-gold" />
         <div>
-          <p className="text-sm font-medium text-foreground">Firdam {PLAN_NAMES[plan]}</p>
-          <p className="text-xs text-muted-foreground">Jazakum Allahu khayran for your support</p>
+          <p className="text-sm font-medium text-foreground">{tr('Firdam')} {trn(PLAN_NAMES[plan])}</p>
+          <p className="text-xs text-muted-foreground">{tr('Jazakum Allahu khayran for your support')}</p>
         </div>
       </Link>
     );
@@ -148,10 +149,10 @@ function PlanCard() {
     >
       <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
         <Crown className="h-4 w-4 text-primary" />
-        Try Firdam Family free
+        {tr('Try Firdam Family free')}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        AI meal plans, receipt scanning and your whole household — CA$4.99 a month.
+        {tr('AI meal plans, receipt scanning and your whole household — CA$4.99 a month.')}
       </p>
     </Link>
   );
@@ -165,11 +166,11 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-5">
-        <NavSection title="Overview" items={mainNav} />
+        <NavSection title={tr('Overview')} items={mainNav} />
         {groupedNav.map((g) => (
-          <NavSection key={g.title} title={g.title} items={g.items} />
+          <NavSection key={g.title} title={tr(g.title)} items={g.items} />
         ))}
-        <NavSection title="Account" items={footerNav} />
+        <NavSection title={tr('Account')} items={footerNav} />
       </nav>
 
       <div className="border-t border-border p-4">

@@ -7,6 +7,8 @@ import { AuthProvider } from '@/components/auth/auth-provider';
 import { Analytics } from '@/components/consent/analytics';
 import { Toaster } from '@/components/ui/sonner';
 import { SITE } from '@/lib/site';
+import { cookies, headers } from 'next/headers';
+import { LANG_COOKIE, asLang, isRTL, langFromHeader } from '@/lib/i18n';
 
 // Brand guide: Plus Jakarta Sans (primary), Inter (secondary), IBM Plex Sans Arabic.
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans' });
@@ -83,8 +85,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // The visitor's language (their choice, else their browser's). Reading the
+  // cookie here also renders every page per request, in that language.
+  const lang = asLang(cookies().get(LANG_COOKIE)?.value) ?? langFromHeader(headers().get('accept-language'));
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={lang} dir={isRTL(lang) ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body
         className={`${jakarta.variable} ${display.variable} ${inter.variable} ${arabic.variable} font-sans antialiased`}
       >

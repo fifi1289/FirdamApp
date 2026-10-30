@@ -35,6 +35,7 @@ import {
   NOT_CERTIFIED,
 } from '@/features/halal-places/halal-places-config';
 import { HALAL_PLACES_CHANGED } from '@/features/halal-places/use-halal-places';
+import { tr, trn } from '@/lib/i18n';
 
 interface GeocodeResult {
   id: number;
@@ -95,7 +96,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
 
   const findAddress = async () => {
     if (address.trim().length < 4) {
-      toast.error('Type a street address first.');
+      toast.error(tr('Type a street address first.'));
       return;
     }
     setFinding(true);
@@ -104,9 +105,9 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
         address: address.trim(),
       });
       setResults(res.results);
-      if (res.results.length === 0) toast.message('No matches — try adding the city.');
+      if (res.results.length === 0) toast.message(tr('No matches — try adding the city.'));
     } catch (err) {
-      toast.error('Address search failed', {
+      toast.error(tr('Address search failed'), {
         description: err instanceof Error ? err.message : undefined,
       });
     } finally {
@@ -121,7 +122,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
       setPoint({ ...pos, label: 'My current position', city: null, country: null });
       setResults([]);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not get your location.');
+      toast.error(err instanceof Error ? err.message : tr('Could not get your location.'));
     } finally {
       setLocating(false);
     }
@@ -129,11 +130,11 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
 
   const save = async () => {
     if (!name.trim()) {
-      toast.error('Please enter the place name.');
+      toast.error(tr('Please enter the place name.'));
       return;
     }
     if (!point) {
-      toast.error('Please set the location — search the address or use your position.');
+      toast.error(tr('Please set the location — search the address or use your position.'));
       return;
     }
     const certification =
@@ -162,10 +163,10 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
     });
     setSaving(false);
     if (error) {
-      toast.error('Could not add the place', { description: error.message });
+      toast.error(tr('Could not add the place'), { description: error.message });
       return;
     }
-    toast.success(`Thank you — ${name.trim()} will appear for everyone once Firdam has checked it`);
+    toast.success(tr('Thank you — {0} will appear for everyone once Firdam has checked it', [name.trim()]));
     window.dispatchEvent(new Event(HALAL_PLACES_CHANGED));
     onOpenChange(false);
   };
@@ -174,28 +175,27 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add a halal place</DialogTitle>
+          <DialogTitle>{tr('Add a halal place')}</DialogTitle>
           <DialogDescription>
-            Know a halal shop, butcher, restaurant or mosque that isn&apos;t listed? Add it so other
-            families can find it.
+            {tr('Know a halal shop, butcher, restaurant or mosque that isn\'t listed? Add it so other families can find it.')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="place-name">Name</Label>
+            <Label htmlFor="place-name">{tr('Name')}</Label>
             <Input
               id="place-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Al-Madina Halal Meat"
+              placeholder={tr('e.g. Al-Madina Halal Meat')}
               maxLength={160}
             />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label>Type</Label>
+              <Label>{tr('Type')}</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as HalalPlaceCategory)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -203,7 +203,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
                 <SelectContent>
                   {CATEGORIES.map((c) => (
                     <SelectItem key={c} value={c}>
-                      {CATEGORY_META[c].label}
+                      {tr(CATEGORY_META[c].label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -211,7 +211,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
             </div>
             {category !== 'mosque' && (
               <div className="space-y-1.5">
-                <Label>Halal status</Label>
+                <Label>{tr('Halal status')}</Label>
                 <Select value={status} onValueChange={(v) => setStatus(v as CommunityHalalStatus)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -219,13 +219,13 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
                   <SelectContent>
                     {COMMUNITY_STATUS_OPTIONS.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
-                        {o.label}
+                        {tr(o.label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  {COMMUNITY_STATUS_OPTIONS.find((o) => o.value === status)?.hint}
+                  {tr(COMMUNITY_STATUS_OPTIONS.find((o) => o.value === status)?.hint)}
                 </p>
               </div>
             )}
@@ -233,33 +233,33 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
 
           {category !== 'mosque' && (
             <div className="space-y-1.5">
-              <Label>Halal certification</Label>
+              <Label>{tr('Halal certification')}</Label>
               <Select value={cert} onValueChange={setCert}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NOT_CERTIFIED}>{NOT_CERTIFIED}</SelectItem>
+                  <SelectItem value={NOT_CERTIFIED}>{tr(NOT_CERTIFIED)}</SelectItem>
                   {CERTIFICATION_BODIES.map((c) => (
                     <SelectItem key={c} value={c}>
-                      {c}
+                      {trn(c)}
                     </SelectItem>
                   ))}
-                  <SelectItem value={OTHER_CERT}>Other…</SelectItem>
+                  <SelectItem value={OTHER_CERT}>{tr('Other…')}</SelectItem>
                 </SelectContent>
               </Select>
               {cert === OTHER_CERT && (
                 <Input
                   value={certOther}
                   onChange={(e) => setCertOther(e.target.value)}
-                  placeholder="Name of the certifying body"
+                  placeholder={tr('Name of the certifying body')}
                 />
               )}
             </div>
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="place-address">Location</Label>
+            <Label htmlFor="place-address">{tr('Location')}</Label>
             <div className="flex gap-2">
               <Input
                 id="place-address"
@@ -274,11 +274,11 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
                     findAddress();
                   }
                 }}
-                placeholder="Street address and city"
+                placeholder={tr('Street address and city')}
               />
               <Button type="button" variant="outline" onClick={findAddress} disabled={finding}>
                 {finding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                <span className="sr-only">Find address</span>
+                <span className="sr-only">{tr('Find address')}</span>
               </Button>
             </div>
             <button
@@ -292,7 +292,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
               ) : (
                 <LocateFixed className="h-3.5 w-3.5" />
               )}
-              I&apos;m here right now — use my position
+              {tr('I\'m here right now — use my position')}
             </button>
 
             {results.length > 0 && !point && (
@@ -314,7 +314,7 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
                       className="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-colors hover:bg-accent"
                     >
                       <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <span className="text-foreground">{r.label}</span>
+                      <span className="text-foreground">{tr(r.label)}</span>
                     </button>
                   </li>
                 ))}
@@ -328,37 +328,37 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
                 )}
               >
                 <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>Location set: {point.label}</span>
+                <span>{tr('Location set:')} {tr(point.label)}</span>
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="place-phone">Phone (optional)</Label>
+              <Label htmlFor="place-phone">{tr('Phone (optional)')}</Label>
               <Input id="place-phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="place-website">Website (optional)</Label>
+              <Label htmlFor="place-website">{tr('Website (optional)')}</Label>
               <Input
                 id="place-website"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
-                placeholder="example.com"
+                placeholder={tr('example.com')}
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="place-notes">Notes (optional)</Label>
+            <Label htmlFor="place-notes">{tr('Notes (optional)')}</Label>
             <Textarea
               id="place-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder={
                 category === 'mosque'
-                  ? 'Jumu’ah time, parking, sisters’ prayer area…'
-                  : 'What they sell, opening hours, anything families should know'
+                  ? tr('Jumu’ah time, parking, sisters’ prayer area…')
+                  : tr('What they sell, opening hours, anything families should know')
               }
               rows={3}
             />
@@ -367,11 +367,11 @@ export function AddPlaceDialog({ open, onOpenChange }: AddPlaceDialogProps) {
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Add place
+            {tr('Add place')}
           </Button>
         </DialogFooter>
       </DialogContent>

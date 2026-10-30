@@ -3,6 +3,7 @@
 import { Baby, PersonStanding, Users, UserRound } from 'lucide-react';
 import type { FamilyMember } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { tr, trn } from '@/lib/i18n';
 
 function ageFromBirthDate(iso: string | null): number | null {
   if (!iso) return null;
@@ -42,7 +43,7 @@ function SummaryCard({ icon: Icon, label, value, accent }: SummaryCardProps) {
         <p className="text-xl font-semibold leading-none text-foreground tabular-nums">
           {value}
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">{label}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{trn(label)}</p>
       </div>
     </div>
   );
@@ -66,25 +67,25 @@ export function HouseholdSummary({ members }: { members: FamilyMember[] }) {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <SummaryCard
         icon={Users}
-        label="Total Members"
+        label={tr('Total Members')}
         value={total}
         accent="bg-primary/10 text-primary"
       />
       <SummaryCard
         icon={UserRound}
-        label="Adults (18+)"
+        label={tr('Adults (18+)')}
         value={adults}
         accent="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
       />
       <SummaryCard
         icon={PersonStanding}
-        label="Children (2–17)"
+        label={tr('Children (2–17)')}
         value={children}
         accent="bg-sky-500/10 text-sky-700 dark:text-sky-300"
       />
       <SummaryCard
         icon={Baby}
-        label="Babies (0–1)"
+        label={tr('Babies (0–1)')}
         value={babies}
         accent="bg-amber-500/10 text-amber-700 dark:text-amber-300"
       />

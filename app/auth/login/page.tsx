@@ -15,6 +15,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { signIn, getAuthErrorMessage } from '@/lib/auth/auth-service';
 import { emailSchema } from '@/lib/auth/validation';
 import { Turnstile, TURNSTILE_SITE_KEY } from '@/components/auth/turnstile';
+import { tr, trn } from '@/lib/i18n';
 
 export default function LoginPage() {
   return (
@@ -51,7 +52,7 @@ function LoginForm() {
     }
 
     if (TURNSTILE_SITE_KEY && !captcha) {
-      toast.message('One moment — we’re checking you’re not a bot.');
+      toast.message(tr('One moment — we’re checking you’re not a bot.'));
       return;
     }
 
@@ -101,18 +102,18 @@ function LoginForm() {
 
   return (
     <AuthShell
-      title="Welcome back"
-      description="Sign in to your Firdam account to continue."
+      title={tr('Welcome back')}
+      description={tr('Sign in to your Firdam account to continue.')}
     >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{tr('Email')}</Label>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={tr('you@example.com')}
               className="pl-9"
               autoComplete="email"
               required
@@ -128,12 +129,12 @@ function LoginForm() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{tr('Password')}</Label>
             <Link
               href="/auth/forgot-password"
               className="text-xs font-medium text-primary hover:underline"
             >
-              Forgot password?
+              {tr('Forgot password?')}
             </Link>
           </div>
           <div className="relative">
@@ -151,7 +152,7 @@ function LoginForm() {
             />
           </div>
           {errors.password && (
-            <p className="text-xs text-destructive">{errors.password}</p>
+            <p className="text-xs text-destructive">{trn(errors.password)}</p>
           )}
         </div>
 
@@ -161,11 +162,11 @@ function LoginForm() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in…
+              {tr('Signing in…')}
             </>
           ) : (
             <>
-              Sign in
+              {tr('Sign in')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </>
           )}
@@ -175,7 +176,7 @@ function LoginForm() {
       <div className="my-6 flex items-center gap-3">
         <Separator className="flex-1" />
         <span className="text-xs uppercase tracking-wider text-muted-foreground">
-          or
+          {tr('or')}
         </span>
         <Separator className="flex-1" />
       </div>
@@ -190,20 +191,20 @@ function LoginForm() {
         {googleLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Connecting…
+            {tr('Connecting…')}
           </>
         ) : (
-          'Continue with Google'
+          tr('Continue with Google')
         )}
       </Button>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Don't have an account?{' '}
+        {tr('Don\'t have an account?')}{' '}
         <Link
           href="/auth/register"
           className="font-medium text-primary hover:underline"
         >
-          Create one
+          {tr('Create one')}
         </Link>
       </p>
     </AuthShell>

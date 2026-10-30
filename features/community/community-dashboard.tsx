@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import type { CommunityEvent, CommunityEventKind } from '@/types/database';
 import { AUDIENCES, EVENT_KIND_META } from '@/features/community/community-config';
 import { EventFormDialog } from '@/features/community/event-form-dialog';
+import { locale, tr, trn } from '@/lib/i18n';
 
 type Rsvp = 'going' | 'interested';
 type Counts = Record<string, { going: number; interested: number }>;
@@ -41,10 +42,10 @@ type Counts = Record<string, { going: number; interested: number }>;
 function dateParts(iso: string) {
   const d = new Date(iso);
   return {
-    month: d.toLocaleDateString(undefined, { month: 'short' }),
+    month: d.toLocaleDateString(locale(), { month: 'short' }),
     day: d.getDate(),
-    weekday: d.toLocaleDateString(undefined, { weekday: 'short' }),
-    time: d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }),
+    weekday: d.toLocaleDateString(locale(), { weekday: 'short' }),
+    time: d.toLocaleTimeString(locale(), { hour: 'numeric', minute: '2-digit' }),
   };
 }
 
@@ -71,42 +72,42 @@ function EventCard({
       className="flex w-full gap-4 rounded-2xl border border-border/70 bg-card p-4 text-left transition-all hover:border-primary/30 hover:shadow-sm"
     >
       <div className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-primary/10 py-2 text-primary">
-        <span className="text-[10px] font-semibold uppercase">{p.month}</span>
-        <span className="font-display text-2xl font-bold leading-none">{p.day}</span>
-        <span className="text-[10px]">{p.weekday}</span>
+        <span className="text-[10px] font-semibold uppercase">{trn(p.month)}</span>
+        <span className="font-display text-2xl font-bold leading-none">{trn(p.day)}</span>
+        <span className="text-[10px]">{trn(p.weekday)}</span>
       </div>
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
-          <Icon className="h-3.5 w-3.5" /> {meta.label}
+          <Icon className="h-3.5 w-3.5" /> {tr(meta.label)}
           {event.audience !== 'everyone' && (
-            <span className="text-muted-foreground">· {AUDIENCES.find((a) => a.value === event.audience)?.label}</span>
+            <span className="text-muted-foreground">· {tr(AUDIENCES.find((a) => a.value === event.audience)?.label)}</span>
           )}
         </p>
-        <p className="mt-0.5 line-clamp-1 font-semibold text-foreground">{event.title}</p>
+        <p className="mt-0.5 line-clamp-1 font-semibold text-foreground">{tr(event.title)}</p>
         <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
-            <Clock className="h-3 w-3" /> {p.time}
+            <Clock className="h-3 w-3" /> {trn(p.time)}
           </span>
           {(event.venue || event.address) && (
             <span className="inline-flex items-center gap-1">
-              <MapPin className="h-3 w-3" /> {event.venue ?? event.address}
+              <MapPin className="h-3 w-3" /> {trn(event.venue) ?? event.address}
               {distance !== undefined && ` · ${formatDistance(distance)}`}
             </span>
           )}
-          {!event.latitude && event.online_url && <span>Online</span>}
+          {!event.latitude && event.online_url && <span>{tr('Online')}</span>}
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
           {counts && counts.going > 0 && (
             <span className="inline-flex items-center gap-1 text-muted-foreground">
-              <Users className="h-3 w-3" /> {counts.going} going
+              <Users className="h-3 w-3" /> {trn(counts.going)} {tr('going')}
             </span>
           )}
           {rsvp && (
             <Badge variant="outline" className="border-brand-sage/30 bg-brand-sage/10 text-brand-sage">
-              {rsvp === 'going' ? 'You’re going' : 'Interested'}
+              {rsvp === 'going' ? tr('You’re going') : tr('Interested')}
             </Badge>
           )}
-          {!event.is_free && event.price && <Badge variant="secondary">{event.price}</Badge>}
+          {!event.is_free && event.price && <Badge variant="secondary">{trn(event.price)}</Badge>}
         </div>
       </div>
     </button>
@@ -195,7 +196,7 @@ export function CommunityDashboard() {
       ? await supabase.from('event_rsvps').upsert({ event_id: event.id, status }, { onConflict: 'event_id,user_id' })
       : await supabase.from('event_rsvps').delete().eq('event_id', event.id);
     if (error) {
-      toast.error('Could not update your RSVP');
+      toast.error(tr('Could not update your RSVP'));
       load();
     }
   };
@@ -211,8 +212,8 @@ export function CommunityDashboard() {
       location: event.venue ?? event.address,
       notes: event.description,
     });
-    if (error) return toast.error('Could not add to your calendar');
-    toast.success('Added to your family calendar');
+    if (error) return toast.error(tr('Could not add to your calendar'));
+    toast.success(tr('Added to your family calendar'));
   };
 
   const report = async (event: CommunityEvent) => {
@@ -220,16 +221,16 @@ export function CommunityDashboard() {
     if (!reason?.trim()) return;
     const { error } = await supabase.from('event_reports').insert({ event_id: event.id, reason: reason.trim().slice(0, 500) });
     if (error) {
-      toast.error(error.code === '23505' ? 'You already reported this event' : 'Could not send report');
+      toast.error(error.code === '23505' ? tr('You already reported this event') : tr('Could not send report'));
       return;
     }
-    toast.success('Thank you — our team will review it.');
+    toast.success(tr('Thank you — our team will review it.'));
   };
 
   const remove = async (event: CommunityEvent) => {
     if (!window.confirm(`Delete "${event.title}"?`)) return;
     const { error } = await supabase.from('community_events').delete().eq('id', event.id);
-    if (error) return toast.error('Could not delete event');
+    if (error) return toast.error(tr('Could not delete event'));
     setSelected(null);
     load();
   };
@@ -240,12 +241,12 @@ export function CommunityDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Community"
-        description="Halaqas, community iftars, Eid prayers, fundraisers and volunteering happening near you."
+        title={tr('Community')}
+        description={tr('Halaqas, community iftars, Eid prayers, fundraisers and volunteering happening near you.')}
       >
         <Button variant="outline" size="sm" asChild>
           <Link href="/dashboard/halal-places?category=mosque">
-            <Landmark className="mr-2 h-4 w-4" /> Mosques near me
+            <Landmark className="mr-2 h-4 w-4" /> {tr('Mosques near me')}
           </Link>
         </Button>
         <Button
@@ -255,7 +256,7 @@ export function CommunityDashboard() {
             setFormOpen(true);
           }}
         >
-          <Plus className="mr-2 h-4 w-4" /> Share an event
+          <Plus className="mr-2 h-4 w-4" /> {tr('Share an event')}
         </Button>
       </PageHeader>
 
@@ -279,7 +280,7 @@ export function CommunityDashboard() {
                     scope === v ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
                   )}
                 >
-                  {l}
+                  {trn(l)}
                 </button>
               ))}
             </div>
@@ -288,10 +289,10 @@ export function CommunityDashboard() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All events</SelectItem>
+                <SelectItem value="all">{tr('All events')}</SelectItem>
                 {(Object.keys(EVENT_KIND_META) as CommunityEventKind[]).map((k) => (
                   <SelectItem key={k} value={k}>
-                    {EVENT_KIND_META[k].label}
+                    {tr(EVENT_KIND_META[k].label)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -303,10 +304,10 @@ export function CommunityDashboard() {
               <SelectContent>
                 {['10', '25', '50', '100'].map((r) => (
                   <SelectItem key={r} value={r}>
-                    Within {r} km
+                    {tr('Within {0} km', [r])}
                   </SelectItem>
                 ))}
-                <SelectItem value="any">Anywhere</SelectItem>
+                <SelectItem value="any">{tr('Anywhere')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -315,7 +316,7 @@ export function CommunityDashboard() {
 
       {loading ? (
         <p className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading events…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading events…')}
         </p>
       ) : visible.length === 0 ? (
         <Card className="border-dashed">
@@ -324,13 +325,13 @@ export function CommunityDashboard() {
               <Users className="h-7 w-7" />
             </span>
             <h3 className="mt-5 text-lg font-semibold text-foreground">
-              {scope === 'mine' ? 'No events yet' : 'No upcoming events here yet'}
+              {scope === 'mine' ? tr('No events yet') : tr('No upcoming events here yet')}
             </h3>
             <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-              Run a halaqa, an iftar or a charity drive? Share it so families nearby can join.
+              {tr('Run a halaqa, an iftar or a charity drive? Share it so families nearby can join.')}
             </p>
             <Button size="sm" className="mt-6" onClick={() => setFormOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> Share an event
+              <Plus className="mr-2 h-4 w-4" /> {tr('Share an event')}
             </Button>
           </CardContent>
         </Card>
@@ -355,11 +356,11 @@ export function CommunityDashboard() {
             <>
               <SheetHeader className="text-left">
                 <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
-                  <selMeta.icon className="h-3.5 w-3.5" /> {selMeta.label}
+                  <selMeta.icon className="h-3.5 w-3.5" /> {tr(selMeta.label)}
                 </p>
-                <SheetTitle className="font-display text-xl">{sel.title}</SheetTitle>
+                <SheetTitle className="font-display text-xl">{tr(sel.title)}</SheetTitle>
                 <SheetDescription>
-                  {new Date(sel.starts_at).toLocaleString(undefined, {
+                  {new Date(sel.starts_at).toLocaleString(locale(), {
                     weekday: 'long',
                     month: 'long',
                     day: 'numeric',
@@ -367,7 +368,7 @@ export function CommunityDashboard() {
                     minute: '2-digit',
                   })}
                   {sel.ends_at &&
-                    ` – ${new Date(sel.ends_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`}
+                    ` – ${new Date(sel.ends_at).toLocaleTimeString(locale(), { hour: 'numeric', minute: '2-digit' })}`}
                 </SheetDescription>
               </SheetHeader>
 
@@ -376,17 +377,17 @@ export function CommunityDashboard() {
                   variant={rsvps[sel.id] === 'going' ? 'default' : 'outline'}
                   onClick={() => setRsvp(sel, rsvps[sel.id] === 'going' ? null : 'going')}
                 >
-                  <Users className="mr-2 h-4 w-4" /> {rsvps[sel.id] === 'going' ? 'Going' : 'I’m going'}
+                  <Users className="mr-2 h-4 w-4" /> {rsvps[sel.id] === 'going' ? tr('Going') : tr('I’m going')}
                 </Button>
                 <Button
                   variant={rsvps[sel.id] === 'interested' ? 'default' : 'outline'}
                   onClick={() => setRsvp(sel, rsvps[sel.id] === 'interested' ? null : 'interested')}
                 >
-                  <Star className="mr-2 h-4 w-4" /> Interested
+                  <Star className="mr-2 h-4 w-4" /> {tr('Interested')}
                 </Button>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                {counts[sel.id]?.going ?? 0} going · {counts[sel.id]?.interested ?? 0} interested
+                {trn(counts[sel.id]?.going) ?? 0} {tr('going ·')} {trn(counts[sel.id]?.interested) ?? 0} {tr('interested')}
               </p>
 
               <div className="mt-5 space-y-3 text-sm">
@@ -394,38 +395,38 @@ export function CommunityDashboard() {
                   <p className="flex items-start gap-3">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                     <span>
-                      {sel.venue && <span className="block font-medium text-foreground">{sel.venue}</span>}
+                      {sel.venue && <span className="block font-medium text-foreground">{trn(sel.venue)}</span>}
                       {sel.address && <span className="text-muted-foreground">{sel.address}</span>}
                     </span>
                   </p>
                 )}
                 {sel.organizer && (
                   <p className="text-muted-foreground">
-                    Organised by <span className="font-medium text-foreground">{sel.organizer}</span>
+                    {tr('Organised by')} <span className="font-medium text-foreground">{trn(sel.organizer)}</span>
                     {sel.contact ? ` · ${sel.contact}` : ''}
                   </p>
                 )}
-                {sel.description && <p className="whitespace-pre-line text-foreground/90">{sel.description}</p>}
-                <p className="text-muted-foreground">{sel.is_free ? 'Free' : sel.price ?? 'Paid event'}</p>
+                {sel.description && <p className="whitespace-pre-line text-foreground/90">{tr(sel.description)}</p>}
+                <p className="text-muted-foreground">{sel.is_free ? tr('Free') : trn(sel.price) ?? tr('Paid event')}</p>
               </div>
 
               <div className="mt-5 flex flex-wrap gap-2">
                 {sel.latitude != null && sel.longitude != null && (
                   <Button asChild variant="outline" size="sm">
                     <a href={directionsUrl(sel.latitude, sel.longitude)} target="_blank" rel="noreferrer">
-                      <Navigation className="mr-2 h-4 w-4" /> Directions
+                      <Navigation className="mr-2 h-4 w-4" /> {tr('Directions')}
                     </a>
                   </Button>
                 )}
                 {sel.online_url && (
                   <Button asChild variant="outline" size="sm">
                     <a href={sel.online_url} target="_blank" rel="noreferrer">
-                      <ExternalLink className="mr-2 h-4 w-4" /> Join online
+                      <ExternalLink className="mr-2 h-4 w-4" /> {tr('Join online')}
                     </a>
                   </Button>
                 )}
                 <Button variant="outline" size="sm" onClick={() => addToCalendar(sel)}>
-                  <CalendarPlus className="mr-2 h-4 w-4" /> Add to calendar
+                  <CalendarPlus className="mr-2 h-4 w-4" /> {tr('Add to calendar')}
                 </Button>
               </div>
 
@@ -440,15 +441,15 @@ export function CommunityDashboard() {
                         setFormOpen(true);
                       }}
                     >
-                      <Pencil className="mr-2 h-4 w-4" /> Edit
+                      <Pencil className="mr-2 h-4 w-4" /> {tr('Edit')}
                     </Button>
                     <Button variant="ghost" size="sm" className="text-destructive" onClick={() => remove(sel)}>
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete
+                      <Trash2 className="mr-2 h-4 w-4" /> {tr('Delete')}
                     </Button>
                   </>
                 ) : (
                   <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => report(sel)}>
-                    <Flag className="mr-2 h-4 w-4" /> Report
+                    <Flag className="mr-2 h-4 w-4" /> {tr('Report')}
                   </Button>
                 )}
               </div>

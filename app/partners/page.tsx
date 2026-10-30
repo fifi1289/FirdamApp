@@ -5,6 +5,7 @@ import { SiteHeader } from '@/components/layout/site-header';
 import { PartnerApplyForm } from '@/features/partners/partner-apply-form';
 import { PARTNER_TERMS, FOUNDING_FREE_UNTIL_LABEL } from '@/features/partners/partner-terms';
 import { SITE } from '@/lib/site';
+import { tr, trn } from '@/lib/i18n';
 
 export const metadata = {
   title: 'Become a partner',
@@ -41,19 +42,18 @@ export default function PartnersPage() {
       <main className="flex-1">
         <section className="border-b border-border/60 py-14 md:py-20">
           <div className="container max-w-4xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">For Muslim-owned shops, teachers and services</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-primary">{tr('For Muslim-owned shops, teachers and services')}</p>
             <h1 className="mt-3 font-display text-3xl font-semibold text-foreground md:text-5xl">
-              Bring your business to Muslim families on {SITE.name}
+              {tr('Bring your business to Muslim families on')} {trn(SITE.name)}
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-              Modest clothing, halal groceries, kids’ books, Eid gifts, home essentials, Quran and Arabic classes, renovation, accounting, catering… If
-              you run a Muslim-owned business or teach, list it on Firdam for free as one of our founding partners.
+              {tr('Modest clothing, halal groceries, kids’ books, Eid gifts, home essentials, Quran and Arabic classes, renovation, accounting, catering… If you run a Muslim-owned business or teach, list it on Firdam for free as one of our founding partners.')}
             </p>
             <a
               href="#apply"
               className="mt-7 inline-flex items-center rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
-              Apply in 2 minutes
+              {tr('Apply in 2 minutes')}
             </a>
           </div>
         </section>
@@ -63,8 +63,8 @@ export default function PartnersPage() {
             {BENEFITS.map(({ icon: Icon, title, text }) => (
               <div key={title} className="rounded-2xl border border-border bg-card p-5">
                 <Icon className="h-6 w-6 text-primary" />
-                <h2 className="mt-3 font-semibold text-foreground">{title}</h2>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{text}</p>
+                <h2 className="mt-3 font-semibold text-foreground">{trn(title)}</h2>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{trn(text)}</p>
               </div>
             ))}
           </div>
@@ -72,7 +72,7 @@ export default function PartnersPage() {
 
         <section className="border-b border-border/60 py-14">
           <div className="container max-w-4xl">
-            <h2 className="font-display text-2xl font-semibold text-foreground">How it works</h2>
+            <h2 className="font-display text-2xl font-semibold text-foreground">{tr('How it works')}</h2>
             <ol className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
               {[
                 ['Apply', 'Tell us about your shop with the form below.'],
@@ -81,17 +81,17 @@ export default function PartnersPage() {
               ].map(([t, d], i) => (
                 <li key={t} className="rounded-2xl border border-border p-5">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">{i + 1}</span>
-                  <p className="mt-3 font-semibold text-foreground">{t}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+                  <p className="mt-3 font-semibold text-foreground">{trn(t)}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{trn(d)}</p>
                 </li>
               ))}
             </ol>
 
             <div id="terms" className="mt-10 scroll-mt-24 rounded-2xl border border-primary/20 bg-primary/5 p-5">
-              <h2 className="font-semibold text-foreground">Partner terms</h2>
+              <h2 className="font-semibold text-foreground">{tr('Partner terms')}</h2>
               <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm leading-relaxed text-foreground">
                 {PARTNER_TERMS.map((t) => (
-                  <li key={t}>{t}</li>
+                  <li key={t}>{trn(t)}</li>
                 ))}
               </ol>
             </div>
@@ -100,9 +100,9 @@ export default function PartnersPage() {
 
         <section id="apply" className="scroll-mt-24 py-14">
           <div className="container max-w-2xl">
-            <h2 className="font-display text-2xl font-semibold text-foreground">Apply to become a partner</h2>
+            <h2 className="font-display text-2xl font-semibold text-foreground">{tr('Apply to become a partner')}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Questions first? Email <a className="font-medium text-primary underline-offset-2 hover:underline" href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a>.
+              {tr('Questions first? Email')} <a className="font-medium text-primary underline-offset-2 hover:underline" href={`mailto:${SITE.supportEmail}`}>{trn(SITE.supportEmail)}</a>.
             </p>
             <div className="mt-6">
               <PartnerApplyForm />

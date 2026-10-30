@@ -56,6 +56,7 @@ import {
   emptyItemValues,
   type PantryItemFormValues,
 } from '@/features/pantry/pantry-item-form-dialog';
+import { locale, tr, trn } from '@/lib/i18n';
 
 export { PANTRY_ITEMS_CHANGED } from '@/features/pantry/pantry-item-form-dialog';
 
@@ -92,7 +93,7 @@ function computeStatus(iso: string | null): {
   const diffDays = Math.round(
     (date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   );
-  const label = date.toLocaleDateString(undefined, {
+  const label = date.toLocaleDateString(locale(), {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -151,14 +152,14 @@ function PantryItemCard({
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-semibold text-foreground">{item.name}</p>
+            <p className="text-sm font-semibold text-foreground">{trn(item.name)}</p>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"
-                  aria-label="Item actions"
+                  aria-label={tr('Item actions')}
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -166,28 +167,28 @@ function PantryItemCard({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => onEdit(item)}>
                   <Pencil className="mr-2 h-4 w-4" />
-                  Edit
+                  {tr('Edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onSelect={() => onDelete(item)}
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
+                  {tr('Delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="text-[10px] font-medium">
-              {item.category}
+              {trn(item.category)}
             </Badge>
             {exp && (
               <Badge
                 variant="outline"
                 className={cn('text-[10px] font-medium', STATUS_BADGE[exp.status].className)}
               >
-                {STATUS_BADGE[exp.status].label}
+                {tr(STATUS_BADGE[exp.status].label)}
               </Badge>
             )}
             {item.tracking === 'level' ? (
@@ -211,16 +212,16 @@ function PantryItemCard({
                 )}
               >
                 <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-                {relative}
+                {trn(relative)}
               </p>
               <p className="mt-0.5 pl-[18px] text-[11px] text-muted-foreground/80">
-                {exp.label}
+                {tr(exp.label)}
               </p>
             </div>
           )}
           {item.notes && (
             <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
-              {item.notes}
+              {trn(item.notes)}
             </p>
           )}
         </div>
@@ -290,7 +291,7 @@ function CategoryChip({
           : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
       )}
     >
-      {label}
+      {trn(label)}
     </button>
   );
 }
@@ -343,20 +344,20 @@ export function PantryItemsList() {
     setDeleting(false);
     if (error) {
       console.error('Failed to delete item:', error.message);
-      toast.error('Could not delete item', { description: error.message });
+      toast.error(tr('Could not delete item'), { description: error.message });
       return;
     }
     setItems((prev) => prev.filter((i) => i.id !== id));
     setDeleteOpen(false);
     setDeletingItem(null);
-    toast.success('Item removed from pantry');
+    toast.success(tr('Item removed from pantry'));
   };
 
   if (loading) {
     return (
       <Card className="border-dashed">
         <CardContent className="flex flex-col items-center justify-center px-6 py-20 text-center">
-          <p className="text-sm text-muted-foreground">Loading your pantry…</p>
+          <p className="text-sm text-muted-foreground">{tr('Loading your pantry…')}</p>
         </CardContent>
       </Card>
     );
@@ -370,19 +371,19 @@ export function PantryItemsList() {
             <Archive className="h-7 w-7" />
           </span>
           <h3 className="mt-5 text-lg font-semibold text-foreground">
-            Your pantry is empty
+            {tr('Your pantry is empty')}
           </h3>
           <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-            Tick what you have in 2 minutes, or type it in the quick-add bar above. After that, cooking and shopping keep it up to date.
+            {tr('Tick what you have in 2 minutes, or type it in the quick-add bar above. After that, cooking and shopping keep it up to date.')}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Button size="sm" onClick={() => window.dispatchEvent(new Event('pantry-open-setup'))}>
               <Sparkles className="mr-2 h-4 w-4" />
-              Quick setup (2 minutes)
+              {tr('Quick setup (2 minutes)')}
             </Button>
             <Button size="sm" variant="outline" onClick={() => window.dispatchEvent(new Event('pantry-open-add'))}>
               <Plus className="mr-2 h-4 w-4" />
-              Add one item
+              {tr('Add one item')}
             </Button>
           </div>
         </CardContent>
@@ -409,21 +410,21 @@ export function PantryItemsList() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search items by name…"
+              placeholder={tr('Search items by name…')}
               className="pl-9"
-              aria-label="Search pantry items"
+              aria-label={tr('Search pantry items')}
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Sort by</span>
+            <span className="text-xs font-medium text-muted-foreground">{tr('Sort by')}</span>
             <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
-              <SelectTrigger className="h-9 w-[230px]" aria-label="Sort pantry items">
+              <SelectTrigger className="h-9 w-[230px]" aria-label={tr('Sort pantry items')}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {SORT_OPTIONS.map((o) => (
                   <SelectItem key={o.value} value={o.value}>
-                    {o.label}
+                    {tr(o.label)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -433,14 +434,14 @@ export function PantryItemsList() {
 
         <div className="flex flex-wrap gap-2">
           <CategoryChip
-            label="All"
+            label={tr('All')}
             active={activeCategory === 'All'}
             onClick={() => setActiveCategory('All')}
           />
           {PANTRY_CATEGORIES.map((c) => (
             <CategoryChip
               key={c}
-              label={c}
+              label={trn(c)}
               active={activeCategory === c}
               onClick={() => setActiveCategory(c)}
             />
@@ -454,10 +455,10 @@ export function PantryItemsList() {
                 <Search className="h-6 w-6" />
               </span>
               <h3 className="mt-4 text-base font-semibold text-foreground">
-                No matching items
+                {tr('No matching items')}
               </h3>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                Try a different search term or category filter.
+                {tr('Try a different search term or category filter.')}
               </p>
               <Button
                 variant="outline"
@@ -468,7 +469,7 @@ export function PantryItemsList() {
                   setActiveCategory('All');
                 }}
               >
-                Clear filters
+                {tr('Clear filters')}
               </Button>
             </CardContent>
           </Card>
@@ -501,22 +502,22 @@ export function PantryItemsList() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete item?</AlertDialogTitle>
+            <AlertDialogTitle>{tr('Delete item?')}</AlertDialogTitle>
             <AlertDialogDescription>
               {deletingItem
-                ? `"${deletingItem.name}" will be permanently removed from your pantry.`
-                : 'This item will be permanently removed.'}{' '}
-              This action cannot be undone.
+                ? tr('"{0}" will be permanently removed from your pantry.', [deletingItem.name])
+                : tr('This item will be permanently removed.')}{' '}
+              {tr('This action cannot be undone.')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleting}>{tr('Cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? tr('Deleting…') : tr('Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

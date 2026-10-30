@@ -35,6 +35,7 @@ import type { SavingsGoal, SavingsGoalKind } from '@/types/database';
 import { GOAL_KINDS, formatMoney } from '@/features/budget/budget-config';
 import { usePlan } from '@/lib/plan/plan';
 import { UpgradeDialog, UsageNote } from '@/components/plan/upgrade-prompt';
+import { tr, trn } from '@/lib/i18n';
 
 function monthsUntil(date: string | null): number | null {
   if (!date) return null;
@@ -77,7 +78,7 @@ function GoalDialog({
     const s = Number(saved || 0);
     const label = name.trim() || GOAL_KINDS.find((k) => k.value === kind)?.label || 'Goal';
     if (!Number.isFinite(t) || t <= 0) {
-      toast.error('Enter a target amount.');
+      toast.error(tr('Enter a target amount.'));
       return;
     }
     setBusy(true);
@@ -94,7 +95,7 @@ function GoalDialog({
       : await supabase.from('savings_goals').insert(row);
     setBusy(false);
     if (error) {
-      toast.error('Could not save goal', { description: error.message });
+      toast.error(tr('Could not save goal'), { description: error.message });
       return;
     }
     onSaved();
@@ -105,13 +106,13 @@ function GoalDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{goal ? 'Edit goal' : 'New savings goal'}</DialogTitle>
-          <DialogDescription>Save steadily for what matters — Hajj, Eid, education and more.</DialogDescription>
+          <DialogTitle>{goal ? tr('Edit goal') : tr('New savings goal')}</DialogTitle>
+          <DialogDescription>{tr('Save steadily for what matters — Hajj, Eid, education and more.')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Type</Label>
+              <Label>{tr('Type')}</Label>
               <Select value={kind} onValueChange={(v) => setKind(v as SavingsGoalKind)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -119,45 +120,45 @@ function GoalDialog({
                 <SelectContent>
                   {GOAL_KINDS.map((k) => (
                     <SelectItem key={k.value} value={k.value}>
-                      {k.emoji} {k.label}
+                      {trn(k.emoji)} {tr(k.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="goal-name">Name</Label>
+              <Label htmlFor="goal-name">{tr('Name')}</Label>
               <Input
                 id="goal-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={GOAL_KINDS.find((k) => k.value === kind)?.label}
+                placeholder={tr(GOAL_KINDS.find((k) => k.value === kind)?.label)}
                 maxLength={80}
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="goal-target">Target</Label>
+              <Label htmlFor="goal-target">{tr('Target')}</Label>
               <Input id="goal-target" inputMode="decimal" value={target} onChange={(e) => setTarget(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="goal-saved">Saved so far</Label>
+              <Label htmlFor="goal-saved">{tr('Saved so far')}</Label>
               <Input id="goal-saved" inputMode="decimal" value={saved} onChange={(e) => setSaved(e.target.value)} />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="goal-date">Target date (optional)</Label>
+            <Label htmlFor="goal-date">{tr('Target date (optional)')}</Label>
             <Input id="goal-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
         </div>
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {tr('Cancel')}
           </Button>
           <Button onClick={save} disabled={busy}>
             {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save goal
+            {tr('Save goal')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -201,10 +202,10 @@ export function SavingsGoals({ currency }: { currency: string }) {
       .update({ saved, updated_at: new Date().toISOString() })
       .eq('id', goal.id);
     if (error) {
-      toast.error('Could not update goal');
+      toast.error(tr('Could not update goal'));
       load();
     } else if (saved >= Number(goal.target) && Number(goal.saved) < Number(goal.target)) {
-      toast.success(`MashaAllah — you reached your ${goal.name} goal!`);
+      toast.success(tr('MashaAllah — you reached your {0} goal!', [goal.name]));
     }
   };
 
@@ -213,7 +214,7 @@ export function SavingsGoals({ currency }: { currency: string }) {
     setGoals((prev) => prev.filter((g) => g.id !== goal.id));
     const { error } = await supabase.from('savings_goals').delete().eq('id', goal.id);
     if (error) {
-      toast.error('Could not delete goal');
+      toast.error(tr('Could not delete goal'));
       load();
     }
   };
@@ -222,7 +223,7 @@ export function SavingsGoals({ currency }: { currency: string }) {
     <>
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Put a little aside each month and watch it grow.
+          {tr('Put a little aside each month and watch it grow.')}
         </p>
         <Button
           size="sm"
@@ -236,13 +237,13 @@ export function SavingsGoals({ currency }: { currency: string }) {
           }}
         >
           <Plus className="mr-2 h-4 w-4" />
-          New goal
+          {tr('New goal')}
         </Button>
       </div>
 
       {loading ? (
         <p className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading goals…
+          <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading goals…')}
         </p>
       ) : goals.length === 0 ? (
         <Card className="border-dashed">
@@ -250,10 +251,9 @@ export function SavingsGoals({ currency }: { currency: string }) {
             <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <PiggyBank className="h-7 w-7" />
             </span>
-            <h3 className="mt-5 text-lg font-semibold text-foreground">No savings goals yet</h3>
+            <h3 className="mt-5 text-lg font-semibold text-foreground">{tr('No savings goals yet')}</h3>
             <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-              Saving for Hajj, Umrah, Eid gifts or your children&apos;s education? Create a goal to
-              track it.
+              {tr('Saving for Hajj, Umrah, Eid gifts or your children\'s education? Create a goal to track it.')}
             </p>
           </CardContent>
         </Card>
@@ -271,18 +271,18 @@ export function SavingsGoals({ currency }: { currency: string }) {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3">
                       <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-xl">
-                        {kind.emoji}
+                        {trn(kind.emoji)}
                       </span>
                       <div>
-                        <p className="font-semibold text-foreground">{g.name}</p>
+                        <p className="font-semibold text-foreground">{trn(g.name)}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatMoney(Number(g.saved), currency)} of {formatMoney(Number(g.target), currency)}
+                          {formatMoney(Number(g.saved), currency)} {tr('of')} {formatMoney(Number(g.target), currency)}
                         </p>
                       </div>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Goal actions">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={tr('Goal actions')}>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -293,23 +293,23 @@ export function SavingsGoals({ currency }: { currency: string }) {
                             setDialogOpen(true);
                           }}
                         >
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                          <Pencil className="mr-2 h-4 w-4" /> {tr('Edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => remove(g)} className="text-destructive focus:text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          <Trash2 className="mr-2 h-4 w-4" /> {tr('Delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
                   <Progress value={pct} className="mt-4 h-2.5" />
                   <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                    <span>{pct}%</span>
+                    <span>{trn(pct)}%</span>
                     <span>
                       {pct >= 100
-                        ? 'Goal reached'
+                        ? tr('Goal reached')
                         : perMonth
-                          ? `${formatMoney(perMonth, currency)}/month to reach it`
-                          : `${formatMoney(left, currency)} to go`}
+                          ? tr('{0}/month to reach it', [formatMoney(perMonth, currency)])
+                          : tr('{0} to go', [formatMoney(left, currency)])}
                     </span>
                   </div>
                   {pct < 100 && (
@@ -322,13 +322,13 @@ export function SavingsGoals({ currency }: { currency: string }) {
                     >
                       <Input
                         inputMode="decimal"
-                        placeholder="Add savings"
+                        placeholder={tr('Add savings')}
                         value={contribution[g.id] ?? ''}
                         onChange={(e) => setContribution((c) => ({ ...c, [g.id]: e.target.value }))}
                         className="h-9"
                       />
                       <Button type="submit" size="sm" variant="secondary" className="h-9">
-                        Add
+                        {tr('Add')}
                       </Button>
                     </form>
                   )}
@@ -344,7 +344,7 @@ export function SavingsGoals({ currency }: { currency: string }) {
           <UsageNote
             used={goals.length}
             limit={limit('savingsGoals')}
-            label="savings goals"
+            label={tr('savings goals')}
             onUpgrade={() => setUpgradeOpen(true)}
           />
         </div>

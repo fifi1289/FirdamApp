@@ -16,6 +16,7 @@ import { MakeupCard } from '@/features/fasting/makeup-card';
 import { insideRamadan, isoDate, nextRamadan } from '@/features/fasting/makeup-core';
 import { cn } from '@/lib/utils';
 import { iso, parseISODate, sunnahFastingDays, type FastingDay, type HijriLabel } from '@/features/calendar/calendar-core';
+import { locale, tr, trn } from '@/lib/i18n';
 
 export const FASTING_PREFS_KEY = 'firdam.fasting';
 
@@ -77,7 +78,7 @@ export function FastingDashboard() {
       .catch(() => {
         if (!cancelled) {
           setDays([]);
-          setError('Could not load the Hijri dates. Check your connection and refresh the page.');
+          setError(tr('Could not load the Hijri dates. Check your connection and refresh the page.'));
         }
       });
     return () => {
@@ -100,11 +101,11 @@ export function FastingDashboard() {
   return (
     <AppShell>
       <PageHeader
-        title="Fasting"
-        description="Sunnah fasts and Ramadan."
+        title={tr('Fasting')}
+        description={tr('Sunnah fasts and Ramadan.')}
       />
 
-      <nav aria-label="Fasting" className="mb-5 flex gap-2">
+      <nav aria-label={tr('Fasting')} className="mb-5 flex gap-2">
         {(
           [
             ['sunnah', 'Sunnah fasts'],
@@ -121,7 +122,7 @@ export function FastingDashboard() {
               tab === id ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:border-primary/40'
             )}
           >
-            {label}
+            {trn(label)}
           </button>
         ))}
       </nav>
@@ -131,10 +132,10 @@ export function FastingDashboard() {
           {next && (
             <Card className="border-0 bg-brand-ink text-white">
               <CardContent className="p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-light">{`Ramadan ${next.year}`}</p>
-                <p className="mt-1 font-display text-3xl font-bold">{`In ${next.daysAway} ${next.daysAway === 1 ? 'day' : 'days'}`}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-light">{tr('Ramadan {0}', [next.year])}</p>
+                <p className="mt-1 font-display text-3xl font-bold">{tr('In {0} {1}', [next.daysAway, next.daysAway === 1 ? 'day' : 'days'])}</p>
                 <p className="mt-1 text-sm text-white/80">
-                  {`Around ${parseISODate(next.start).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}, depending on the moon sighting`}
+                  {tr('Around {0}, depending on the moon sighting', [parseISODate(next.start).toLocaleDateString(locale(), { weekday: 'long', month: 'long', day: 'numeric' })])}
                 </p>
               </CardContent>
             </Card>
@@ -145,13 +146,13 @@ export function FastingDashboard() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
         <Card>
           <CardContent className="p-5">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">Next two months</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">{tr('Next two months')}</p>
             {!days ? (
               <p className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Loading the Hijri dates…
+                <Loader2 className="h-4 w-4 animate-spin" /> {tr('Loading the Hijri dates…')}
               </p>
             ) : days.length === 0 ? (
-              <p className="py-6 text-sm text-muted-foreground">{error ?? 'No Sunnah fasts found in the next two months.'}</p>
+              <p className="py-6 text-sm text-muted-foreground">{trn(error) ?? tr('No Sunnah fasts found in the next two months.')}</p>
             ) : (
               <ul className="divide-y divide-border/70">
                 {days.map((d) => {
@@ -160,14 +161,14 @@ export function FastingDashboard() {
                     <li key={`${d.date}-${d.title}`} className="flex items-center gap-4 py-3">
                       <div className="flex w-14 shrink-0 flex-col items-center rounded-xl bg-secondary py-1.5">
                         <span className="text-[10px] font-semibold uppercase text-primary">
-                          {date.toLocaleDateString(undefined, { weekday: 'short' })}
+                          {date.toLocaleDateString(locale(), { weekday: 'short' })}
                         </span>
                         <span className="font-display text-lg font-bold leading-tight text-foreground">{date.getDate()}</span>
-                        <span className="text-[10px] text-muted-foreground">{date.toLocaleDateString(undefined, { month: 'short' })}</span>
+                        <span className="text-[10px] text-muted-foreground">{date.toLocaleDateString(locale(), { month: 'short' })}</span>
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-foreground">{d.date === today ? `Today · ${d.title}` : d.title}</p>
-                        <p className="text-sm text-muted-foreground">{d.why}</p>
+                        <p className="font-medium text-foreground">{d.date === today ? tr('Today · {0}', [d.title]) : tr(d.title)}</p>
+                        <p className="text-sm text-muted-foreground">{trn(d.why)}</p>
                       </div>
                     </li>
                   );
@@ -183,18 +184,18 @@ export function FastingDashboard() {
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label htmlFor="monthu" className="text-sm font-medium">
-                    Include Mondays and Thursdays
+                    {tr('Include Mondays and Thursdays')}
                   </Label>
-                  <p className="text-xs text-muted-foreground">The weekly Sunnah fasts.</p>
+                  <p className="text-xs text-muted-foreground">{tr('The weekly Sunnah fasts.')}</p>
                 </div>
                 <Switch id="monthu" checked={monThu} onCheckedChange={changeMonThu} />
               </div>
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label htmlFor="suhoor" className="text-sm font-medium">
-                    Remind me for suhoor
+                    {tr('Remind me for suhoor')}
                   </Label>
-                  <p className="text-xs text-muted-foreground">The evening before each fast, while Firdam is open.</p>
+                  <p className="text-xs text-muted-foreground">{tr('The evening before each fast, while Firdam is open.')}</p>
                 </div>
                 <Switch
                   id="suhoor"
@@ -204,13 +205,12 @@ export function FastingDashboard() {
                 />
               </div>
               <Link href="/settings?tab=notifications" className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline">
-                <Bell className="h-3.5 w-3.5" /> All notifications
+                <Bell className="h-3.5 w-3.5" /> {tr('All notifications')}
               </Link>
             </CardContent>
           </Card>
           <p className="px-1 text-xs text-muted-foreground">
-            Islamic dates may differ by a day from your local moon sighting. No voluntary fasts are listed in Ramadan, on the Eids or the days of
-            Tashreeq.
+            {tr('Islamic dates may differ by a day from your local moon sighting. No voluntary fasts are listed in Ramadan, on the Eids or the days of Tashreeq.')}
           </p>
         </div>
       </div>

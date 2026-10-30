@@ -17,6 +17,7 @@ import { firstNameFor } from '@/lib/auth/display-name';
 import { FAIR_USE, usePlan } from '@/lib/plan/plan';
 import { FREE_LAUNCH } from '@/lib/plan/launch';
 import { cn } from '@/lib/utils';
+import { tr, trn } from '@/lib/i18n';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -151,9 +152,9 @@ export function CompanionChat() {
         setUpgradeOpen(true);
         setError(err.message);
       } else if (err instanceof EdgeFunctionError && err.status === 501) {
-        setError('The Companion isn’t switched on yet. The Firdam team is finishing setup.');
+        setError(tr('The Companion isn’t switched on yet. The Firdam team is finishing setup.'));
       } else {
-        setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+        setError(err instanceof Error ? err.message : tr('Something went wrong. Please try again.'));
       }
     } finally {
       setSending(false);
@@ -173,13 +174,13 @@ export function CompanionChat() {
               <Sparkles className="h-5 w-5" />
             </span>
             <div>
-              <h1 className="font-display text-xl font-semibold text-foreground">Family Companion</h1>
-              <p className="text-xs text-muted-foreground">Knows your family’s plans — and can add tasks, events and shopping for you.</p>
+              <h1 className="font-display text-xl font-semibold text-foreground">{tr('Family Companion')}</h1>
+              <p className="text-xs text-muted-foreground">{tr('Knows your family’s plans — and can add tasks, events and shopping for you.')}</p>
             </div>
           </div>
           {messages.length > 0 && (
             <Button variant="ghost" size="sm" onClick={() => setMessages([])}>
-              <RotateCcw className="mr-2 h-4 w-4" /> New chat
+              <RotateCcw className="mr-2 h-4 w-4" /> {tr('New chat')}
             </Button>
           )}
         </div>
@@ -192,11 +193,10 @@ export function CompanionChat() {
                   السَّلَامُ عَلَيْكُمْ
                 </p>
                 <p className="mt-2 font-display text-lg font-semibold text-foreground">
-                  How can I help{name ? `, ${name}` : ''}?
+                  {tr('How can I help')}{name ? `, ${name}` : ''}?
                 </p>
                 <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                  Ask about your week, plan meals, add to your shopping list, track spending, or ask a general
-                  question about Islamic practice.
+                  {tr('Ask about your week, plan meals, add to your shopping list, track spending, or ask a general question about Islamic practice.')}
                 </p>
                 <div className="mt-6 grid w-full max-w-xl grid-cols-1 gap-2 sm:grid-cols-2">
                   {SUGGESTIONS.map((s) => (
@@ -206,7 +206,7 @@ export function CompanionChat() {
                       onClick={() => send(s)}
                       className="rounded-xl border border-border bg-card px-3 py-2.5 text-left text-sm text-foreground transition-colors hover:border-primary/40"
                     >
-                      {s}
+                      {trn(s)}
                     </button>
                   ))}
                 </div>
@@ -220,12 +220,12 @@ export function CompanionChat() {
                       m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
                     )}
                   >
-                    {m.role === 'assistant' ? <Formatted text={m.content} /> : <p className="whitespace-pre-line">{m.content}</p>}
+                    {m.role === 'assistant' ? <Formatted text={m.content} /> : <p className="whitespace-pre-line">{trn(m.content)}</p>}
                     {m.actions && m.actions.length > 0 && (
                       <ul className="mt-3 space-y-1 border-t border-border/60 pt-2">
                         {m.actions.map((a, j) => (
                           <li key={j} className="flex items-start gap-1.5 text-xs text-brand-sage">
-                            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {a.summary}
+                            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {trn(a.summary)}
                           </li>
                         ))}
                       </ul>
@@ -237,11 +237,11 @@ export function CompanionChat() {
             {sending && (
               <div className="flex justify-start">
                 <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-3 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Thinking…
+                  <Loader2 className="h-4 w-4 animate-spin" /> {tr('Thinking…')}
                 </div>
               </div>
             )}
-            {error && <p className="text-center text-sm text-destructive">{error}</p>}
+            {error && <p className="text-center text-sm text-destructive">{trn(error)}</p>}
             <div ref={bottomRef} />
           </CardContent>
 
@@ -261,22 +261,22 @@ export function CompanionChat() {
                   send(input);
                 }
               }}
-              placeholder="Ask your Companion…"
+              placeholder={tr('Ask your Companion…')}
               rows={1}
               className="max-h-40 min-h-[44px] resize-none"
-              aria-label="Message"
+              aria-label={tr('Message')}
             />
-            <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={sending || !input.trim()} aria-label="Send">
+            <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={sending || !input.trim()} aria-label={tr('Send')}>
               <ArrowUp className="h-5 w-5" />
             </Button>
           </form>
         </Card>
         <p className="mt-2 text-center text-[11px] text-muted-foreground">
-          The Companion can make mistakes. For religious rulings, ask a qualified scholar.{' '}
-          Up to {FAIR_USE.companionMessagesPerDay} messages a day.
+          {tr('The Companion can make mistakes. For religious rulings, ask a qualified scholar.')}{' '}
+          {tr('Up to {0} messages a day.', [FAIR_USE.companionMessagesPerDay])}
         </p>
       </div>
-      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} title="Ask Firdam is part of Firdam Family" />
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} title={tr('Ask Firdam is part of Firdam Family')} />
     </AppShell>
   );
 }
@@ -298,17 +298,16 @@ function CompanionLocked() {
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-gold text-brand-espresso">
               <Sparkles className="h-5 w-5" />
             </span>
-            <h1 className="mt-4 font-display text-2xl font-semibold">Your Family Companion</h1>
+            <h1 className="mt-4 font-display text-2xl font-semibold">{tr('Your Family Companion')}</h1>
             <p className="mt-1 max-w-md text-sm text-brand-linen/80">
-              An AI assistant that knows your family’s week, meals, pantry and budget — and can add tasks, events and
-              shopping for you. Included with Firdam Family.
+              {tr('An AI assistant that knows your family’s week, meals, pantry and budget — and can add tasks, events and shopping for you. Included with Firdam Family.')}
             </p>
           </div>
           <CardContent className="space-y-5 p-6">
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {LOCKED_EXAMPLES.map((e) => (
                 <li key={e} className="rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground">
-                  “{e}”
+                  “{trn(e)}”
                 </li>
               ))}
             </ul>
@@ -316,12 +315,12 @@ function CompanionLocked() {
               // Nothing is sold yet: no trial button that leads nowhere.
               <p className="text-sm text-muted-foreground">
                 <Crown className="mr-1.5 inline h-4 w-4 align-[-3px] text-primary" />
-                The Companion is coming with Firdam Family. We&rsquo;ll let you know when it opens.
+                {tr('The Companion is coming with Firdam Family. We&rsquo;ll let you know when it opens.')}
               </p>
             ) : (
               <Button asChild className="w-full sm:w-auto">
                 <Link href="/dashboard/upgrade">
-                  <Crown className="mr-2 h-4 w-4" /> Start 14-day free trial
+                  <Crown className="mr-2 h-4 w-4" /> {tr('Start 14-day free trial')}
                 </Link>
               </Button>
             )}
@@ -336,9 +335,9 @@ function CompanionLocked() {
             <ChefHat className="h-5 w-5" />
           </span>
           <div>
-            <p className="font-semibold text-foreground">Free: What can I cook?</p>
+            <p className="font-semibold text-foreground">{tr('Free: What can I cook?')}</p>
             <p className="text-sm text-muted-foreground">
-              Type what you have — chicken, tomato, eggs, potato — and get halal recipes you can make now.
+              {tr('Type what you have — chicken, tomato, eggs, potato — and get halal recipes you can make now.')}
             </p>
           </div>
         </Link>

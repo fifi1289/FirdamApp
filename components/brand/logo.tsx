@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { tr, trn } from '@/lib/i18n';
 
 interface LogoProps {
   className?: string;
@@ -25,7 +26,7 @@ export function Logo({ className, href = '/', height = 64, noLink = false }: Log
   const img = (
     <Image
       src="/images/logo.png"
-      alt="Firdam"
+      alt={tr('Firdam')}
       width={renderedWidth}
       height={height}
       priority
@@ -35,7 +36,7 @@ export function Logo({ className, href = '/', height = 64, noLink = false }: Log
   );
 
   if (noLink) {
-    return <span className={cn('inline-flex items-center', className)}>{img}</span>;
+    return <span className={cn('inline-flex items-center', className)}>{trn(img)}</span>;
   }
 
   return (
@@ -46,9 +47,9 @@ export function Logo({ className, href = '/', height = 64, noLink = false }: Log
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         className
       )}
-      aria-label="Firdam — home"
+      aria-label={tr('Firdam — home')}
     >
-      {img}
+      {trn(img)}
     </Link>
   );
 }

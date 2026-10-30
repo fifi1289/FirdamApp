@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FREE_LAUNCH, LIMIT_LABELS, PLAN_LIMITS, type LimitKey } from '@/lib/plan/plan';
+import { tr, trn } from '@/lib/i18n';
 
 const PREMIUM_PERKS = [
   'AI meal plans from your pantry — 8 a month',
@@ -44,15 +45,15 @@ export function UpgradeDialog({
         <DialogContent className="sm:max-w-md">
           <DialogHeader className="space-y-1.5 text-left">
             <DialogTitle className="font-display text-xl">
-              {limitKey && freeLimit !== null ? 'You’ve reached this month’s free limit' : 'Coming with Firdam Family'}
+              {limitKey && freeLimit !== null ? tr('You’ve reached this month’s free limit') : tr('Coming with Firdam Family')}
             </DialogTitle>
             <DialogDescription>
               {limitKey && freeLimit !== null
-                ? `The Free plan includes ${freeLimit} ${LIMIT_LABELS[limitKey]}. Your allowance starts again on the 1st of next month. More with Firdam Family, coming soon.`
-                : 'This feature is part of Firdam Family, coming soon.'}
+                ? tr('The Free plan includes {0} {1}. Your allowance starts again on the 1st of next month. More with Firdam Family, coming soon.', [freeLimit, LIMIT_LABELS[limitKey]])
+                : tr('This feature is part of Firdam Family, coming soon.')}
             </DialogDescription>
           </DialogHeader>
-          <Button onClick={() => onOpenChange(false)}>OK</Button>
+          <Button onClick={() => onOpenChange(false)}>{tr('OK')}</Button>
         </DialogContent>
       </Dialog>
     );
@@ -66,13 +67,13 @@ export function UpgradeDialog({
           </span>
           <DialogHeader className="mt-4 space-y-1.5 text-left">
             <DialogTitle className="font-display text-xl text-brand-linen">
-              {title ?? 'Unlock the full kitchen with Firdam Family'}
+              {trn(title) ?? tr('Unlock the full kitchen with Firdam Family')}
             </DialogTitle>
             <DialogDescription className="text-brand-linen/80">
-              {description ??
+              {trn(description) ??
                 (limitKey && freeLimit !== null
-                  ? `The Free plan includes ${freeLimit} ${LIMIT_LABELS[limitKey]}. Upgrade for unlimited.`
-                  : 'Get the full Firdam experience for your family.')}
+                  ? tr('The Free plan includes {0} {1}. Upgrade for unlimited.', [freeLimit, LIMIT_LABELS[limitKey]])
+                  : tr('Get the full Firdam experience for your family.'))}
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -81,7 +82,7 @@ export function UpgradeDialog({
             {PREMIUM_PERKS.map((p) => (
               <li key={p} className="flex items-start gap-2.5 text-sm text-foreground">
                 <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-sage" />
-                {p}
+                {trn(p)}
               </li>
             ))}
           </ul>
@@ -89,11 +90,11 @@ export function UpgradeDialog({
             <Button asChild className="flex-1">
               <Link href="/dashboard/upgrade">
                 <Sparkles className="mr-2 h-4 w-4" />
-                Start 14-day free trial
+                {tr('Start 14-day free trial')}
               </Link>
             </Button>
             <Button variant="ghost" onClick={() => onOpenChange(false)}>
-              Not now
+              {tr('Not now')}
             </Button>
           </div>
         </div>
@@ -111,7 +112,7 @@ export function PremiumBadge({ className }: { className?: string }) {
       )}
     >
       <Crown className="h-3 w-3" />
-      Family plan
+      {tr('Family plan')}
     </span>
   );
 }
@@ -131,9 +132,9 @@ export function UsageNote({
   if (!Number.isFinite(limit)) return null;
   return (
     <p className="text-xs text-muted-foreground">
-      {Math.min(used, limit)} of {limit} {label} on the Free plan ·{' '}
+      {Math.min(used, limit)} {tr('of {0} {1} on the Free plan ·', [limit, label])}{' '}
       <button type="button" onClick={onUpgrade} className="font-medium text-primary hover:underline">
-        Go unlimited
+        {tr('Go unlimited')}
       </button>
     </p>
   );

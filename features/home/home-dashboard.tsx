@@ -45,6 +45,7 @@ import { formatMoney, monthBounds, useCurrency } from '@/features/budget/budget-
 import { isoDate } from '@/features/quran/quran-reading';
 import { useCalendarData } from '@/features/calendar/use-calendar';
 import { EVENT_KINDS, parseISODate } from '@/features/calendar/calendar-config';
+import { locale, tr, trn } from '@/lib/i18n';
 
 interface Snapshot {
   tasksOpen: number;
@@ -83,13 +84,13 @@ function Tile({
       <Card className="h-full transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/30 group-hover:shadow-md">
         <CardContent className="p-5">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-muted-foreground">{label}</p>
+            <p className="text-sm font-medium text-muted-foreground">{trn(label)}</p>
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Icon className="h-4 w-4" />
             </span>
           </div>
           <div className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground">{value}</div>
-          {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
+          {sub && <div className="mt-1 text-xs text-muted-foreground">{trn(sub)}</div>}
           {children}
         </CardContent>
       </Card>
@@ -195,11 +196,11 @@ export function HomeDashboard() {
               {greeting(now)}{name ? `, ${name}` : ''}
             </h1>
             <p className="mt-1 text-sm text-brand-linen/80">
-              {now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+              {now.toLocaleDateString(locale(), { weekday: 'long', month: 'long', day: 'numeric' })}
               {prayer && (
                 <>
                   {' · '}
-                  {prayer.hijri.day} {prayer.hijri.month} {prayer.hijri.year} AH
+                  {trn(prayer.hijri.day)} {trn(prayer.hijri.month)} {trn(prayer.hijri.year)} {tr('AH')}
                 </>
               )}
             </p>
@@ -210,7 +211,7 @@ export function HomeDashboard() {
             )}
             {isFriday && (
               <p className="mt-3 text-sm text-brand-linen/90">
-                Jumu&apos;ah Mubarak — remember Surah Al-Kahf and extra salawat today.
+                {tr('Jumu\'ah Mubarak — remember Surah Al-Kahf and extra salawat today.')}
               </p>
             )}
           </div>
@@ -221,14 +222,14 @@ export function HomeDashboard() {
             <CardContent className="flex h-full flex-col p-6">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Next prayer{location?.name ? ` · ${location.name}` : ''}
+                  {tr('Next prayer')}{location?.name ? ` · ${location.name}` : ''}
                 </p>
                 <Moon className="h-5 w-5 text-primary" />
               </div>
               {current && prayer ? (
                 <>
                   <p className="mt-3 font-display text-3xl font-bold text-foreground">
-                    {current.nextKey === 'Dhuhr' && isFriday ? "Jumu'ah" : current.nextKey}
+                    {current.nextKey === 'Dhuhr' && isFriday ? tr('Jumu\'ah') : trn(current.nextKey)}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {format12h(prayer.timings[current.nextKey])} ·{' '}
@@ -243,7 +244,7 @@ export function HomeDashboard() {
                           current.nextKey === k ? 'bg-primary text-primary-foreground' : 'bg-muted'
                         )}
                       >
-                        <p className="text-[10px] font-medium opacity-80">{k}</p>
+                        <p className="text-[10px] font-medium opacity-80">{trn(k)}</p>
                         <p className="text-[11px] font-semibold tabular-nums">
                           {format12h(prayer.timings[k]).replace(/ (AM|PM)$/, '')}
                         </p>
@@ -254,11 +255,11 @@ export function HomeDashboard() {
               ) : (
                 <div className="mt-3">
                   <p className="text-sm text-muted-foreground">
-                    {location ? 'Loading today’s prayer times…' : 'Set your location to see prayer times.'}
+                    {location ? tr('Loading today’s prayer times…') : tr('Set your location to see prayer times.')}
                   </p>
                   {!location && (
                     <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                      Set location <ArrowRight className="h-4 w-4" />
+                      {tr('Set location')} <ArrowRight className="h-4 w-4" />
                     </span>
                   )}
                 </div>
@@ -269,25 +270,25 @@ export function HomeDashboard() {
       </div>
 
       {/* Today at a glance */}
-      <h2 className="mb-3 mt-8 text-lg font-semibold tracking-tight text-foreground">Today at a glance</h2>
+      <h2 className="mb-3 mt-8 text-lg font-semibold tracking-tight text-foreground">{tr('Today at a glance')}</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Tile
           href="/dashboard/meals"
           icon={Utensils}
-          label="Today's meals"
+          label={tr('Today\'s meals')}
           value={snap ? (snap.meals.length ? `${snap.meals.length} planned` : 'Not planned') : '—'}
           sub={
             snap?.meals.length ? (
               <span className="line-clamp-1">{snap.meals.map((m) => m.name).join(' · ')}</span>
             ) : (
-              'Plan halal meals for the week'
+              tr('Plan halal meals for the week')
             )
           }
         />
         <Tile
           href="/dashboard/finance"
           icon={Wallet}
-          label={snap && snap.budgetLeft !== null ? 'Budget left' : 'Spent this month'}
+          label={snap && snap.budgetLeft !== null ? tr('Budget left') : tr('Spent this month')}
           value={
             snap
               ? snap.budgetLeft !== null
@@ -297,18 +298,18 @@ export function HomeDashboard() {
           }
           sub={
             !snap
-              ? undefined
+              ? trn(undefined)
               : snap.budgetLeft !== null
-                ? `${formatMoney(snap.spent, currency)} spent so far`
-                : 'Set category limits to plan your month'
+                ? tr('{0} spent so far', [formatMoney(snap.spent, currency)])
+                : tr('Set category limits to plan your month')
           }
         />
         <Tile
           href="/dashboard/shopping"
           icon={ShoppingCart}
-          label="Groceries to buy"
+          label={tr('Groceries to buy')}
           value={snap ? snap.groceriesLeft : '—'}
-          sub={snap?.groceriesLeft ? 'items on your lists' : 'Your lists are clear'}
+          sub={snap?.groceriesLeft ? tr('items on your lists') : tr('Your lists are clear')}
         />
       </div>
 
@@ -318,15 +319,15 @@ export function HomeDashboard() {
             <div className="flex items-center justify-between">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <CalendarHeart className="h-4 w-4 text-primary" />
-                Coming up in the next two weeks
+                {tr('Coming up in the next two weeks')}
               </h3>
               <Link href="/dashboard/calendar" className="text-xs font-medium text-primary hover:underline">
-                Calendar
+                {tr('Calendar')}
               </Link>
             </div>
             {upcoming.length === 0 ? (
               <p className="py-6 text-sm text-muted-foreground">
-                Nothing on the calendar. Add Eid plans, family gatherings or school events.
+                {tr('Nothing on the calendar. Add Eid plans, family gatherings or school events.')}
               </p>
             ) : (
               <ul className="mt-3 space-y-1">
@@ -338,9 +339,9 @@ export function HomeDashboard() {
                       <span className={cn('inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg', meta.pill)}>
                         <Icon className="h-4 w-4" />
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-sm text-foreground">{it.title}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm text-foreground">{tr(it.title)}</span>
                       <span className="shrink-0 text-xs text-muted-foreground">
-                        {parseISODate(it.date).toLocaleDateString(undefined, {
+                        {parseISODate(it.date).toLocaleDateString(locale(), {
                           weekday: 'short',
                           month: 'short',
                           day: 'numeric',
@@ -363,12 +364,12 @@ export function HomeDashboard() {
                   <BookOpen className="h-5 w-5" />
                 </span>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-foreground">Quran today</p>
+                  <p className="text-sm font-semibold text-foreground">{tr('Quran today')}</p>
                   <Progress value={Math.min(100, ((snap?.quranToday ?? 0) / 4) * 100)} className="mt-2 h-1.5" />
                 </div>
                 <span className="flex items-center gap-1 text-sm font-medium tabular-nums text-foreground">
                   {(snap?.quranToday ?? 0) >= 4 && <CheckCircle2 className="h-4 w-4 text-brand-sage" />}
-                  {snap?.quranToday ?? 0} pages
+                  {trn(snap?.quranToday) ?? 0} {tr('pages')}
                 </span>
               </CardContent>
             </Card>
@@ -387,9 +388,9 @@ export function HomeDashboard() {
             <Sparkles className="h-5 w-5" />
           </span>
           <div className="flex-1">
-            <p className="font-semibold text-foreground">Ask your Family Companion</p>
+            <p className="font-semibold text-foreground">{tr('Ask your Family Companion')}</p>
             <p className="text-sm text-muted-foreground">
-              “What’s on this week?” · “Add dates and milk to my list” · “Plan a quick halal dinner”
+              {tr('“What’s on this week?” · “Add dates and milk to my list” · “Plan a quick halal dinner”')}
             </p>
           </div>
           <ArrowRight className="h-5 w-5 text-primary" />
@@ -403,9 +404,9 @@ export function HomeDashboard() {
             <ChefHat className="h-5 w-5" />
           </span>
           <div className="flex-1">
-            <p className="font-semibold text-foreground">What can I cook tonight?</p>
+            <p className="font-semibold text-foreground">{tr('What can I cook tonight?')}</p>
             <p className="text-sm text-muted-foreground">
-              Type what’s in your fridge — chicken, tomato, eggs — and get halal recipes you can make now.
+              {tr('Type what’s in your fridge — chicken, tomato, eggs — and get halal recipes you can make now.')}
             </p>
           </div>
           <ArrowRight className="h-5 w-5 text-primary" />
@@ -420,9 +421,9 @@ export function HomeDashboard() {
           <MapPin className="h-5 w-5" />
         </span>
         <div className="flex-1">
-          <p className="font-semibold text-foreground">Find halal food near you</p>
+          <p className="font-semibold text-foreground">{tr('Find halal food near you')}</p>
           <p className="text-sm text-muted-foreground">
-            Halal grocers, butchers, restaurants and mosques — at home or while travelling.
+            {tr('Halal grocers, butchers, restaurants and mosques — at home or while travelling.')}
           </p>
         </div>
         <ArrowRight className="h-5 w-5 text-primary" />
@@ -432,7 +433,7 @@ export function HomeDashboard() {
       <div className="mt-10 space-y-8">
         {VISIBLE_MODULE_GROUPS.map((group) => (
           <section key={group}>
-            <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">{group}</h2>
+            <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">{trn(group)}</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {lifeModules
                 .filter((m) => m.group === group)
@@ -446,7 +447,7 @@ export function HomeDashboard() {
 
       <div className="mt-10 flex justify-center">
         <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
-          <Link href="/support">Need help? Visit support</Link>
+          <Link href="/support">{tr('Need help? Visit support')}</Link>
         </Button>
       </div>
     </AppShell>

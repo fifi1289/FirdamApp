@@ -60,7 +60,10 @@ CREATE OR REPLACE FUNCTION public.save_recipe_translations(rows jsonb)
 RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE n integer;
 BEGIN
-  IF NOT public.is_admin() AND current_user NOT IN ('service_role', 'postgres') THEN
+  -- current_user is always the owner inside SECURITY DEFINER, so check who is
+  -- really calling: the admin, the AI chef (service role), or a direct database
+  -- session (SQL Editor). Signed-in families come through 'authenticator'.
+  IF NOT (public.is_admin() OR coalesce(auth.role(), '') = 'service_role' OR session_user <> 'authenticator') THEN
     RAISE EXCEPTION 'Only the Firdam admin can save translations.';
   END IF;
   INSERT INTO public.recipe_translations AS t (recipe_id, lang, name, short_description, long_description, steps, tips, equipment, storage_instructions, reheating_instructions, updated_at)
@@ -93,7 +96,10 @@ CREATE OR REPLACE FUNCTION public.save_food_translations(rows jsonb)
 RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE n integer;
 BEGIN
-  IF NOT public.is_admin() AND current_user NOT IN ('service_role', 'postgres') THEN
+  -- current_user is always the owner inside SECURITY DEFINER, so check who is
+  -- really calling: the admin, the AI chef (service role), or a direct database
+  -- session (SQL Editor). Signed-in families come through 'authenticator'.
+  IF NOT (public.is_admin() OR coalesce(auth.role(), '') = 'service_role' OR session_user <> 'authenticator') THEN
     RAISE EXCEPTION 'Only the Firdam admin can save translations.';
   END IF;
   INSERT INTO public.food_translations AS t (name_en, lang, name, updated_at)

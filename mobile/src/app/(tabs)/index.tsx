@@ -20,6 +20,7 @@ import { buildCalendarItems, iso, parseISODate, type CalendarItem } from '@/shar
 import { formatPortions } from '@/shared/pantry-portions';
 import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
 import { colors, fonts } from '@/theme';
+import { LanguageButton } from '@/components/language-picker';
 import { locale, tr } from '@/lib/i18n';
 
 function todayLabel(now: Date) {
@@ -343,7 +344,7 @@ export default function Today() {
   const { firstName } = useAuth();
   const now = useNow(60000);
   return (
-    <TabScreen home action={<BellButton />} title={todayLabel(now)} subtitle={tr('Assalamu alaikum{0}', [firstName ? `, ${firstName}` : ''])}>
+    <TabScreen home action={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><LanguageButton /><BellButton /></View>} title={todayLabel(now)} subtitle={tr('Assalamu alaikum{0}', [firstName ? `, ${firstName}` : ''])}>
       <FeatureRing />
       <PrayerCard />
       <DuaCard />

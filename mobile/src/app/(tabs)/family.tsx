@@ -14,7 +14,6 @@ import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 import { tr } from '@/lib/i18n';
-import { LanguageCard } from '@/components/language-picker';
 
 /** Opens the phone's email app with the app version filled in, so we can help faster. */
 function feedbackUrl(): string {
@@ -109,8 +108,6 @@ export default function Family() {
         </T>
         <Button label={tr('Invite your family')} onPress={() => router.push('/household')} />
       </Card>
-
-      <LanguageCard />
 
       <Card style={{ paddingVertical: 4 }}>
         {links.map((l, i) => (

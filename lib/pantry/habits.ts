@@ -10,6 +10,7 @@
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { ingredientKey, matchScore } from '@/lib/pantry/units';
 import type { PantryEvent, PantryItem } from '@/types/database';
+import { tr } from '@/lib/i18n';
 
 export interface RestockSuggestion {
   name: string;
@@ -73,7 +74,7 @@ export async function restockSuggestions(): Promise<RestockSuggestion[]> {
   // 1. Staples marked Out or Low.
   for (const p of pantry) {
     if (p.tracking === 'level' && (p.level === 'out' || p.level === 'low')) {
-      push({ name: p.name, reason: p.level === 'out' ? 'out' : 'running low', kind: p.level, quantity: null, unit: null });
+      push({ name: p.name, reason: p.level === 'out' ? 'out' : tr('running low'), kind: p.level, quantity: null, unit: null });
     }
   }
 
@@ -110,7 +111,7 @@ export async function restockSuggestions(): Promise<RestockSuggestion[]> {
         if (every >= 2 && since >= every * 0.9 && !stillPlenty && !(current?.tracking === 'level')) {
           push({
             name,
-            reason: `usually every ${every} days · last ${since} day${since === 1 ? '' : 's'} ago`,
+            reason: tr('usually every {0} days · last {1} day{2} ago', [every, since, since === 1 ? '' : 's']),
             kind: 'due',
             quantity: bought && bought > 0 ? +bought.toFixed(2) : null,
             unit: (lastAfter?.unit as string) ?? null,
@@ -134,7 +135,7 @@ export async function restockSuggestions(): Promise<RestockSuggestion[]> {
         const lasts = Math.round(median(spans));
         const since = (now - fulls[fulls.length - 1]!) / DAY;
         if (lasts >= 3 && since >= lasts) {
-          push({ name: current.name, reason: `usually runs low after ~${lasts} days`, kind: 'check', quantity: null, unit: null, item: current });
+          push({ name: current.name, reason: tr('usually runs low after ~{0} days', [lasts]), kind: 'check', quantity: null, unit: null, item: current });
         }
       }
     }

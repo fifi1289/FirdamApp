@@ -12,6 +12,7 @@ import {
 } from '@/features/meals/meal-plan-generator';
 import { guessCategory } from '@/features/groceries/grocery-utils';
 import { formatScaled, type MealTypeKey, type RecipeDetail } from '@/features/recipes/recipe-api';
+import { tr } from '@/lib/i18n';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -142,7 +143,7 @@ export async function addRecipeToShopping(recipe: RecipeDetail, servings: number
       quantity: i.quantity != null ? Math.round(i.quantity * factor * 100) / 100 : null,
       unit: i.unit || null,
       category: guessCategory(i.name),
-      note: `For ${recipe.name}`,
+      note: tr('For {0}', [recipe.name]),
       from_meal_plan: false,
     }));
   if (rows.length === 0) return 0;

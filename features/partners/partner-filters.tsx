@@ -10,9 +10,9 @@ export type WorksFilter = 'online' | 'in_person' | null;
 /** Country picker + All / Online / In person, for Services and Learning. */
 export function PartnerFilters({ shops, works, onWorks }: { shops: PartnerShop[]; works: WorksFilter; onWorks: (w: WorksFilter) => void }) {
   const opts: { id: WorksFilter; label: string }[] = [
-    { id: null, label: 'All' },
-    { id: 'online', label: 'Online' },
-    { id: 'in_person', label: 'In person' },
+    { id: null, label: tr('All') },
+    { id: 'online', label: tr('Online') },
+    { id: 'in_person', label: tr('In person') },
   ];
   return (
     <div className="mb-5 flex flex-wrap items-center gap-x-5 gap-y-3">

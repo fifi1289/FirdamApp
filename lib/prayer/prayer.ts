@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { callEdgeFunction } from '@/lib/supabase/functions';
-import { tr } from '@/lib/i18n';
+import { tr, getLang } from '@/lib/i18n';
 
 export interface PrayerTimings {
   Imsak: string;
@@ -240,4 +240,12 @@ export function formatRelative(ms: number): string {
 export function parseGregorian(date: string): Date {
   const [dd, mm, yyyy] = date.split('-').map(Number);
   return new Date(yyyy, mm - 1, dd);
+}
+
+const HIJRI_MONTHS_AR = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الآخر', 'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'];
+
+/** The Hijri month as shown: Arabic names on the Arabic site, the usual transliteration in English and French. */
+export function hijriMonthLabel(h: { month: string; monthAr?: string | null; monthNumber?: number }): string {
+  if (getLang() !== 'ar') return h.month;
+  return (h.monthNumber && HIJRI_MONTHS_AR[h.monthNumber - 1]) || h.monthAr || h.month;
 }

@@ -256,10 +256,10 @@ export function RecipesDashboard() {
   };
 
   const tabs: { value: Tab; label: string }[] = [
-    { value: 'all', label: 'All recipes' },
-    { value: 'cook', label: 'What can I cook?' },
-    { value: 'favorites', label: `Favourites${favorites.size ? ` (${favorites.size})` : ''}` },
-    { value: 'mine', label: `My recipes${myCount ? ` (${myCount})` : ''}` },
+    { value: 'all', label: tr('All recipes') },
+    { value: 'cook', label: tr('What can I cook?') },
+    { value: 'favorites', label: tr('Favourites{0}', [favorites.size ? ` (${favorites.size})` : '']) },
+    { value: 'mine', label: tr('My recipes{0}', [myCount ? ` (${myCount})` : '']) },
   ];
 
   return (

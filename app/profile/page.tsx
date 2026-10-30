@@ -75,23 +75,23 @@ export default function ProfilePage() {
   };
 
   const details = [
-    { icon: Mail, label: 'Email', value: user?.email ?? '—' },
+    { icon: Mail, label: tr('Email'), value: user?.email ?? '—' },
     {
       icon: Calendar,
-      label: 'Member since',
+      label: tr('Member since'),
       value: user?.created_at
         ? new Date(user.created_at).toLocaleDateString(locale(), { month: 'long', year: 'numeric' })
         : '—',
     },
-    { icon: MapPin, label: 'Location', value: location?.label ?? 'Not set' },
+    { icon: MapPin, label: tr('Location'), value: location?.label ?? 'Not set' },
     {
       icon: MoonStar,
-      label: 'Prayer calculation',
+      label: tr('Prayer calculation'),
       value: `${method?.name ?? 'ISNA'}${settings.school === 1 ? ' · Hanafi Asr' : ''}`,
     },
     {
       icon: Users,
-      label: 'Family members',
+      label: tr('Family members'),
       value: familyCount === null ? '—' : String(familyCount),
     },
   ];

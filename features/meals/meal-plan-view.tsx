@@ -99,21 +99,21 @@ function PantrySummaryBadge({
   const config = {
     'all-available': {
       icon: CheckCircle2,
-      label: compact ? 'In pantry' : 'All ingredients available',
+      label: compact ? tr('In pantry') : tr('All ingredients available'),
       className:
         'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
     },
     'some-missing': {
       icon: AlertTriangle,
       label: compact
-        ? `${summary.missingCount + summary.lowCount} missing`
-        : 'Some ingredients missing',
+        ? tr('{0} missing', [summary.missingCount + summary.lowCount])
+        : tr('Some ingredients missing'),
       className:
         'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
     },
     'all-missing': {
       icon: PackageX,
-      label: compact ? 'Not in pantry' : 'All ingredients missing',
+      label: compact ? tr('Not in pantry') : tr('All ingredients missing'),
       className:
         'border-destructive/30 bg-destructive/10 text-destructive',
     },
@@ -226,7 +226,7 @@ export function MealPlanView({
         if (!res) {
           toast.message(tr('No other {0} in the library fits your family', [getMealTypeLabel(meal.type).toLowerCase()]), {
             description: tr('The AI chef can create a new one, and it joins the recipe library.'),
-            action: { label: 'Create with the AI chef', onClick: () => handleReplaceMeal(meal, date, 'ai') },
+            action: { label: tr('Create with the AI chef'), onClick: () => handleReplaceMeal(meal, date, 'ai') },
           });
           return;
         }

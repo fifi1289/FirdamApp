@@ -48,6 +48,7 @@ import {
 import { cn } from '@/lib/utils';
 import { QiblaCompass } from '@/features/prayer-times/qibla-compass';
 import { locale, tr, trn } from '@/lib/i18n';
+import { hijriMonthLabel } from '@/lib/prayer/prayer';
 
 function SettingsPopover({
   settings,
@@ -210,7 +211,7 @@ function MonthlyTimetable({
                         {date.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric' })}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
-                        {trn(d.hijri.day)} {trn(d.hijri.month.split(' ')[0])}
+                        {trn(d.hijri.day)} {hijriMonthLabel(d.hijri).split(' ')[0]}
                       </td>
                       {(['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const).map((k) => (
                         <td key={k} className="px-3 py-2 text-foreground/90">
@@ -364,11 +365,11 @@ export function PrayerSchedule() {
                             })}
                           </p>
                           <p className="mt-1 font-display text-lg font-semibold">
-                            {trn(data.hijri.day)} {trn(data.hijri.month)} {trn(data.hijri.year)} {tr('AH')}
+                            {trn(data.hijri.day)} {hijriMonthLabel(data.hijri)} {trn(data.hijri.year)} {tr('AH')}
                           </p>
                           {data.hijri.holidays && data.hijri.holidays.length > 0 && (
                             <p className="mt-1 text-xs font-medium text-brand-gold">
-                              {data.hijri.holidays.join(' · ')}
+                              {data.hijri.holidays.map((x) => tr(x)).join(' · ')}
                             </p>
                           )}
                         </div>

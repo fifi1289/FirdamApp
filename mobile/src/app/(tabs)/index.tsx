@@ -21,7 +21,7 @@ import { formatPortions } from '@/shared/pantry-portions';
 import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
 import { colors, fonts } from '@/theme';
 import { LanguageButton } from '@/components/language-picker';
-import { locale, tr } from '@/lib/i18n';
+import { locale, tr, isRTL } from '@/lib/i18n';
 
 function todayLabel(now: Date) {
   return now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'short' });
@@ -208,14 +208,16 @@ function DuaCard() {
     <Pressable accessibilityRole="button" accessibilityHint={tr('Opens Quran and Duas')} onPress={() => router.push('/quran')}>
       <Card style={{ gap: 8 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          {tr('DUA OF THE DAY · {0}', [dua.title.toUpperCase()])}
+          {tr('DUA OF THE DAY · {0}', [tr(dua.title).toUpperCase()])}
         </T>
         <T style={{ fontFamily: fonts.arabic, textAlign: 'right', writingDirection: 'rtl', lineHeight: 40 }} size={21}>
           {dua.arabic}
         </T>
-        <T size={14} style={{ lineHeight: 20 }} numberOfLines={3}>
-          {dua.translation}
-        </T>
+        {!isRTL() ? (
+          <T size={14} style={{ lineHeight: 20 }} numberOfLines={3}>
+            {dua.translation}
+          </T>
+        ) : null}
         <T size={13.5} weight="bold" color={colors.walnut}>
           {tr('More duas ›')}
         </T>

@@ -7,6 +7,7 @@ import type { MealIngredient } from '@/features/meals/meal-plan-generator';
 import type { PantryItem } from '@/types/database';
 import { checkNeeds, Ledger, type Line, type Need, type PantryLike } from '@/lib/pantry/engine';
 import { formatAmount } from '@/lib/pantry/units';
+import { tr } from '@/lib/i18n';
 
 export type IngredientStatus = 'available' | 'low' | 'missing';
 
@@ -53,16 +54,16 @@ function toCheck(ingredient: MealIngredient, line: Line): IngredientCheck {
     line,
     note:
       line.status === 'basic'
-        ? 'kitchen basic'
+        ? tr('kitchen basic')
         : line.status === 'staple' || line.status === 'staple-low'
           ? line.haveText
           : line.status === 'missing'
-            ? 'not in your pantry'
+            ? tr('not in your pantry')
             : line.status === 'short'
-              ? `need ${line.neededText} · have ${line.haveText}`
+              ? tr('need {0} · have {1}', [line.neededText, line.haveText])
               : line.status === 'have-some'
-                ? 'in your pantry'
-                : `have ${line.haveText}`,
+                ? tr('in your pantry')
+                : tr('have {0}', [line.haveText]),
   };
 }
 

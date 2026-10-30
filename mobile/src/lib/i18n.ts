@@ -122,3 +122,19 @@ export function useLanguage() {
   );
   return { lang, ready, setLang };
 }
+
+const BOOKS: Record<string, { fr: string; ar: string }> = {
+  'Sahih al-Bukhari': { fr: 'Sahih al-Bukhari', ar: 'صحيح البخاري' },
+  'Sahih Muslim': { fr: 'Sahih Muslim', ar: 'صحيح مسلم' },
+  'Abu Dawud': { fr: 'Abou Dawoud', ar: 'أبو داود' },
+  Tirmidhi: { fr: 'Tirmidhi', ar: 'الترمذي' },
+  'Ibn Majah': { fr: 'Ibn Majah', ar: 'ابن ماجه' },
+  Quran: { fr: 'Coran', ar: 'القرآن' },
+};
+
+/** A dua's source in the current language ("Sahih al-Bukhari 6307" → "صحيح البخاري 6307"). */
+export function duaSource(source: string): string {
+  if (current === 'en') return source;
+  const lang = current;
+  return Object.entries(BOOKS).reduce((s, [en, t]) => s.split(en).join(t[lang]), source);
+}

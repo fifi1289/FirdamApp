@@ -17,6 +17,7 @@ import { insideRamadan, isoDate, nextRamadan } from '@/features/fasting/makeup-c
 import { cn } from '@/lib/utils';
 import { iso, parseISODate, sunnahFastingDays, type FastingDay, type HijriLabel } from '@/features/calendar/calendar-core';
 import { locale, tr, trn } from '@/lib/i18n';
+import { hijriMonthLabel } from '@/lib/prayer/prayer';
 
 export const FASTING_PREFS_KEY = 'firdam.fasting';
 
@@ -41,7 +42,7 @@ async function loadHijri(days: number): Promise<{ map: Map<string, HijriLabel>; 
     for (const d of month) {
       map.set(iso(parseGregorian(d.gregorian.date)), {
         day: Number(d.hijri.day),
-        month: d.hijri.month,
+        month: hijriMonthLabel(d.hijri),
         monthNumber: d.hijri.monthNumber ?? 0,
         year: Number(d.hijri.year),
       });

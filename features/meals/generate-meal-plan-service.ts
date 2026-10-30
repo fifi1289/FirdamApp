@@ -12,6 +12,7 @@ import type {
 import type { MealPreferencesState } from '@/features/meals/meals-config';
 import { newPlanId, normalizeMeal } from '@/features/meals/plan-core';
 import { conflictsWithAllergies } from '@/lib/recipes/allergens';
+import { tr } from '@/lib/i18n';
 
 const FUNCTION_SLUG = 'generate-meal-plan';
 const VALID_DIFFICULTIES: MealDifficulty[] = ['Easy', 'Medium', 'Hard'];
@@ -193,7 +194,7 @@ export async function requestGeneratedMealPlan(
   if (!res.ok) {
     const errorObj = json as { error?: string; details?: string } | null;
     const message =
-      errorObj?.error ?? `Meal plan request failed (${res.status}).`;
+      errorObj?.error ?? tr('Meal plan request failed ({0}).', [res.status]);
     throw new GenerateMealPlanError(message, res.status, errorObj?.details);
   }
 
@@ -237,7 +238,7 @@ export async function requestAISwapMeal(input: {
   });
   const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string } | null;
   if (!res.ok || !json?.meal) {
-    throw new GenerateMealPlanError(json?.error ?? `The AI chef could not swap this meal (${res.status}).`, res.status);
+    throw new GenerateMealPlanError(json?.error ?? tr('The AI chef could not swap this meal ({0}).', [res.status]), res.status);
   }
   const meal = normalizeMeal({ ...json.meal, id: (json.meal.id as string | undefined) ?? newPlanId(), type: input.type });
   const allergies = input.preferences.allergies ?? [];

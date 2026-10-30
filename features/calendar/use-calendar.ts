@@ -7,6 +7,7 @@ import { readSavedLocation } from '@/lib/geo/location';
 import { fetchPrayerMonth, parseGregorian, DEFAULT_PRAYER_SETTINGS } from '@/lib/prayer/prayer';
 import type { FamilyEvent, FamilyMember } from '@/types/database';
 import { buildCalendarItems, iso, parseISODate, type CalendarItem as SharedItem, type FastingOptions, type HijriLabel } from '@/features/calendar/calendar-core';
+import { hijriMonthLabel } from '@/lib/prayer/prayer';
 
 export const FAMILY_EVENTS_CHANGED = 'family-events-changed';
 
@@ -65,7 +66,7 @@ export function useCalendarData(rangeStart: Date, rangeEnd: Date, fasting: Fasti
         for (const d of days) {
           map.set(iso(parseGregorian(d.gregorian.date)), {
             day: Number(d.hijri.day),
-            month: d.hijri.month,
+            month: hijriMonthLabel(d.hijri),
             monthNumber: d.hijri.monthNumber ?? 0,
             year: Number(d.hijri.year),
           });

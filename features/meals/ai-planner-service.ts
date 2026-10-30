@@ -1,6 +1,7 @@
 'use client';
 
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { tr } from '@/lib/i18n';
 
 /**
  * Shape of a recipe passed to the AI planner — a subset of the full recipe
@@ -120,7 +121,7 @@ export async function requestAIPlan(
     | null;
 
   if (!res.ok) {
-    const message = json?.error ?? `AI planner request failed (${res.status}).`;
+    const message = json?.error ?? tr('AI planner request failed ({0}).', [res.status]);
     throw new AIPlannerError(message, res.status, json?.details);
   }
 

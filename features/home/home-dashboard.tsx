@@ -46,6 +46,7 @@ import { isoDate } from '@/features/quran/quran-reading';
 import { useCalendarData } from '@/features/calendar/use-calendar';
 import { EVENT_KINDS, parseISODate } from '@/features/calendar/calendar-config';
 import { locale, tr, trn } from '@/lib/i18n';
+import { hijriMonthLabel } from '@/lib/prayer/prayer';
 
 interface Snapshot {
   tasksOpen: number;
@@ -200,13 +201,13 @@ export function HomeDashboard() {
               {prayer && (
                 <>
                   {' · '}
-                  {trn(prayer.hijri.day)} {trn(prayer.hijri.month)} {trn(prayer.hijri.year)} {tr('AH')}
+                  {trn(prayer.hijri.day)} {hijriMonthLabel(prayer.hijri)} {trn(prayer.hijri.year)} {tr('AH')}
                 </>
               )}
             </p>
             {prayer?.hijri.holidays && prayer.hijri.holidays.length > 0 && (
               <p className="mt-2 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-brand-gold">
-                {prayer.hijri.holidays.join(' · ')}
+                {prayer.hijri.holidays.map((x) => tr(x)).join(' · ')}
               </p>
             )}
             {isFriday && (

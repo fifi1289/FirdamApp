@@ -97,7 +97,7 @@ export function makeupSummary(records: MakeupRecord[], today = new Date()): stri
   const left = totalRemaining(records);
   if (!left) return null;
   const next = nextRamadan(today);
-  const days = `${left} ${left === 1 ? 'day' : 'days'} left to make up`;
+  const days = left === 1 ? tr('1 day left to make up') : tr('{0} days left to make up', [left]);
   return next ? (next.daysAway === 1 ? tr('{0} before Ramadan (in 1 day)', [days]) : tr('{0} before Ramadan (in {1} days)', [days, next.daysAway])) : days;
 }
 

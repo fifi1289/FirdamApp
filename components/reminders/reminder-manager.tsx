@@ -14,6 +14,7 @@ import {
 import { notifyOnce, useReminderSettings } from '@/lib/reminders/reminders';
 import { sunnahFastingDays, type HijriLabel } from '@/features/calendar/calendar-core';
 import { nextRamadan, totalRemaining, type MakeupRecord } from '@/features/fasting/makeup-core';
+import { tr } from '@/lib/i18n';
 
 function isoDay(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -53,16 +54,16 @@ export function ReminderManager() {
           const delay = fireAt - now.getTime();
           if (delay < -60_000 || delay > 24 * 3600_000) continue;
           const isJumuah = p.key === 'Dhuhr' && now.getDay() === 5;
-          const name = isJumuah ? "Jumu'ah" : p.label;
+          const name = tr(isJumuah ? "Jumu'ah" : p.label);
           timers.push(
             setTimeout(
               () =>
                 notifyOnce(
                   `prayer-${today}-${p.key}`,
                   settings.prayerLeadMinutes > 0
-                    ? `${name} in ${settings.prayerLeadMinutes} minutes`
-                    : `It's time for ${name}`,
-                  `${name} is at ${format12h(day.timings[p.key])} in ${location.name || 'your area'}.`
+                    ? tr('{0} in {1} minutes', [name, settings.prayerLeadMinutes])
+                    : tr('It’s time for {0}.', [name]),
+                  tr('{0} is at {1} in {2}.', [name, format12h(day.timings[p.key]), location.name || tr('your area')])
                 ),
               Math.max(0, delay)
             )
@@ -100,7 +101,7 @@ export function ReminderManager() {
             : yearly
               ? sameDayThisYear(base, Number(date.slice(0, 4))) === date
               : base === date;
-          if (match) notifyOnce(`event-${id}-${date}-${label}`, `${label}: ${title}`, 'From your family calendar');
+          if (match) notifyOnce(`event-${id}-${date}-${label}`, `${tr(label)}: ${title}`, tr('From your family calendar'));
         }
       };
       for (const e of events.data ?? []) check(e.id, e.title, e.starts_on, e.repeats_yearly, e.repeats_weekly);
@@ -141,7 +142,7 @@ export function ReminderManager() {
         const eight = new Date(now);
         eight.setHours(20, 0, 0, 0);
         timer = setTimeout(
-          () => notifyOnce(`fast-${key}`, `Fast tomorrow: ${fast.title}`, 'Remember your suhoor. May Allah accept it from you.'),
+          () => notifyOnce(`fast-${key}`, tr('Fast tomorrow: {0}', [fast.title]), tr('Remember your suhoor. May Allah accept it from you.')),
           Math.max(0, eight.getTime() - Date.now())
         );
       })
@@ -166,8 +167,8 @@ export function ReminderManager() {
         const stage = next.daysAway <= 7 ? 'week' : 'month';
         notifyOnce(
           `makeup-${next.year}-${stage}`,
-          `${left} ${left === 1 ? 'fast' : 'fasts'} to make up before Ramadan`,
-          `Ramadan starts in about ${next.daysAway} ${next.daysAway === 1 ? 'day' : 'days'}. Log each day in Fasting as you make it up.`
+          tr('{0} fasts to make up before Ramadan', [left]),
+          tr('Ramadan starts in about {0} days. Log each day in Fasting as you make it up.', [next.daysAway])
         );
       });
     return () => {

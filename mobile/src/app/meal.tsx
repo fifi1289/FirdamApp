@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +14,7 @@ import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 import { ToBuyButton } from '@/components/to-buy-button';
 import { tr } from '@/lib/i18n';
+import { addRecipeSteps } from '@/lib/recipe-i18n';
 
 /** A meal the AI chef wrote (not from the recipe library). */
 export default function MealScreen() {
@@ -40,6 +41,17 @@ export default function MealScreen() {
     }
   };
   const check = useMemo(() => (meal ? checkNeeds(mealNeeds(meal), k.pantry) : null), [meal, k.pantry]);
+  // French / Arabic steps for library meals: redraw once they arrive.
+  const [, setStepsReady] = useState(0);
+  const mealId = meal?.id;
+  const mealSteps = meal?.recipe;
+  useEffect(() => {
+    if (mealId && /^[0-9a-f-]{36}$/i.test(mealId) && mealSteps?.length) {
+      addRecipeSteps(mealId, mealSteps)
+        .then(() => setStepsReady((n) => n + 1))
+        .catch(() => {});
+    }
+  }, [mealId, mealSteps]);
 
   if (!meal || !check) {
     return (
@@ -76,7 +88,7 @@ export default function MealScreen() {
             {tr('{0} · {1} MIN · FOR {2}', [meal.type.toUpperCase(), meal.prepTime + meal.cookTime, formatPortions(meal.servings)])}
           </T>
           <T weight="extrabold" size={26} style={{ marginTop: 4 }} accessibilityRole="header">
-            {meal.name}
+            {tr(meal.name)}
           </T>
           {meal.description ? (
             <T size={14.5} color="#5F5048" style={{ marginTop: 6, lineHeight: 21 }}>
@@ -97,7 +109,7 @@ export default function MealScreen() {
             {check.lines.map((l, idx) => (
               <View key={`${l.need.name}-${idx}`} style={[styles.row, idx < check.lines.length - 1 && styles.line]}>
                 <T size={14.5} style={{ flex: 1 }}>
-                  {l.need.name}
+                  {tr(l.need.name)}
                 </T>
                 <T size={13} color={colors.muted}>
                   {l.neededText}
@@ -131,7 +143,7 @@ export default function MealScreen() {
                   </T>
                 </View>
                 <T size={15} style={{ flex: 1, lineHeight: 22 }}>
-                  {s}
+                  {tr(s)}
                 </T>
               </View>
             ))}

@@ -33,7 +33,13 @@ import {
   type MockMeal,
   type RecipeRow,
 } from '@/shared/plan-core';
-import { tr } from '@/lib/i18n';
+import { addTranslations, getLang, tr } from '@/lib/i18n';
+
+/** The AI chef sends new recipes in the app's language too: show them straight away. */
+function applyTranslations(words: unknown) {
+  const lang = getLang();
+  if (lang !== 'en' && words && typeof words === 'object') addTranslations(lang, words as Record<string, string>);
+}
 
 export type { GeneratedMealPlan, MockMeal, RecipeRow, MealPreferencesState, Household };
 export { formatWeekRange, getStartOfWeek, formatDateISO };
@@ -300,6 +306,8 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
       allergies: prefs.allergies,
       cuisinePreferences: prefs.cuisinePreferences,
       usePantryFirst: prefs.usePantryFirst,
+      // New recipes are saved in English, French and Arabic.
+      lang: getLang(),
       pantryItems: pantry.map((p) => ({
         name: p.name,
         quantity: p.quantity,
@@ -309,11 +317,12 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
     }),
   });
   const json = (await res.json().catch(() => null)) as
-    | { days?: { dayIndex: number; dayName: string; date: string; meals: Record<string, unknown>[] }[]; error?: string }
+    | { days?: { dayIndex: number; dayName: string; date: string; meals: Record<string, unknown>[] }[]; error?: string; translations?: unknown }
     | null;
   if (!res.ok || !json?.days?.length) {
     throw new AIPlanError(json?.error ?? tr('The AI chef could not make a plan ({0}).', [res.status]), res.status);
   }
+  applyTranslations(json.translations);
   const plan = normalizePlan({
     id: newPlanId(),
     duration: prefs.planningDuration,
@@ -345,10 +354,12 @@ export async function aiSwapMeal(prefs: MealPreferencesState, portions: number, 
       allergies: prefs.allergies,
       cuisinePreferences: prefs.cuisinePreferences,
       swap: { type, avoid },
+      lang: getLang(),
     }),
   });
-  const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string } | null;
+  const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string; translations?: unknown } | null;
   if (!res.ok || !json?.meal) throw new AIPlanError(json?.error ?? tr('The AI chef could not swap this meal ({0}).', [res.status]), res.status);
+  applyTranslations(json.translations);
   // The server saves the dish in the recipe library and returns its id.
   const meal = normalizeMeal({ ...json.meal, id: (json.meal.id as string | undefined) ?? newPlanId(), type });
   if (json.meal.id) await loadRecipes(true).catch(() => []);

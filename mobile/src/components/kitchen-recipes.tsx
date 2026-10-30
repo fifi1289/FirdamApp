@@ -52,7 +52,7 @@ export function RecipesView() {
     if (!recipes) return [];
     const q = query.trim().toLowerCase();
     return recipes
-      .filter((r) => !q || r.name.toLowerCase().includes(q) || (r.cuisine?.name ?? '').toLowerCase().includes(q))
+      .filter((r) => !q || r.name.toLowerCase().includes(q) || tr(r.name).toLowerCase().includes(q) || (r.cuisine?.name ?? '').toLowerCase().includes(q))
       .filter((r) => !filters.has('safe') || (isSafeFor(r, allergies) && fitsDiets(r, diets)))
       .filter((r) => !filters.has('quick') || totalMinutes(r) <= 30)
       .filter((r) => !meal || (r.meal_type?.name ?? '').toLowerCase().includes(meal))
@@ -135,7 +135,7 @@ export function RecipesView() {
               </Section>
               <Section title={tr('Cuisine')}>
                 {cuisines.map((c) => (
-                  <Chip key={c} label={c} selected={cuisine === c} onPress={() => setCuisine(cuisine === c ? null : c)} />
+                  <Chip key={c} label={tr(c)} selected={cuisine === c} onPress={() => setCuisine(cuisine === c ? null : c)} />
                 ))}
               </Section>
               <Button label={tr('Show {0} recipe{1}', [shown.length, shown.length === 1 ? '' : 's'])} onPress={() => setSheet(false)} />
@@ -164,10 +164,10 @@ export function RecipesView() {
           <Photo uri={recipeImage(r)} size={76} />
           <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
             <T size={11.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }} numberOfLines={1}>
-              {tr('{0} · {1} MIN', [(r.cuisine?.name ?? 'Halal').toUpperCase(), totalMinutes(r) || '–'])}
+              {tr('{0} · {1} MIN', [tr(r.cuisine?.name ?? 'Halal').toUpperCase(), totalMinutes(r) || '–'])}
             </T>
             <T size={15.5} weight="bold" numberOfLines={2}>
-              {r.name}
+              {tr(r.name)}
             </T>
             {check ? (
               <Badge

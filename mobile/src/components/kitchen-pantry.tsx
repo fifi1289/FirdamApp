@@ -182,7 +182,7 @@ export function PantryView() {
           {soon.map(({ i, d }) => (
             <View key={i.id} style={styles.soonRow}>
               <T size={15} weight="semibold" style={{ flex: 1 }}>
-                {i.name}
+                {tr(i.name)}
               </T>
               <Badge label={d! < 0 ? tr('Past its date') : d === 0 ? tr('Today') : d === 1 ? tr('Tomorrow') : tr('{0} days', [d])} tone={d! <= 0 ? 'brick' : 'amber'} />
             </View>
@@ -217,7 +217,7 @@ export function PantryView() {
                   <View style={[styles.dot, { backgroundColor: aisleColor(g.category) }]} />
                   <View style={{ flex: 1, gap: 2 }}>
                     <T size={15} weight="semibold">
-                      {i.name}
+                      {tr(i.name)}
                     </T>
                     <T size={12.5} color={colors.muted}>
                       {amount(i)}

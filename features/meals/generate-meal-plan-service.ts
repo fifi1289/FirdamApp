@@ -12,7 +12,13 @@ import type {
 import type { MealPreferencesState } from '@/features/meals/meals-config';
 import { newPlanId, normalizeMeal } from '@/features/meals/plan-core';
 import { conflictsWithAllergies } from '@/lib/recipes/allergens';
-import { tr } from '@/lib/i18n';
+import { addTranslations, getLang, tr } from '@/lib/i18n';
+
+/** The AI chef sends the new recipes in the page's language too: show them straight away. */
+function applyTranslations(words: unknown) {
+  const lang = getLang();
+  if (lang !== 'en' && words && typeof words === 'object') addTranslations(lang, words as Record<string, string>);
+}
 
 const FUNCTION_SLUG = 'generate-meal-plan';
 const VALID_DIFFICULTIES: MealDifficulty[] = ['Easy', 'Medium', 'Hard'];
@@ -165,6 +171,8 @@ export async function requestGeneratedMealPlan(
     allergies: preferences.allergies,
     cuisinePreferences: preferences.cuisinePreferences,
     usePantryFirst: preferences.usePantryFirst,
+    // New recipes are saved in English, French and Arabic.
+    lang: getLang(),
     pantryItems: pantryItems.map((p) => {
       const exp = (p as { expiration_date?: string | null }).expiration_date;
       return {
@@ -206,6 +214,7 @@ export async function requestGeneratedMealPlan(
     );
   }
 
+  applyTranslations((planData as { translations?: unknown }).translations);
   return mapEdgeResponse(planData, input);
 }
 
@@ -234,12 +243,14 @@ export async function requestAISwapMeal(input: {
       allergies: input.preferences.allergies,
       cuisinePreferences: input.preferences.cuisinePreferences,
       swap: { type: input.type, avoid: input.avoid.slice(0, 40) },
+      lang: getLang(),
     }),
   });
-  const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string } | null;
+  const json = (await res.json().catch(() => null)) as { meal?: Record<string, unknown>; error?: string; translations?: unknown } | null;
   if (!res.ok || !json?.meal) {
     throw new GenerateMealPlanError(json?.error ?? tr('The AI chef could not swap this meal ({0}).', [res.status]), res.status);
   }
+  applyTranslations(json.translations);
   const meal = normalizeMeal({ ...json.meal, id: (json.meal.id as string | undefined) ?? newPlanId(), type: input.type });
   const allergies = input.preferences.allergies ?? [];
   if (allergies.length && conflictsWithAllergies(meal.ingredients.map((i) => i.name), allergies)) {

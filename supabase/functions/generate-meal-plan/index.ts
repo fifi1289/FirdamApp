@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { HALAL_RULES, mealHaramReason } from "../_shared/halal.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import { photographRecipes } from "../_shared/recipe-image.ts";
+import { requestLang, translateForPlan } from "../_shared/recipe-translate.ts";
 import {
   FREE_AI_PLANS_PER_MONTH,
   FREE_AI_SWAPS_PER_MONTH,
@@ -77,6 +78,8 @@ interface GenerateRequest {
   pantryItems?: { name: string; quantity: number; unit: string; useSoon?: boolean }[];
   /** Swap one meal: its type, and dishes already in the plan to avoid. */
   swap?: { type: string; avoid?: string[] };
+  /** The language the person uses ("en", "fr", "ar"): new recipes are saved in all three. */
+  lang?: string;
 }
 
 /**
@@ -161,8 +164,9 @@ Return JSON {"meal": {type, name, cuisine, description, ingredients [{name, quan
     if (meal && isMeal(meal) && !mealHaramReason(meal as unknown as Record<string, unknown>)) {
       (meal as PlannedMeal).type = type;
       await saveToLibrary([meal as PlannedMeal]);
+      const translations = await translateForPlan(apiKey, [meal as PlannedMeal], requestLang(body.lang));
       await recordUsage(userId, "ai_meal_swap");
-      return json({ meal, used: used + 1, limit });
+      return json({ meal, used: used + 1, limit, translations });
     }
   }
   return json({ error: "The AI chef couldn't suggest a suitable meal. Try again, or swap from the library." }, 502);
@@ -454,10 +458,14 @@ Deno.serve(async (req: Request) => {
       for (const d of planOut.days) d.meals = d.meals.filter(Boolean);
     }
 
-    await saveToLibrary(planOut.days.flatMap((d) => d.meals));
+    const allMeals = planOut.days.flatMap((d) => d.meals);
+    await saveToLibrary(allMeals);
+    // Same recipes in French and Arabic: the person's language comes back with
+    // the plan, the other is saved in the background.
+    const translations = await translateForPlan(apiKey, allMeals, requestLang(body.lang));
     await recordUsage(user.id, "ai_meal_plan");
 
-    return new Response(JSON.stringify(planOut), {
+    return new Response(JSON.stringify({ ...planOut, translations }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {

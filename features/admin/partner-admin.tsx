@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { PARTNER_CATEGORIES, topicsFor } from '@/features/groceries/partners';
+import { PARTNER_CATEGORIES, countryName, reachLabel, topicsFor, worksLabel, type PartnerShop } from '@/features/groceries/partners';
+import { EMPTY_WHERE, PartnerWhereFields, cleanWhere, whereProblem, type PartnerWhere } from '@/features/partners/partner-where-fields';
 import { FOUNDING_FREE_UNTIL } from '@/features/partners/partner-terms';
 import type { Database, PartnerApplication, PartnerShopRow } from '@/types/database';
 
@@ -40,6 +41,17 @@ const EMPTY: Insert = {
   active: true,
   position: 0,
 };
+
+/** The where-fields of a listing being edited (defaults for listings saved before countries existed). */
+function whereOf(f: Partial<Insert>): PartnerWhere {
+  return {
+    country: f.country ?? EMPTY_WHERE.country,
+    ships_mode: f.ships_mode ?? EMPTY_WHERE.ships_mode,
+    ship_countries: f.ship_countries ?? [],
+    exclude_countries: f.exclude_countries ?? [],
+    works: f.works ?? null,
+  };
+}
 
 /** Shrinks a photo to at most `max` px wide, as WebP (~50–80 KB). */
 async function compress(file: File, max: number): Promise<Blob> {
@@ -164,6 +176,8 @@ export function PartnerAdmin() {
     if (!form) return;
     if (!form.name.trim()) return toast.error('Add the shop name.');
     if (!/^https:\/\//.test(form.url.trim())) return toast.error('The link must start with https://');
+    const whereIssue = whereProblem(whereOf(form), form.department);
+    if (whereIssue) return toast.error(whereIssue);
     setBusy('save');
     const row: Insert = {
       name: form.name.trim(),
@@ -183,6 +197,7 @@ export function PartnerAdmin() {
       terms_accepted_at: form.terms_accepted_at ?? null,
       active: form.active ?? true,
       position: Number(form.position) || 0,
+      ...cleanWhere(whereOf(form), form.department),
       ...(!form.id && fromApplication ? { application_id: fromApplication } : {}),
     };
     const { data: saved, error } = form.id
@@ -256,6 +271,15 @@ export function PartnerAdmin() {
       discount_text: a.discount_text ?? '',
       terms_accepted_at: a.terms_agreed ? a.created_at : null,
       active: false,
+      ...(a.country
+        ? {
+            country: a.country,
+            ships_mode: a.ships_mode ?? 'country',
+            ship_countries: a.ship_countries ?? [],
+            exclude_countries: a.exclude_countries ?? [],
+            works: a.works ?? null,
+          }
+        : {}),
     });
     setContact({ owner_name: a.owner_name, email: a.email });
     // Bring the filled-in form into view (it sits below the applications).
@@ -310,6 +334,11 @@ export function PartnerAdmin() {
                 </p>
                 <Consent a={a} />
                 {a.description && <p className="text-foreground">{a.description}</p>}
+                {a.country && (
+                  <p className="text-muted-foreground">
+                    {[reachLabel({ ...a, name: a.shop_name, country: a.country } as unknown as PartnerShop), worksLabel(a.works)].filter(Boolean).join(' · ')}
+                  </p>
+                )}
                 {a.ships && <p className="text-muted-foreground">{a.ships}</p>}
                 {a.how_to_order && <p className="text-muted-foreground">{a.how_to_order}</p>}
                 {a.discount_code && (
@@ -411,8 +440,9 @@ export function PartnerAdmin() {
               </label>
               <label className="space-y-1 text-sm font-medium">
                 Shipping
-                <Input value={form.ships ?? ''} onChange={(e) => set('ships', e.target.value)} placeholder="Ships across Canada (fees apply)" maxLength={120} />
+                <Input value={form.ships ?? ''} onChange={(e) => set('ships', e.target.value)} placeholder="Free shipping over $80 (fees apply)" maxLength={120} />
               </label>
+              <PartnerWhereFields value={whereOf(form)} department={form.department} onChange={(w) => setForm({ ...form, ...w })} />
               <label className="space-y-1 text-sm font-medium sm:col-span-2">
                 How to order
                 <Input
@@ -561,6 +591,11 @@ export function PartnerAdmin() {
                     {s.terms_accepted_at ? ` · Agreed ${new Date(s.terms_accepted_at).toLocaleDateString('en-CA', { dateStyle: 'medium' })}` : ''}
                     {contacts[s.id]?.email ? ` · ${contacts[s.id]!.email}` : ''}
                   </p>
+                  {s.country && (
+                    <p className="text-xs text-muted-foreground">
+                      {countryName(s.country)} · {[reachLabel(s as unknown as PartnerShop), worksLabel(s.works)].filter(Boolean).join(' · ')}
+                    </p>
+                  )}
                   {(() => {
                     const app = s.application_id ? applications.find((x) => x.id === s.application_id) : undefined;
                     if (app) return <Consent a={app} />;

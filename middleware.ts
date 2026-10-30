@@ -23,6 +23,13 @@ export async function middleware(request: NextRequest) {
 
   const response = NextResponse.next({ request });
 
+  // Where the visitor is (Cloudflare's guess from the IP), so partner lists can
+  // start with the shops that deliver there. Only the two-letter country.
+  const country = request.headers.get('cf-ipcountry');
+  if (country && /^[A-Z]{2}$/.test(country) && country !== 'XX' && request.cookies.get('firdam_country')?.value !== country) {
+    response.cookies.set('firdam_country', country, { path: '/', maxAge: 60 * 60 * 24 * 30, sameSite: 'lax' });
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

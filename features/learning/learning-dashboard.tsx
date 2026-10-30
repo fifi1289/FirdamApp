@@ -8,8 +8,9 @@ import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { PartnerCard, usePartnerShops } from '@/features/groceries/partner-shops';
-import { LEARNING_NOTE, learningPartners, learningTopicsInUse } from '@/features/groceries/partners';
+import { NoPartnersHere, PartnerCard, usePartnerShops, useVisiblePartners } from '@/features/groceries/partner-shops';
+import { LEARNING_NOTE, learningPartners, learningTopicsInUse, matchesWorks } from '@/features/groceries/partners';
+import { PartnerFilters, type WorksFilter } from '@/features/partners/partner-filters';
 
 const COMING = [
   { icon: BookOpenText, title: 'Quran & tajweed', text: 'Online and local teachers for reading, tajweed and hifz.' },
@@ -20,10 +21,12 @@ const COMING = [
 
 /** Learning: trusted Quran, Arabic and Islamic studies teachers, the same as in the Firdam app. */
 export function LearningDashboard() {
-  const shops = usePartnerShops();
+  const allShops = usePartnerShops();
+  const [works, setWorks] = useState<WorksFilter>(null);
+  const shops = useVisiblePartners(allShops).filter((s) => matchesWorks(s, works));
   const [topic, setTopic] = useState<string | null>(null);
-  const topics = learningTopicsInUse(shops);
-  const all = learningPartners(shops);
+  const topics = learningTopicsInUse(allShops);
+  const all = learningPartners(allShops);
   const list = learningPartners(shops, topic);
 
   return (
@@ -33,6 +36,7 @@ export function LearningDashboard() {
         description="Learn Quran, tajweed, Arabic, hadith and more with trusted teachers and Islamic schools, for kids and adults."
       />
 
+      {all.length > 0 && <PartnerFilters shops={allShops} works={works} onWorks={setWorks} />}
       {all.length > 0 ? (
         <div className="space-y-4">
           {topics.length > 1 && (
@@ -54,9 +58,7 @@ export function LearningDashboard() {
             </nav>
           )}
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Learning partners</p>
-          {list.map((s) => (
-            <PartnerCard key={s.id} shop={s} />
-          ))}
+          {list.length ? list.map((s) => <PartnerCard key={s.id} shop={s} />) : <NoPartnersHere what="learning partners" />}
           <p className="text-xs text-muted-foreground">{LEARNING_NOTE}</p>
         </div>
       ) : (

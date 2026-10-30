@@ -17,7 +17,7 @@ export function usePartnerShops(): PartnerShop[] {
         res = await get(cols);
         if (!res.error) break;
       }
-      if (alive) setShops((res.data ?? []).map((s) => ({ ...s, topics: s.topics ?? [] })));
+      if (alive) setShops((res.data ?? []).map((s) => ({ ...s, topics: s.topics ?? [], photos: s.photos ?? [] })));
     })().catch(() => {});
     return () => {
       alive = false;

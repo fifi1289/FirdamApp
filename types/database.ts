@@ -974,6 +974,11 @@ export type Database = {
           submitted_from: string | null;
           account_email: string | null;
           account_verified: boolean | null;
+          country: string | null;
+          ships_mode: 'country' | 'countries' | 'worldwide' | null;
+          ship_countries: string[];
+          exclude_countries: string[];
+          works: 'online' | 'in_person' | 'both' | null;
         };
         Insert: {
           shop_name: string;
@@ -998,6 +1003,11 @@ export type Database = {
           terms_text?: string | null;
           user_agent?: string | null;
           submitted_from?: string | null;
+          country?: string | null;
+          ships_mode?: 'country' | 'countries' | 'worldwide' | null;
+          ship_countries?: string[];
+          exclude_countries?: string[];
+          works?: 'online' | 'in_person' | 'both' | null;
         };
         Update: { status?: 'new' | 'contacted' | 'added' | 'declined' };
         Relationships: [];
@@ -1030,6 +1040,11 @@ export type Database = {
           position: number;
           created_at: string;
           application_id: string | null;
+          country: string;
+          ships_mode: 'country' | 'countries' | 'worldwide';
+          ship_countries: string[];
+          exclude_countries: string[];
+          works: 'online' | 'in_person' | 'both' | null;
         };
         Insert: {
           id?: string;
@@ -1052,6 +1067,11 @@ export type Database = {
           position?: number;
           created_at?: string;
           application_id?: string | null;
+          country?: string;
+          ships_mode?: 'country' | 'countries' | 'worldwide';
+          ship_countries?: string[];
+          exclude_countries?: string[];
+          works?: 'online' | 'in_person' | 'both' | null;
         };
         Update: {
           id?: string;
@@ -1074,6 +1094,11 @@ export type Database = {
           position?: number;
           created_at?: string;
           application_id?: string | null;
+          country?: string;
+          ships_mode?: 'country' | 'countries' | 'worldwide';
+          ship_countries?: string[];
+          exclude_countries?: string[];
+          works?: 'online' | 'in_person' | 'both' | null;
         };
         Relationships: [];
       };

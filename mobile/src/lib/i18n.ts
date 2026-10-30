@@ -19,7 +19,8 @@ export const LANGUAGES: { id: Lang; label: string }[] = [
 ];
 
 const KEY = 'firdam.language.v1';
-const DICTS: Record<Lang, Record<string, string> | null> = { en: null, fr: FR, ar: AR };
+const DICTS: Record<Lang, Record<string, string> | null> = { en: null, fr: { ...FR }, ar: { ...AR } };
+const BASE: Record<Lang, Record<string, string>> = { en: {}, fr: FR, ar: AR };
 const listeners = new Set<() => void>();
 let current: Lang = deviceLang();
 let ready = false;
@@ -137,4 +138,11 @@ export function duaSource(source: string): string {
   if (current === 'en') return source;
   const lang = current;
   return Object.entries(BOOKS).reduce((s, [en, t]) => s.split(en).join(t[lang]), source);
+}
+
+/** Adds translations loaded from the database (recipe and food names, steps…), keyed by their English text. */
+export function addTranslations(lang: Lang, entries: Record<string, string>) {
+  const dict = DICTS[lang];
+  if (!dict) return;
+  for (const [en, t] of Object.entries(entries)) if (en && t && !(en in BASE[lang])) dict[en] = t;
 }

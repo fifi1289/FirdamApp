@@ -17,6 +17,7 @@ import { FirdamAlertHost } from '@/components/firdam-alert';
 
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { useLanguage } from '@/lib/i18n';
+import { loadCachedRecipeTranslations } from '@/lib/recipe-i18n';
 import { colors } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -24,6 +25,10 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 function Navigator() {
   const { loading, session, needsCode } = useAuth();
   const { lang } = useLanguage();
+  // French / Arabic recipe and food names remembered on the phone, before the kitchen loads.
+  useEffect(() => {
+    loadCachedRecipeTranslations().catch(() => {});
+  }, [lang]);
   const [fontsLoaded] = useFonts({
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,

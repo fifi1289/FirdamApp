@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
 import { ReminderManager } from '@/components/reminders/reminder-manager';
+import { startRecipeTranslations, useRecipeTranslationsVersion } from '@/features/recipes/recipe-i18n';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -13,6 +14,9 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  // French / Arabic recipe and food names: the page redraws once they arrive.
+  React.useEffect(() => startRecipeTranslations(), []);
+  const recipeWords = useRecipeTranslationsVersion();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -32,7 +36,9 @@ export function AppShell({ children }: AppShellProps) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onMenuClick={() => setMobileOpen(true)} />
-        <main className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
+        <main className="flex-1 px-4 py-6 md:px-8 md:py-8">
+          <React.Fragment key={recipeWords}>{children}</React.Fragment>
+        </main>
       </div>
       <ReminderManager />
     </div>

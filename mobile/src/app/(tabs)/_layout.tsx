@@ -7,6 +7,7 @@ import { scheduleAdhanAlerts } from '@/lib/adhan-alerts';
 import { eventAlertTarget, scheduleEventAlerts } from '@/lib/event-alerts';
 import { loadPrayerSettings, usePrayerSettings } from '@/lib/prayer';
 import { isWeeklyPlanTap, scheduleWeeklyPlanReminder } from '@/lib/weekly-plan-alert';
+import { refreshRecipeTranslations } from '@/lib/recipe-i18n';
 import { colors } from '@/theme';
 
 /** Keeps a week of adhan alerts scheduled: on open, on return to the app, and when settings change. */
@@ -71,6 +72,9 @@ export const unstable_settings = { initialRouteName: 'index' };
  * button (or a swipe back) returns to the ring. No bottom tab bar.
  */
 export default function FeaturesLayout() {
+  useEffect(() => {
+    refreshRecipeTranslations().catch(() => {});
+  }, []);
   useAdhanAlerts();
   useWeeklyPlanReminder();
   useEventAlerts();

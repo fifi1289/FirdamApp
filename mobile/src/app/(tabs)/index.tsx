@@ -108,7 +108,7 @@ function UseSoonCard() {
       {soon.slice(0, 4).map(({ i, d }) => (
         <View key={i.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <T size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
-            {i.name}
+            {tr(i.name)}
           </T>
           <Badge label={d < 0 ? tr('Expired') : d === 0 ? tr('Today') : d === 1 ? tr('Tomorrow') : tr('{0} days', [d])} tone={d <= 0 ? 'brick' : 'amber'} />
         </View>
@@ -270,7 +270,7 @@ function TonightCard() {
               {meal.type === 'dinner' ? tr('TONIGHT’S DINNER') : tr('TODAY · {0}', [meal.type.toUpperCase()])}
             </T>
             <T size={18} weight="bold" numberOfLines={2} style={{ marginTop: 3 }}>
-              {meal.name}
+              {tr(meal.name)}
             </T>
             <T size={13} color={colors.muted}>{tr('{0} min · for {1}', [meal.prepTime + meal.cookTime, formatPortions(meal.servings)])}</T>
             <Button label={tr('Start cooking')} onPress={() => openMeal(meal, today)} style={{ height: 36, alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 14 }} />
@@ -306,7 +306,7 @@ function TonightCard() {
               .map((i) => (
                 <View key={i.id} style={styles.shopItem}>
                   <T size={13} weight="semibold">
-                    {i.name}
+                    {tr(i.name)}
                   </T>
                 </View>
               ))}

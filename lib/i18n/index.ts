@@ -15,7 +15,7 @@ export const LANGUAGES: { id: Lang; label: string; short: string }[] = [
   { id: 'ar', label: 'العربية', short: 'ع' },
 ];
 
-const DICTS: Record<Lang, Record<string, string> | null> = { en: null, fr: FR, ar: AR };
+const DICTS: Record<Lang, Record<string, string> | null> = { en: null, fr: { ...FR }, ar: { ...AR } };
 
 export function asLang(v: string | null | undefined): Lang | null {
   return v === 'en' || v === 'fr' || v === 'ar' ? v : null;
@@ -87,3 +87,14 @@ export function setLang(lang: Lang) {
 export function trn<T>(value: T): T {
   return (typeof value === 'string' ? tr(value) : value) as T;
 }
+
+/**
+ * Adds translations loaded from the database (recipe and food names, steps…),
+ * keyed by their English text like the rest of the dictionary.
+ */
+export function addTranslations(lang: Lang, entries: Record<string, string>) {
+  const dict = DICTS[lang];
+  if (!dict) return;
+  for (const [en, t] of Object.entries(entries)) if (en && t && !(en in FR_AR_BASE[lang])) dict[en] = t;
+}
+const FR_AR_BASE: Record<Lang, Record<string, string>> = { en: {}, fr: FR, ar: AR };

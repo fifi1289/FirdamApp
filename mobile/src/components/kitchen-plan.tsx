@@ -254,7 +254,7 @@ export function PlanView() {
                     {TYPE_LABEL[m.type] ?? m.type.toUpperCase()}
                   </T>
                   <T size={15} weight="bold" numberOfLines={1}>
-                    {m.name}
+                    {tr(m.name)}
                   </T>
                   {k.pantry.length ? (
                     <T size={12.5} weight="semibold" color={missing ? '#8A5A16' : colors.sage}>

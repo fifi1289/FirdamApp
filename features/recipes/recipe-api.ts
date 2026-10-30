@@ -1,6 +1,7 @@
 'use client';
 
 import { fetchAllPages } from '@/features/meals/plan-core';
+import { addRecipeDetailTranslations } from '@/features/recipes/recipe-i18n';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getMealImage } from '@/features/meals/meal-images';
 import type { UserRecipe } from '@/types/database';
@@ -245,7 +246,7 @@ export async function fetchRecipe(key: string): Promise<RecipeDetail | null> {
   const { data, error } = await supabase.from('recipes').select(DETAIL_SELECT).eq('id', id).maybeSingle();
   if (error || !data) return null;
   const r = data as unknown as DetailRow;
-  return {
+  const detail: RecipeDetail = {
     ...catalogSummary(r),
     description: r.short_description ?? r.long_description,
     ingredients: r.recipe_ingredients
@@ -284,6 +285,16 @@ export async function fetchRecipe(key: string): Promise<RecipeDetail | null> {
     storage: r.storage_instructions,
     reheating: r.reheating_instructions,
   };
+  // French / Arabic steps, tips and notes for this recipe (English stays if there are none yet).
+  await addRecipeDetailTranslations(r.id, {
+    steps: detail.steps.map((x) => x.text),
+    tips: detail.tips,
+    equipment: detail.equipment,
+    long: r.long_description,
+    storage: r.storage_instructions,
+    reheating: r.reheating_instructions,
+  }).catch(() => {});
+  return detail;
 }
 
 /** Scales a quantity and formats it nicely (e.g. 1.5 → "1½"). */

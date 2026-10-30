@@ -34,6 +34,7 @@ import {
 import { IngredientActions } from '@/features/meals/ingredient-actions';
 import type { PantryItem } from '@/types/database';
 import { tr, trn } from '@/lib/i18n';
+import { addRecipeDetailTranslations } from '@/features/recipes/recipe-i18n';
 
 interface MealDetailDialogProps {
   /** The meal card that was clicked (used as fallback while loading). */
@@ -414,7 +415,15 @@ export function MealDetailDialog({
           setDetail({ loading: false, recipe: detailFromMeal(meal), error: null });
           return;
         }
-        setDetail({ loading: false, recipe: data as unknown as RecipeDetail, error: null });
+        const found = data as unknown as RecipeDetail;
+        // French / Arabic steps and tips for this recipe, when they exist.
+        await addRecipeDetailTranslations(found.id, {
+          steps: [...(found.recipe_steps ?? [])].sort((x, y) => x.step_number - y.step_number).map((x) => x.instruction),
+          tips: [...(found.recipe_tips ?? [])].sort((x, y) => (x.display_order ?? 0) - (y.display_order ?? 0)).map((x) => x.tip),
+          equipment: [...(found.recipe_equipment ?? [])].sort((x, y) => (x.display_order ?? 0) - (y.display_order ?? 0)).map((x) => x.equipment),
+        }).catch(() => {});
+        if (cancelled) return;
+        setDetail({ loading: false, recipe: found, error: null });
       } catch (err) {
         if (cancelled) return;
         if (meal) {

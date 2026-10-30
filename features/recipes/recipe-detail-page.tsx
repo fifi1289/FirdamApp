@@ -551,7 +551,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
                 )}
                 {recipe.equipment.length > 0 && (
                   <p className="text-muted-foreground">
-                    <span className="font-medium text-foreground">{tr('Equipment:')}</span> {recipe.equipment.join(', ')}
+                    <span className="font-medium text-foreground">{tr('Equipment:')}</span> {recipe.equipment.map((x) => tr(x)).join(', ')}
                   </p>
                 )}
                 {recipe.storage && (

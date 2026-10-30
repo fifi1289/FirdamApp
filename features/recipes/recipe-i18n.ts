@@ -1,10 +1,14 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { fetchAllPages } from '@/features/meals/plan-core';
 import { addTranslations, getLang, type Lang } from '@/lib/i18n';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+
+/** The translation tables are newer than the generated database types. */
+const db = () => createSupabaseBrowserClient() as unknown as SupabaseClient;
 
 /**
  * Recipes in French and Arabic. English stays the master in the database; the
@@ -36,7 +40,7 @@ function applyFoods(rows: { name_en: string; name: string }[], into: Record<stri
 type RecipeRow = { name: string | null; short_description: string | null; recipe: { name: string; short_description: string | null } | null };
 
 async function load(lang: Lang): Promise<Record<string, string>> {
-  const supabase = createSupabaseBrowserClient();
+  const supabase = db();
   const [recipes, foods] = await Promise.all([
     fetchAllPages<RecipeRow>((from, to) =>
       supabase
@@ -110,13 +114,20 @@ export async function addRecipeDetailTranslations(
 ) {
   const lang = getLang();
   if (lang === 'en') return;
-  const supabase = createSupabaseBrowserClient();
+  const supabase = db();
   const { data } = await supabase
     .from('recipe_translations')
     .select('long_description, steps, tips, equipment, storage_instructions, reheating_instructions')
     .eq('recipe_id', recipeId)
     .eq('lang', lang)
-    .maybeSingle();
+    .maybeSingle<{
+      long_description: string | null;
+      steps: string[] | null;
+      tips: string[] | null;
+      equipment: string[] | null;
+      storage_instructions: string | null;
+      reheating_instructions: string | null;
+    }>();
   if (!data) return;
   const map: Record<string, string> = {};
   const pair = (en: string[], t: string[] | null) => en.forEach((e, i) => t?.[i] && (map[e] = t[i]));

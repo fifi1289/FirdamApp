@@ -89,7 +89,12 @@ BEGIN
 END;
 $$;
 REVOKE ALL ON FUNCTION public.save_recipe_translations(jsonb) FROM public, anon;
-GRANT EXECUTE ON FUNCTION public.save_recipe_translations(jsonb) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.save_recipe_translations(jsonb) TO authenticated;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    GRANT EXECUTE ON FUNCTION public.save_recipe_translations(jsonb) TO service_role;
+  END IF;
+END $$;
 
 -- Same for food names: [{"name_en": "chicken", "lang": "ar", "name": "دجاج"}].
 CREATE OR REPLACE FUNCTION public.save_food_translations(rows jsonb)
@@ -112,4 +117,9 @@ BEGIN
 END;
 $$;
 REVOKE ALL ON FUNCTION public.save_food_translations(jsonb) FROM public, anon;
-GRANT EXECUTE ON FUNCTION public.save_food_translations(jsonb) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.save_food_translations(jsonb) TO authenticated;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    GRANT EXECUTE ON FUNCTION public.save_food_translations(jsonb) TO service_role;
+  END IF;
+END $$;

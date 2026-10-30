@@ -183,6 +183,36 @@ export function countryFromLocale(locale: string | null | undefined): string | n
   return m ? normalizeCountry(m[1]) : null;
 }
 
+/** Main time zones of the countries in COUNTRIES (more reliable than the language: many phones in Morocco are set to "fr-FR"). */
+const TIME_ZONES: Record<string, string> = {
+  'Africa/Casablanca': 'MA', 'Africa/El_Aaiun': 'MA', 'Africa/Algiers': 'DZ', 'Africa/Tunis': 'TN', 'Africa/Tripoli': 'LY', 'Africa/Cairo': 'EG',
+  'Africa/Nouakchott': 'MR', 'Africa/Dakar': 'SN', 'Africa/Bamako': 'ML', 'Africa/Niamey': 'NE', 'Africa/Ndjamena': 'TD', 'Africa/Lagos': 'NG',
+  'Africa/Accra': 'GH', 'Africa/Abidjan': 'CI', 'Africa/Conakry': 'GN', 'Africa/Banjul': 'GM', 'Africa/Douala': 'CM', 'Africa/Khartoum': 'SD',
+  'Africa/Djibouti': 'DJ', 'Africa/Asmara': 'ER', 'Africa/Addis_Ababa': 'ET', 'Africa/Mogadishu': 'SO', 'Africa/Nairobi': 'KE', 'Africa/Kampala': 'UG',
+  'Africa/Dar_es_Salaam': 'TZ', 'Africa/Johannesburg': 'ZA', 'Indian/Mauritius': 'MU', 'Indian/Maldives': 'MV',
+  'Asia/Riyadh': 'SA', 'Asia/Dubai': 'AE', 'Asia/Qatar': 'QA', 'Asia/Kuwait': 'KW', 'Asia/Bahrain': 'BH', 'Asia/Muscat': 'OM', 'Asia/Aden': 'YE',
+  'Asia/Amman': 'JO', 'Asia/Beirut': 'LB', 'Asia/Damascus': 'SY', 'Asia/Baghdad': 'IQ', 'Asia/Gaza': 'PS', 'Asia/Hebron': 'PS', 'Asia/Tehran': 'IR',
+  'Asia/Kabul': 'AF', 'Asia/Karachi': 'PK', 'Asia/Kolkata': 'IN', 'Asia/Calcutta': 'IN', 'Asia/Dhaka': 'BD', 'Asia/Colombo': 'LK',
+  'Asia/Tashkent': 'UZ', 'Asia/Samarkand': 'UZ', 'Asia/Almaty': 'KZ', 'Asia/Bishkek': 'KG', 'Asia/Dushanbe': 'TJ', 'Asia/Ashgabat': 'TM', 'Asia/Baku': 'AZ',
+  'Asia/Jakarta': 'ID', 'Asia/Makassar': 'ID', 'Asia/Kuala_Lumpur': 'MY', 'Asia/Singapore': 'SG', 'Asia/Brunei': 'BN', 'Asia/Manila': 'PH',
+  'Asia/Bangkok': 'TH', 'Asia/Shanghai': 'CN', 'Asia/Hong_Kong': 'HK', 'Asia/Tokyo': 'JP', 'Asia/Seoul': 'KR', 'Asia/Nicosia': 'CY',
+  'Europe/Istanbul': 'TR', 'Europe/London': 'GB', 'Europe/Dublin': 'IE', 'Europe/Paris': 'FR', 'Europe/Brussels': 'BE', 'Europe/Amsterdam': 'NL',
+  'Europe/Luxembourg': 'LU', 'Europe/Berlin': 'DE', 'Europe/Vienna': 'AT', 'Europe/Zurich': 'CH', 'Europe/Rome': 'IT', 'Europe/Madrid': 'ES',
+  'Europe/Lisbon': 'PT', 'Europe/Stockholm': 'SE', 'Europe/Oslo': 'NO', 'Europe/Copenhagen': 'DK', 'Europe/Helsinki': 'FI', 'Europe/Athens': 'GR',
+  'Europe/Sarajevo': 'BA', 'Europe/Skopje': 'MK', 'Europe/Tirane': 'AL', 'Europe/Sofia': 'BG', 'Europe/Bucharest': 'RO',
+  'Europe/Budapest': 'HU', 'Europe/Prague': 'CZ', 'Europe/Warsaw': 'PL', 'Europe/Zagreb': 'HR', 'Europe/Kiev': 'UA', 'Europe/Kyiv': 'UA', 'Europe/Moscow': 'RU',
+  'America/Toronto': 'CA', 'America/Montreal': 'CA', 'America/Vancouver': 'CA', 'America/Edmonton': 'CA', 'America/Winnipeg': 'CA', 'America/Regina': 'CA',
+  'America/Halifax': 'CA', 'America/St_Johns': 'CA', 'America/Moncton': 'CA', 'America/Whitehorse': 'CA', 'America/Yellowknife': 'CA', 'America/Iqaluit': 'CA',
+  'America/New_York': 'US', 'America/Chicago': 'US', 'America/Denver': 'US', 'America/Los_Angeles': 'US', 'America/Phoenix': 'US', 'America/Detroit': 'US',
+  'America/Anchorage': 'US', 'Pacific/Honolulu': 'US', 'America/Mexico_City': 'MX', 'America/Sao_Paulo': 'BR', 'America/Argentina/Buenos_Aires': 'AR',
+  'Australia/Sydney': 'AU', 'Australia/Melbourne': 'AU', 'Australia/Brisbane': 'AU', 'Australia/Perth': 'AU', 'Australia/Adelaide': 'AU', 'Pacific/Auckland': 'NZ',
+};
+
+/** The country of a time zone like "Africa/Casablanca"; null if unknown. */
+export function countryFromTimeZone(tz: string | null | undefined): string | null {
+  return (tz && TIME_ZONES[tz]) || null;
+}
+
 /** Shown when families pick "All countries". */
 export const ALL_COUNTRIES = 'ALL';
 

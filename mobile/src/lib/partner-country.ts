@@ -2,11 +2,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useSyncExternalStore } from 'react';
 
 import { loadPrayerSettings } from '@/lib/prayer';
-import { ALL_COUNTRIES, countryFromLocale, normalizeCountry } from '@/shared/partners';
+import { ALL_COUNTRIES, countryFromLocale, countryFromTimeZone, normalizeCountry } from '@/shared/partners';
 
 /**
  * Which country's partners a family sees, the same as on firdam.com.
- * Home = the country of their prayer-times city, else the phone's region;
+ * Home = the country of their prayer-times city, else the phone's time zone or region;
  * viewing = their choice in the picker (remembered on this phone).
  */
 const PICK_KEY = 'firdam.partners.country.v1';
@@ -20,9 +20,11 @@ function emit(next: State) {
   listeners.forEach((l) => l());
 }
 
+/** The phone's time zone first (Africa/Casablanca → Morocco), then the region in its language setting. */
 function phoneCountry(): string | null {
   try {
-    return countryFromLocale(Intl.DateTimeFormat().resolvedOptions().locale);
+    const { timeZone, locale } = Intl.DateTimeFormat().resolvedOptions();
+    return countryFromTimeZone(timeZone) ?? countryFromLocale(locale);
   } catch {
     return null;
   }

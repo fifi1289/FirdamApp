@@ -37,6 +37,7 @@ function serverLang(): Lang {
     const { requestAsyncStorage } = require('next/dist/client/components/request-async-storage.external');
     const store = requestAsyncStorage.getStore();
     if (!store) return 'en';
+    if (isEnglishOnlyPath(store.headers.get('x-firdam-path'))) return 'en';
     return asLang(store.cookies.get(LANG_COOKIE)?.value) ?? langFromHeader(store.headers.get('accept-language'));
   } catch {
     return 'en';
@@ -45,9 +46,15 @@ function serverLang(): Lang {
 
 let clientLang: Lang | null = null;
 
+/** Pages that are always in English (the admin tools). */
+export function isEnglishOnlyPath(path: string | null | undefined): boolean {
+  return !!path && (path === '/admin' || path.startsWith('/admin/'));
+}
+
 /** The current language: the request's on the server, the page's <html lang> in the browser. */
 export function getLang(): Lang {
   if (typeof window === 'undefined') return serverLang();
+  if (isEnglishOnlyPath(window.location.pathname)) return 'en';
   if (!clientLang) clientLang = asLang(document.documentElement.lang) ?? 'en';
   return clientLang;
 }

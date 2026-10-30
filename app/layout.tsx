@@ -8,7 +8,7 @@ import { Analytics } from '@/components/consent/analytics';
 import { Toaster } from '@/components/ui/sonner';
 import { SITE } from '@/lib/site';
 import { cookies, headers } from 'next/headers';
-import { LANG_COOKIE, asLang, isRTL, langFromHeader } from '@/lib/i18n';
+import { LANG_COOKIE, asLang, isEnglishOnlyPath, isRTL, langFromHeader } from '@/lib/i18n';
 
 // Brand guide: Plus Jakarta Sans (primary), Inter (secondary), IBM Plex Sans Arabic.
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans' });
@@ -89,7 +89,9 @@ export default function RootLayout({
 }) {
   // The visitor's language (their choice, else their browser's). Reading the
   // cookie here also renders every page per request, in that language.
-  const lang = asLang(cookies().get(LANG_COOKIE)?.value) ?? langFromHeader(headers().get('accept-language'));
+  const lang = isEnglishOnlyPath(headers().get('x-firdam-path'))
+    ? 'en'
+    : asLang(cookies().get(LANG_COOKIE)?.value) ?? langFromHeader(headers().get('accept-language'));
   return (
     <html lang={lang} dir={isRTL(lang) ? 'rtl' : 'ltr'} translate="no" className="notranslate" suppressHydrationWarning>
       <body

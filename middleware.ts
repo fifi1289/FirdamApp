@@ -21,7 +21,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(home);
   }
 
-  const response = NextResponse.next({ request });
+  // Admin is English only, whatever language the visitor uses: the layout
+  // reads this to render /admin in English, left to right.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-firdam-path', request.nextUrl.pathname);
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
 
   // Where the visitor is (Cloudflare's guess from the IP), so partner lists can
   // start with the shops that deliver there. Only the two-letter country.

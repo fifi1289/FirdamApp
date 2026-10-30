@@ -62,9 +62,9 @@ export function mealTypeKey(name: string | null | undefined): MealTypeKey {
 
 function difficultyOf(name: string | null | undefined): Difficulty {
   const n = (name ?? '').toLowerCase();
-  if (n.startsWith('easy')) return tr('Easy');
-  if (n.startsWith('hard')) return tr('Hard');
-  return tr('Medium');
+  if (n.startsWith('easy')) return 'Easy';
+  if (n.startsWith('hard')) return 'Hard';
+  return 'Medium';
 }
 
 const SUMMARY_SELECT = `

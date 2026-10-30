@@ -281,7 +281,7 @@ export function BudgetDashboard() {
     });
 
   const categoryName = (id: string | null) =>
-    id ? categories.find((c) => c.id === id)?.name ?? 'Uncategorised' : null;
+    id ? categories.find((c) => c.id === id)?.name ?? tr('Uncategorised') : null;
 
   const balance = totals.income - totals.expense - totals.giving;
   const budgetLeft = totals.plannedLimit > 0 ? totals.plannedLimit - totals.expense : null;

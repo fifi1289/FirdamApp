@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
+import { tr } from '@/lib/i18n';
 
 /**
  * Auth service layer.
@@ -95,32 +96,32 @@ export function getAuthErrorMessage(error: unknown): string {
     const msg = String((error as { message: string }).message).toLowerCase();
 
     if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
-      return 'The email or password you entered is incorrect.';
+      return tr('The email or password you entered is incorrect.');
     }
     if (msg.includes('user already registered') || msg.includes('already been registered')) {
-      return 'An account with this email already exists. Try signing in instead.';
+      return tr('An account with this email already exists. Try signing in instead.');
     }
     if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
-      return 'Please verify your email before signing in. Check your inbox for the verification link.';
+      return tr('Please verify your email before signing in. Check your inbox for the verification link.');
     }
     if (msg.includes('password') && msg.includes('weak')) {
-      return 'That password is too weak. Use at least 8 characters with a mix of letters and numbers.';
+      return tr('That password is too weak. Use at least 8 characters with a mix of letters and numbers.');
     }
     if (msg.includes('password') && msg.includes('6')) {
-      return 'Password must be at least 6 characters.';
+      return tr('Password must be at least 6 characters.');
     }
     if (msg.includes('rate limit') || msg.includes('too many')) {
-      return 'Too many attempts. Please wait a moment and try again.';
+      return tr('Too many attempts. Please wait a moment and try again.');
     }
     if (msg.includes('network') || msg.includes('fetch') || msg.includes('failed to fetch')) {
-      return 'Could not reach the server. Check your internet connection and try again.';
+      return tr('Could not reach the server. Check your internet connection and try again.');
     }
     if (msg.includes('expired') || msg.includes('session')) {
-      return 'Your session has expired. Please sign in again.';
+      return tr('Your session has expired. Please sign in again.');
     }
 
     return String((error as { message: string }).message);
   }
 
-  return 'Something went wrong. Please try again.';
+  return tr('Something went wrong. Please try again.');
 }

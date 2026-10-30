@@ -5,6 +5,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { getMealImage } from '@/features/meals/meal-images';
 import type { UserRecipe } from '@/types/database';
 import { detectAllergens, ruleForAllergy } from '@/lib/recipes/allergens';
+import { tr } from '@/lib/i18n';
 
 export type RecipeSource = 'catalog' | 'mine' | 'community';
 export type MealTypeKey = 'breakfast' | 'lunch' | 'dinner' | 'snack';
@@ -61,9 +62,9 @@ export function mealTypeKey(name: string | null | undefined): MealTypeKey {
 
 function difficultyOf(name: string | null | undefined): Difficulty {
   const n = (name ?? '').toLowerCase();
-  if (n.startsWith('easy')) return 'Easy';
-  if (n.startsWith('hard')) return 'Hard';
-  return 'Medium';
+  if (n.startsWith('easy')) return tr('Easy');
+  if (n.startsWith('hard')) return tr('Hard');
+  return tr('Medium');
 }
 
 const SUMMARY_SELECT = `
@@ -311,10 +312,10 @@ export function totalMinutes(r: Pick<RecipeSummary, 'prepMinutes' | 'cookMinutes
 }
 
 export function formatDuration(mins: number): string {
-  if (mins < 60) return `${mins} min`;
+  if (mins < 60) return tr('{0} min', [mins]);
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  return m ? `${h} h ${m} min` : `${h} h`;
+  return m ? tr('{0} h {1} min', [h, m]) : `${h} h`;
 }
 
 /** Ingredient names for every recipe, keyed by route key — used by "Cook with what I have". */

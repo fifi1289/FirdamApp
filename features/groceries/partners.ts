@@ -1,3 +1,4 @@
+import { tr } from '@/lib/i18n';
 /**
  * Partner shops: Muslim-owned businesses listed in Shopping, by department.
  * Shared by the website and the app (mobile/scripts/sync-shared.mjs).
@@ -55,10 +56,10 @@ export function partnerMeta(shop: Pick<PartnerShop, 'city' | 'ships'>): string {
 
 /** Where the link goes, for the button label. */
 export function partnerLinkLabel(url: string): string {
-  if (/facebook\.com|fb\.com/i.test(url)) return 'Visit on Facebook';
-  if (/instagram\.com/i.test(url)) return 'Visit on Instagram';
-  if (/wa\.me|whatsapp\.com/i.test(url)) return 'Message on WhatsApp';
-  return 'Visit website';
+  if (/facebook\.com|fb\.com/i.test(url)) return tr('Visit on Facebook');
+  if (/instagram\.com/i.test(url)) return tr('Visit on Instagram');
+  if (/wa\.me|whatsapp\.com/i.test(url)) return tr('Message on WhatsApp');
+  return tr('Visit website');
 }
 
 /** Every kind of partner: the Shopping departments plus Learning. */

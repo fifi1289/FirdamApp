@@ -29,11 +29,11 @@ function relativeDays(date: string): string {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const diff = Math.round((parseISODate(date).getTime() - today.getTime()) / 86_400_000);
-  if (diff === 0) return 'Today';
-  if (diff === 1) return 'Tomorrow';
-  if (diff < 7) return `In ${diff} days`;
-  if (diff < 14) return 'Next week';
-  return `In ${Math.round(diff / 7)} weeks`;
+  if (diff === 0) return tr('Today');
+  if (diff === 1) return tr('Tomorrow');
+  if (diff < 7) return tr('In {0} days', [diff]);
+  if (diff < 14) return tr('Next week');
+  return tr('In {0} weeks', [Math.round(diff / 7)]);
 }
 
 function ItemLine({ item, onEdit }: { item: CalendarItem; onEdit: (e: FamilyEvent) => void }) {
@@ -141,7 +141,7 @@ export function CalendarDashboard() {
     const a = hijri.get(iso(new Date(view.year, view.month, 1)));
     const b = hijri.get(iso(new Date(view.year, view.month + 1, 0)));
     if (!a || !b) return null;
-    return a.month === b.month ? `${a.month} ${a.year} AH` : `${a.month} – ${b.month} ${b.year} AH`;
+    return a.month === b.month ? tr('{0} {1} AH', [a.month, a.year]) : tr('{0} – {1} {2} AH', [a.month, b.month, b.year]);
   })();
 
   const shift = (delta: number) =>

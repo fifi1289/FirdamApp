@@ -38,16 +38,16 @@ function buildDisplayName(
 
 function greetingFor(dateKey: string): string {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return tr('Good morning');
+  if (h < 18) return tr('Good afternoon');
+  return tr('Good evening');
 }
 
 function subtitleFor(dateKey: string): string {
   const h = new Date().getHours();
-  if (h < 12) return 'Take a breath. A calm, intentional day starts here.';
-  if (h < 18) return 'Keep the momentum steady. One task at a time.';
-  return 'Reflect on today. Ease gently into the evening.';
+  if (h < 12) return tr('Take a breath. A calm, intentional day starts here.');
+  if (h < 18) return tr('Keep the momentum steady. One task at a time.');
+  return tr('Reflect on today. Ease gently into the evening.');
 }
 
 function formatTime(time: string | null): string {

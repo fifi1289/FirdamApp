@@ -59,9 +59,9 @@ interface Snapshot {
 
 function greeting(now: Date): string {
   const h = now.getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return tr('Good morning');
+  if (h < 18) return tr('Good afternoon');
+  return tr('Good evening');
 }
 
 function Tile({

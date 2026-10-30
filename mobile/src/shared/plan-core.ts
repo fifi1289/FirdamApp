@@ -8,6 +8,7 @@ import { getMealImage } from './meal-images';
 import type { MealPreferencesState } from './meals-config';
 import { conflictsWithAllergies, fitsDiet } from './allergens';
 import { checkNeeds, Ledger, type PantryLike } from './pantry-engine';
+import { tr } from '@/lib/i18n';
 
 export type MealDifficulty = 'Easy' | 'Medium' | 'Hard';
 
@@ -100,7 +101,7 @@ export function formatWeekRange(weekStartDate: string): string {
     month: 'short',
     day: 'numeric',
   });
-  return `Week of ${startLabel} \u2013 ${endLabel}`;
+  return tr('Week of {0} – {1}', [startLabel, endLabel]);
 }
 
 export interface RecipeRow {

@@ -126,8 +126,8 @@ export function PartnerWhereFields({ value, department, onChange }: { value: Par
 /** A problem to show before saving, or null. */
 export function whereProblem(w: PartnerWhere, department: string): string | null {
   const serves = department === 'services' || department === 'learning';
-  if (serves && !w.works) return 'Choose whether you work online, in person or both.';
+  if (serves && !w.works) return tr('Choose whether you work online, in person or both.');
   if (w.ships_mode === 'countries' && !w.ship_countries.filter((c) => c !== w.country).length)
-    return `Add the other countries you ${serves ? 'serve' : 'deliver to'}, or choose “Only in my country”.`;
+    return tr('Add the other countries you {0}, or choose “Only in my country”.', [serves ? 'serve' : 'deliver to']);
   return null;
 }

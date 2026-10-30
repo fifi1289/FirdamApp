@@ -7,6 +7,7 @@ import { getMealImage } from '@/features/meals/meal-images';
 import type { MealPreferencesState } from '@/features/meals/meals-config';
 import { conflictsWithAllergies, fitsDiet } from '@/lib/recipes/allergens';
 import { checkNeeds, Ledger, type PantryLike } from '@/supabase/functions/_shared/pantry-engine';
+import { tr } from '@/lib/i18n';
 
 export type MealDifficulty = 'Easy' | 'Medium' | 'Hard';
 
@@ -99,7 +100,7 @@ export function formatWeekRange(weekStartDate: string): string {
     month: 'short',
     day: 'numeric',
   });
-  return `Week of ${startLabel} \u2013 ${endLabel}`;
+  return tr('Week of {0} – {1}', [startLabel, endLabel]);
 }
 
 export interface RecipeRow {

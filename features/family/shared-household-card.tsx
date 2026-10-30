@@ -36,7 +36,7 @@ export function inviteLink(token: string) {
 
 function errorMessage(err: unknown) {
   if (err && typeof err === 'object' && 'message' in err) return String((err as { message: unknown }).message);
-  return 'Something went wrong. Please try again.';
+  return tr('Something went wrong. Please try again.');
 }
 
 export function SharedHouseholdCard() {

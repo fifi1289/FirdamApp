@@ -41,7 +41,7 @@ function buildDisplayName(user: { user_metadata?: Record<string, unknown>; email
   const direct = (meta.full_name ?? meta.name) as string | undefined;
   if (direct) return String(direct);
   if (user?.email) return user.email;
-  return 'User';
+  return tr('User');
 }
 
 function buildInitials(name: string): string {

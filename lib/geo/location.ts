@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { tr } from '@/lib/i18n';
 
 /** A place the user picked (city search or device location). */
 export interface SavedLocation {
@@ -97,8 +98,8 @@ export function distanceKm(
 
 export function formatDistance(km: number): string {
   if (km < 1) return `${Math.round(km * 1000)} m`;
-  if (km < 10) return `${km.toFixed(1)} km`;
-  return `${Math.round(km)} km`;
+  if (km < 10) return tr('{0} km', [km.toFixed(1)]);
+  return tr('{0} km', [Math.round(km)]);
 }
 
 /** Bearing from a point to the Kaaba, in degrees clockwise from true north. */

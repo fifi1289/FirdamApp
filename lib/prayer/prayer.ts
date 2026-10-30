@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { callEdgeFunction } from '@/lib/supabase/functions';
+import { tr } from '@/lib/i18n';
 
 export interface PrayerTimings {
   Imsak: string;
@@ -231,8 +232,8 @@ export function formatRelative(ms: number): string {
   const totalMin = Math.max(0, Math.round(ms / 60000));
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
-  if (h === 0) return `in ${m} min`;
-  return `in ${h}h ${String(m).padStart(2, '0')}m`;
+  if (h === 0) return tr('in {0} min', [m]);
+  return tr('in {0}h {1}m', [h, String(m).padStart(2, '0')]);
 }
 
 /** Parse Aladhan's DD-MM-YYYY into a local Date. */

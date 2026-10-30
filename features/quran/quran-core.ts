@@ -3,6 +3,7 @@
  * app gets a copy via mobile/scripts/sync-shared.mjs).
  */
 import { QURAN_PAGES } from '@/features/quran/surahs';
+import { tr } from '@/lib/i18n';
 
 export const GOAL_OPTIONS = [
   { pages: 1, label: '1 page a day', hint: 'Khatm in about 20 months' },
@@ -59,9 +60,9 @@ export function parsePages(v: string): number | null {
 
 /** The message after logging, the same on both. */
 export function loggedMessage(before: { intoKhatm: number; todayPages: number }, added: number, goal: number): string {
-  if (before.intoKhatm + added >= QURAN_PAGES) return 'MashaAllah, you completed a khatm of the Quran!';
-  if (before.todayPages < goal && before.todayPages + added >= goal) return "Today's goal reached. May Allah reward you.";
-  return 'Reading logged';
+  if (before.intoKhatm + added >= QURAN_PAGES) return tr('MashaAllah, you completed a khatm of the Quran!');
+  if (before.todayPages < goal && before.todayPages + added >= goal) return tr('Today\'s goal reached. May Allah reward you.');
+  return tr('Reading logged');
 }
 
 /** Search surahs by name or number. */

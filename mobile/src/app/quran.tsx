@@ -22,6 +22,7 @@ import { DUAS, DUA_CATEGORIES, duaOfTheDay, filterDuas, type Dua, type DuaCatego
 import { GOAL_OPTIONS, loggedMessage, matchSurah, parsePages, readingStats } from '@/shared/quran-core';
 import { QURAN_PAGES, SURAHS } from '@/shared/surahs';
 import { colors, fonts } from '@/theme';
+import { locale, tr } from '@/lib/i18n';
 
 type Tab = 'duas' | 'reading';
 
@@ -36,7 +37,7 @@ export default function Quran() {
           <HomeButton />
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          Quran & Duas
+          {tr('Quran & Duas')}
         </T>
         <Segmented<Tab>
           value={tab}
@@ -79,7 +80,7 @@ function Duas() {
     <>
       <View style={{ gap: 6 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-          DUA OF THE DAY
+          {tr('DUA OF THE DAY')}
         </T>
         <DuaCard dua={today} translit={translit} favourite={favs.has(today.id)} onFavourite={() => toggleFav(today.id)} featured />
       </View>
@@ -87,17 +88,17 @@ function Duas() {
       <TextInput
         value={query}
         onChangeText={setQuery}
-        placeholder="Search duas: travel, sleep, rain…"
+        placeholder={tr('Search duas: travel, sleep, rain…')}
         placeholderTextColor={colors.muted}
         style={styles.input}
-        accessibilityLabel="Search duas"
+        accessibilityLabel={tr('Search duas')}
         autoCorrect={false}
       />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-        <Chip label="All" selected={category === 'all'} onPress={() => setCategory('all')} />
-        <Chip label={`Favourites${favs.size ? ` (${favs.size})` : ''}`} selected={category === 'favourites'} onPress={() => setCategory('favourites')} />
+        <Chip label={tr('All')} selected={category === 'all'} onPress={() => setCategory('all')} />
+        <Chip label={tr('Favourites{0}', [favs.size ? ` (${favs.size})` : ''])} selected={category === 'favourites'} onPress={() => setCategory('favourites')} />
         {DUA_CATEGORIES.map((c) => (
-          <Chip key={c} label={c} selected={category === c} onPress={() => setCategory(c)} />
+          <Chip key={c} label={tr(c)} selected={category === c} onPress={() => setCategory(c)} />
         ))}
       </ScrollView>
       <Pressable
@@ -113,13 +114,13 @@ function Duas() {
           <View style={[styles.knob, translit && styles.knobOn]} />
         </View>
         <T size={14} weight="semibold">
-          Show transliteration
+          {tr('Show transliteration')}
         </T>
       </Pressable>
 
       {visible.length === 0 ? (
         <T size={14} color={colors.muted}>
-          {category === 'favourites' ? 'Tap the heart on a dua to keep it here.' : 'No dua matches that search.'}
+          {category === 'favourites' ? tr('Tap the heart on a dua to keep it here.') : tr('No dua matches that search.')}
         </T>
       ) : (
         visible.map((d) => <DuaCard key={d.id} dua={d} translit={translit} favourite={favs.has(d.id)} onFavourite={() => toggleFav(d.id)} />)
@@ -136,21 +137,21 @@ function DuaCard({ dua, translit, favourite, onFavourite, featured }: { dua: Dua
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
         <View style={{ flex: 1 }}>
           <T weight="bold" size={15.5}>
-            {dua.title}
+            {tr(dua.title)}
           </T>
           <T size={12.5} color={colors.muted}>
             {dua.category}
             {dua.repeat ? ` · ${dua.repeat}` : ''}
           </T>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Share this dua" onPress={share} hitSlop={8} style={styles.iconBtn}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('Share this dua')} onPress={share} hitSlop={8} style={styles.iconBtn}>
           <T size={13} weight="bold" color={colors.walnut}>
-            Share
+            {tr('Share')}
           </T>
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={favourite ? 'Remove from favourites' : 'Add to favourites'}
+          accessibilityLabel={favourite ? tr('Remove from favourites') : tr('Add to favourites')}
           onPress={onFavourite}
           hitSlop={8}
           style={styles.iconBtn}
@@ -196,7 +197,7 @@ function Reading() {
       .then(setSessions)
       .catch((e) => {
         setSessions([]);
-        setMessage({ text: e instanceof Error ? e.message : 'Could not load your reading.', ok: false });
+        setMessage({ text: e instanceof Error ? e.message : tr('Could not load your reading.'), ok: false });
       });
   }, []);
 
@@ -205,7 +206,7 @@ function Reading() {
 
   const log = async () => {
     const n = parsePages(pages);
-    if (n == null) return setMessage({ text: `Enter how many pages you read (1–${QURAN_PAGES}).`, ok: false });
+    if (n == null) return setMessage({ text: tr('Enter how many pages you read (1–{0}).', [QURAN_PAGES]), ok: false });
     setBusy(true);
     try {
       const row = await logReading(n, note.trim() || null);
@@ -214,7 +215,7 @@ function Reading() {
       setPages('');
       setNote('');
     } catch (e) {
-      setMessage({ text: e instanceof Error ? e.message : 'Could not save.', ok: false });
+      setMessage({ text: e instanceof Error ? e.message : tr('Could not save.'), ok: false });
     } finally {
       setBusy(false);
     }
@@ -225,7 +226,7 @@ function Reading() {
     setConfirm(null);
     setSessions((prev) => prev?.filter((x) => x.id !== s.id) ?? null);
     await deleteSession(s.id).catch(() => {
-      setMessage({ text: 'Could not delete that entry.', ok: false });
+      setMessage({ text: tr('Could not delete that entry.'), ok: false });
       loadSessions().then(setSessions).catch(() => {});
     });
   };
@@ -235,27 +236,27 @@ function Reading() {
   return (
     <>
       <View style={styles.stats}>
-        <Stat label="Today" value={`${stats.todayPages}/${goal}`} sub="pages" />
-        <Stat label="Streak" value={String(stats.streak)} sub={stats.streak === 1 ? 'day' : 'days'} />
-        <Stat label="This month" value={String(stats.monthPages)} sub="pages" />
+        <Stat label={tr('Today')} value={`${stats.todayPages}/${goal}`} sub={tr('pages')} />
+        <Stat label={tr('Streak')} value={String(stats.streak)} sub={stats.streak === 1 ? tr('day') : tr('days')} />
+        <Stat label={tr('This month')} value={String(stats.monthPages)} sub={tr('pages')} />
         <Stat
-          label="Khatm"
+          label={tr('Khatm')}
           value={`${Math.round((stats.intoKhatm / QURAN_PAGES) * 100)}%`}
-          sub={stats.khatms > 0 ? `${stats.khatms} completed` : `${stats.intoKhatm} of ${QURAN_PAGES} pages`}
+          sub={stats.khatms > 0 ? tr('{0} completed', [stats.khatms]) : tr('{0} of {1} pages', [stats.intoKhatm, QURAN_PAGES])}
         />
       </View>
 
       <Card style={{ gap: 12 }}>
         <T weight="bold" size={16}>
-          Log today’s reading
+          {tr('Log today’s reading')}
         </T>
         <View style={styles.bar}>
           <View style={[styles.barFill, { width: `${todayPct}%` }]} />
         </View>
         <T size={12.5} color={colors.muted}>
           {todayPct >= 100
-            ? 'Daily goal complete, alhamdulillah.'
-            : `${goal - stats.todayPages} page${goal - stats.todayPages === 1 ? '' : 's'} to reach today’s goal. ${GOAL_OPTIONS.find((g) => g.pages === goal)?.hint ?? ''}`}
+            ? tr('Daily goal complete, alhamdulillah.')
+            : tr('{0} page{1} to reach today’s goal. {2}', [goal - stats.todayPages, goal - stats.todayPages === 1 ? '' : 's', GOAL_OPTIONS.find((g) => g.pages === goal)?.hint ?? ''])}
         </T>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <TextInput
@@ -264,37 +265,37 @@ function Reading() {
               setPages(v);
               setMessage(null);
             }}
-            placeholder="Pages"
+            placeholder={tr('Pages')}
             placeholderTextColor={colors.muted}
             keyboardType="number-pad"
             style={[styles.input, { width: 90 }]}
-            accessibilityLabel="Pages read"
+            accessibilityLabel={tr('Pages read')}
           />
           <TextInput
             value={note}
             onChangeText={setNote}
-            placeholder="Where you stopped, e.g. Al-Kahf 45"
+            placeholder={tr('Where you stopped, e.g. Al-Kahf 45')}
             placeholderTextColor={colors.muted}
             maxLength={200}
             style={[styles.input, { flex: 1 }]}
-            accessibilityLabel="Where you stopped (optional)"
+            accessibilityLabel={tr('Where you stopped (optional)')}
           />
         </View>
         {message ? (
           <T size={13.5} color={message.ok ? colors.sageDark : colors.brickText}>
-            {message.text}
+            {tr(message.text)}
           </T>
         ) : null}
-        <Button label="Log reading" onPress={log} busy={busy} />
+        <Button label={tr('Log reading')} onPress={log} busy={busy} />
         <View style={{ gap: 6 }}>
           <T size={13} weight="semibold" color={colors.muted}>
-            Daily goal
+            {tr('Daily goal')}
           </T>
           <View style={styles.wrap}>
             {GOAL_OPTIONS.map((g) => (
               <Chip
                 key={g.pages}
-                label={g.label}
+                label={tr(g.label)}
                 selected={goal === g.pages}
                 onPress={() => {
                   setGoal(g.pages);
@@ -308,27 +309,27 @@ function Reading() {
 
       <Card style={{ gap: 4 }}>
         <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4, marginBottom: 4 }}>
-          RECENT READING
+          {tr('RECENT READING')}
         </T>
         {!sessions ? (
           <ActivityIndicator color={colors.walnut} />
         ) : sessions.length === 0 ? (
           <T size={14} color={colors.muted}>
-            Nothing logged yet. Even one page a day adds up, start today.
+            {tr('Nothing logged yet. Even one page a day adds up, start today.')}
           </T>
         ) : (
           sessions.slice(0, 8).map((s, i) => (
             <View key={s.id} style={[styles.row, i < Math.min(sessions.length, 8) - 1 && styles.rowLine]}>
               <T size={12.5} color={colors.muted} style={{ width: 56 }}>
-                {new Date(`${s.read_on}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                {new Date(`${s.read_on}T12:00:00`).toLocaleDateString(locale(), { month: 'short', day: 'numeric' })}
               </T>
-              <T size={14.5} weight="semibold">{`${s.pages} page${s.pages === 1 ? '' : 's'}`}</T>
+              <T size={14.5} weight="semibold">{tr('{0} page{1}', [s.pages, s.pages === 1 ? '' : 's'])}</T>
               <T size={12.5} color={colors.muted} style={{ flex: 1 }} numberOfLines={1}>
                 {s.note ?? ''}
               </T>
-              <Pressable accessibilityRole="button" accessibilityLabel="Delete entry" onPress={() => remove(s)} hitSlop={8}>
+              <Pressable accessibilityRole="button" accessibilityLabel={tr('Delete entry')} onPress={() => remove(s)} hitSlop={8}>
                 <T size={12.5} weight="bold" color={confirm === s.id ? colors.brickText : colors.muted}>
-                  {confirm === s.id ? 'Delete?' : '✕'}
+                  {confirm === s.id ? tr('Delete?') : '✕'}
                 </T>
               </Pressable>
             </View>
@@ -339,19 +340,19 @@ function Reading() {
       <Card style={{ gap: 8 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <T weight="bold" size={16}>
-            Open a surah
+            {tr('Open a surah')}
           </T>
           <T size={12.5} color={colors.muted}>
-            Opens on Quran.com
+            {tr('Opens on Quran.com')}
           </T>
         </View>
         <TextInput
           value={surahQuery}
           onChangeText={setSurahQuery}
-          placeholder="Search by name or number"
+          placeholder={tr('Search by name or number')}
           placeholderTextColor={colors.muted}
           style={styles.input}
-          accessibilityLabel="Search surahs"
+          accessibilityLabel={tr('Search surahs')}
           autoCorrect={false}
         />
         {surahs.map((s, i) => (
@@ -369,7 +370,7 @@ function Reading() {
             <T size={14.5} weight="semibold" style={{ flex: 1 }}>
               {s.name}
             </T>
-            <T size={12} color={colors.muted}>{`${s.ayahs} ayahs`}</T>
+            <T size={12} color={colors.muted}>{tr('{0} ayahs', [s.ayahs])}</T>
           </Pressable>
         ))}
       </Card>

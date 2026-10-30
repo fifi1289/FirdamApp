@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon, Logo, StarPattern } from '@/components/art';
 import { Card, T } from '@/components/ui';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /** Back to the Home ring, from any feature. */
 export function HomeButton({ onDark = false }: { onDark?: boolean }) {
@@ -13,14 +14,14 @@ export function HomeButton({ onDark = false }: { onDark?: boolean }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Back to Home"
+      accessibilityLabel={tr('Back to Home')}
       hitSlop={8}
       onPress={() => router.dismissTo('/')}
       style={[styles.home, onDark && styles.homeDark]}
     >
       <Icon name="back" size={18} color={color} />
       <T size={14} weight="bold" color={color}>
-        Home
+        {tr('Home')}
       </T>
     </Pressable>
   );
@@ -50,10 +51,10 @@ export function TabScreen({
         {home ? (action ? <View style={styles.actionRow}>{action}</View> : null) : (
           <View style={styles.brandBar}>
             <HomeButton />
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} accessibilityLabel="Firdam">
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }} accessibilityLabel={tr('Firdam')}>
               <Logo size={22} />
               <T weight="extrabold" size={15} color={colors.walnut}>
-                Firdam
+                {tr('Firdam')}
               </T>
             </View>
           </View>
@@ -80,7 +81,7 @@ export function ComingNext({ step, title, text }: { step: number; title: string;
         <StarPattern size={150} strokeWidth={1} />
       </View>
       <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.5 }}>
-        {`COMING IN STEP ${step}`}
+        {tr('COMING IN STEP {0}', [step])}
       </T>
       <T size={17} weight="extrabold" style={{ marginTop: 4 }}>
         {title}

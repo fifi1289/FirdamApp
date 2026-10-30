@@ -10,6 +10,7 @@ import { patchKitchen, useKitchen } from '@/lib/kitchen-store';
 import { MEAL_TYPES } from '@/shared/meals-config';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { tr } from '@/lib/i18n';
 
 function toggleIn(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
@@ -41,7 +42,7 @@ export default function MealPreferences() {
 
   const save = async () => {
     if (!prefs.mealTypes.length) {
-      showAlert('Choose at least one meal to plan.');
+      showAlert(tr('Choose at least one meal to plan.'));
       return;
     }
     setSaving(true);
@@ -50,7 +51,7 @@ export default function MealPreferences() {
       patchKitchen({ prefs });
       router.back();
     } catch (e) {
-      showAlert('Could not save', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not save'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setSaving(false);
     }
@@ -60,17 +61,17 @@ export default function MealPreferences() {
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
         <T weight="extrabold" size={22} accessibilityRole="header">
-          Plan filters
+          {tr('Plan filters')}
         </T>
-        <Button label="Cancel" variant="text" onPress={() => router.back()} />
+        <Button label={tr('Cancel')} variant="text" onPress={() => router.back()} />
       </View>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 24, paddingBottom: 40 }}>
         <View style={{ gap: 10 }}>
           <T weight="bold" size={16}>
-            Allergies in your home
+            {tr('Allergies in your home')}
           </T>
           <T size={13.5} color={colors.muted}>
-            Recipes with these are never planned or shown as safe.
+            {tr('Recipes with these are never planned or shown as safe.')}
           </T>
           <View style={styles.wrap}>
             {choices.allergies.map((a) => (
@@ -81,7 +82,7 @@ export default function MealPreferences() {
 
         <View style={{ gap: 10 }}>
           <T weight="bold" size={16}>
-            Diets
+            {tr('Diets')}
           </T>
           <View style={styles.wrap}>
             {choices.diets.map((d) => (
@@ -92,21 +93,21 @@ export default function MealPreferences() {
 
         <View style={{ gap: 10 }}>
           <T weight="bold" size={16}>
-            Meals to plan
+            {tr('Meals to plan')}
           </T>
           <View style={styles.wrap}>
             {MEAL_TYPES.map((m) => (
-              <Chip key={m.key} label={m.label} selected={prefs.mealTypes.includes(m.key)} onPress={() => setPrefs({ ...prefs, mealTypes: toggleIn(prefs.mealTypes, m.key) })} />
+              <Chip key={m.key} label={tr(m.label)} selected={prefs.mealTypes.includes(m.key)} onPress={() => setPrefs({ ...prefs, mealTypes: toggleIn(prefs.mealTypes, m.key) })} />
             ))}
           </View>
         </View>
 
         <View style={{ gap: 10 }}>
           <T weight="bold" size={16}>
-            Cuisines
+            {tr('Cuisines')}
           </T>
           <T size={13.5} color={colors.muted}>
-            Optional. Chosen cuisines lead on most days; other days bring variety.
+            {tr('Optional. Chosen cuisines lead on most days; other days bring variety.')}
           </T>
           {prefs.mealTypes.map((type) => {
             const chosen = prefs.cuisinePreferences?.[type] ?? [];
@@ -133,16 +134,16 @@ export default function MealPreferences() {
         <Card>
           <Pressable accessibilityRole="switch" accessibilityState={{ checked: prefs.usePantryFirst }} onPress={() => setPrefs({ ...prefs, usePantryFirst: !prefs.usePantryFirst })} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ flex: 1 }}>
-              <T weight="bold">Use my pantry first</T>
+              <T weight="bold">{tr('Use my pantry first')}</T>
               <T size={13} color={colors.muted}>
-                Plans favour meals you can make with what you already have.
+                {tr('Plans favour meals you can make with what you already have.')}
               </T>
             </View>
             <Switch value={prefs.usePantryFirst} onValueChange={(v) => setPrefs({ ...prefs, usePantryFirst: v })} trackColor={{ true: colors.sage, false: colors.sand }} />
           </Pressable>
         </Card>
 
-        <Button label="Save" onPress={save} busy={saving} />
+        <Button label={tr('Save')} onPress={save} busy={saving} />
       </ScrollView>
     </SafeAreaView>
   );

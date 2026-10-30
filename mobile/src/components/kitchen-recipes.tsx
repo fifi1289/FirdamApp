@@ -7,6 +7,7 @@ import { Button, T } from '@/components/ui';
 import { checkRecipe, fitsDiets, isSafeFor, loadRecipes, recipeImage, totalMinutes, type RecipeRow } from '@/lib/kitchen';
 import { useKitchen } from '@/lib/kitchen-store';
 import { colors, fonts } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 type Filter = 'safe' | 'quick' | 'cook';
 
@@ -33,7 +34,7 @@ export function RecipesView() {
   useEffect(() => {
     loadRecipes()
       .then(setRecipes)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Could not load recipes.'));
+      .catch((e) => setError(e instanceof Error ? e.message : tr('Could not load recipes.')));
   }, []);
 
   const allergies = k.prefs?.allergies ?? [];
@@ -89,16 +90,16 @@ export function RecipesView() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder={`Search ${recipes.length} halal recipes`}
+          placeholder={tr('Search {0} halal recipes', [recipes.length])}
           placeholderTextColor="#9C8D84"
-          accessibilityLabel="Search recipes"
+          accessibilityLabel={tr('Search recipes')}
           style={[styles.search, { flex: 1 }]}
           returnKeyType="search"
           clearButtonMode="while-editing"
         />
-        <Pressable accessibilityRole="button" accessibilityLabel="Filters" onPress={() => setSheet(true)} style={styles.filterBtn}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('Filters')} onPress={() => setSheet(true)} style={styles.filterBtn}>
           <T size={14} weight="bold" color={colors.linen}>
-            {activeCount ? `Filters · ${activeCount}` : 'Filters'}
+            {activeCount ? tr('Filters · {0}', [activeCount]) : tr('Filters')}
           </T>
         </Pressable>
       </View>
@@ -111,35 +112,35 @@ export function RecipesView() {
       ) : null}
 
       <Modal visible={sheet} transparent animationType="slide" onRequestClose={() => setSheet(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setSheet(false)} accessibilityLabel="Close filters">
+        <Pressable style={styles.backdrop} onPress={() => setSheet(false)} accessibilityLabel={tr('Close filters')}>
           <Pressable style={styles.sheet} onPress={() => {}}>
             <ScrollView contentContainerStyle={{ gap: 16 }}>
               <T weight="extrabold" size={20}>
-                Filters
+                {tr('Filters')}
               </T>
-              <Section title="For">
-                <Chip label={allergies.length ? 'Safe for my family' : 'Fits my diet'} selected={filters.has('safe')} onPress={() => toggle('safe')} tone="sage" />
-                <Chip label="30 min or less" selected={filters.has('quick')} onPress={() => toggle('quick')} />
-                {k.pantry.length ? <Chip label="Cook with what I have" selected={filters.has('cook')} onPress={() => toggle('cook')} /> : null}
+              <Section title={tr('For')}>
+                <Chip label={allergies.length ? tr('Safe for my family') : tr('Fits my diet')} selected={filters.has('safe')} onPress={() => toggle('safe')} tone="sage" />
+                <Chip label={tr('30 min or less')} selected={filters.has('quick')} onPress={() => toggle('quick')} />
+                {k.pantry.length ? <Chip label={tr('Cook with what I have')} selected={filters.has('cook')} onPress={() => toggle('cook')} /> : null}
               </Section>
-              <Section title="Meal">
+              <Section title={tr('Meal')}>
                 {MEALS.map((m) => (
                   <Chip key={m} label={m[0].toUpperCase() + m.slice(1)} selected={meal === m} onPress={() => setMeal(meal === m ? null : m)} />
                 ))}
               </Section>
-              <Section title="Diet">
+              <Section title={tr('Diet')}>
                 {DIETS.map((d) => (
                   <Chip key={d} label={d} selected={diet === d} onPress={() => setDiet(diet === d ? null : d)} tone="sage" />
                 ))}
               </Section>
-              <Section title="Cuisine">
+              <Section title={tr('Cuisine')}>
                 {cuisines.map((c) => (
                   <Chip key={c} label={c} selected={cuisine === c} onPress={() => setCuisine(cuisine === c ? null : c)} />
                 ))}
               </Section>
-              <Button label={`Show ${shown.length} recipe${shown.length === 1 ? '' : 's'}`} onPress={() => setSheet(false)} />
+              <Button label={tr('Show {0} recipe{1}', [shown.length, shown.length === 1 ? '' : 's'])} onPress={() => setSheet(false)} />
               <Button
-                label="Clear all"
+                label={tr('Clear all')}
                 variant="text"
                 onPress={() => {
                   setMeal(null);
@@ -153,8 +154,8 @@ export function RecipesView() {
         </Pressable>
       </Modal>
       <T size={12.5} color={colors.muted}>
-        {shown.length > limit ? `Showing ${limit} of ${shown.length} recipes` : `${shown.length} recipe${shown.length === 1 ? '' : 's'}`}
-        {filters.has('safe') && allergies.length ? ` · without ${allergies.join(', ').toLowerCase()}` : ''}
+        {shown.length > limit ? tr('Showing {0} of {1} recipes', [limit, shown.length]) : tr('{0} recipe{1}', [shown.length, shown.length === 1 ? '' : 's'])}
+        {filters.has('safe') && allergies.length ? tr(' · without {0}', [allergies.join(', ').toLowerCase()]) : ''}
         {filters.has('safe') && diets.length ? ` · ${diets.join(', ').toLowerCase()}` : ''}
       </T>
 
@@ -163,14 +164,14 @@ export function RecipesView() {
           <Photo uri={recipeImage(r)} size={76} />
           <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
             <T size={11.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }} numberOfLines={1}>
-              {`${(r.cuisine?.name ?? 'Halal').toUpperCase()} · ${totalMinutes(r) || '–'} MIN`}
+              {tr('{0} · {1} MIN', [(r.cuisine?.name ?? 'Halal').toUpperCase(), totalMinutes(r) || '–'])}
             </T>
             <T size={15.5} weight="bold" numberOfLines={2}>
               {r.name}
             </T>
             {check ? (
               <Badge
-                label={check.verdict === 'ready' ? 'Cook now' : check.missingCount + check.shortCount === 1 ? '1 thing to buy' : `${check.missingCount + check.shortCount} things to buy`}
+                label={check.verdict === 'ready' ? tr('Cook now') : check.missingCount + check.shortCount === 1 ? tr('1 thing to buy') : tr('{0} things to buy', [check.missingCount + check.shortCount])}
                 tone={check.verdict === 'ready' ? 'sage' : check.verdict === 'almost' ? 'amber' : 'walnut'}
               />
             ) : null}
@@ -179,14 +180,14 @@ export function RecipesView() {
       ))}
       {shown.length > limit ? (
         <Button
-          label={`Show ${Math.min(PAGE_SIZE, shown.length - limit)} more`}
+          label={tr('Show {0} more', [Math.min(PAGE_SIZE, shown.length - limit)])}
           variant="secondary"
           onPress={() => setLimit((n) => n + PAGE_SIZE)}
         />
       ) : null}
       {shown.length === 0 ? (
         <T size={14} color={colors.muted}>
-          No recipes match. Try fewer filters.
+          {tr('No recipes match. Try fewer filters.')}
         </T>
       ) : null}
     </View>

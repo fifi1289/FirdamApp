@@ -16,6 +16,7 @@ import { router, type Href } from 'expo-router';
 import { AFFILIATE_NOTE, amazonFoodUrl, canBuyOnline, listNames, needsHalalCheck, nearYouHint, shopsAvailable } from '@/shared/shop-links';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { tr } from '@/lib/i18n';
 
 export function ShoppingView() {
   const k = useKitchen();
@@ -44,11 +45,11 @@ export function ShoppingView() {
       const refused = parsed.map((p) => haramItemMessage(p.name)).filter((m): m is string => !!m);
       const halal = parsed.filter((p) => !haramItemMessage(p.name));
       if (halal.length) await addShoppingItems(k.listId, halal, k.items);
-      if (refused.length) showAlert('Not added', refused.join('\n\n'));
+      if (refused.length) showAlert(tr('Not added'), refused.join('\n\n'));
       setText('');
       await refreshShopping();
     } catch (e) {
-      showAlert('Could not add', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not add'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setBusy(false);
     }
@@ -87,34 +88,34 @@ export function ShoppingView() {
         <TextInput
           value={text}
           onChangeText={setText}
-          placeholder="Add: 2 kg rice, 6 eggs…"
+          placeholder={tr('Add: 2 kg rice, 6 eggs…')}
           placeholderTextColor="#9C8D84"
-          accessibilityLabel="Add to the shopping list"
+          accessibilityLabel={tr('Add to the shopping list')}
           style={styles.input}
           returnKeyType="done"
           onSubmitEditing={add}
         />
-        <Button label="Add" onPress={add} busy={busy} style={{ height: 48, paddingHorizontal: 18 }} />
+        <Button label={tr('Add')} onPress={add} busy={busy} style={{ height: 48, paddingHorizontal: 18 }} />
       </View>
 
       {nearYou?.meat.length ? (
         <View style={styles.banner}>
-          <T size={15.5} weight="bold">{`${nearYou.meat.length} meat item${nearYou.meat.length === 1 ? '' : 's'} on your list`}</T>
-          <T size={13.5} color={colors.muted} numberOfLines={2}>{`${listNames(nearYou.meat)}. Buy it from a halal butcher.`}</T>
-          <Button label="Find a halal butcher" onPress={() => router.push('/halal?category=butcher' as Href)} style={{ height: 46 }} />
+          <T size={15.5} weight="bold">{tr('{0} meat item{1} on your list', [nearYou.meat.length, nearYou.meat.length === 1 ? '' : 's'])}</T>
+          <T size={13.5} color={colors.muted} numberOfLines={2}>{tr('{0}. Buy it from a halal butcher.', [listNames(nearYou.meat)])}</T>
+          <Button label={tr('Find a halal butcher')} onPress={() => router.push('/halal?category=butcher' as Href)} style={{ height: 46 }} />
         </View>
       ) : null}
       {online && onAmazon.length ? (
         <View style={styles.banner}>
-          <T size={15.5} weight="bold">{`${onAmazon.length} item${onAmazon.length === 1 ? '' : 's'} available on Amazon.ca`}</T>
-          <T size={13.5} color={colors.muted} numberOfLines={2}>{`${listNames(onAmazon.map((i) => i.name))}. See them below.`}</T>
+          <T size={15.5} weight="bold">{tr('{0} item{1} available on Amazon.ca', [onAmazon.length, onAmazon.length === 1 ? '' : 's'])}</T>
+          <T size={13.5} color={colors.muted} numberOfLines={2}>{tr('{0}. See them below.', [listNames(onAmazon.map((i) => i.name))])}</T>
         </View>
       ) : null}
 
       {open.length === 0 ? (
         <Card>
           <T size={14.5} color={colors.muted}>
-            Your list is empty. Add food above, or add what this week’s plan needs from Plan.
+            {tr('Your list is empty. Add food above, or add what this week’s plan needs from Plan.')}
           </T>
         </Card>
       ) : (
@@ -122,7 +123,7 @@ export function ShoppingView() {
           <View key={g.category} style={{ gap: 6 }}>
             <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
               {g.category.toUpperCase()}
-              {needsHalalSource(g.category) ? ' · CHECK IT’S HALAL' : ''}
+              {needsHalalSource(g.category) ? tr(' · CHECK IT’S HALAL') : ''}
             </T>
             <Card style={{ paddingVertical: 2 }}>
               {g.items.map((i, idx) => (
@@ -143,7 +144,7 @@ export function ShoppingView() {
       {online && onAmazon.length ? (
         <View style={{ gap: 6 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            {`AVAILABLE ON AMAZON.CA · ${onAmazon.length}`}
+            {tr('AVAILABLE ON AMAZON.CA · {0}', [onAmazon.length])}
           </T>
           <Card style={{ paddingVertical: 2 }}>
             {onAmazon.map((i, idx) => (
@@ -154,26 +155,26 @@ export function ShoppingView() {
                   </T>
                   {needsHalalCheck(i.name) ? (
                     <T size={12} color={colors.muted}>
-                      Halal options shown · check the label
+                      {tr('Halal options shown · check the label')}
                     </T>
                   ) : null}
                 </View>
                 <Pressable
                   accessibilityRole="link"
-                  accessibilityLabel={`See ${i.name} on Amazon.ca`}
+                  accessibilityLabel={tr('See {0} on Amazon.ca', [i.name])}
                   onPress={() => Linking.openURL(amazonFoodUrl(i.name))}
                   hitSlop={6}
                   style={styles.buy}
                 >
                   <T size={12.5} weight="bold" color={colors.walnut}>
-                    See on Amazon ↗
+                    {tr('See on Amazon ↗')}
                   </T>
                 </Pressable>
               </View>
             ))}
           </Card>
           <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
-            {AFFILIATE_NOTE}
+            {tr(AFFILIATE_NOTE)}
           </T>
         </View>
       ) : null}
@@ -182,9 +183,9 @@ export function ShoppingView() {
         <View style={{ gap: 6 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <T size={12.5} weight="bold" color={colors.muted}>
-              {`IN THE BASKET · ${done.length}`}
+              {tr('IN THE BASKET · {0}', [done.length])}
             </T>
-            <Button label="Clear" variant="text" onPress={clearDone} style={{ height: 36 }} />
+            <Button label={tr('Clear')} variant="text" onPress={clearDone} style={{ height: 36 }} />
           </View>
           <Card style={{ paddingVertical: 2, opacity: 0.75 }}>
             {done.map((i, idx) => (

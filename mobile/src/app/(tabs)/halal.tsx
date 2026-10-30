@@ -13,6 +13,7 @@ import { usePrayerSettings } from '@/lib/prayer';
 import { supabase } from '@/lib/supabase';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
+import { tr } from '@/lib/i18n';
 
 type Category = 'grocery' | 'butcher' | 'restaurant' | 'cafe' | 'mosque' | 'other';
 interface Place {
@@ -148,7 +149,7 @@ export default function Halal() {
     setPlaces([...mine, ...found]);
     // A brand-new area is filled in by Firdam within a few minutes.
     if (osm.status === 'rejected' || osm.value.pending) {
-      setNotice(found.length ? 'Adding more places around you — pull back in a few minutes for the full list.' : 'Firdam is gathering halal places for your area. Check back in a few minutes.');
+      setNotice(found.length ? tr('Adding more places around you — pull back in a few minutes for the full list.') : tr('Firdam is gathering halal places for your area. Check back in a few minutes.'));
     }
   }, [place, stores]);
 
@@ -161,7 +162,7 @@ export default function Halal() {
     try {
       const p = await placeFromDevice();
       if (p !== 'denied') await update({ place: p });
-      else setError('Location is off. Turn it on in Settings, or set your city in Prayer.');
+      else setError(tr('Location is off. Turn it on in Settings, or set your city in Prayer.'));
     } finally {
       setLocating(false);
     }
@@ -179,23 +180,23 @@ export default function Halal() {
   }, [places, place, filter]);
 
   return (
-    <TabScreen title="Halal near me" subtitle={place ? `Around ${place.label}` : 'Restaurants, butchers, groceries and mosques'}>
+    <TabScreen title={tr('Halal near me')} subtitle={place ? tr('Around {0}', [place.label]) : tr('Restaurants, butchers, groceries and mosques')}>
       {!place ? (
         <Card style={{ gap: 12 }}>
-          <T size={15}>Share your location to see halal places nearby. It stays on your phone; only the area is used for the search.</T>
-          <Button label="Use my location" onPress={useMyLocation} busy={locating} />
+          <T size={15}>{tr('Share your location to see halal places nearby. It stays on your phone; only the area is used for the search.')}</T>
+          <Button label={tr('Use my location')} onPress={useMyLocation} busy={locating} />
         </Card>
       ) : (
         <>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {FILTERS.map((f) => (
-              <Chip key={f.key} label={f.label} selected={filter === f.key} onPress={() => setFilter(f.key)} />
+              <Chip key={f.key} label={tr(f.label)} selected={filter === f.key} onPress={() => setFilter(f.key)} />
             ))}
           </View>
-          <Chip label="Also show shops that may stock halal food" selected={stores} onPress={() => setStores(!stores)} />
+          <Chip label={tr('Also show shops that may stock halal food')} selected={stores} onPress={() => setStores(!stores)} />
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Chip label="List" selected={view === 'list'} onPress={() => setView('list')} />
-            <Chip label="Map" selected={view === 'map'} onPress={() => setView('map')} />
+            <Chip label={tr('List')} selected={view === 'list'} onPress={() => setView('list')} />
+            <Chip label={tr('Map')} selected={view === 'map'} onPress={() => setView('map')} />
           </View>
           {notice ? (
             <T size={13} color={colors.muted}>
@@ -206,14 +207,14 @@ export default function Halal() {
           {error ? (
             <Card style={{ gap: 10 }}>
               <T color={colors.brickText}>{error}</T>
-              <Button label="Try again" variant="secondary" onPress={load} />
+              <Button label={tr('Try again')} variant="secondary" onPress={load} />
             </Card>
           ) : !places ? (
             <ActivityIndicator color={colors.walnut} style={{ marginTop: 24 }} />
           ) : shown.length === 0 ? (
             <Card>
               <T size={14.5} color={colors.muted}>
-                {filter === 'all' ? 'No halal places listed near you yet.' : 'Nothing in this category near you yet. Try “All”.'}
+                {filter === 'all' ? tr('No halal places listed near you yet.') : tr('Nothing in this category near you yet. Try “All”.')}
               </T>
             </Card>
           ) : view === 'map' ? (
@@ -226,7 +227,7 @@ export default function Halal() {
                 latitude: p.latitude,
                 longitude: p.longitude,
                 color: PIN[p.halalStatus],
-                subtitle: [`${d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`}`, STATUS[p.halalStatus].label].join(' · '),
+                subtitle: [`${d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`}`, tr(STATUS[p.halalStatus].label)].join(' · '),
               }))}
               onSelect={(key) => {
                 const hit = shown.find((x) => x.p.key === key);
@@ -244,18 +245,18 @@ export default function Halal() {
                     {[`${km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`}`, p.cuisine, p.address].filter(Boolean).join(' · ')}
                   </T>
                   <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
-                    <Badge label={STATUS[p.halalStatus].label} tone={STATUS[p.halalStatus].tone} />
-                    {p.pending ? <Badge label="Waiting for approval" tone="amber" /> : p.community ? <Badge label="Added by families" tone="walnut" /> : null}
+                    <Badge label={tr(STATUS[p.halalStatus].label)} tone={STATUS[p.halalStatus].tone} />
+                    {p.pending ? <Badge label={tr('Waiting for approval')} tone="amber" /> : p.community ? <Badge label={tr('Added by families')} tone="walnut" /> : null}
                   </View>
                 </View>
                 <View style={{ alignItems: 'flex-end', gap: 6 }}>
                   <T size={13} weight="bold" color={colors.walnut}>
-                    Directions
+                    {tr('Directions')}
                   </T>
                   {p.key.startsWith('db:') ? (
                     <Pressable accessibilityRole="button" onPress={() => setReporting(p)} hitSlop={8}>
                       <T size={12} color={colors.muted} style={{ textDecorationLine: 'underline' }}>
-                        Report
+                        {tr('Report')}
                       </T>
                     </Pressable>
                   ) : null}
@@ -264,12 +265,12 @@ export default function Halal() {
             ))
           )}
 
-          <Button label="Add a halal place you know" variant="secondary" onPress={() => setAdding(true)} />
+          <Button label={tr('Add a halal place you know')} variant="secondary" onPress={() => setAdding(true)} />
           <AddPlaceSheet open={adding} near={place} onClose={() => setAdding(false)} onAdded={load} />
           <ReportPlaceSheet place={reporting} onClose={() => setReporting(null)} />
-          <Button label="Update my location" variant="text" onPress={useMyLocation} busy={locating} />
+          <Button label={tr('Update my location')} variant="text" onPress={useMyLocation} busy={locating} />
           <T size={11.5} color={colors.muted} style={{ textAlign: 'center' }}>
-            Places from © OpenStreetMap contributors and Firdam families. Always check halal certification with the place.
+            {tr('Places from © OpenStreetMap contributors and Firdam families. Always check halal certification with the place.')}
           </T>
         </>
       )}
@@ -328,7 +329,7 @@ function AddPlaceSheet({
   const [problem, setProblem] = useState<string | null>(null);
 
   const save = async () => {
-    if (name.trim().length < 2 || address.trim().length < 3) return setProblem('Add the name and the address.');
+    if (name.trim().length < 2 || address.trim().length < 3) return setProblem(tr('Add the name and the address.'));
     setProblem(null);
     setSaving(true);
     try {
@@ -337,7 +338,7 @@ function AddPlaceSheet({
       const hit = (await findAddress(address.trim())) ??
         (near ? { latitude: near.latitude, longitude: near.longitude, label: address.trim(), city: null, country: null } : null);
       if (!hit) {
-        setProblem('Turn on location or choose your city first, then try again.');
+        setProblem(tr('Turn on location or choose your city first, then try again.'));
         return;
       }
       const { error } = await supabase.from('halal_places').insert({
@@ -355,9 +356,9 @@ function AddPlaceSheet({
       setAddress('');
       onClose();
       onAdded();
-      setTimeout(() => showAlert('Thank you!', 'Firdam will check the place and add it for every family nearby, usually within a day. You can already see it, marked “Waiting for approval”.'), 400);
+      setTimeout(() => showAlert(tr('Thank you!'), tr('Firdam will check the place and add it for every family nearby, usually within a day. You can already see it, marked “Waiting for approval”.')), 400);
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not add the place. Please try again.');
+      setProblem(e instanceof Error ? e.message : tr('Could not add the place. Please try again.'));
     } finally {
       setSaving(false);
     }
@@ -366,23 +367,23 @@ function AddPlaceSheet({
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
+      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel={tr('Close')}>
         <Pressable style={styles.sheetWrap} onPress={() => {}}>
           <ScrollView contentContainerStyle={styles.sheet} keyboardShouldPersistTaps="handled" bounces={false}>
           <T weight="extrabold" size={20}>
-            Add a halal place
+            {tr('Add a halal place')}
           </T>
-          <TextInput value={name} onChangeText={setName} placeholder="Name, e.g. Shawarma Palace" placeholderTextColor="#9C8D84" style={styles.input} />
+          <TextInput value={name} onChangeText={setName} placeholder={tr('Name, e.g. Shawarma Palace')} placeholderTextColor="#9C8D84" style={styles.input} />
           <TextInput
             value={address}
             onChangeText={setAddress}
-            placeholder="Address, e.g. 464 Rideau St, Ottawa"
+            placeholder={tr('Address, e.g. 464 Rideau St, Ottawa')}
             placeholderTextColor="#9C8D84"
             style={styles.input}
           />
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {ADD_CATEGORIES.map((c) => (
-              <Chip key={c.key} label={c.label} selected={category === c.key} onPress={() => setCategory(c.key)} />
+              <Chip key={c.key} label={tr(c.label)} selected={category === c.key} onPress={() => setCategory(c.key)} />
             ))}
           </View>
           {problem ? (
@@ -390,8 +391,8 @@ function AddPlaceSheet({
               {problem}
             </T>
           ) : null}
-          <Button label="Add the place" onPress={save} busy={saving} />
-          <Button label="Cancel" variant="text" onPress={onClose} />
+          <Button label={tr('Add the place')} onPress={save} busy={saving} />
+          <Button label={tr('Cancel')} variant="text" onPress={onClose} />
           </ScrollView>
         </Pressable>
       </Pressable>
@@ -419,7 +420,7 @@ function ReportPlaceSheet({ place, onClose }: { place: Place | null; onClose: ()
     if (!place) return;
     const id = place.key.startsWith('db:') ? place.key.slice(3) : null;
     if (!id) {
-      setProblem('Only places added by families can be reported.');
+      setProblem(tr('Only places added by families can be reported.'));
       return;
     }
     setProblem(null);
@@ -428,7 +429,7 @@ function ReportPlaceSheet({ place, onClose }: { place: Place | null; onClose: ()
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error('Sign in to report a place.');
+      if (!user) throw new Error(tr('Sign in to report a place.'));
       const { error } = await supabase.from('place_reports').insert({
         place_id: id,
         reporter_id: user.id,
@@ -441,7 +442,7 @@ function ReportPlaceSheet({ place, onClose }: { place: Place | null; onClose: ()
           onClose();
           setReason('not_halal');
           setDetails('');
-          setTimeout(() => showAlert('Already reported', 'Thank you — we are already reviewing this place.'), 400);
+          setTimeout(() => showAlert(tr('Already reported'), tr('Thank you — we are already reviewing this place.')), 400);
           return;
         }
         throw error;
@@ -449,9 +450,9 @@ function ReportPlaceSheet({ place, onClose }: { place: Place | null; onClose: ()
       onClose();
       setReason('not_halal');
       setDetails('');
-      setTimeout(() => showAlert('Thank you', 'We will review this place, usually within a day.'), 400);
+      setTimeout(() => showAlert(tr('Thank you'), tr('We will review this place, usually within a day.')), 400);
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not send the report. Please try again.');
+      setProblem(e instanceof Error ? e.message : tr('Could not send the report. Please try again.'));
     } finally {
       setSaving(false);
     }
@@ -460,11 +461,11 @@ function ReportPlaceSheet({ place, onClose }: { place: Place | null; onClose: ()
   return (
     <Modal visible={!!place} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
+        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel={tr('Close')}>
           <Pressable style={styles.sheetWrap} onPress={() => {}}>
             <ScrollView contentContainerStyle={styles.sheet} keyboardShouldPersistTaps="handled" bounces={false}>
               <T weight="extrabold" size={20}>
-                Report this place
+                {tr('Report this place')}
               </T>
               {place ? (
                 <T size={14} color={colors.muted} numberOfLines={2}>
@@ -473,13 +474,13 @@ function ReportPlaceSheet({ place, onClose }: { place: Place | null; onClose: ()
               ) : null}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {REPORT_REASONS.map((r) => (
-                  <Chip key={r.key} label={r.label} selected={reason === r.key} onPress={() => setReason(r.key)} />
+                  <Chip key={r.key} label={tr(r.label)} selected={reason === r.key} onPress={() => setReason(r.key)} />
                 ))}
               </View>
               <TextInput
                 value={details}
                 onChangeText={setDetails}
-                placeholder="Anything we should know? (optional)"
+                placeholder={tr('Anything we should know? (optional)')}
                 placeholderTextColor="#9C8D84"
                 style={[styles.input, { height: 88, textAlignVertical: 'top', paddingTop: 12 }]}
                 multiline
@@ -489,8 +490,8 @@ function ReportPlaceSheet({ place, onClose }: { place: Place | null; onClose: ()
                   {problem}
                 </T>
               ) : null}
-              <Button label="Send report" onPress={submit} busy={saving} />
-              <Button label="Cancel" variant="text" onPress={onClose} />
+              <Button label={tr('Send report')} onPress={submit} busy={saving} />
+              <Button label={tr('Cancel')} variant="text" onPress={onClose} />
             </ScrollView>
           </Pressable>
         </Pressable>

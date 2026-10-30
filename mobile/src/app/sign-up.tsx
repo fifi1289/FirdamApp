@@ -8,6 +8,7 @@ import { friendlyAuthError, useAuth } from '@/lib/auth';
 import { WEBSITE } from '@/lib/config';
 import { colors } from '@/theme';
 import { SocialSignIn } from '@/components/social-sign-in';
+import { tr } from '@/lib/i18n';
 
 export default function SignUp() {
   const { signUp } = useAuth();
@@ -22,11 +23,11 @@ export default function SignUp() {
   const submit = async () => {
     setError(null);
     if (!firstName.trim() || !email.trim()) {
-      setError('Enter your first name and email.');
+      setError(tr('Enter your first name and email.'));
       return;
     }
     if (password.length < 8) {
-      setError('Choose a password of at least 8 characters.');
+      setError(tr('Choose a password of at least 8 characters.'));
       return;
     }
     setBusy(true);
@@ -42,52 +43,52 @@ export default function SignUp() {
 
   if (sent) {
     return (
-      <AuthShell title="Check your email" subtitle={`We sent a confirmation link to ${email.trim()}. Tap it, then come back and sign in.`}>
-        <Button label="Go to sign in" onPress={() => router.replace('/sign-in')} />
+      <AuthShell title={tr('Check your email')} subtitle={tr('We sent a confirmation link to {0}. Tap it, then come back and sign in.', [email.trim()])}>
+        <Button label={tr('Go to sign in')} onPress={() => router.replace('/sign-in')} />
       </AuthShell>
     );
   }
 
   return (
-    <AuthShell title="Create your account" subtitle="One account for you and, later, your whole household.">
+    <AuthShell title={tr('Create your account')} subtitle={tr('One account for you and, later, your whole household.')}>
       <SocialSignIn />
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <View style={{ flex: 1 }}>
-          <Field label="First name" value={firstName} onChangeText={setFirstName} autoComplete="given-name" textContentType="givenName" />
+          <Field label={tr('First name')} value={firstName} onChangeText={setFirstName} autoComplete="given-name" textContentType="givenName" />
         </View>
         <View style={{ flex: 1 }}>
-          <Field label="Last name" value={lastName} onChangeText={setLastName} autoComplete="family-name" textContentType="familyName" />
+          <Field label={tr('Last name')} value={lastName} onChangeText={setLastName} autoComplete="family-name" textContentType="familyName" />
         </View>
       </View>
       <Field
-        label="Email"
+        label={tr('Email')}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         autoComplete="email"
         keyboardType="email-address"
         textContentType="emailAddress"
-        placeholder="you@example.com"
+        placeholder={tr('you@example.com')}
       />
       <Field
-        label="Password"
+        label={tr('Password')}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
-        placeholder="At least 8 characters"
+        placeholder={tr('At least 8 characters')}
       />
       <FormMessage text={error} />
-      <Button label="Create account" onPress={submit} busy={busy} />
+      <Button label={tr('Create account')} onPress={submit} busy={busy} />
       <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18 }}>
-        By creating an account you confirm you are 18 or older and agree to Firdam’s Terms and Privacy Policy.
+        {tr('By creating an account you confirm you are 18 or older and agree to Firdam’s Terms and Privacy Policy.')}
       </T>
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
-        <Button label="Read the Terms" variant="text" onPress={() => Linking.openURL(`${WEBSITE}/terms`)} />
-        <Button label="Privacy Policy" variant="text" onPress={() => Linking.openURL(`${WEBSITE}/privacy`)} />
+        <Button label={tr('Read the Terms')} variant="text" onPress={() => Linking.openURL(`${WEBSITE}/terms`)} />
+        <Button label={tr('Privacy Policy')} variant="text" onPress={() => Linking.openURL(`${WEBSITE}/privacy`)} />
       </View>
-      <Button label="Already have an account? Sign in" variant="text" onPress={() => router.replace('/sign-in')} />
+      <Button label={tr('Already have an account? Sign in')} variant="text" onPress={() => router.replace('/sign-in')} />
     </AuthShell>
   );
 }

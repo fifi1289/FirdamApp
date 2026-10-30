@@ -6,6 +6,7 @@ import { AuthShell, FormMessage } from '@/components/auth-shell';
 import { Button, Field } from '@/components/ui';
 import { friendlyAuthError, useAuth } from '@/lib/auth';
 import { SocialSignIn } from '@/components/social-sign-in';
+import { tr } from '@/lib/i18n';
 
 export default function SignIn() {
   const { signIn, sendPasswordReset } = useAuth();
@@ -20,7 +21,7 @@ export default function SignIn() {
     setError(null);
     setNote(null);
     if (!email.trim() || !password) {
-      setError('Enter your email and password.');
+      setError(tr('Enter your email and password.'));
       return;
     }
     setBusy(true);
@@ -38,22 +39,22 @@ export default function SignIn() {
     setError(null);
     setNote(null);
     if (!email.trim()) {
-      setError('Type your email above first, then tap “Forgot password?”.');
+      setError(tr('Type your email above first, then tap “Forgot password?”.'));
       return;
     }
     try {
       await sendPasswordReset(email);
-      setNote('If that email has an account, a reset link is on its way.');
+      setNote(tr('If that email has an account, a reset link is on its way.'));
     } catch (e) {
       setError(friendlyAuthError(e));
     }
   };
 
   return (
-    <AuthShell title="Welcome back" subtitle="Sign in with the same account you use on firdam.com.">
+    <AuthShell title={tr('Welcome back')} subtitle={tr('Sign in with the same account you use on firdam.com.')}>
       <SocialSignIn />
       <Field
-        label="Email"
+        label={tr('Email')}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -62,11 +63,11 @@ export default function SignIn() {
         textContentType="emailAddress"
         returnKeyType="next"
         onSubmitEditing={() => passwordRef.current?.focus()}
-        placeholder="you@example.com"
+        placeholder={tr('you@example.com')}
       />
       <Field
         ref={passwordRef}
-        label="Password"
+        label={tr('Password')}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -77,9 +78,9 @@ export default function SignIn() {
       />
       <FormMessage text={error} />
       <FormMessage text={note} tone="success" />
-      <Button label="Sign in" onPress={submit} busy={busy} />
-      <Button label="Forgot password?" variant="text" onPress={forgot} />
-      <Button label="New to Firdam? Create an account" variant="text" onPress={() => router.replace('/sign-up')} />
+      <Button label={tr('Sign in')} onPress={submit} busy={busy} />
+      <Button label={tr('Forgot password?')} variant="text" onPress={forgot} />
+      <Button label={tr('New to Firdam? Create an account')} variant="text" onPress={() => router.replace('/sign-up')} />
     </AuthShell>
   );
 }

@@ -13,6 +13,7 @@ import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 import { ToBuyButton } from '@/components/to-buy-button';
+import { tr } from '@/lib/i18n';
 
 /** A meal the AI chef wrote (not from the recipe library). */
 export default function MealScreen() {
@@ -33,7 +34,7 @@ export default function MealScreen() {
       await markHave(l);
       await refreshKitchen();
     } catch (e) {
-      showAlert('Could not add it to the pantry', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not add it to the pantry'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setHaving(null);
     }
@@ -43,8 +44,8 @@ export default function MealScreen() {
   if (!meal || !check) {
     return (
       <SafeAreaView style={[styles.screen, { alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 }]}>
-        <T>This meal is no longer in your plan.</T>
-        <Button label="Back" variant="secondary" onPress={() => router.back()} />
+        <T>{tr('This meal is no longer in your plan.')}</T>
+        <Button label={tr('Back')} variant="secondary" onPress={() => router.back()} />
       </SafeAreaView>
     );
   }
@@ -57,7 +58,7 @@ export default function MealScreen() {
       const added = await addShoppingItems(k.listId, toBuy.map((l) => l.shortfall ?? { name: l.need.name, quantity: l.scaled, unit: l.need.unit }), k.items);
       await refreshShopping();
       setAdded(true);
-      showAlert(added ? `Added to Shopping (${added})` : 'Already on your list', added ? 'If the food was already on the list, the amounts were added together.' : undefined);
+      showAlert(added ? tr('Added to Shopping ({0})', [added]) : tr('Already on your list'), added ? tr('If the food was already on the list, the amounts were added together.') : undefined);
     } finally {
       setAdding(false);
     }
@@ -67,30 +68,30 @@ export default function MealScreen() {
     <View style={styles.screen}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         <Photo uri={mealImage(meal)} height={240} radius={0} />
-        <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={[styles.back, { top: insets.top + 8 }]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('Back')} onPress={() => router.back()} style={[styles.back, { top: insets.top + 8 }]}>
           <Icon name="back" size={20} color={colors.espresso} />
         </Pressable>
         <View style={styles.sheet}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            {`${meal.type.toUpperCase()} · ${meal.prepTime + meal.cookTime} MIN · FOR ${formatPortions(meal.servings)}`}
+            {tr('{0} · {1} MIN · FOR {2}', [meal.type.toUpperCase(), meal.prepTime + meal.cookTime, formatPortions(meal.servings)])}
           </T>
           <T weight="extrabold" size={26} style={{ marginTop: 4 }} accessibilityRole="header">
             {meal.name}
           </T>
           {meal.description ? (
             <T size={14.5} color="#5F5048" style={{ marginTop: 6, lineHeight: 21 }}>
-              {meal.description}
+              {tr(meal.description)}
             </T>
           ) : null}
           <View style={{ marginTop: 10 }}>
             {k.prefs?.allergies.length && mealConflicts(meal, k.prefs.allergies) ? (
-              <Badge label="Contains a family allergy — make a new plan or skip this meal" tone="brick" />
+              <Badge label={tr('Contains a family allergy — make a new plan or skip this meal')} tone="brick" />
             ) : (
-              <Badge label="Written by the AI chef — check labels for allergens" tone="amber" />
+              <Badge label={tr('Written by the AI chef — check labels for allergens')} tone="amber" />
             )}
           </View>
           <T weight="bold" size={17} style={{ marginTop: 20, marginBottom: 8 }}>
-            Ingredients
+            {tr('Ingredients')}
           </T>
           <Card style={{ paddingVertical: 2 }}>
             {check.lines.map((l, idx) => (
@@ -103,23 +104,23 @@ export default function MealScreen() {
                 </T>
                 {l.status === 'missing' || l.status === 'short' ? (
                   <View style={{ alignItems: 'flex-end', gap: 4, marginLeft: 8 }}>
-                    <ToBuyButton line={l} label={l.status === 'short' ? 'not enough' : 'to buy'} color={l.status === 'short' ? '#8A5A16' : colors.brickText} />
-                    <Pressable accessibilityRole="button" accessibilityLabel={`I have ${l.need.name}`} onPress={() => haveIt(l)} style={styles.have} hitSlop={6}>
+                    <ToBuyButton line={l} label={l.status === 'short' ? tr('not enough') : tr('to buy')} color={l.status === 'short' ? '#8A5A16' : colors.brickText} />
+                    <Pressable accessibilityRole="button" accessibilityLabel={tr('I have {0}', [l.need.name])} onPress={() => haveIt(l)} style={styles.have} hitSlop={6}>
                       <T size={11.5} weight="bold" color={colors.sageDark}>
-                        {having === l.need.name ? '…' : 'I have it'}
+                        {having === l.need.name ? '…' : tr('I have it')}
                       </T>
                     </Pressable>
                   </View>
                 ) : l.status === 'enough' ? (
                   <T size={12.5} weight="bold" color={colors.sage} style={{ marginLeft: 8 }}>
-                    at home
+                    {tr('at home')}
                   </T>
                 ) : null}
               </View>
             ))}
           </Card>
           <T weight="bold" size={17} style={{ marginTop: 20, marginBottom: 8 }}>
-            Method
+            {tr('Method')}
           </T>
           <View style={{ gap: 12 }}>
             {meal.recipe.map((s, idx) => (
@@ -139,7 +140,7 @@ export default function MealScreen() {
       </ScrollView>
       {toBuy.length ? (
         <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-          <Button label={added ? 'Added to Shopping' : `Add ${toBuy.length} to Shopping`} onPress={addMissing} busy={adding} disabled={added} />
+          <Button label={added ? tr('Added to Shopping') : tr('Add {0} to Shopping', [toBuy.length])} onPress={addMissing} busy={adding} disabled={added} />
         </View>
       ) : null}
     </View>

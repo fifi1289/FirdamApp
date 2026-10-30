@@ -7,6 +7,7 @@ import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import { T } from '@/components/ui';
 import { compassWord } from '@/lib/prayer';
 import { colors, fonts } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /**
  * Qibla compass. Uses the phone's compass while the screen is open; without one
@@ -45,11 +46,11 @@ export function QiblaCompass({ bearing, size = 96 }: { bearing: number; size?: n
 
   return (
     <View style={{ alignItems: 'center', gap: 8 }}>
-      <Svg width={size} height={size} viewBox="0 0 100 100" accessibilityLabel={`Qibla ${Math.round(bearing)} degrees ${compassWord(bearing)}`}>
+      <Svg width={size} height={size} viewBox="0 0 100 100" accessibilityLabel={tr('Qibla {0} degrees {1}', [Math.round(bearing), compassWord(bearing)])}>
         <Circle cx={50} cy={50} r={44} fill={facing ? colors.sageTint : colors.linen} stroke={facing ? colors.sage : colors.sand} strokeWidth={2} />
         <G rotation={dial} origin="50, 50">
           <SvgText x={50} y={17} textAnchor="middle" fontSize={10} fill={colors.muted} fontFamily={fonts.semibold}>
-            N
+            {tr('N')}
           </SvgText>
           <G rotation={bearing} origin="50, 50">
             <Path d="M50 14 L57 50 L50 46 L43 50 Z" fill={facing ? colors.sage : colors.walnut} />
@@ -59,10 +60,10 @@ export function QiblaCompass({ bearing, size = 96 }: { bearing: number; size?: n
         <Circle cx={50} cy={50} r={4} fill={colors.espresso} />
       </Svg>
       <T weight="bold" size={14}>
-        {`Qibla ${Math.round(bearing)}° ${compassWord(bearing)}`}
+        {tr('Qibla {0}° {1}', [Math.round(bearing), compassWord(bearing)])}
       </T>
       <T size={12} color={colors.muted} style={{ textAlign: 'center' }}>
-        {heading === null ? 'Hold your phone flat to use the compass' : facing ? 'You are facing the Qibla' : 'Turn until the arrow points up'}
+        {heading === null ? tr('Hold your phone flat to use the compass') : facing ? tr('You are facing the Qibla') : tr('Turn until the arrow points up')}
       </T>
     </View>
   );

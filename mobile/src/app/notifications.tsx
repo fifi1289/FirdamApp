@@ -14,6 +14,7 @@ import { getFastingPrefs, setFastingPrefs, type FastingPrefs } from '@/lib/fasti
 import { PRAYERS, usePrayerSettings, type PrayerId } from '@/lib/prayer';
 import { getWeeklyPlanOn, scheduleWeeklyPlanReminder, setWeeklyPlanOn } from '@/lib/weekly-plan-alert';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /** Every reminder Firdam sends, in one place, each with its own switch. */
 export default function NotificationsScreen() {
@@ -93,52 +94,52 @@ export default function NotificationsScreen() {
           <HomeButton />
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          Notifications
+          {tr('Notifications')}
         </T>
         <T size={14.5} color={colors.muted} style={{ lineHeight: 21 }}>
-          Everything Firdam can remind you about. Turn each one on or off.
+          {tr('Everything Firdam can remind you about. Turn each one on or off.')}
         </T>
 
         {permission && permission !== 'granted' ? (
           <Card style={{ gap: 10, backgroundColor: colors.amberTint, borderColor: '#EBD3AE' }}>
             <T size={15} weight="bold" color={colors.amberText}>
-              Notifications are off for Firdam
+              {tr('Notifications are off for Firdam')}
             </T>
             <T size={13.5} color={colors.amberText} style={{ lineHeight: 19 }}>
               {permission === 'denied'
-                ? 'Turn them on in your phone’s Settings, then come back here.'
-                : 'Allow notifications so the reminders below can reach you.'}
+                ? tr('Turn them on in your phone’s Settings, then come back here.')
+                : tr('Allow notifications so the reminders below can reach you.')}
             </T>
-            <Button label={permission === 'denied' ? 'Open Settings' : 'Allow notifications'} onPress={turnOn} />
+            <Button label={permission === 'denied' ? tr('Open Settings') : tr('Allow notifications')} onPress={turnOn} />
           </Card>
         ) : null}
 
-        <Section title="ADHAN">
+        <Section title={tr('ADHAN')}>
           {settings
             ? PRAYERS.filter((p) => p.alert).map((p, i, list) => (
                 <View key={p.id}>
-                  <SwitchRow label={p.name} hint={`At ${p.name} time${settings.place ? ` in ${settings.place.label}` : ''}`} on={!!settings.alerts[p.id]} onPress={() => togglePrayer(p.id)} />
+                  <SwitchRow label={tr(p.name)} hint={settings.place ? tr('At {0} time in {1}', [tr(p.name), settings.place.label]) : tr('At {0} time', [tr(p.name)])} on={!!settings.alerts[p.id]} onPress={() => togglePrayer(p.id)} />
                   {i < list.length - 1 ? <View style={styles.line} /> : null}
                 </View>
               ))
             : null}
           {settings && !settings.place ? (
-            <LinkRow label="Set your location for prayer times ›" onPress={() => router.push('/prayer-settings')} />
+            <LinkRow label={tr('Set your location for prayer times ›')} onPress={() => router.push('/prayer-settings')} />
           ) : null}
         </Section>
 
-        <Section title="FAMILY CALENDAR">
-          <SwitchRow label="Event reminders" hint="The evening before, and on the day (an hour before timed events)" on={events} onPress={toggleEvents} />
-          <LinkRow label="Open the calendar ›" onPress={() => router.push('/calendar')} />
+        <Section title={tr('FAMILY CALENDAR')}>
+          <SwitchRow label={tr('Event reminders')} hint={tr('The evening before, and on the day (an hour before timed events)')} on={events} onPress={toggleEvents} />
+          <LinkRow label={tr('Open the calendar ›')} onPress={() => router.push('/calendar')} />
         </Section>
 
-        <Section title="FASTING">
-          <SwitchRow label="Suhoor reminders" hint="8 pm the evening before each Sunnah fast" on={!!fasting?.remind} onPress={toggleFasting} />
-          <LinkRow label="See the fasts coming up ›" onPress={() => router.push('/fasting')} />
+        <Section title={tr('FASTING')}>
+          <SwitchRow label={tr('Suhoor reminders')} hint={tr('8 pm the evening before each Sunnah fast')} on={!!fasting?.remind} onPress={toggleFasting} />
+          <LinkRow label={tr('See the fasts coming up ›')} onPress={() => router.push('/fasting')} />
         </Section>
 
-        <Section title="MEALS">
-          <SwitchRow label="Weekly meal plan" hint="Sunday at 5 pm, when next week’s plan is ready" on={weekly} onPress={toggleWeekly} />
+        <Section title={tr('MEALS')}>
+          <SwitchRow label={tr('Weekly meal plan')} hint={tr('Sunday at 5 pm, when next week’s plan is ready')} on={weekly} onPress={toggleWeekly} />
         </Section>
       </ScrollView>
     </SafeAreaView>

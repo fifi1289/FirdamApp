@@ -15,6 +15,7 @@ import { markSetupDone } from '@/lib/setup';
 import { scheduleWeeklyPlanReminder, setWeeklyPlanOn } from '@/lib/weekly-plan-alert';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 const STEPS = 4;
 
@@ -46,25 +47,25 @@ export default function Setup() {
     setProblem(null);
     try {
       const place = await placeFromDevice();
-      if (place === 'denied') setProblem('Location is off for Firdam. Type your city instead.');
+      if (place === 'denied') setProblem(tr('Location is off for Firdam. Type your city instead.'));
       else {
         await update({ place });
         next();
       }
     } catch {
-      setProblem('Couldn’t find your location. Type your city instead.');
+      setProblem(tr('Couldn’t find your location. Type your city instead.'));
     } finally {
       setBusy(false);
     }
   };
 
   const useCity = async () => {
-    if (!city.trim()) return setProblem('Type your city, for example Ottawa.');
+    if (!city.trim()) return setProblem(tr('Type your city, for example Ottawa.'));
     setBusy(true);
     setProblem(null);
     try {
       const place = await placeFromSearch(city);
-      if (!place) setProblem('We couldn’t find that city. Try adding the country, e.g. “London, UK”.');
+      if (!place) setProblem(tr('We couldn’t find that city. Try adding the country, e.g. “London, UK”.'));
       else {
         await update({ place });
         next();
@@ -101,86 +102,84 @@ export default function Setup() {
               <View key={i} style={[styles.dot, i <= step && styles.dotOn]} />
             ))}
           </View>
-          {step < STEPS - 1 ? <Button label="Skip" variant="text" onPress={finish} style={{ height: 36 }} /> : <View style={{ width: 44 }} />}
+          {step < STEPS - 1 ? <Button label={tr('Skip')} variant="text" onPress={finish} style={{ height: 36 }} /> : <View style={{ width: 44 }} />}
         </View>
 
         {step === 0 ? (
           <>
             <T weight="extrabold" size={28} style={{ letterSpacing: -0.5 }} accessibilityRole="header">
-              {`Assalamu alaikum${firstName ? `, ${firstName}` : ''}`}
+              {tr('Assalamu alaikum{0}', [firstName ? `, ${firstName}` : ''])}
             </T>
             <T size={15.5} color={colors.muted} style={{ lineHeight: 22 }}>
-              Let’s set up Firdam for your family. It takes a minute. First, where are you? We use it for prayer times, the Qibla and halal places
-              near you.
+              {tr('Let’s set up Firdam for your family. It takes a minute. First, where are you? We use it for prayer times, the Qibla and halal places near you.')}
             </T>
             {settings?.place ? (
               <Card style={{ gap: 8 }}>
-                <T weight="bold">{`Your location: ${settings.place.label}`}</T>
-                <Button label="Keep it" onPress={next} />
+                <T weight="bold">{tr('Your location: {0}', [settings.place.label])}</T>
+                <Button label={tr('Keep it')} onPress={next} />
               </Card>
             ) : null}
-            <Button label="Use my location" onPress={useDevice} busy={busy} />
+            <Button label={tr('Use my location')} onPress={useDevice} busy={busy} />
             <Card style={{ gap: 10 }}>
-              <Field label="Or type your city" value={city} onChangeText={setCity} placeholder="Ottawa" returnKeyType="search" onSubmitEditing={useCity} />
-              <Button label="Use this city" variant="secondary" onPress={useCity} />
+              <Field label={tr('Or type your city')} value={city} onChangeText={setCity} placeholder={tr('Ottawa')} returnKeyType="search" onSubmitEditing={useCity} />
+              <Button label={tr('Use this city')} variant="secondary" onPress={useCity} />
             </Card>
             <T size={12.5} color={colors.muted}>
-              Your location stays on your phone.
+              {tr('Your location stays on your phone.')}
             </T>
           </>
         ) : step === 1 ? (
           <>
             <T weight="extrabold" size={28} style={{ letterSpacing: -0.5 }} accessibilityRole="header">
-              Your family
+              {tr('Your family')}
             </T>
             <T size={15.5} color={colors.muted} style={{ lineHeight: 22 }}>
-              Firdam sizes meal plans for your family and keeps allergies out of every plan.
+              {tr('Firdam sizes meal plans for your family and keeps allergies out of every plan.')}
             </T>
             <Card style={{ gap: 10 }}>
               <T weight="bold">
-                {k.household ? `${k.household.people} ${k.household.people === 1 ? 'person' : 'people'} · cooks for ${formatPortions(k.household.portions)}` : 'Just you for now'}
+                {k.household ? tr('{0} {1} · cooks for {2}', [k.household.people, k.household.people === 1 ? 'person' : 'people', formatPortions(k.household.portions)]) : tr('Just you for now')}
               </T>
-              <Button label="Add family members" variant="secondary" onPress={() => router.push('/family-members')} />
-              <Button label="Allergies and diet" variant="secondary" onPress={() => router.push('/meal-preferences')} />
+              <Button label={tr('Add family members')} variant="secondary" onPress={() => router.push('/family-members')} />
+              <Button label={tr('Allergies and diet')} variant="secondary" onPress={() => router.push('/meal-preferences')} />
             </Card>
             <T size={12.5} color={colors.muted}>
-              Want to share with your spouse or children? You can invite them later from Family.
+              {tr('Want to share with your spouse or children? You can invite them later from Family.')}
             </T>
-            <Button label="Next" onPress={next} />
+            <Button label={tr('Next')} onPress={next} />
           </>
         ) : step === 2 ? (
           <>
             <T weight="extrabold" size={28} style={{ letterSpacing: -0.5 }} accessibilityRole="header">
-              Reminders
+              {tr('Reminders')}
             </T>
             <T size={15.5} color={colors.muted} style={{ lineHeight: 22 }}>
-              Choose what Firdam reminds you about. You can change it anytime from the bell on Home.
+              {tr('Choose what Firdam reminds you about. You can change it anytime from the bell on Home.')}
             </T>
             <Card style={{ paddingVertical: 4 }}>
-              <SwitchRow label="Adhan for each prayer" hint="Fajr, Dhuhr, Asr, Maghrib and Isha" on={adhan} onPress={() => setAdhan(!adhan)} />
+              <SwitchRow label={tr('Adhan for each prayer')} hint={tr('Fajr, Dhuhr, Asr, Maghrib and Isha')} on={adhan} onPress={() => setAdhan(!adhan)} />
               <View style={styles.line} />
-              <SwitchRow label="Weekly meal plan" hint="Sunday at 5 pm, when next week’s plan is ready" on={weekly} onPress={() => setWeekly(!weekly)} />
+              <SwitchRow label={tr('Weekly meal plan')} hint={tr('Sunday at 5 pm, when next week’s plan is ready')} on={weekly} onPress={() => setWeekly(!weekly)} />
             </Card>
-            <Button label="Next" onPress={saveReminders} busy={busy} />
+            <Button label={tr('Next')} onPress={saveReminders} busy={busy} />
           </>
         ) : (
           <>
             <T weight="extrabold" size={28} style={{ letterSpacing: -0.5 }} accessibilityRole="header">
-              You’re all set
+              {tr('You’re all set')}
             </T>
             <T size={15.5} color={colors.muted} style={{ lineHeight: 22 }}>
-              Everything Firdam does is on the Home ring: prayer and Qibla, Quran & duas, learning, fasting, your family calendar, services, halal places, meal plans,
-              recipes, shopping, pantry and finance. Tap any circle to open it, and “Home” to come back.
+              {tr('Everything Firdam does is on the Home ring: prayer and Qibla, Quran & duas, learning, fasting, your family calendar, services, halal places, meal plans, recipes, shopping, pantry and finance. Tap any circle to open it, and “Home” to come back.')}
             </T>
             <Card style={{ gap: 6, backgroundColor: colors.sageTint, borderColor: '#CFE0C6' }}>
               <T weight="bold" color={colors.sageDark}>
-                A good first step
+                {tr('A good first step')}
               </T>
               <T size={14} color={colors.sageDark}>
-                Open Meal plan and let Firdam plan your week from what’s already in your kitchen.
+                {tr('Open Meal plan and let Firdam plan your week from what’s already in your kitchen.')}
               </T>
             </Card>
-            <Button label="Start using Firdam" onPress={finish} />
+            <Button label={tr('Start using Firdam')} onPress={finish} />
           </>
         )}
 

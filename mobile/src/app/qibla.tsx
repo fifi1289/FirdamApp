@@ -6,6 +6,7 @@ import { QiblaCompass } from '@/components/qibla';
 import { Button, Card, T } from '@/components/ui';
 import { qiblaDirection, usePrayerSettings } from '@/lib/prayer';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /** A full-size Qibla compass, opened from the ring on Home. */
 export default function Qibla() {
@@ -15,30 +16,30 @@ export default function Qibla() {
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <T weight="extrabold" size={22} accessibilityRole="header">
-          Qibla
+          {tr('Qibla')}
         </T>
-        <Button label="Done" variant="text" onPress={() => router.back()} />
+        <Button label={tr('Done')} variant="text" onPress={() => router.back()} />
       </View>
       <View style={styles.body}>
         {place ? (
           <>
             <T size={14} color={colors.muted} style={{ textAlign: 'center' }}>
-              {`Direction of the Kaaba from ${place.label}`}
+              {tr('Direction of the Kaaba from {0}', [place.label])}
             </T>
             <QiblaCompass bearing={qiblaDirection(place)} size={260} />
             <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18, maxWidth: 300 }}>
-              Keep the phone flat and away from metal or magnets for the best reading.
+              {tr('Keep the phone flat and away from metal or magnets for the best reading.')}
             </T>
           </>
         ) : (
           <Card style={{ gap: 10, alignSelf: 'stretch' }}>
             <T size={16} weight="bold">
-              Set your location first
+              {tr('Set your location first')}
             </T>
             <T size={14} color={colors.muted}>
-              Firdam uses your city to point you to the Kaaba.
+              {tr('Firdam uses your city to point you to the Kaaba.')}
             </T>
-            <Button label="Set location" onPress={() => router.push('/prayer-settings')} />
+            <Button label={tr('Set location')} onPress={() => router.push('/prayer-settings')} />
           </Card>
         )}
       </View>

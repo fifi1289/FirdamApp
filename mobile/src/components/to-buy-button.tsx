@@ -7,6 +7,7 @@ import { addShoppingItems } from '@/lib/kitchen';
 import { refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import type { Line } from '@/shared/pantry-engine';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /**
  * The "to buy" / "not enough" label on an ingredient, as a button: tapping it
@@ -26,7 +27,7 @@ export function ToBuyButton({ line, label, color }: { line: Line; label: string;
       await addShoppingItems(k.listId, [line.shortfall ?? { name: line.need.name, quantity: line.scaled, unit: line.need.unit }], k.items);
       await refreshShopping();
     } catch (e) {
-      showAlert('Could not add it to Shopping', e instanceof Error ? e.message : 'Please try again.');
+      showAlert(tr('Could not add it to Shopping'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {
       setBusy(false);
     }
@@ -35,14 +36,14 @@ export function ToBuyButton({ line, label, color }: { line: Line; label: string;
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={onList ? `${line.need.name} is on your shopping list` : `Add ${line.need.name} to Shopping`}
+      accessibilityLabel={onList ? tr('{0} is on your shopping list', [line.need.name]) : tr('Add {0} to Shopping', [line.need.name])}
       accessibilityState={{ disabled: onList }}
       onPress={add}
       hitSlop={6}
       style={[styles.btn, onList ? styles.done : { borderColor: color + '55', backgroundColor: color + '14' }]}
     >
       <T size={11.5} weight="bold" color={onList ? colors.walnut : color}>
-        {busy ? '…' : onList ? 'On list ✓' : `+ ${label}`}
+        {busy ? '…' : onList ? tr('On list ✓') : `+ ${label}`}
       </T>
     </Pressable>
   );

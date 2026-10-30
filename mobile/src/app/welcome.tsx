@@ -5,6 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon, Logo, StarPattern, type IconName } from '@/components/art';
 import { Button, T } from '@/components/ui';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
+import { LanguageToggle } from '@/components/language-picker';
 
 const points: { icon: IconName; bg: string; color: string; title: string; text: string }[] = [
   { icon: 'kitchen', bg: colors.tint, color: colors.walnut, title: 'Plans built from your pantry', text: 'Sized for adults and kids, ready in seconds' },
@@ -21,9 +23,10 @@ export default function Welcome() {
 
       <View style={styles.brand}>
         <Logo size={40} />
-        <T weight="bold" size={24}>
+        <T weight="bold" size={24} style={{ flex: 1 }}>
           Firdam
         </T>
+        <LanguageToggle />
       </View>
 
       <View style={{ marginTop: 56 }}>
@@ -31,10 +34,10 @@ export default function Welcome() {
           بِسْمِ ٱللَّٰهِ
         </T>
         <T weight="extrabold" size={34} style={styles.title} accessibilityRole="header">
-          One home for your Muslim life.
+          {tr('One home for your Muslim life.')}
         </T>
         <T size={16} color="#5F5048" style={{ marginTop: 14, lineHeight: 24 }}>
-          Weekly meals from what is already in your cupboard, one shared shopping list, and prayer times at a glance.
+          {tr('Weekly meals from what is already in your cupboard, one shared shopping list, and prayer times at a glance.')}
         </T>
       </View>
 
@@ -45,9 +48,9 @@ export default function Welcome() {
               <Icon name={p.icon} size={22} color={p.color} />
             </View>
             <View style={{ flex: 1 }}>
-              <T weight="bold">{p.title}</T>
+              <T weight="bold">{tr(p.title)}</T>
               <T size={13} color={colors.muted}>
-                {p.text}
+                {tr(p.text)}
               </T>
             </View>
           </View>
@@ -55,10 +58,10 @@ export default function Welcome() {
       </View>
 
       <View style={styles.actions}>
-        <Button label="Get started — it's free" onPress={() => router.push('/sign-up')} />
-        <Button label="I already have an account" variant="text" onPress={() => router.push('/sign-in')} />
+        <Button label={tr('Get started — it\'s free')} onPress={() => router.push('/sign-up')} />
+        <Button label={tr('I already have an account')} variant="text" onPress={() => router.push('/sign-in')} />
         <T size={12.5} color={colors.muted} style={{ textAlign: 'center' }}>
-          Prayer times, Qibla, halal places near you and a family kitchen that plans halal meals around what you have.
+          {tr('Prayer times, Qibla, halal places near you and a family kitchen that plans halal meals around what you have.')}
         </T>
       </View>
     </SafeAreaView>

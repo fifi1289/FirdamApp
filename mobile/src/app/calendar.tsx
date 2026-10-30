@@ -31,6 +31,7 @@ import {
   type HijriLabel,
 } from '@/shared/calendar-core';
 import { colors } from '@/theme';
+import { locale, tr } from '@/lib/i18n';
 
 const KIND_COLOR: Record<CalendarEventKind, string> = {
   eid: colors.gold,
@@ -71,7 +72,7 @@ export default function Calendar() {
       })
       .catch((e) => {
         setEvents([]);
-        setProblem(e instanceof Error ? e.message : 'Could not load the calendar.');
+        setProblem(e instanceof Error ? e.message : tr('Could not load the calendar.'));
       });
   }, []);
   // Reload when coming back (family members may have changed).
@@ -103,7 +104,7 @@ export default function Calendar() {
     setSelected(inMonth ? today : iso(x));
   };
 
-  const monthLabel = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  const monthLabel = first.toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
   const hFirst = hijri.get(iso(first));
   const hLast = hijri.get(iso(last));
   const hijriLabel =
@@ -121,18 +122,18 @@ export default function Calendar() {
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-            Calendar
+            {tr('Calendar')}
           </T>
           <Pressable accessibilityRole="button" onPress={() => setEditing({ event: null, date: selected })} style={styles.add}>
             <T weight="bold" size={14} color={colors.white}>
-              + Add event
+              {tr('+ Add event')}
             </T>
           </Pressable>
         </View>
 
         <Card style={{ gap: 10, paddingHorizontal: 10 }}>
           <View style={styles.monthRow}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Previous month" onPress={() => shift(-1)} hitSlop={10} style={styles.monthBtn}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tr('Previous month')} onPress={() => shift(-1)} hitSlop={10} style={styles.monthBtn}>
               <T size={20} color={colors.walnut}>
                 ‹
               </T>
@@ -147,7 +148,7 @@ export default function Calendar() {
                 </T>
               ) : null}
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Next month" onPress={() => shift(1)} hitSlop={10} style={styles.monthBtn}>
+            <Pressable accessibilityRole="button" accessibilityLabel={tr('Next month')} onPress={() => shift(1)} hitSlop={10} style={styles.monthBtn}>
               <T size={20} color={colors.walnut}>
                 ›
               </T>
@@ -164,27 +165,27 @@ export default function Calendar() {
 
         <Card style={{ gap: 6 }}>
           <T weight="bold" size={16}>
-            {parseISODate(selected).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+            {parseISODate(selected).toLocaleDateString(locale(), { weekday: 'long', month: 'long', day: 'numeric' })}
           </T>
           {hSel ? (
-            <T size={13} color={colors.muted}>{`${hSel.day} ${hSel.month} ${hSel.year} AH`}</T>
+            <T size={13} color={colors.muted}>{tr('{0} {1} {2} AH', [hSel.day, hSel.month, hSel.year])}</T>
           ) : null}
           {!events ? (
             <ActivityIndicator color={colors.walnut} style={{ marginVertical: 12 }} />
           ) : selectedItems.length === 0 ? (
             <T size={14} color={colors.muted} style={{ paddingVertical: 6 }}>
-              Nothing planned.
+              {tr('Nothing planned.')}
             </T>
           ) : (
             selectedItems.map((it, i) => <ItemRow key={it.id} item={it} last={i === selectedItems.length - 1} onEdit={(e) => setEditing({ event: e, date: e.starts_on })} />)
           )}
-          <Button label="+ Add an event on this day" variant="secondary" onPress={() => setEditing({ event: null, date: selected })} />
+          <Button label={tr('+ Add an event on this day')} variant="secondary" onPress={() => setEditing({ event: null, date: selected })} />
         </Card>
 
         {upcoming.length ? (
           <Card style={{ gap: 2 }}>
             <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4, marginBottom: 4 }}>
-              COMING UP THIS MONTH
+              {tr('COMING UP THIS MONTH')}
             </T>
             {upcoming.map((it, i) => (
               <ItemRow key={it.id} item={it} showDate last={i === upcoming.length - 1} onEdit={(e) => setEditing({ event: e, date: e.starts_on })} />
@@ -193,7 +194,7 @@ export default function Calendar() {
         ) : null}
 
         <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18 }}>
-          Islamic dates may differ by a day from your local moon sighting.
+          {tr('Islamic dates may differ by a day from your local moon sighting.')}
         </T>
       </ScrollView>
 
@@ -263,7 +264,7 @@ function MonthGrid({
             <Pressable
               key={i}
               accessibilityRole="button"
-              accessibilityLabel={`${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}${dots.length ? `, ${dots.length} event${dots.length === 1 ? '' : 's'}` : ''}`}
+              accessibilityLabel={`${d.toLocaleDateString(locale(), { weekday: 'long', month: 'long', day: 'numeric' })}${dots.length ? `, ${dots.length} event${dots.length === 1 ? '' : 's'}` : ''}`}
               accessibilityState={{ selected: isSel }}
               onPress={() => onSelect(key)}
               style={{ width: cell, height: cell + 8, alignItems: 'center', paddingTop: 2 }}
@@ -294,7 +295,7 @@ function MonthGrid({
 function ItemRow({ item, showDate, last, onEdit }: { item: CalendarItem<FamilyEvent>; showDate?: boolean; last: boolean; onEdit: (e: FamilyEvent) => void }) {
   const time = item.startTime ? [formatTime(item.startTime), formatTime(item.endTime)].filter(Boolean).join(' – ') : null;
   const sub = [
-    showDate ? parseISODate(item.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : null,
+    showDate ? parseISODate(item.date).toLocaleDateString(locale(), { weekday: 'short', month: 'short', day: 'numeric' }) : null,
     time,
     item.location,
     item.memberNames?.length ? item.memberNames.join(', ') : null,
@@ -306,7 +307,7 @@ function ItemRow({ item, showDate, last, onEdit }: { item: CalendarItem<FamilyEv
       <View style={[styles.kindBar, { backgroundColor: item.source === 'fasting' ? colors.sage : KIND_COLOR[item.kind] }]} />
       <View style={{ flex: 1, gap: 2 }}>
         <T weight="semibold" size={15} numberOfLines={2}>
-          {item.title}
+          {tr(item.title)}
         </T>
         {sub ? (
           <T size={12.5} color={colors.muted} numberOfLines={2}>
@@ -318,7 +319,7 @@ function ItemRow({ item, showDate, last, onEdit }: { item: CalendarItem<FamilyEv
     </View>
   );
   return item.event ? (
-    <Pressable accessibilityRole="button" accessibilityHint="Edit this event" onPress={() => onEdit(item.event!)}>
+    <Pressable accessibilityRole="button" accessibilityHint={tr('Edit this event')} onPress={() => onEdit(item.event!)}>
       {content}
     </Pressable>
   ) : (
@@ -330,7 +331,7 @@ function Sheet({ onClose, title, children }: { onClose: () => void; title: strin
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
+        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel={tr('Close')}>
           <Pressable style={styles.sheetWrap} onPress={() => {}}>
             <ScrollView contentContainerStyle={styles.sheet} keyboardShouldPersistTaps="handled" bounces={false}>
               <T weight="extrabold" size={20}>
@@ -378,12 +379,12 @@ function EventSheet({
   };
 
   const save = async () => {
-    if (!title.trim()) return setProblem('Give the event a title.');
-    if (!isISODate(day)) return setProblem('Use the date format YYYY-MM-DD, for example 2026-12-20.');
+    if (!title.trim()) return setProblem(tr('Give the event a title.'));
+    if (!isISODate(day)) return setProblem(tr('Use the date format YYYY-MM-DD, for example 2026-12-20.'));
     if (!allDay) {
-      if (!isTime(start)) return setProblem('Enter the start time as HH:MM, for example 18:30.');
-      if (end && !isTime(end)) return setProblem('Enter the end time as HH:MM, or leave it empty.');
-      if (end && end <= start) return setProblem('The end time must be after the start time.');
+      if (!isTime(start)) return setProblem(tr('Enter the start time as HH:MM, for example 18:30.'));
+      if (end && !isTime(end)) return setProblem(tr('Enter the end time as HH:MM, or leave it empty.'));
+      if (end && end <= start) return setProblem(tr('The end time must be after the start time.'));
     }
     setBusy(true);
     try {
@@ -404,7 +405,7 @@ function EventSheet({
       );
       onSaved(day);
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not save the event.');
+      setProblem(e instanceof Error ? e.message : tr('Could not save the event.'));
       setBusy(false);
     }
   };
@@ -417,44 +418,44 @@ function EventSheet({
       await deleteEvent(event.id);
       onSaved();
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not delete the event.');
+      setProblem(e instanceof Error ? e.message : tr('Could not delete the event.'));
       setBusy(false);
     }
   };
 
   return (
-    <Sheet onClose={onClose} title={event ? 'Edit event' : 'New family event'}>
-      <Field label="Title" value={title} onChangeText={(v) => { setTitle(v); setProblem(null); }} placeholder="Eid lunch at grandma's" />
+    <Sheet onClose={onClose} title={event ? tr('Edit event') : tr('New family event')}>
+      <Field label={tr('Title')} value={title} onChangeText={(v) => { setTitle(v); setProblem(null); }} placeholder={tr('Eid lunch at grandma\'s')} />
       <View style={styles.wrap}>
         {EDITABLE_KINDS.map((k) => (
           <Chip key={k} label={EVENT_KIND_LABELS[k]} selected={kind === k} onPress={() => pickKind(k)} />
         ))}
       </View>
-      <Field label="Date (YYYY-MM-DD)" value={day} onChangeText={(v) => { setDay(v); setProblem(null); }} keyboardType="numbers-and-punctuation" placeholder="2026-12-20" />
+      <Field label={tr('Date (YYYY-MM-DD)')} value={day} onChangeText={(v) => { setDay(v); setProblem(null); }} keyboardType="numbers-and-punctuation" placeholder="2026-12-20" />
       <View style={styles.wrap}>
-        <Chip label="All day" selected={allDay} onPress={() => setAllDay(true)} />
-        <Chip label="At a time" selected={!allDay} onPress={() => setAllDay(false)} />
+        <Chip label={tr('All day')} selected={allDay} onPress={() => setAllDay(true)} />
+        <Chip label={tr('At a time')} selected={!allDay} onPress={() => setAllDay(false)} />
       </View>
       <View style={styles.wrap}>
-        <Chip label="Once" selected={repeat === 'once'} onPress={() => setRepeat('once')} tone="sage" />
-        <Chip label="Every week" selected={repeat === 'weekly'} onPress={() => setRepeat('weekly')} tone="sage" />
-        <Chip label="Every year" selected={repeat === 'yearly'} onPress={() => setRepeat('yearly')} tone="sage" />
+        <Chip label={tr('Once')} selected={repeat === 'once'} onPress={() => setRepeat('once')} tone="sage" />
+        <Chip label={tr('Every week')} selected={repeat === 'weekly'} onPress={() => setRepeat('weekly')} tone="sage" />
+        <Chip label={tr('Every year')} selected={repeat === 'yearly'} onPress={() => setRepeat('yearly')} tone="sage" />
       </View>
       {!allDay ? (
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Field label="Starts (HH:MM)" value={start} onChangeText={(v) => { setStart(v); setProblem(null); }} keyboardType="numbers-and-punctuation" placeholder="18:30" />
+            <Field label={tr('Starts (HH:MM)')} value={start} onChangeText={(v) => { setStart(v); setProblem(null); }} keyboardType="numbers-and-punctuation" placeholder="18:30" />
           </View>
           <View style={{ flex: 1 }}>
-            <Field label="Ends (optional)" value={end} onChangeText={(v) => { setEnd(v); setProblem(null); }} keyboardType="numbers-and-punctuation" placeholder="21:00" />
+            <Field label={tr('Ends (optional)')} value={end} onChangeText={(v) => { setEnd(v); setProblem(null); }} keyboardType="numbers-and-punctuation" placeholder="21:00" />
           </View>
         </View>
       ) : null}
-      <Field label="Place (optional)" value={location} onChangeText={setLocation} placeholder="Ottawa Main Mosque" />
+      <Field label={tr('Place (optional)')} value={location} onChangeText={setLocation} placeholder={tr('Ottawa Main Mosque')} />
       {members.length ? (
         <View style={{ gap: 6 }}>
           <T size={13.5} weight="semibold" color={colors.muted}>
-            Who is it for?
+            {tr('Who is it for?')}
           </T>
           <View style={styles.wrap}>
             {members.map((m) => (
@@ -468,17 +469,17 @@ function EventSheet({
           </View>
         </View>
       ) : null}
-      <Field label="Notes (optional)" value={notes} onChangeText={setNotes} placeholder="Bring dessert" multiline style={{ minHeight: 72, textAlignVertical: 'top', paddingTop: 12 }} />
+      <Field label={tr('Notes (optional)')} value={notes} onChangeText={setNotes} placeholder={tr('Bring dessert')} multiline style={{ minHeight: 72, textAlignVertical: 'top', paddingTop: 12 }} />
       {problem ? (
         <T size={13.5} color={colors.brickText}>
           {problem}
         </T>
       ) : null}
-      <Button label={event ? 'Save changes' : 'Add to the calendar'} onPress={save} busy={busy} />
+      <Button label={event ? tr('Save changes') : tr('Add to the calendar')} onPress={save} busy={busy} />
       {event ? (
-        <Button label={confirmDelete ? 'Tap again to delete' : 'Delete event'} variant="text" onPress={remove} />
+        <Button label={confirmDelete ? tr('Tap again to delete') : tr('Delete event')} variant="text" onPress={remove} />
       ) : (
-        <Button label="Cancel" variant="text" onPress={onClose} />
+        <Button label={tr('Cancel')} variant="text" onPress={onClose} />
       )}
     </Sheet>
   );

@@ -9,6 +9,7 @@ import { Card, T } from '@/components/ui';
 import { usePartnerShops } from '@/lib/partners';
 import { SERVICE_GROUPS, SERVICES_NOTE, matchesWorks, partnersIn, servicePartners, serviceTypeCounts } from '@/shared/partners';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /** Services: trusted Muslim-owned local businesses families hire, by group and kind, the same as on firdam.com. */
 export default function Services() {
@@ -34,34 +35,34 @@ export default function Services() {
           <HomeButton />
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          {current ? current.label : 'Services'}
+          {current ? tr(current.label) : tr('Services')}
         </T>
         {hasAny ? <PartnerFilters shops={allShops} works={works} onWorks={setWorks} /> : null}
 
         {!current ? (
           <>
             <T size={14.5} color={colors.muted} style={{ lineHeight: 21 }}>
-              Trusted Muslim-owned businesses for your home, paperwork, business, events and travel.
+              {tr('Trusted Muslim-owned businesses for your home, paperwork, business, events and travel.')}
             </T>
             {SERVICE_GROUPS.map((g) => {
               const n = servicePartners(shops, g.id).length;
               return (
-                <Pressable key={g.id} accessibilityRole="button" accessibilityLabel={`${g.label}, ${n || 'none yet'}`} onPress={() => openGroup(g.id)}>
+                <Pressable key={g.id} accessibilityRole="button" accessibilityLabel={`${tr(g.label)}, ${n || tr('none yet')}`} onPress={() => openGroup(g.id)}>
                   {({ pressed }) => (
                     <Card style={[{ gap: 4 }, pressed && { opacity: 0.8 }]}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <T weight="bold" size={16} style={{ flex: 1 }}>
-                          {g.label}
+                          {tr(g.label)}
                         </T>
                         <T size={12.5} color={colors.muted}>
-                          {n ? `${n} ${n === 1 ? 'business' : 'businesses'}` : 'Joining soon'}
+                          {n ? `${n} ${n === 1 ? 'business' : 'businesses'}` : tr('Joining soon')}
                         </T>
                         <T size={18} color={colors.walnut}>
                           ›
                         </T>
                       </View>
                       <T size={13} color={colors.muted}>
-                        {g.types.join(' · ')}
+                        {g.types.map((x) => tr(x)).join(' · ')}
                       </T>
                     </Card>
                   )}
@@ -73,12 +74,12 @@ export default function Services() {
           <>
             <Pressable accessibilityRole="button" onPress={() => openGroup(null)} hitSlop={8}>
               <T size={14} weight="bold" color={colors.walnut}>
-                ‹ All services
+                {tr('‹ All services')}
               </T>
             </Pressable>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
               {[null, ...current.types].map((t) => (
-                <Chip key={t ?? 'all'} label={t ? (counts[t] ? `${t} ${counts[t]}` : t) : 'All'} selected={type === t} onPress={() => setType(t)} />
+                <Chip key={t ?? 'all'} label={t ? (counts[t] ? `${tr(t)} ${counts[t]}` : tr(t)) : tr('All')} selected={type === t} onPress={() => setType(t)} />
               ))}
             </ScrollView>
             {list.length ? (
@@ -87,18 +88,18 @@ export default function Services() {
                   <PartnerCard key={s.id} shop={s} />
                 ))}
                 <T size={12} color={colors.muted}>
-                  {SERVICES_NOTE}
+                  {tr(SERVICES_NOTE)}
                 </T>
               </>
             ) : servicePartners(allShops, current.id, type).length ? (
-              <NoPartnersHere what={`${(type ?? current.label).toLowerCase()} partners${works ? (works === 'online' ? ' working online' : ' working in person') : ''}`} />
+              <NoPartnersHere what={works ? (works === 'online' ? 'partners working online' : 'partners working in person') : 'partners'} />
             ) : (
               <Card style={{ gap: 4 }}>
                 <T weight="bold" size={15}>
-                  {`No ${type ?? current.label.toLowerCase()} partners yet`}
+                  {tr('No {0} partners yet', [type ?? current.label.toLowerCase()])}
                 </T>
                 <T size={13.5} color={colors.muted}>
-                  We’re inviting trusted Muslim-owned businesses, insha’Allah. Know a good one? Tell them about Firdam.
+                  {tr('We’re inviting trusted Muslim-owned businesses, insha’Allah. Know a good one? Tell them about Firdam.')}
                 </T>
               </Card>
             )}
@@ -106,9 +107,9 @@ export default function Services() {
         )}
 
         <T size={13} color={colors.muted}>
-          {'Run a Muslim-owned business? '}
+          {tr('Run a Muslim-owned business? ')}
           <T size={13} weight="bold" color={colors.walnut} accessibilityRole="link" onPress={() => Linking.openURL('https://firdam.com/partners')}>
-            Become a Firdam partner ↗
+            {tr('Become a Firdam partner ↗')}
           </T>
         </T>
       </ScrollView>

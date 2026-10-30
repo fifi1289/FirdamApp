@@ -47,6 +47,7 @@ import {
   type ZakatValues,
 } from '@/shared/finance-core';
 import { colors } from '@/theme';
+import { locale, tr } from '@/lib/i18n';
 
 type Tab = 'overview' | 'savings' | 'zakat';
 type EntryDraft = { id?: string; type: TransactionType; amount: string; category_id: string | null; description: string; occurred_on: string };
@@ -76,15 +77,15 @@ export default function FinanceScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
         <T weight="extrabold" size={22} accessibilityRole="header">
-          Finance
+          {tr('Finance')}
         </T>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Currency ${currency}. Change`} onPress={() => setCurrencyOpen(true)} style={styles.currency}>
+          <Pressable accessibilityRole="button" accessibilityLabel={tr('Currency {0}. Change', [currency])} onPress={() => setCurrencyOpen(true)} style={styles.currency}>
             <T size={13} weight="bold" color={colors.walnut}>
               {currency} ▾
             </T>
           </Pressable>
-          <Button label="Done" variant="text" onPress={() => router.back()} />
+          <Button label={tr('Done')} variant="text" onPress={() => router.back()} />
         </View>
       </View>
       <View style={{ paddingHorizontal: 20, paddingTop: 12 }}>
@@ -122,7 +123,7 @@ export default function FinanceScreen() {
         />
       ) : null}
 
-      <Sheet open={currencyOpen} onClose={() => setCurrencyOpen(false)} title="Currency">
+      <Sheet open={currencyOpen} onClose={() => setCurrencyOpen(false)} title={tr('Currency')}>
         <CurrencyPicker
           value={currency}
           onPick={(c) => {
@@ -162,7 +163,7 @@ function Overview({
       .then(setRows)
       .catch((e) => {
         setRows([]);
-        showAlert('Could not load this month', e instanceof Error ? e.message : undefined);
+        showAlert(tr('Could not load this month'), e instanceof Error ? e.message : undefined);
       });
   }, [period]);
   useEffect(load, [load]);
@@ -173,55 +174,55 @@ function Overview({
       const x = new Date(p.year, p.month - 1 + d, 1);
       return { year: x.getFullYear(), month: x.getMonth() + 1 };
     });
-  const monthLabel = new Date(period.year, period.month - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  const monthLabel = new Date(period.year, period.month - 1, 1).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
   const categoryName = (id: string | null) => (id ? categories.find((c) => c.id === id)?.name ?? 'Uncategorised' : null);
 
   return (
     <>
       <View style={styles.month}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Previous month" onPress={() => shift(-1)} hitSlop={10} style={styles.monthBtn}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('Previous month')} onPress={() => shift(-1)} hitSlop={10} style={styles.monthBtn}>
           <T size={20} color={colors.walnut}>‹</T>
         </Pressable>
         <T weight="bold" size={16}>
           {monthLabel}
         </T>
-        <Pressable accessibilityRole="button" accessibilityLabel="Next month" onPress={() => shift(1)} hitSlop={10} style={styles.monthBtn}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('Next month')} onPress={() => shift(1)} hitSlop={10} style={styles.monthBtn}>
           <T size={20} color={colors.walnut}>›</T>
         </Pressable>
       </View>
 
       <View style={styles.stats}>
-        <Stat label="Income" value={formatMoney(totals.income, currency)} tone={colors.sage} />
-        <Stat label="Spent" value={formatMoney(totals.expense, currency)} tone={colors.brickText} sub={totals.budgetLeft != null ? `${formatMoney(Math.abs(totals.budgetLeft), currency)} ${totals.budgetLeft >= 0 ? 'left' : 'over'}` : undefined} />
-        <Stat label="Sadaqah & zakat" value={formatMoney(totals.giving, currency)} tone={colors.amberText} sub={totals.income > 0 ? `${((totals.giving / totals.income) * 100).toFixed(1)}% of income` : undefined} />
-        <Stat label="Balance" value={formatMoney(totals.balance, currency)} tone={colors.espresso} />
+        <Stat label={tr('Income')} value={formatMoney(totals.income, currency)} tone={colors.sage} />
+        <Stat label={tr('Spent')} value={formatMoney(totals.expense, currency)} tone={colors.brickText} sub={totals.budgetLeft != null ? tr(totals.budgetLeft >= 0 ? '{0} left' : '{0} over', [formatMoney(Math.abs(totals.budgetLeft), currency)]) : undefined} />
+        <Stat label={tr('Sadaqah & zakat')} value={formatMoney(totals.giving, currency)} tone={colors.amberText} sub={totals.income > 0 ? tr('{0}% of income', [((totals.giving / totals.income) * 100).toFixed(1)]) : undefined} />
+        <Stat label={tr('Balance')} value={formatMoney(totals.balance, currency)} tone={colors.espresso} />
       </View>
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <View style={{ flex: 1 }}>
-          <Button label="+ Income" variant="secondary" onPress={() => onNew({ type: 'income' })} />
+          <Button label={tr('+ Income')} variant="secondary" onPress={() => onNew({ type: 'income' })} />
         </View>
         <View style={{ flex: 1 }}>
-          <Button label="+ Expense" onPress={() => onNew({ type: 'expense' })} />
+          <Button label={tr('+ Expense')} onPress={() => onNew({ type: 'expense' })} />
         </View>
       </View>
-      <Button label="+ Sadaqah or zakat" variant="secondary" onPress={() => onNew({ type: 'sadaqah' })} />
+      <Button label={tr('+ Sadaqah or zakat')} variant="secondary" onPress={() => onNew({ type: 'sadaqah' })} />
 
       <Card style={{ gap: 4 }}>
         <View style={styles.cardHead}>
           <T weight="bold" size={16}>
-            This month&apos;s entries
+            {tr('This month\'s entries')}
           </T>
         </View>
         {!rows ? (
           <ActivityIndicator color={colors.walnut} style={{ marginVertical: 16 }} />
         ) : rows.length === 0 ? (
           <T size={13.5} color={colors.muted} style={{ paddingVertical: 10 }}>
-            No entries for {monthLabel}. Add your income and expenses to see where your money goes.
+            {tr('No entries for {0}. Add your income and expenses to see where your money goes.', [monthLabel])}
           </T>
         ) : (
           rows.map((t, i) => (
-            <Pressable key={t.id} accessibilityRole="button" accessibilityHint="Edit this entry" onPress={() => onEdit(t)} style={[styles.row, i < rows.length - 1 && styles.rowLine]}>
+            <Pressable key={t.id} accessibilityRole="button" accessibilityHint={tr('Edit this entry')} onPress={() => onEdit(t)} style={[styles.row, i < rows.length - 1 && styles.rowLine]}>
               <View style={{ flex: 1, gap: 3 }}>
                 <T weight="semibold" size={14.5} numberOfLines={1}>
                   {t.description || categoryName(t.category_id) || typeLabel(t.type)}
@@ -229,7 +230,7 @@ function Overview({
                 <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
                   <Badge label={typeLabel(t.type)} tone={TYPE_TONE[t.type]} />
                   <T size={12} color={colors.muted}>
-                    {new Date(`${t.occurred_on}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    {new Date(`${t.occurred_on}T12:00:00`).toLocaleDateString(locale(), { month: 'short', day: 'numeric' })}
                   </T>
                 </View>
               </View>
@@ -245,16 +246,16 @@ function Overview({
       <Card style={{ gap: 2 }}>
         <View style={styles.cardHead}>
           <T weight="bold" size={16}>
-            Category budgets
+            {tr('Category budgets')}
           </T>
           <Pressable accessibilityRole="button" onPress={() => setCategoryFor('new')} hitSlop={8}>
             <T size={13} weight="bold" color={colors.walnut}>
-              + Add category
+              {tr('+ Add category')}
             </T>
           </Pressable>
         </View>
         <T size={12} color={colors.muted}>
-          Tap a category to rename it, set a monthly limit, add an expense or remove it.
+          {tr('Tap a category to rename it, set a monthly limit, add an expense or remove it.')}
         </T>
         {categories.map((c, i) => {
           const spent = totals.byCategory.get(c.id) ?? 0;
@@ -265,11 +266,11 @@ function Overview({
             <Pressable key={c.id} accessibilityRole="button" onPress={() => setCategoryFor(c)} style={[{ paddingVertical: 10, gap: 6 }, i < categories.length - 1 && styles.rowLine]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <T size={14.5} weight="semibold">
-                  {c.name}
+                  {tr(c.name)}
                 </T>
                 <T size={13} color={over ? colors.brickText : colors.muted}>
                   {formatMoney(spent, currency)}
-                  {limit ? ` / ${formatMoney(limit, currency)}` : ' · set limit'}
+                  {limit ? ` / ${formatMoney(limit, currency)}` : tr(' · set limit')}
                 </T>
               </View>
               {limit ? (
@@ -350,9 +351,9 @@ function Savings({ currency }: { currency: string }) {
     setGoals((list) => list?.map((x) => (x.id === g.id ? { ...x, saved } : x)) ?? null);
     try {
       await saveGoal({ name: g.name, kind: g.kind, target: Number(g.target), saved, target_date: g.target_date }, g.id);
-      if (saved >= Number(g.target) && Number(g.saved) < Number(g.target)) showAlert('MashaAllah!', `You reached your ${g.name} goal.`);
+      if (saved >= Number(g.target) && Number(g.saved) < Number(g.target)) showAlert(tr('MashaAllah!'), tr('You reached your {0} goal.', [g.name]));
     } catch {
-      showAlert('Could not update the goal');
+      showAlert(tr('Could not update the goal'));
       load();
     }
   };
@@ -361,7 +362,7 @@ function Savings({ currency }: { currency: string }) {
   return (
     <>
       <T size={14} color={colors.muted}>
-        Save for Hajj, Umrah, Eid, a home or an emergency fund, and watch it grow.
+        {tr('Save for Hajj, Umrah, Eid, a home or an emergency fund, and watch it grow.')}
       </T>
       {goals.map((g) => {
         const target = Number(g.target);
@@ -369,19 +370,19 @@ function Savings({ currency }: { currency: string }) {
         const kind = GOAL_KINDS.find((x) => x.value === g.kind);
         return (
           <Card key={g.id} style={{ gap: 10 }}>
-            <Pressable accessibilityRole="button" accessibilityHint="Edit this goal" onPress={() => setEditing(g)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Pressable accessibilityRole="button" accessibilityHint={tr('Edit this goal')} onPress={() => setEditing(g)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <T size={26}>{kind?.emoji ?? '✨'}</T>
               <View style={{ flex: 1 }}>
                 <T weight="bold" size={16}>
-                  {g.name}
+                  {tr(g.name)}
                 </T>
                 <T size={13} color={colors.muted}>
-                  {formatMoney(Number(g.saved), currency)} of {formatMoney(target, currency)}
-                  {g.target_date ? ` · by ${new Date(`${g.target_date}T12:00:00`).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}` : ''}
+                  {formatMoney(Number(g.saved), currency)} {tr('of')} {formatMoney(target, currency)}
+                  {g.target_date ? tr(' · by {0}', [new Date(`${g.target_date}T12:00:00`).toLocaleDateString(locale(), { month: 'short', year: 'numeric' })]) : ''}
                 </T>
               </View>
               <T size={13} weight="bold" color={colors.walnut}>
-                Edit
+                {tr('Edit')}
               </T>
             </Pressable>
             <View style={styles.bar}>
@@ -391,15 +392,15 @@ function Savings({ currency }: { currency: string }) {
               <TextInput
                 value={adding[g.id] ?? ''}
                 onChangeText={(v) => setAdding((a) => ({ ...a, [g.id]: v }))}
-                placeholder={`Add (${currency})`}
+                placeholder={tr('Add ({0})', [currency])}
                 placeholderTextColor="#9C8D84"
                 keyboardType="decimal-pad"
                 style={[styles.input, { flex: 1 }]}
-                accessibilityLabel={`Amount to add to ${g.name}`}
+                accessibilityLabel={tr('Amount to add to {0}', [g.name])}
               />
               <Pressable accessibilityRole="button" onPress={() => contribute(g)} style={styles.smallBtn}>
                 <T weight="bold" color={colors.white}>
-                  Add
+                  {tr('Add')}
                 </T>
               </Pressable>
             </View>
@@ -409,11 +410,11 @@ function Savings({ currency }: { currency: string }) {
       {atLimit ? (
         <Card>
           <T size={13.5} color={colors.muted}>
-            The free plan includes one savings goal. More goals are coming with Firdam Family.
+            {tr('The free plan includes one savings goal. More goals are coming with Firdam Family.')}
           </T>
         </Card>
       ) : (
-        <Button label="New savings goal" variant={goals.length ? 'secondary' : 'primary'} onPress={() => setEditing({ kind: 'hajj' })} />
+        <Button label={tr('New savings goal')} variant={goals.length ? 'secondary' : 'primary'} onPress={() => setEditing({ kind: 'hajj' })} />
       )}
 
       {editing ? (
@@ -470,33 +471,33 @@ function Zakat({ currency, onRecord }: { currency: string; onRecord: (amount: nu
     <>
       <View style={styles.private}>
         <T size={12.5} color={colors.sageDark}>
-          🔒 Private to this phone. Your savings, gold and other amounts are only saved on this device. Only a zakat payment you record goes to your account.
+          {tr('🔒 Private to this phone. Your savings, gold and other amounts are only saved on this device. Only a zakat payment you record goes to your account.')}
         </T>
       </View>
 
       <Card style={{ gap: 12 }}>
         <T weight="extrabold" size={18}>
-          Zakat al-mal
+          {tr('Zakat al-mal')}
         </T>
         <T size={13} color={colors.muted}>
-          2.5% of wealth held for a full lunar year (hawl) above the nisab. Your home, car and personal items are not included.
+          {tr('2.5% of wealth held for a full lunar year (hawl) above the nisab. Your home, car and personal items are not included.')}
         </T>
         <T weight="bold" size={14}>
-          1. Today&apos;s metal prices ({currency} per gram)
+          {tr('1. Today\'s metal prices (')}{currency} {tr('per gram)')}
         </T>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Field label="Gold" value={values.goldPrice} onChangeText={(v) => set('goldPrice', v)} keyboardType="decimal-pad" placeholder="0.00" />
+            <Field label={tr('Gold')} value={values.goldPrice} onChangeText={(v) => set('goldPrice', v)} keyboardType="decimal-pad" placeholder="0.00" />
           </View>
           <View style={{ flex: 1 }}>
-            <Field label="Silver" value={values.silverPrice} onChangeText={(v) => set('silverPrice', v)} keyboardType="decimal-pad" placeholder="0.00" />
+            <Field label={tr('Silver')} value={values.silverPrice} onChangeText={(v) => set('silverPrice', v)} keyboardType="decimal-pad" placeholder="0.00" />
           </View>
         </View>
         <View style={styles.wrap}>
           {(['silver', 'gold'] as const).map((b) => (
             <Chip
               key={b}
-              label={`${b === 'silver' ? 'Silver' : 'Gold'} nisab (${b === 'silver' ? SILVER_NISAB_GRAMS : GOLD_NISAB_GRAMS} g)`}
+              label={tr('{0} nisab ({1} g)', [b === 'silver' ? 'Silver' : 'Gold', b === 'silver' ? SILVER_NISAB_GRAMS : GOLD_NISAB_GRAMS])}
               selected={basis === b}
               onPress={() => {
                 setBasis(b);
@@ -506,68 +507,68 @@ function Zakat({ currency, onRecord }: { currency: string; onRecord: (amount: nu
           ))}
         </View>
         <T size={12} color={colors.muted}>
-          Many scholars recommend the silver nisab as it benefits more people in need. Follow the opinion you trust.
+          {tr('Many scholars recommend the silver nisab as it benefits more people in need. Follow the opinion you trust.')}
         </T>
         <T weight="bold" size={14}>
-          2. What you own
+          {tr('2. What you own')}
         </T>
         {ZAKAT_ASSETS.map((a) => (
-          <Field key={a.key} label={a.hint ? `${a.label} — ${a.hint.toLowerCase()}` : a.label} value={values[a.key]} onChangeText={(v) => set(a.key, v)} keyboardType="decimal-pad" placeholder="0" />
+          <Field key={a.key} label={a.hint ? `${a.label} — ${a.hint.toLowerCase()}` : tr(a.label)} value={values[a.key]} onChangeText={(v) => set(a.key, v)} keyboardType="decimal-pad" placeholder="0" />
         ))}
         <T weight="bold" size={14}>
-          3. What you owe now
+          {tr('3. What you owe now')}
         </T>
-        <Field label="Debts and bills due now" value={values.debts} onChangeText={(v) => set('debts', v)} keyboardType="decimal-pad" placeholder="0" />
+        <Field label={tr('Debts and bills due now')} value={values.debts} onChangeText={(v) => set('debts', v)} keyboardType="decimal-pad" placeholder="0" />
 
         <View style={styles.result}>
           <T size={12} weight="bold" color={colors.goldText} style={{ letterSpacing: 0.4 }}>
-            ZAKAT AL-MAL DUE
+            {tr('ZAKAT AL-MAL DUE')}
           </T>
           <T size={32} weight="extrabold" color={colors.white}>
             {formatMoney(mal.due, currency)}
           </T>
           <T size={13} color={colors.goldText}>
             {!mal.hasNisab
-              ? `Enter the ${basis} price to check the nisab.`
+              ? tr('Enter the {0} price to check the nisab.', [basis])
               : mal.due > 0
-                ? `2.5% of ${formatMoney(mal.net, currency)} · nisab ${formatMoney(mal.nisab, currency)}`
-                : `Below the nisab (${formatMoney(mal.nisab, currency)}): no zakat al-mal is due.`}
+                ? tr('2.5% of {0} · nisab {1}', [formatMoney(mal.net, currency), formatMoney(mal.nisab, currency)])
+                : tr('Below the nisab ({0}): no zakat al-mal is due.', [formatMoney(mal.nisab, currency)])}
           </T>
         </View>
-        {mal.due > 0 ? <Button label="Record as zakat al-mal paid" onPress={() => onRecord(Math.round(mal.due * 100) / 100, ZAKAT_DESCRIPTIONS.mal)} /> : null}
+        {mal.due > 0 ? <Button label={tr('Record as zakat al-mal paid')} onPress={() => onRecord(Math.round(mal.due * 100) / 100, ZAKAT_DESCRIPTIONS.mal)} /> : null}
         <T size={12} color={colors.muted}>
-          A guide to help you estimate. For gold jewellery, pensions, rental property and other special cases, consult a scholar you trust.
+          {tr('A guide to help you estimate. For gold jewellery, pensions, rental property and other special cases, consult a scholar you trust.')}
         </T>
       </Card>
 
       <Card style={{ gap: 12 }}>
         <T weight="extrabold" size={18}>
-          Zakat al-fitr
+          {tr('Zakat al-fitr')}
         </T>
         <T size={13} color={colors.muted}>
-          {ZAKAT_AL_FITR_NOTE}
+          {tr(ZAKAT_AL_FITR_NOTE)}
         </T>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Field label="People" value={fitr.people} onChangeText={(v) => updateFitr({ ...fitr, people: v })} keyboardType="number-pad" placeholder="0" />
+            <Field label={tr('People')} value={fitr.people} onChangeText={(v) => updateFitr({ ...fitr, people: v })} keyboardType="number-pad" placeholder="0" />
           </View>
           <View style={{ flex: 1 }}>
-            <Field label={`Per person (${currency})`} value={fitr.perPerson} onChangeText={(v) => updateFitr({ ...fitr, perPerson: v })} keyboardType="decimal-pad" placeholder="e.g. 15" />
+            <Field label={tr('Per person ({0})', [currency])} value={fitr.perPerson} onChangeText={(v) => updateFitr({ ...fitr, perPerson: v })} keyboardType="decimal-pad" placeholder={tr('e.g. 15')} />
           </View>
         </View>
         <View style={[styles.result, { backgroundColor: colors.tint }]}>
           <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            ZAKAT AL-FITR DUE
+            {tr('ZAKAT AL-FITR DUE')}
           </T>
           <T size={28} weight="extrabold">
             {formatMoney(fitrResult.total, currency)}
           </T>
           <T size={13} color={colors.muted}>
-            {fitrResult.total > 0 ? `${fitrResult.people} × ${formatMoney(fitrResult.perPerson, currency)} · pay before the Eid prayer` : 'Enter the number of people and the amount per person.'}
+            {fitrResult.total > 0 ? tr('{0} × {1} · pay before the Eid prayer', [fitrResult.people, formatMoney(fitrResult.perPerson, currency)]) : tr('Enter the number of people and the amount per person.')}
           </T>
         </View>
         {fitrResult.total > 0 ? (
-          <Button label="Record as zakat al-fitr paid" variant="secondary" onPress={() => onRecord(Math.round(fitrResult.total * 100) / 100, ZAKAT_DESCRIPTIONS.fitr)} />
+          <Button label={tr('Record as zakat al-fitr paid')} variant="secondary" onPress={() => onRecord(Math.round(fitrResult.total * 100) / 100, ZAKAT_DESCRIPTIONS.fitr)} />
         ) : null}
       </Card>
     </>
@@ -585,16 +586,16 @@ function CurrencyPicker({ value, onPick }: { value: string; onPick: (code: strin
       <TextInput
         value={query}
         onChangeText={setQuery}
-        placeholder="Search: dirham, MAD, pound…"
+        placeholder={tr('Search: dirham, MAD, pound…')}
         placeholderTextColor={colors.muted}
         autoCorrect={false}
         autoCapitalize="none"
         style={styles.input}
-        accessibilityLabel="Search currencies"
+        accessibilityLabel={tr('Search currencies')}
       />
       {list.length === 0 ? (
         <T size={14} color={colors.muted}>
-          No currency matches that.
+          {tr('No currency matches that.')}
         </T>
       ) : (
         <View>
@@ -612,7 +613,7 @@ function CurrencyPicker({ value, onPick }: { value: string; onPick: (code: strin
                   {c.code}
                 </T>
                 <T size={14.5} color={selected ? colors.walnut : colors.muted} style={{ flex: 1 }} numberOfLines={1}>
-                  {c.name}
+                  {tr(c.name)}
                 </T>
                 {selected ? (
                   <T weight="bold" color={colors.walnut}>
@@ -632,7 +633,7 @@ function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () 
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
+        <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel={tr('Close')}>
           <Pressable style={styles.sheetWrap} onPress={() => {}}>
             <ScrollView contentContainerStyle={styles.sheet} keyboardShouldPersistTaps="handled" bounces={false}>
               <T weight="extrabold" size={20}>
@@ -655,8 +656,8 @@ function EntrySheet({ draft, categories, currency, onClose, onSaved }: { draft: 
 
   const save = async () => {
     const amount = parseAmount(d.amount);
-    if (!amount) return setProblem('Enter an amount.');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(d.occurred_on)) return setProblem('Use the date format YYYY-MM-DD.');
+    if (!amount) return setProblem(tr('Enter an amount.'));
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d.occurred_on)) return setProblem(tr('Use the date format YYYY-MM-DD.'));
     setBusy(true);
     try {
       await saveTransaction(
@@ -665,7 +666,7 @@ function EntrySheet({ draft, categories, currency, onClose, onSaved }: { draft: 
       );
       onSaved();
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not save. Please try again.');
+      setProblem(e instanceof Error ? e.message : tr('Could not save. Please try again.'));
     } finally {
       setBusy(false);
     }
@@ -678,41 +679,41 @@ function EntrySheet({ draft, categories, currency, onClose, onSaved }: { draft: 
       await deleteTransaction(d.id);
       onSaved();
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not delete.');
+      setProblem(e instanceof Error ? e.message : tr('Could not delete.'));
       setBusy(false);
     }
   };
 
   return (
-    <Sheet open onClose={onClose} title={d.id ? 'Edit entry' : 'New entry'}>
+    <Sheet open onClose={onClose} title={d.id ? tr('Edit entry') : tr('New entry')}>
       <View style={styles.wrap}>
         {TRANSACTION_TYPES.map((t) => (
-          <Chip key={t.value} label={t.label} selected={d.type === t.value} onPress={() => setD({ ...d, type: t.value })} />
+          <Chip key={t.value} label={tr(t.label)} selected={d.type === t.value} onPress={() => setD({ ...d, type: t.value })} />
         ))}
       </View>
-      <Field label={`Amount (${currency})`} value={d.amount} onChangeText={(v) => setD({ ...d, amount: v })} keyboardType="decimal-pad" placeholder="0.00" autoFocus={!d.id && !d.amount} />
+      <Field label={tr('Amount ({0})', [currency])} value={d.amount} onChangeText={(v) => setD({ ...d, amount: v })} keyboardType="decimal-pad" placeholder="0.00" autoFocus={!d.id && !d.amount} />
       {d.type === 'expense' ? (
         <View style={{ gap: 6 }}>
           <T weight="semibold" size={14}>
-            Category
+            {tr('Category')}
           </T>
           <View style={styles.wrap}>
             {categories.map((c) => (
-              <Chip key={c.id} label={c.name} selected={d.category_id === c.id} onPress={() => setD({ ...d, category_id: d.category_id === c.id ? null : c.id })} />
+              <Chip key={c.id} label={tr(c.name)} selected={d.category_id === c.id} onPress={() => setD({ ...d, category_id: d.category_id === c.id ? null : c.id })} />
             ))}
           </View>
         </View>
       ) : null}
-      <Field label="Note (optional)" value={d.description} onChangeText={(v) => setD({ ...d, description: v })} placeholder={d.type === 'sadaqah' ? 'e.g. Masjid fundraiser' : 'e.g. Costco'} />
-      <Field label="Date (YYYY-MM-DD)" value={d.occurred_on} onChangeText={(v) => setD({ ...d, occurred_on: v })} keyboardType="numbers-and-punctuation" />
+      <Field label={tr('Note (optional)')} value={d.description} onChangeText={(v) => setD({ ...d, description: v })} placeholder={d.type === 'sadaqah' ? tr('e.g. Masjid fundraiser') : tr('e.g. Costco')} />
+      <Field label={tr('Date (YYYY-MM-DD)')} value={d.occurred_on} onChangeText={(v) => setD({ ...d, occurred_on: v })} keyboardType="numbers-and-punctuation" />
       {problem ? (
         <T size={13.5} color={colors.brickText}>
           {problem}
         </T>
       ) : null}
-      <Button label={d.id ? 'Save changes' : 'Add entry'} onPress={save} busy={busy} />
-      {d.id ? <Button label={confirmDelete ? 'Tap again to delete' : 'Delete entry'} variant="text" onPress={remove} /> : null}
-      <Button label="Cancel" variant="secondary" onPress={onClose} />
+      <Button label={d.id ? tr('Save changes') : tr('Add entry')} onPress={save} busy={busy} />
+      {d.id ? <Button label={confirmDelete ? tr('Tap again to delete') : tr('Delete entry')} variant="text" onPress={remove} /> : null}
+      <Button label={tr('Cancel')} variant="secondary" onPress={onClose} />
     </Sheet>
   );
 }
@@ -740,12 +741,12 @@ function CategorySheet({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const save = async () => {
-    if (!name.trim()) return setProblem('Give the category a name.');
+    if (!name.trim()) return setProblem(tr('Give the category a name.'));
     setBusy(true);
     try {
       await onSave({ name: name.trim(), monthly_limit: parseAmount(limit) || null });
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not save the category.');
+      setProblem(e instanceof Error ? e.message : tr('Could not save the category.'));
       setBusy(false);
     }
   };
@@ -755,33 +756,33 @@ function CategorySheet({
     try {
       await onDelete();
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not delete the category.');
+      setProblem(e instanceof Error ? e.message : tr('Could not delete the category.'));
       setBusy(false);
     }
   };
 
   return (
-    <Sheet open onClose={onClose} title={category ? 'Edit category' : 'New category'}>
-      <Field label="Name" value={name} onChangeText={(v) => { setName(v); setProblem(null); }} placeholder="Car" autoFocus={!category} />
-      <Field label={`Monthly limit (${currency}), optional`} value={limit} onChangeText={setLimit} keyboardType="decimal-pad" placeholder="600" />
+    <Sheet open onClose={onClose} title={category ? tr('Edit category') : tr('New category')}>
+      <Field label={tr('Name')} value={name} onChangeText={(v) => { setName(v); setProblem(null); }} placeholder={tr('Car')} autoFocus={!category} />
+      <Field label={tr('Monthly limit ({0}), optional', [currency])} value={limit} onChangeText={setLimit} keyboardType="decimal-pad" placeholder="600" />
       {problem ? (
         <T size={13.5} color={colors.brickText}>
           {problem}
         </T>
       ) : null}
-      <Button label="Save" onPress={save} busy={busy} />
-      {category ? <Button label={`+ Add an expense in ${category.name}`} variant="secondary" onPress={() => onAddExpense(category.id)} /> : null}
+      <Button label={tr('Save')} onPress={save} busy={busy} />
+      {category ? <Button label={tr('+ Add an expense in {0}', [category.name])} variant="secondary" onPress={() => onAddExpense(category.id)} /> : null}
       {category ? (
         <>
-          <Button label={confirmDelete ? 'Tap again to delete' : 'Delete category'} variant="text" onPress={remove} />
+          <Button label={confirmDelete ? tr('Tap again to delete') : tr('Delete category')} variant="text" onPress={remove} />
           {confirmDelete ? (
             <T size={12.5} color={colors.muted} style={{ textAlign: 'center' }}>
-              Its entries stay in your history, without a category.
+              {tr('Its entries stay in your history, without a category.')}
             </T>
           ) : null}
         </>
       ) : (
-        <Button label="Cancel" variant="text" onPress={onClose} />
+        <Button label={tr('Cancel')} variant="text" onPress={onClose} />
       )}
     </Sheet>
   );
@@ -800,14 +801,14 @@ function GoalSheet({ goal, currency, onClose, onSaved }: { goal: Partial<Savings
   const save = async () => {
     const t = parseAmount(target);
     const label = name.trim() || GOAL_KINDS.find((g) => g.value === kind)?.label || 'Goal';
-    if (!t) return setProblem('Enter how much you want to save.');
-    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return setProblem('Use the date format YYYY-MM-DD.');
+    if (!t) return setProblem(tr('Enter how much you want to save.'));
+    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return setProblem(tr('Use the date format YYYY-MM-DD.'));
     setBusy(true);
     try {
       await saveGoal({ name: label, kind, target: t, saved: parseAmount(saved), target_date: date || null }, goal.id);
       onSaved();
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not save the goal.');
+      setProblem(e instanceof Error ? e.message : tr('Could not save the goal.'));
       setBusy(false);
     }
   };
@@ -819,30 +820,30 @@ function GoalSheet({ goal, currency, onClose, onSaved }: { goal: Partial<Savings
       await deleteGoal(goal.id);
       onSaved();
     } catch (e) {
-      setProblem(e instanceof Error ? e.message : 'Could not delete the goal.');
+      setProblem(e instanceof Error ? e.message : tr('Could not delete the goal.'));
       setBusy(false);
     }
   };
 
   return (
-    <Sheet open onClose={onClose} title={goal.id ? 'Edit goal' : 'New savings goal'}>
+    <Sheet open onClose={onClose} title={goal.id ? tr('Edit goal') : tr('New savings goal')}>
       <View style={styles.wrap}>
         {GOAL_KINDS.map((g) => (
           <Chip key={g.value} label={`${g.emoji} ${g.label}`} selected={kind === g.value} onPress={() => setKind(g.value)} />
         ))}
       </View>
-      <Field label="Name" value={name} onChangeText={setName} placeholder={GOAL_KINDS.find((g) => g.value === kind)?.label} />
-      <Field label={`Target (${currency})`} value={target} onChangeText={setTarget} keyboardType="decimal-pad" placeholder="e.g. 12000" />
-      <Field label={`Saved so far (${currency})`} value={saved} onChangeText={setSaved} keyboardType="decimal-pad" placeholder="0" />
-      <Field label="Target date (optional, YYYY-MM-DD)" value={date} onChangeText={setDate} keyboardType="numbers-and-punctuation" placeholder="2027-06-01" />
+      <Field label={tr('Name')} value={name} onChangeText={setName} placeholder={tr(GOAL_KINDS.find((g) => g.value === kind)?.label)} />
+      <Field label={tr('Target ({0})', [currency])} value={target} onChangeText={setTarget} keyboardType="decimal-pad" placeholder={tr('e.g. 12000')} />
+      <Field label={tr('Saved so far ({0})', [currency])} value={saved} onChangeText={setSaved} keyboardType="decimal-pad" placeholder="0" />
+      <Field label={tr('Target date (optional, YYYY-MM-DD)')} value={date} onChangeText={setDate} keyboardType="numbers-and-punctuation" placeholder="2027-06-01" />
       {problem ? (
         <T size={13.5} color={colors.brickText}>
           {problem}
         </T>
       ) : null}
-      <Button label={goal.id ? 'Save changes' : 'Create goal'} onPress={save} busy={busy} />
-      {goal.id ? <Button label={confirmDelete ? 'Tap again to delete' : 'Delete goal'} variant="text" onPress={remove} /> : null}
-      <Button label="Cancel" variant="secondary" onPress={onClose} />
+      <Button label={goal.id ? tr('Save changes') : tr('Create goal')} onPress={save} busy={busy} />
+      {goal.id ? <Button label={confirmDelete ? tr('Tap again to delete') : tr('Delete goal')} variant="text" onPress={remove} /> : null}
+      <Button label={tr('Cancel')} variant="secondary" onPress={onClose} />
     </Sheet>
   );
 }

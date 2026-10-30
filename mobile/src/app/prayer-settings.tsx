@@ -9,6 +9,7 @@ import { askForAlerts } from '@/lib/adhan-alerts';
 import { placeFromDevice, placeFromSearch } from '@/lib/location';
 import { METHODS, usePrayerSettings } from '@/lib/prayer';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 function Choice({ label, detail, selected, onPress }: { label: string; detail?: string; selected: boolean; onPress: () => void }) {
   return (
@@ -47,14 +48,14 @@ export default function PrayerSettingsScreen() {
     try {
       const place = await placeFromDevice();
       if (place === 'denied') {
-        setMessage({ text: 'Location is off for Firdam. Type your city instead, or allow location in Settings.', tone: 'error' });
+        setMessage({ text: tr('Location is off for Firdam. Type your city instead, or allow location in Settings.'), tone: 'error' });
         return;
       }
       await update({ place });
       await askForAlerts();
-      setMessage({ text: `Prayer times set for ${place.label}.`, tone: 'success' });
+      setMessage({ text: tr('Prayer times set for {0}.', [place.label]), tone: 'success' });
     } catch {
-      setMessage({ text: 'Could not find your location. Try typing your city.', tone: 'error' });
+      setMessage({ text: tr('Could not find your location. Try typing your city.'), tone: 'error' });
     } finally {
       setBusy(null);
     }
@@ -66,15 +67,15 @@ export default function PrayerSettingsScreen() {
     try {
       const place = await placeFromSearch(city);
       if (!place) {
-        setMessage({ text: 'We couldn’t find that place. Try “City, Country”.', tone: 'error' });
+        setMessage({ text: tr('We couldn’t find that place. Try “City, Country”.'), tone: 'error' });
         return;
       }
       await update({ place });
       await askForAlerts();
-      setMessage({ text: `Prayer times set for ${place.label}.`, tone: 'success' });
+      setMessage({ text: tr('Prayer times set for {0}.', [place.label]), tone: 'success' });
       setCity('');
     } catch {
-      setMessage({ text: 'We couldn’t look that up. Check your connection and try again.', tone: 'error' });
+      setMessage({ text: tr('We couldn’t look that up. Check your connection and try again.'), tone: 'error' });
     } finally {
       setBusy(null);
     }
@@ -84,38 +85,38 @@ export default function PrayerSettingsScreen() {
     <SafeAreaView style={styles.screen}>
       <View style={styles.header}>
         <T weight="extrabold" size={22} accessibilityRole="header">
-          Prayer settings
+          {tr('Prayer settings')}
         </T>
-        <Button label="Done" variant="text" onPress={() => router.back()} />
+        <Button label={tr('Done')} variant="text" onPress={() => router.back()} />
       </View>
       <ScrollView contentContainerStyle={{ padding: 20, gap: 22 }} keyboardShouldPersistTaps="handled">
         <View style={{ gap: 10 }}>
           <T weight="bold" size={16}>
-            Location
+            {tr('Location')}
           </T>
           <T size={14} color={colors.muted}>
-            {settings.place ? `Now: ${settings.place.label}` : 'Not set yet'}
+            {settings.place ? tr('Now: {0}', [settings.place.label]) : tr('Not set yet')}
           </T>
-          <Button label="Use my current location" onPress={useMine} busy={busy === 'device'} />
-          <Field label="Or type a city" value={city} onChangeText={setCity} placeholder="e.g. Mississauga or London, UK" returnKeyType="search" onSubmitEditing={search} />
-          <Button label="Set this city" variant="secondary" onPress={search} busy={busy === 'search'} />
+          <Button label={tr('Use my current location')} onPress={useMine} busy={busy === 'device'} />
+          <Field label={tr('Or type a city')} value={city} onChangeText={setCity} placeholder={tr('e.g. Mississauga or London, UK')} returnKeyType="search" onSubmitEditing={search} />
+          <Button label={tr('Set this city')} variant="secondary" onPress={search} busy={busy === 'search'} />
           {message && <FormMessage text={message.text} tone={message.tone} />}
         </View>
 
         <View style={{ gap: 10 }}>
           <T weight="bold" size={16}>
-            Asr time
+            {tr('Asr time')}
           </T>
-          <Choice label="Standard" detail="Shafi'i, Maliki and Hanbali" selected={!settings.hanafiAsr} onPress={() => update({ hanafiAsr: false })} />
-          <Choice label="Hanafi" detail="Later Asr time" selected={settings.hanafiAsr} onPress={() => update({ hanafiAsr: true })} />
+          <Choice label={tr('Standard')} detail={tr('Shafi\'i, Maliki and Hanbali')} selected={!settings.hanafiAsr} onPress={() => update({ hanafiAsr: false })} />
+          <Choice label={tr('Hanafi')} detail={tr('Later Asr time')} selected={settings.hanafiAsr} onPress={() => update({ hanafiAsr: true })} />
         </View>
 
         <View style={{ gap: 10 }}>
           <T weight="bold" size={16}>
-            Calculation method
+            {tr('Calculation method')}
           </T>
           <T size={13.5} color={colors.muted}>
-            Choose the method your local mosque follows.
+            {tr('Choose the method your local mosque follows.')}
           </T>
           {METHODS.map((m) => (
             <Choice key={m.id} label={m.name} detail={m.region} selected={settings.method === m.id} onPress={() => update({ method: m.id })} />
@@ -124,7 +125,7 @@ export default function PrayerSettingsScreen() {
 
         <Card style={{ backgroundColor: colors.tint, borderColor: colors.tint }}>
           <T size={13.5} color="#5F5048" style={{ lineHeight: 20 }}>
-            Your location is only used on this phone to work out prayer times and the Qibla. It is not sent to Firdam.
+            {tr('Your location is only used on this phone to work out prayer times and the Qibla. It is not sent to Firdam.')}
           </T>
         </Card>
       </ScrollView>

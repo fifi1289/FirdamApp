@@ -4,13 +4,14 @@ import Svg, { Path } from 'react-native-svg';
 
 import { T } from '@/components/ui';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 /** A food photo with a soft placeholder while loading or when there is none. */
 export function Photo({ uri, size, height, radius = 14, style }: { uri?: string | null; size?: number; height?: number; radius?: number; style?: StyleProp<ViewStyle> }) {
   const [failed, setFailed] = useState(false);
   const box = { width: size ?? '100%', height: height ?? size ?? 160, borderRadius: radius } as const;
   return (
-    <View style={[box, styles.photo, style]} accessibilityRole="image" accessibilityLabel="Recipe photo">
+    <View style={[box, styles.photo, style]} accessibilityRole="image" accessibilityLabel={tr('Recipe photo')}>
       <Svg width={34} height={34} viewBox="0 0 24 24" fill="none" style={{ position: 'absolute' }}>
         <Path d="M3 13h18a9 9 0 0 1-18 0z" stroke="#9A6A4E" strokeWidth={1.4} strokeLinejoin="round" />
         <Path d="M8 9c0-2 2-2 2-4M12 9c0-2 2-2 2-4M16 9c0-2 2-2 2-4" stroke="#9A6A4E" strokeWidth={1.4} strokeLinecap="round" />
@@ -63,7 +64,7 @@ export function Segmented<K extends string>({ options, value, onChange }: { opti
         return (
           <Pressable key={o.key} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => onChange(o.key)} style={[styles.segmentItem, on && styles.segmentOn]}>
             <T size={13} weight={on ? 'bold' : 'semibold'} color={on ? colors.espresso : colors.muted}>
-              {o.label}
+              {tr(o.label)}
             </T>
           </Pressable>
         );

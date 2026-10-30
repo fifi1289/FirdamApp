@@ -16,12 +16,14 @@ import { BrandSplash } from '@/components/brand-splash';
 import { FirdamAlertHost } from '@/components/firdam-alert';
 
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { useLanguage } from '@/lib/i18n';
 import { colors } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function Navigator() {
   const { loading, session, needsCode } = useAuth();
+  const { lang } = useLanguage();
   const [fontsLoaded] = useFonts({
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,
@@ -47,7 +49,8 @@ function Navigator() {
 
   const signedIn = !!session;
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.linen } }}>
+    // key: a new language redraws every screen with the new words.
+    <Stack key={lang} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.linen } }}>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="welcome" />
         <Stack.Screen name="sign-in" />

@@ -17,6 +17,7 @@ import { Button, Card, T } from '@/components/ui';
 import { useKitchen } from '@/lib/kitchen-store';
 import { usePartnerShops } from '@/lib/partners';
 import { colors } from '@/theme';
+import { tr } from '@/lib/i18n';
 
 type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
 
@@ -53,14 +54,14 @@ export default function Kitchen() {
           <HomeButton />
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
-          {TITLES[section]}
+          {tr(TITLES[section])}
         </T>
         {k.loading ? (
           <ActivityIndicator color={colors.walnut} style={{ marginTop: 32 }} />
         ) : k.error ? (
           <View style={{ gap: 12 }}>
             <T color={colors.brickText}>{k.error}</T>
-            <Button label="Try again" variant="secondary" onPress={k.refresh} />
+            <Button label={tr('Try again')} variant="secondary" onPress={k.refresh} />
           </View>
         ) : section === 'plan' ? (
           <PlanView />
@@ -68,15 +69,15 @@ export default function Kitchen() {
           <RecipesView />
         ) : section === 'shopping' ? (
           <>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} accessibilityLabel="Shopping departments">
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} accessibilityLabel={tr('Shopping departments')}>
               {SHOPPING_DEPARTMENTS.map((d) => (
-                <Chip key={d.id} label={d.label} selected={dept === d.id} onPress={() => setDept(d.id)} />
+                <Chip key={d.id} label={tr(d.label)} selected={dept === d.id} onPress={() => setDept(d.id)} />
               ))}
             </ScrollView>
             {dept === 'groceries' ? (
               <>
                 <T size={13.5} color={colors.muted}>
-                  Fills itself from your meal plan, minus what’s in your pantry.
+                  {tr('Fills itself from your meal plan, minus what’s in your pantry.')}
                 </T>
                 <ShoppingView />
               </>
@@ -116,15 +117,15 @@ function DepartmentView({ dept }: { dept: string }) {
   const hasPartners = partners.some((s) => s.department === dept);
 
   const search = () => {
-    if (!query.trim()) return setProblem('Type what you’re looking for.');
-    if (max.trim() && parseBudget(max) == null) return setProblem('Enter your budget as a number, for example 40.');
+    if (!query.trim()) return setProblem(tr('Type what you’re looking for.'));
+    if (max.trim() && parseBudget(max) == null) return setProblem(tr('Enter your budget as a number, for example 40.'));
     Linking.openURL(amazonSearchUrl(query, parseBudget(max)));
   };
 
   return (
     <>
       <T size={13.5} color={colors.muted}>
-        {current.note}
+        {tr(current.note)}
       </T>
 
       <PartnerShops shops={partners} department={dept} />
@@ -132,7 +133,7 @@ function DepartmentView({ dept }: { dept: string }) {
       {online ? (
         <Card style={{ gap: 12 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            {`SEARCH ${current.label.toUpperCase()} ON AMAZON.CA`}
+            {tr('SEARCH {0} ON AMAZON.CA', [current.label.toUpperCase()])}
           </T>
           <TextInput
             value={query}
@@ -140,12 +141,12 @@ function DepartmentView({ dept }: { dept: string }) {
               setQuery(v);
               setProblem(null);
             }}
-            placeholder="What are you looking for?"
+            placeholder={tr('What are you looking for?')}
             placeholderTextColor={colors.muted}
             style={styles.input}
             returnKeyType="search"
             onSubmitEditing={search}
-            accessibilityLabel={`Search ${current.label}`}
+            accessibilityLabel={tr('Search {0}', [current.label])}
           />
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TextInput
@@ -154,13 +155,13 @@ function DepartmentView({ dept }: { dept: string }) {
                 setMax(v);
                 setProblem(null);
               }}
-              placeholder="Max budget ($)"
+              placeholder={tr('Max budget ($)')}
               placeholderTextColor={colors.muted}
               keyboardType="decimal-pad"
               style={[styles.input, { flex: 1 }]}
-              accessibilityLabel="Maximum budget in Canadian dollars (optional)"
+              accessibilityLabel={tr('Maximum budget in Canadian dollars (optional)')}
             />
-            <Button label="Search" onPress={search} style={{ height: 48, paddingHorizontal: 18 }} />
+            <Button label={tr('Search')} onPress={search} style={{ height: 48, paddingHorizontal: 18 }} />
           </View>
           {problem ? (
             <T size={13} color={colors.brickText}>
@@ -172,26 +173,26 @@ function DepartmentView({ dept }: { dept: string }) {
               <Chip key={p.query} label={`${p.label} ↗`} onPress={() => Linking.openURL(amazonSearchUrl(p.query, parseBudget(max)))} />
             ))}
           </View>
-          <T size={12} color={colors.muted}>{`${AFFILIATE_NOTE} Prices and availability are shown on Amazon.ca.`}</T>
+          <T size={12} color={colors.muted}>{tr('{0} Prices and availability are shown on Amazon.ca.', [AFFILIATE_NOTE])}</T>
         </Card>
       ) : !hasPartners ? (
         <Card style={{ gap: 6 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <T weight="bold" size={15} style={{ flex: 1 }}>
-              {`${current.label} is coming soon`}
+              {tr('{0} is coming soon', [current.label])}
             </T>
-            <Badge label="Soon" tone="amber" />
+            <Badge label={tr('Soon')} tone="amber" />
           </View>
           <T size={13.5} color={colors.muted}>
-            With trusted Muslim-owned and partner stores, insha’Allah.
+            {tr('With trusted Muslim-owned and partner stores, insha’Allah.')}
           </T>
         </Card>
       ) : null}
 
       <T size={13} color={colors.muted}>
-        {'Run a Muslim-owned shop? '}
+        {tr('Run a Muslim-owned shop? ')}
         <T size={13} weight="bold" color={colors.walnut} accessibilityRole="link" onPress={() => Linking.openURL('https://firdam.com/partners')}>
-          Become a Firdam partner ↗
+          {tr('Become a Firdam partner ↗')}
         </T>
       </T>
     </>

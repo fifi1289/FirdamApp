@@ -11,7 +11,10 @@ import {
   type TextStyle,
   type ViewStyle, type TextInputInstance } from 'react-native';
 
+import { isRTL } from '@/lib/i18n';
 import { colors, fonts, radius } from '@/theme';
+
+const WEIGHTS = { regular: '400', medium: '500', semibold: '600', bold: '700', extrabold: '800', arabic: '400' } as const;
 
 /** Text in Firdam's font. Pick a weight with `weight`. */
 export function T({
@@ -33,7 +36,7 @@ export function T({
   onPress?: () => void;
 }) {
   return (
-    <Text style={[{ fontFamily: fonts[weight], fontSize: size, color }, style]} {...rest}>
+    <Text style={[isRTL() && weight !== 'arabic' ? { fontWeight: WEIGHTS[weight], fontSize: size, color } : { fontFamily: fonts[weight], fontSize: size, color }, style]} {...rest}>
       {children}
     </Text>
   );

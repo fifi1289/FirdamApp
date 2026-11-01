@@ -68,3 +68,31 @@ export interface MealPreferencesRow {
   allergies: string[];
   cuisine_preferences: Record<string, string[]>;
 }
+
+export type TripKind = 'holiday' | 'umrah' | 'hajj' | 'family_visit' | 'business' | 'other';
+
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  done: boolean;
+  group?: string;
+}
+
+/** A row of `trips` (Travel), the same as on the website. */
+export interface Trip {
+  id: string;
+  user_id: string;
+  name: string;
+  kind: TripKind;
+  destination_label: string;
+  latitude: number;
+  longitude: number;
+  start_date: string | null;
+  end_date: string | null;
+  travellers: number;
+  budget: number | null;
+  notes: string | null;
+  checklist: ChecklistItem[];
+  created_at: string;
+  updated_at: string;
+}

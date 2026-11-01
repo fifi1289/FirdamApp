@@ -176,7 +176,7 @@ async function describeOpenAIFailure(res: Response): Promise<OpenAIFailure> {
 
 // Things that turn up on grocery receipts but don't belong in a kitchen pantry.
 const NON_FOOD =
-  /\b(soap|detergent|shampoo|conditioner|toothpaste|toothbrush|deodorant|lotion|razor|tissues?|toilet paper|paper towels?|napkins?|diapers?|nappies|wipes|bleach|cleaner|dish ?wash|dishwasher|laundry|fabric softener|sponges?|garbage bags?|trash bags?|bin bags?|foil|cling ?film|plastic wrap|batteries|battery|light ?bulbs?|candles?|lighter|matches|cosmetics?|makeup|shaving|sanitary|tampons?|pads|vitamins?|medicine|tylenol|advil|pet food|cat food|dog food|cat litter|bag fee|bottle deposit|deposit|gift card|magazine|flowers?|plants?|charcoal)\b/i;
+  /\b(soap|detergent|shampoo|conditioner|toothpaste|toothbrush|deodorant|lotion|razor|tissues?|toilet paper|paper towels?|napkins?|diapers?|nappies|wipes|bleach|cleaner|dish ?wash|dishwasher|laundry|fabric softener|sponges?|garbage bags?|trash bags?|bin bags?|foil|cling ?film|plastic wrap|batteries|battery|light ?bulbs?|candles?|lighter|matches|cosmetics?|makeup|shaving|sanitary|tampons?|pads|vitamins?|medicine|tylenol|advil|pet food|cat food|dog food|cat litter|bag fee|bottle deposit|deposit|gift card|magazine|flowers?|plants?|charcoal|machines?|makers?|kettles?|blenders?|toasters?|microwaves?|air ?fryers?|mixers?|grinders?|frying pans?|saucepans?|cookware|bakeware|baking trays?|plates?|cutlery|utensils?|knives|knife|spatulas?|ladles?|containers?|tupperware|coffee filters?|thermos|water bottles?|lunch ?box(es)?|t-?shirts?|shirts?|socks|pants|jackets?|shoes|slippers|toys?|notebooks?|pens?|pencils?|stationery|chargers?|cables?|headphones|earbuds|phone cases?|extension cords?|hangers?|towels?|bedding|pillows?|blankets?)\b/i;
 
 /** True for receipt lines that aren't food or drink (soap, bags, batteries…). */
 function isNonFood(name: string): boolean {
@@ -357,7 +357,7 @@ const PROMPT = `You read grocery receipts for a Muslim family's pantry app.
 Return ONLY JSON: {"store": string|null, "date": "YYYY-MM-DD"|null, "total": number|null, "currency": string|null, "items": [...]}
 Each item: {"name": string, "quantity": number, "unit": one of ${JSON.stringify(UNITS)}, "category": one of ${JSON.stringify(CATEGORIES)}, "staple": boolean}
 Rules:
-- Only food and drink. Skip bags, cleaning products, toiletries, deposits, discounts, loyalty lines, totals and payment lines.
+- Only things that are eaten or drunk. Skip everything else, even when a food word is in the name: appliances ("coffee machine", "kettle", "blender", "toaster"), cookware, dishes and kitchen tools, food containers, coffee filters, cleaning products, toiletries, medicine and vitamins, pet food, clothes, toys, electronics, stationery, flowers, bags, deposits, discounts, loyalty lines, totals and payment lines. When unsure whether a line is food, leave it out.
 - "name": a short, plain English shopping-list name ("Chicken thighs", "Basmati rice", "Whole milk", "Tomatoes"), not the receipt's abbreviation or brand code. Expand abbreviations ("CHKN THGH" → "Chicken thighs").
 - Quantity and unit from the line: weights (0.82 kg → 0.82 kg), sizes in the name (2L milk → 2 L; 500G → 500 g; 6PK / x6 → 6 Pieces), multiples (2 @ 1.99 → quantity 2). If unknown, quantity 1 and unit "Pack" (or "Pieces" for single fruit/veg items).
 - Merge identical lines.

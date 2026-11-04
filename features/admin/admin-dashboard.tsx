@@ -19,6 +19,7 @@ import { CommunityModeration } from '@/features/community/community-moderation';
 import { HalalPlaceReview } from '@/features/admin/halal-place-review';
 import { AdminProfiles, useAdminProfiles } from '@/features/admin/admin-profiles';
 import { PartnerAdmin } from '@/features/admin/partner-admin';
+import { EarnAdmin } from '@/features/admin/earn-admin';
 import { RecipeFill } from '@/features/admin/recipe-fill';
 import { RecipePhotoRegenerate } from '@/features/admin/recipe-photo-regenerate';
 import { RecipePhotos } from '@/features/admin/recipe-photos';
@@ -197,7 +198,11 @@ export function AdminDashboard() {
           <TabsTrigger value="community">Community</TabsTrigger>
           <TabsTrigger value="recipes">Recipes</TabsTrigger>
           <TabsTrigger value="photos">Recipe photos</TabsTrigger>
+          <TabsTrigger value="earn">Earn</TabsTrigger>
         </TabsList>
+        <TabsContent value="earn" className="mt-0">
+          <EarnAdmin />
+        </TabsContent>
         <TabsContent value="profiles" className="mt-0">
           <AdminProfiles profiles={people.profiles} error={people.error} />
         </TabsContent>

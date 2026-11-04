@@ -7,6 +7,11 @@ const PUBLIC_PATHS = ['/partners', '/privacy', '/terms', '/security', '/support'
 function isPublicPath(pathname: string): boolean {
   return (
     pathname === '/' ||
+    // Earn with Firdam: the landing page, its terms, and invite links (/join/abc2345;
+    // household invites are UUIDs and still need an account).
+    pathname === '/earn' ||
+    pathname.startsWith('/earn/terms') ||
+    /^\/join\/[a-zA-Z2-9]{6,12}$/.test(pathname) ||
     PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
   );
 }

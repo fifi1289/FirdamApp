@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
 import { ReminderManager } from '@/components/reminders/reminder-manager';
 import { startRecipeTranslations, useRecipeTranslationsVersion } from '@/features/recipes/recipe-i18n';
+import { runEarnHousekeeping } from '@/features/earn/earn-client';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -17,6 +18,10 @@ export function AppShell({ children }: AppShellProps) {
   // French / Arabic recipe and food names: the page redraws once they arrive.
   React.useEffect(() => startRecipeTranslations(), []);
   const recipeWords = useRecipeTranslationsVersion();
+  // Claims a remembered invite link and records today as an active day.
+  React.useEffect(() => {
+    runEarnHousekeeping().catch(() => undefined);
+  }, []);
 
   return (
     <div className="flex min-h-screen w-full bg-background">

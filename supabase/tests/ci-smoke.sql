@@ -394,4 +394,91 @@ DO $$ BEGIN
   END IF;
 END $$;
 
+-- Earn with Firdam, Phase 1 (spec §12 test 1): a referred family active on
+-- 7 different days in its first 30 banks exactly 1 free month; 6 days banks 0.
+UPDATE public.earn_config SET value = 'true' WHERE key = 'EARN_AMBASSADORS_LIVE';
+INSERT INTO auth.users (id, email, email_confirmed_at, created_at) VALUES
+  ('00000000-0000-0000-0000-0000000000a1', 'amb@example.com', now(), now() - interval '90 days'),
+  ('00000000-0000-0000-0000-0000000000a2', 'fam7@example.com', now(), now()),
+  ('00000000-0000-0000-0000-0000000000a3', 'fam6@example.com', now(), now()),
+  ('00000000-0000-0000-0000-0000000000a4', 'a.m.b+x@gmail.com', now(), now()),
+  ('00000000-0000-0000-0000-0000000000a5', 'amb@gmail.com', now(), now() - interval '90 days');
+INSERT INTO public.profiles (id, email, first_name)
+  SELECT id, email, 'Test' FROM auth.users WHERE id::text LIKE '00000000-0000-0000-0000-0000000000a%'
+ON CONFLICT (id) DO UPDATE SET first_name = 'Test';
+INSERT INTO public.family_members (user_id, first_name, relationship) VALUES
+  ('00000000-0000-0000-0000-0000000000a2', 'Kid', 'child'),
+  ('00000000-0000-0000-0000-0000000000a3', 'Kid', 'child');
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+SELECT set_config('earn.amb_code', (public.my_referral_code())::text, false);
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a5';
+SELECT set_config('earn.gmail_code', (public.my_referral_code())::text, false);
+DO $$ BEGIN
+  IF public.log_referral_click('nope42x', 'v1') THEN RAISE EXCEPTION 'unknown code accepted'; END IF;
+END $$;
+SELECT set_config('earn.ok1', (public.log_referral_click(current_setting('earn.amb_code'), 'v1'))::text, false);
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+SELECT set_config('earn.self_claim', (public.claim_referral(current_setting('earn.amb_code')))::text, false);
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a2';
+SELECT set_config('earn.claim7', (public.claim_referral(current_setting('earn.amb_code'), now() - interval '2 days'))::text, false);
+SELECT set_config('earn.claim_again', (public.claim_referral(current_setting('earn.gmail_code')))::text, false);
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a3';
+SELECT set_config('earn.claim_old', (public.claim_referral(current_setting('earn.amb_code'), now() - interval '40 days'))::text, false);
+SELECT set_config('earn.claim6', (public.claim_referral(current_setting('earn.amb_code'), null, 'app'))::text, false);
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a4';
+SELECT set_config('earn.claim_dots', (public.claim_referral(current_setting('earn.gmail_code')))::text, false);
+RESET ROLE;
+DO $$ BEGIN
+  IF current_setting('earn.ok1')::boolean IS NOT TRUE THEN RAISE EXCEPTION 'real code rejected'; END IF;
+  IF current_setting('earn.self_claim') <> 'self' THEN RAISE EXCEPTION 'self referral: %', current_setting('earn.self_claim'); END IF;
+  IF current_setting('earn.claim7') <> 'ok' THEN RAISE EXCEPTION 'claim: %', current_setting('earn.claim7'); END IF;
+  IF current_setting('earn.claim_again') <> 'already' THEN RAISE EXCEPTION 'second ambassador won: %', current_setting('earn.claim_again'); END IF;
+  IF current_setting('earn.claim_old') <> 'expired' THEN RAISE EXCEPTION 'old click counted: %', current_setting('earn.claim_old'); END IF;
+  IF current_setting('earn.claim6') <> 'ok' THEN RAISE EXCEPTION 'app claim: %', current_setting('earn.claim6'); END IF;
+  IF current_setting('earn.claim_dots') <> 'ok' THEN RAISE EXCEPTION 'gmail claim: %', current_setting('earn.claim_dots'); END IF;
+END $$;
+INSERT INTO public.user_activity_days (user_id, day)
+  SELECT '00000000-0000-0000-0000-0000000000a2', (now() AT TIME ZONE 'utc')::date + g FROM generate_series(0, 6) g;
+INSERT INTO public.user_activity_days (user_id, day)
+  SELECT '00000000-0000-0000-0000-0000000000a3', (now() AT TIME ZONE 'utc')::date + g FROM generate_series(0, 5) g;
+INSERT INTO public.user_activity_days (user_id, day)
+  SELECT '00000000-0000-0000-0000-0000000000a4', (now() AT TIME ZONE 'utc')::date + g FROM generate_series(0, 9) g;
+INSERT INTO public.family_members (user_id, first_name, relationship) VALUES ('00000000-0000-0000-0000-0000000000a4', 'Kid', 'child');
+-- Supabase grants new functions to signed-in users; the migration takes that back.
+\i supabase/migrations/20261104100000_earn_ambassadors.sql
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+SELECT set_config('earn.stats', (public.my_ambassador_stats())::text, false);
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a5';
+SELECT set_config('earn.gstats', (public.my_ambassador_stats())::text, false);
+DO $$ BEGIN
+  PERFORM public.earn_evaluate(NULL);
+  RAISE EXCEPTION 'users can run the evaluator';
+EXCEPTION WHEN insufficient_privilege THEN NULL;
+END $$;
+DO $$ BEGIN
+  PERFORM public.admin_earn_referrals();
+  RAISE EXCEPTION 'non-admin read referrals';
+EXCEPTION WHEN insufficient_privilege THEN NULL;
+END $$;
+RESET ROLE;
+DO $$ DECLARE s jsonb := current_setting('earn.stats'); g jsonb := current_setting('earn.gstats'); BEGIN
+  IF (s->>'signups')::int <> 2 THEN RAISE EXCEPTION 'signups %', s->>'signups'; END IF;
+  IF (s->>'qualified')::int <> 1 THEN RAISE EXCEPTION 'qualified %', s->>'qualified'; END IF;
+  IF (s->>'months_banked')::int <> 1 THEN RAISE EXCEPTION '7 days should bank 1 month, got %', s->>'months_banked'; END IF;
+  IF (SELECT count(*) FROM public.free_month_ledger WHERE referred_user_id = '00000000-0000-0000-0000-0000000000a3') <> 0 THEN
+    RAISE EXCEPTION '6 days banked a month';
+  END IF;
+  -- a.m.b+x@gmail.com and amb@gmail.com are the same person: held for review, no month.
+  IF (g->>'months_banked')::int <> 0 THEN RAISE EXCEPTION 'self-dealing banked a month'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.referral_attributions
+                 WHERE referred_user_id = '00000000-0000-0000-0000-0000000000a4' AND 'same_email' = ANY (flags) AND review = 'flagged') THEN
+    RAISE EXCEPTION 'same email not flagged';
+  END IF;
+  IF (s->>'clicks')::int < 2 THEN RAISE EXCEPTION 'clicks %', s->>'clicks'; END IF;
+END $$;
+DELETE FROM auth.users WHERE id::text LIKE '00000000-0000-0000-0000-0000000000a%';
+UPDATE public.earn_config SET value = 'false' WHERE key = 'EARN_AMBASSADORS_LIVE';
+
 SELECT 'RLS smoke test passed' AS result;

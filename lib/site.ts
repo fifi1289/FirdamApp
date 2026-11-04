@@ -16,6 +16,9 @@ export const SITE = {
   operatorShort: 'Firdam',
   province: 'Ontario',
   country: 'Canada',
+  /** The iPhone app (App Store ID 6821664652). */
+  appStoreId: '6821664652',
+  appStoreUrl: 'https://apps.apple.com/app/id6821664652',
   supportEmail: 'support@firdam.com',
   privacyEmail: 'privacy@firdam.com',
   /** Last time the Privacy Policy or Terms changed (shown on the pages). */

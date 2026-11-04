@@ -22,6 +22,7 @@ import {
   STRENGTH_LABELS,
 } from '@/lib/auth/validation';
 import { tr, trn } from '@/lib/i18n';
+import { pendingReferral, rememberTypedCode, useEarnVisible } from '@/features/earn/earn-client';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -37,6 +38,17 @@ export default function RegisterPage() {
   const [googleLoading, setGoogleLoading] = React.useState(false);
   const [captcha, setCaptcha] = React.useState<string | null>(null);
   const [captchaReset, setCaptchaReset] = React.useState(0);
+  // Invite code (Earn with Firdam): filled in when they came through a family's link.
+  const earnVisible = useEarnVisible();
+  const [inviteCode, setInviteCode] = React.useState('');
+  const [invited, setInvited] = React.useState(false);
+  React.useEffect(() => {
+    const ref = pendingReferral();
+    if (ref) {
+      setInviteCode(ref.code);
+      setInvited(true);
+    }
+  }, []);
 
   const strength = passwordStrength(password);
 
@@ -72,6 +84,8 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
+      // Claimed once they're signed in (see the app shell).
+      if (inviteCode && !invited) rememberTypedCode(inviteCode);
       await signUp(supabase, { email, password, firstName, lastName, captchaToken: captcha });
       router.push('/auth/verify-email');
     } catch (error) {
@@ -84,6 +98,7 @@ export default function RegisterPage() {
 
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);
+    if (inviteCode && !invited) rememberTypedCode(inviteCode);
     try {
       const supabase = createSupabaseBrowserClient();
       const { error } = await supabase.auth.signInWithOAuth({
@@ -229,6 +244,23 @@ export default function RegisterPage() {
             <p className="text-xs text-destructive">{trn(errors.confirm)}</p>
           )}
         </div>
+
+        {earnVisible && (
+          <div className="space-y-2">
+            <Label htmlFor="invite">{tr('Invite code (optional)')}</Label>
+            <Input
+              id="invite"
+              type="text"
+              placeholder="abc2345"
+              autoCapitalize="none"
+              autoComplete="off"
+              value={inviteCode}
+              disabled={invited}
+              onChange={(e) => setInviteCode(e.target.value.replace(/\s/g, ''))}
+            />
+            {invited && <p className="text-xs text-muted-foreground">{tr('You were invited by a Firdam family.')}</p>}
+          </div>
+        )}
 
         <label className="flex items-start gap-2.5 pt-1">
           <Checkbox

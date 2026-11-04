@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Crown,
+  Gift,
   LayoutDashboard,
   LifeBuoy,
   Settings,
@@ -21,6 +22,7 @@ import {
   moduleIconMap,
 } from '@/features/modules/module-config';
 import { tr, trn } from '@/lib/i18n';
+import { useEarnVisible } from '@/features/earn/earn-client';
 
 interface NavItem {
   label: string;
@@ -158,7 +160,10 @@ function PlanCard() {
   );
 }
 
+const earnNav: NavItem = { label: 'Earn with Firdam', href: '/earn/ambassador', icon: Gift };
+
 export function Sidebar() {
+  const earnVisible = useEarnVisible();
   return (
     <aside className="flex h-full w-64 flex-col border-r border-border bg-card/40 backdrop-blur-sm">
       <div className="flex h-20 items-center border-b border-border px-5">
@@ -170,7 +175,7 @@ export function Sidebar() {
         {groupedNav.map((g) => (
           <NavSection key={g.title} title={tr(g.title)} items={g.items} />
         ))}
-        <NavSection title={tr('Account')} items={footerNav} />
+        <NavSection title={tr('Account')} items={earnVisible ? [earnNav, ...footerNav] : footerNav} />
       </nav>
 
       <div className="border-t border-border p-4">

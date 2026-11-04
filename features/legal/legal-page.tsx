@@ -17,7 +17,10 @@ export function LegalPage({
   intro,
   summary,
   sections,
+  updated = SITE.legalUpdated,
 }: {
+  /** Shown as "Last updated …" (defaults to the Terms and Privacy date). */
+  updated?: string;
   title: string;
   intro: React.ReactNode;
   summary: string[];
@@ -28,7 +31,7 @@ export function LegalPage({
       <SiteHeader />
       <main className="container flex-1 py-12 md:py-16">
         <div className="mx-auto max-w-3xl">
-          <p className="text-sm font-medium text-primary">{tr('Last updated')} {trn(SITE.legalUpdated)}</p>
+          <p className="text-sm font-medium text-primary">{tr('Last updated')} {trn(updated)}</p>
           <h1 className="mt-2 font-display text-3xl font-semibold text-foreground md:text-4xl">{trn(title)}</h1>
           {getLang() !== 'en' && (
             <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">

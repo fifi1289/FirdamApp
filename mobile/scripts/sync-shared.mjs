@@ -35,6 +35,7 @@ const FILES = {
   'features/quran/duas.ts': 'duas.ts',
   'features/quran/surahs.ts': 'surahs.ts',
   'features/quran/quran-core.ts': 'quran-core.ts',
+  'features/earn/qr.ts': 'qr.ts',
 };
 
 const REWRITES = [

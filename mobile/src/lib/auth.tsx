@@ -1,7 +1,9 @@
 import type { Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AppState } from 'react-native';
 
 import { WEBSITE } from './config';
+import { runEarnHousekeeping } from './earn';
 import { resetKitchen } from './kitchen-store';
 import { supabase } from './supabase';
 import { tr } from '@/lib/i18n';
@@ -69,6 +71,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sub.subscription.unsubscribe();
     };
   }, [load]);
+
+  // Earn with Firdam: claim an invite code typed at sign-up, and count today as
+  // an active day (on sign-in and whenever the app comes back to the front).
+  const signedIn = !!session && !needsCode;
+  useEffect(() => {
+    if (!signedIn) return;
+    void runEarnHousekeeping().catch(() => {});
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void runEarnHousekeeping().catch(() => {});
+    });
+    return () => sub.remove();
+  }, [signedIn]);
 
   const value = useMemo<AuthState>(
     () => ({

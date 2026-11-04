@@ -122,6 +122,13 @@ function paramsFor(settings: PrayerSettings, coords: Coordinates): CalculationPa
   params.madhab = settings.hanafiAsr ? Madhab.Hanafi : Madhab.Shafi;
   // Canada and northern Europe: keeps Fajr and Isha sensible in summer.
   params.highLatitudeRule = HighLatitudeRule.recommended(coords);
+  // The adhan library adds a hidden extra minute to Dhuhr for ISNA, MWL,
+  // Egypt, Karachi and Singapore. Firdam shows the calculated time, the same
+  // as the website (AlAdhan) and most timetables. Methods whose authority
+  // publishes its own offsets (Dubai, Diyanet, Moonsighting) keep them.
+  if (!['dubai', 'turkey', 'moonsighting'].includes(settings.method)) {
+    params.methodAdjustments = { fajr: 0, sunrise: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0 };
+  }
   return params;
 }
 

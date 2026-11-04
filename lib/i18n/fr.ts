@@ -3311,4 +3311,7 @@ export const FR: Record<string, string> = {
   "→ recipes that use them": "→ recettes qui les utilisent",
   "🔒 Only you can see this. It isn’t shared with your family.": "🔒 Vous seul(e) pouvez voir ceci. Ce n’est pas partagé avec votre famille.",
   "🔒 Private to this phone. Your savings, gold and other amounts are only saved on this device. Only a zakat payment you record goes to your account.": "🔒 Privé sur ce téléphone. Votre épargne, votre or et les autres montants sont enregistrés uniquement sur cet appareil. Seul un paiement de zakat que vous enregistrez va dans votre compte.",
+  "Download on the": "Téléchargez dans l’",
+  "Android app coming soon": "Appli Android bientôt disponible",
+  "iPhone app": "Appli iPhone",
 };

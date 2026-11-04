@@ -3435,4 +3435,7 @@ export const AR: Record<string, string> = {
   "→ recipes that use them": "← وصفات تستخدمها",
   "🔒 Only you can see this. It isn’t shared with your family.": "🔒 لا يراه أحد غيرك. لا يُشارك مع عائلتك.",
   "🔒 Private to this phone. Your savings, gold and other amounts are only saved on this device. Only a zakat payment you record goes to your account.": "🔒 خاص بهذا الهاتف. مدخراتك وذهبك والمبالغ الأخرى محفوظة على هذا الجهاز فقط. فقط دفعة الزكاة التي تسجّلها تذهب إلى حسابك.",
+  "Download on the": "حمّله من",
+  "Android app coming soon": "تطبيق أندرويد قريبًا",
+  "iPhone app": "تطبيق آيفون",
 };

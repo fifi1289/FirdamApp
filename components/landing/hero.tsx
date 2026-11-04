@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Check, Clock, MapPin } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { AppStoreButton } from '@/components/landing/app-store-button';
 import { lifeModules, moduleIconMap } from '@/features/modules/module-config';
 import { tr, trn } from '@/lib/i18n';
 
@@ -56,6 +57,8 @@ export function Hero() {
               <Link href="#modules">{tr('See what\'s inside')}</Link>
             </Button>
           </div>
+
+          <AppStoreButton className="mt-6" />
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
             {['Free plan', 'Private by design', 'Made for Muslim families'].map((item) => (

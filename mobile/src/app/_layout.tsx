@@ -80,6 +80,7 @@ function Navigator() {
         <Stack.Screen name="services" />
         <Stack.Screen name="notifications" />
         <Stack.Screen name="household" />
+        <Stack.Screen name="earn" />
         <Stack.Screen name="setup" options={{ gestureEnabled: false }} />
       </Stack.Protected>
     </Stack>

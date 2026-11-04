@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/art';
@@ -14,6 +14,7 @@ import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 import { tr } from '@/lib/i18n';
+import { earnVisible } from '@/lib/earn';
 
 /** Opens the phone's email app with the app version filled in, so we can help faster. */
 function feedbackUrl(): string {
@@ -35,6 +36,10 @@ export default function Family() {
   const { firstName, session, signOut } = useAuth();
   const k = useKitchen();
   const [deleting, setDeleting] = useState(false);
+  const [showEarn, setShowEarn] = useState(false);
+  useEffect(() => {
+    earnVisible().then(setShowEarn).catch(() => {});
+  }, []);
 
   // Apple and Google require that people can delete their account from the app.
   const deleteAccount = () => {
@@ -108,6 +113,18 @@ export default function Family() {
         </T>
         <Button label={tr('Invite your family')} onPress={() => router.push('/household')} />
       </Card>
+
+      {showEarn && (
+        <Card style={{ gap: 8 }}>
+          <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+            {tr('EARN WITH FIRDAM')}
+          </T>
+          <T size={14} color={colors.muted}>
+            {tr('Invite families to Firdam and earn free months of Firdam Family.')}
+          </T>
+          <Button label={tr('Get my invite link')} variant="secondary" onPress={() => router.push('/earn')} />
+        </Card>
+      )}
 
       <Card style={{ paddingVertical: 4 }}>
         {links.map((l, i) => (

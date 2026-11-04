@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Linking, View } from 'react-native';
 
 import { AuthShell, FormMessage } from '@/components/auth-shell';
@@ -9,6 +9,7 @@ import { WEBSITE } from '@/lib/config';
 import { colors } from '@/theme';
 import { SocialSignIn } from '@/components/social-sign-in';
 import { tr } from '@/lib/i18n';
+import { earnLive, rememberInviteCode } from '@/lib/earn';
 
 export default function SignUp() {
   const { signUp } = useAuth();
@@ -19,6 +20,18 @@ export default function SignUp() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  // Earn with Firdam: an optional invite code from another family (shown once the programme is open).
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
+  useEffect(() => {
+    earnLive().then(setShowInvite).catch(() => {});
+  }, []);
+  const changeInvite = (v: string) => {
+    const c = v.replace(/\s/g, '');
+    setInviteCode(c);
+    // Saved straight away so it also works with Apple or Google sign-up.
+    void rememberInviteCode(c);
+  };
 
   const submit = async () => {
     setError(null);
@@ -79,6 +92,16 @@ export default function SignUp() {
         textContentType="newPassword"
         placeholder={tr('At least 8 characters')}
       />
+      {showInvite && (
+        <Field
+          label={tr('Invite code (optional)')}
+          value={inviteCode}
+          onChangeText={changeInvite}
+          autoCapitalize="none"
+          autoCorrect={false}
+          placeholder="abc2345"
+        />
+      )}
       <FormMessage text={error} />
       <Button label={tr('Create account')} onPress={submit} busy={busy} />
       <T size={12.5} color={colors.muted} style={{ textAlign: 'center', lineHeight: 18 }}>

@@ -23,6 +23,7 @@ const ICONS: Record<HomeFeatureId, IconName> = {
   family: 'family',
   learning: 'learning',
   services: 'services',
+  travel: 'travel',
 };
 
 /*

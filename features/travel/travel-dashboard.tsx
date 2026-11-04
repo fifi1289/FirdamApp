@@ -34,7 +34,7 @@ import { cn } from '@/lib/utils';
 import type { Trip } from '@/types/database';
 import { DirectoryList } from '@/features/directory/directory-list';
 import { TRAVEL_CATEGORIES } from '@/features/directory/directory-config';
-import { HAJJ_DAYS, TRAVEL_TIPS, TRIP_KINDS, UMRAH_STEPS } from '@/features/travel/travel-config';
+import { HAJJ_DAYS, TRAVEL_TIPS, TRIP_KINDS, UMRAH_STEPS, daysUntil } from '@/features/travel/travel-config';
 import { TripFormDialog } from '@/features/travel/trip-form-dialog';
 import { locale, tr, trn } from '@/lib/i18n';
 
@@ -48,13 +48,6 @@ interface OsmAgency {
   website: string | null;
   openingHours: string | null;
   muslimFocused: boolean;
-}
-
-function daysUntil(date: string | null): number | null {
-  if (!date) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Math.round((new Date(`${date}T00:00:00`).getTime() - today.getTime()) / 86_400_000);
 }
 
 function TripCard({ trip }: { trip: Trip }) {

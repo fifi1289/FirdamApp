@@ -8,7 +8,6 @@ const columns = [
   {
     title: 'Product',
     links: [
-      { label: 'iPhone app', href: SITE.appStoreUrl },
       { label: 'Become a partner', href: '/partners' },
       { label: 'Features', href: '/#features' },
       { label: 'FAQ', href: '/#faq' },

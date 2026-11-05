@@ -31,8 +31,6 @@ export const metadata: Metadata = {
   applicationName: 'Firdam',
   // Firdam translates itself (English, French, Arabic): stop browsers from re-translating pages.
   other: { google: 'notranslate' },
-  // Safari on iPhone shows a banner to open or install the Firdam app.
-  itunes: { appId: SITE.appStoreId },
   keywords: [
     'Firdam',
     'Muslim family app',

@@ -14,6 +14,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { PARTNER_CATEGORIES, countryName, reachLabel, topicsFor, worksLabel, type PartnerShop } from '@/features/groceries/partners';
 import { EMPTY_WHERE, PartnerWhereFields, cleanWhere, whereProblem, type PartnerWhere } from '@/features/partners/partner-where-fields';
 import { FOUNDING_FREE_UNTIL } from '@/features/partners/partner-terms';
+import { SendEmailButton } from '@/features/admin/send-email-dialog';
 import type { Database, PartnerApplication, PartnerShopRow } from '@/types/database';
 
 type Insert = Database['public']['Tables']['partner_shops']['Insert'];
@@ -366,6 +367,7 @@ export function PartnerAdmin() {
                   <a href={a.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted">
                     Open their link <ExternalLink className="h-3 w-3" />
                   </a>
+                  <SendEmailButton application={a} onSent={() => a.status === 'new' && setStatus(a, 'contacted')} />
                   <Button size="sm" onClick={() => createFrom(a)}>Create listing</Button>
                   {a.status === 'new' && (
                     <Button size="sm" variant="outline" onClick={() => setStatus(a, 'contacted')}>Mark contacted</Button>

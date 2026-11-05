@@ -3,6 +3,13 @@ import { Smartphone } from 'lucide-react';
 import { SITE } from '@/lib/site';
 import { tr } from '@/lib/i18n';
 
+/**
+ * Off while the app is removed from sale (until it's published under Firdam Inc.).
+ * To bring it back: set this to true, and add `itunes: { appId: SITE.appStoreId }` to the
+ * metadata in app/layout.tsx and the 'iPhone app' link to the site footer.
+ */
+export const SHOW_APP_STORE = false;
+
 /** "Download on the App Store" for the Firdam iPhone app. Android follows when Google Play approves it. */
 export function AppStoreButton({ className = '' }: { className?: string }) {
   return (

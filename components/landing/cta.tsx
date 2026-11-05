@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { AppStoreButton } from '@/components/landing/app-store-button';
+import { AppStoreButton, SHOW_APP_STORE } from '@/components/landing/app-store-button';
 import { tr } from '@/lib/i18n';
 
 export function CTA() {
@@ -28,7 +28,7 @@ export function CTA() {
               <Link href="/dashboard">{tr('Open the app')}</Link>
             </Button>
           </div>
-          <AppStoreButton className="mt-6" />
+          {SHOW_APP_STORE && <AppStoreButton className="mt-6" />}
         </div>
       </div>
     </section>

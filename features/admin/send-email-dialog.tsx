@@ -42,13 +42,15 @@ function fill(id: TemplateId, a: PartnerApplication): { subject: string; text: s
         subject: 'Your Firdam partner application – a few questions',
         text:
           `${hi}\n\nThank you for applying to become a Firdam partner, and for your offer for Firdam families. ${a.shop_name} fits our Learning section well, and we’d love to list you.\n\n` +
-          'Because you teach children, we ask learning partners a few questions before we approve a listing. Could you please reply with:\n\n' +
-          '1. Teachers: how do you choose and check your teachers, especially those who teach children (qualifications, references, background checks)?\n' +
-          '2. Safety: can parents attend or watch classes, and can girls choose a female teacher? Are classes recorded?\n' +
-          '3. Prices: what are your prices, and how can families cancel or get a refund?\n' +
-          '4. Reviews: do you have reviews from current families we can look at (Google, Trustpilot, Facebook or similar)?\n' +
-          `5. Your offer: please confirm the discount for Firdam families exactly as you’d like it shown${a.discount_text ? ` (we received: “${a.discount_text}”)` : ''}.\n\n` +
-          'We would also like to book a free trial class to see how lessons work.\n\nOnce we have your answers, we’ll get back to you quickly, in shaa Allah.' +
+          'Because you teach children one-to-one, we check every learning partner before we approve a listing. Could you please send us:\n\n' +
+          '1. A short recorded sample of a real lesson (5–10 minutes), with an adult student or with the parents’ permission.\n' +
+          '2. The names and qualifications (and ijazah, if any) of 2–3 teachers who teach children.\n' +
+          `3. Contact details of 2–3 parents who are happy for us to ask them about ${a.shop_name}.\n` +
+          '4. Your child-safety rules: can parents attend or watch classes, can girls choose a female teacher, and do teachers ever contact children outside class?\n' +
+          '5. Your business registration details, and links to your Facebook, Instagram or other pages.\n' +
+          '6. Your monthly prices, and how families cancel or get a refund.\n' +
+          `7. Your full offer for Firdam families, exactly as you’d like it shown${a.discount_text ? ` (we received: “${a.discount_text}”)` : ''}.\n\n` +
+          'Once we have these, we’ll get back to you quickly, in shaa Allah.' +
           SIGN,
       };
     case 'questions':

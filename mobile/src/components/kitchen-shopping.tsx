@@ -122,7 +122,7 @@ export function ShoppingView() {
         groups.map((g) => (
           <View key={g.category} style={{ gap: 6 }}>
             <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-              {g.category.toUpperCase()}
+              {tr(g.category).toUpperCase()}
               {needsHalalSource(g.category) ? tr(' · CHECK IT’S HALAL') : ''}
             </T>
             <Card style={{ paddingVertical: 2 }}>

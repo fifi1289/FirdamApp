@@ -259,7 +259,7 @@ function Reading() {
         <T size={12.5} color={colors.muted}>
           {todayPct >= 100
             ? tr('Daily goal complete, alhamdulillah.')
-            : tr('{0} page{1} to reach today’s goal. {2}', [goal - stats.todayPages, goal - stats.todayPages === 1 ? '' : 's', GOAL_OPTIONS.find((g) => g.pages === goal)?.hint ?? ''])}
+            : tr('{0} page{1} to reach today’s goal. {2}', [goal - stats.todayPages, goal - stats.todayPages === 1 ? '' : 's', tr(GOAL_OPTIONS.find((g) => g.pages === goal)?.hint ?? '')])}
         </T>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <TextInput

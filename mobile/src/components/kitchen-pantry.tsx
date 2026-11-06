@@ -203,7 +203,7 @@ export function PantryView() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <View style={[styles.dot, { backgroundColor: aisleColor(g.category) }]} />
               <T size={12.5} weight="bold" color={aisleColor(g.category)} style={{ letterSpacing: 0.4 }}>
-                {`${g.category.toUpperCase()} · ${g.items.length}`}
+                {`${tr(g.category).toUpperCase()} · ${g.items.length}`}
               </T>
             </View>
             <Card style={{ paddingVertical: 2 }}>

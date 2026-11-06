@@ -209,7 +209,7 @@ export function FromMealPlanDialog({
           {!noPlan && missing.length > 0 && (
             <Button onClick={add} disabled={saving || selected.size === 0 || !listId}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {tr('Add {0} item', [selected.size])}{selected.size === 1 ? '' : tr('s')}
+              {selected.size === 1 ? tr('Add 1 item') : tr('Add {0} items', [selected.size])}
             </Button>
           )}
         </DialogFooter>

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { FamilyEvent } from '@/types/database';
-import { EVENT_KINDS, formatTime, iso, parseISODate } from '@/features/calendar/calendar-config';
+import { EVENT_KINDS, formatTime, hijriMonthName, iso, parseISODate } from '@/features/calendar/calendar-config';
 import { useCalendarData, type CalendarItem } from '@/features/calendar/use-calendar';
 import { EventDialog } from '@/features/calendar/event-dialog';
 import { locale, tr, trn } from '@/lib/i18n';
@@ -141,7 +141,7 @@ export function CalendarDashboard() {
     const a = hijri.get(iso(new Date(view.year, view.month, 1)));
     const b = hijri.get(iso(new Date(view.year, view.month + 1, 0)));
     if (!a || !b) return null;
-    return a.month === b.month ? tr('{0} {1} AH', [a.month, a.year]) : tr('{0} – {1} {2} AH', [a.month, b.month, b.year]);
+    return a.month === b.month ? tr('{0} {1} AH', [hijriMonthName(a), a.year]) : tr('{0} – {1} {2} AH', [hijriMonthName(a), hijriMonthName(b), b.year]);
   })();
 
   const shift = (delta: number) =>
@@ -287,7 +287,7 @@ export function CalendarDashboard() {
                   </p>
                   {selectedHijri && (
                     <p className="text-xs text-muted-foreground">
-                      {trn(selectedHijri.day)} {trn(selectedHijri.month)} {trn(selectedHijri.year)} {tr('AH')}
+                      {tr('{0} {1} {2} AH', [selectedHijri.day, hijriMonthName(selectedHijri), selectedHijri.year])}
                     </p>
                   )}
                 </div>

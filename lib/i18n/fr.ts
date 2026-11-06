@@ -3314,4 +3314,5 @@ export const FR: Record<string, string> = {
   "Download on the": "Téléchargez dans l’",
   "Android app coming soon": "Appli Android bientôt disponible",
   "iPhone app": "Appli iPhone",
+  "This is a translation. If it differs from the English version, the English version applies.": "Ceci est une traduction. En cas de différence avec la version anglaise, c’est la version anglaise qui s’applique.",
 };

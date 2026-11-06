@@ -32,7 +32,7 @@ export function LegalPage({
           <h1 className="mt-2 font-display text-3xl font-semibold text-foreground md:text-4xl">{trn(title)}</h1>
           {getLang() !== 'en' && (
             <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-              {tr('This document is available in English only. The English version is the one that applies.')}
+              {tr('This is a translation. If it differs from the English version, the English version applies.')}
             </p>
           )}
           <div className="mt-4 space-y-3 text-base leading-relaxed text-muted-foreground">{trn(intro)}</div>

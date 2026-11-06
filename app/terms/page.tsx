@@ -2,6 +2,8 @@ import Link from 'next/link';
 
 import { LegalPage, type LegalSection } from '@/features/legal/legal-page';
 import { SITE } from '@/lib/site';
+import { TERMS_AR, TERMS_FR } from '@/features/legal/terms-i18n';
+import { getLang } from '@/lib/i18n';
 
 export const metadata = {
   title: 'Terms of Use',
@@ -303,6 +305,9 @@ const sections: LegalSection[] = [
 ];
 
 export default function TermsPage() {
+  const lang = getLang();
+  const t = lang === 'fr' ? TERMS_FR : lang === 'ar' ? TERMS_AR : null;
+  if (t) return <LegalPage title={t.title} intro={t.intro} summary={t.summary} sections={t.sections} />;
   return (
     <LegalPage
       title="Terms of Use"

@@ -1487,4 +1487,9 @@ export const FR: Record<string, string> = {
   "{0}/{1} packed": "{0}/{1} prêts",
   "Find a trusted {0} operator": "Trouver un organisateur de {0} de confiance",
   "City — e.g. Istanbul": "Ville — par ex. Istanbul",
+  "Halal places in {0}": "Lieux halal à {0}",
+  "Food sold in Saudi Arabia is halal. Here are the mosques and restaurants we know of around {0}.": "La nourriture vendue en Arabie saoudite est halal. Voici les mosquées et restaurants que nous connaissons autour de {0}.",
+  "Showing halal places around your trip destination.": "Lieux halal autour de la destination de votre voyage.",
+  "Show places near me instead": "Voir plutôt les lieux près de moi",
+  "Restaurants and mosques around {0}": "Restaurants et mosquées autour de {0}",
 };

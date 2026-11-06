@@ -1582,4 +1582,9 @@ export const AR: Record<string, string> = {
   "{0}/{1} packed": "{0}/{1} جاهز",
   "Find a trusted {0} operator": "ابحث عن منظّم {0} موثوق",
   "City — e.g. Istanbul": "المدينة — مثل إسطنبول",
+  "Halal places in {0}": "أماكن حلال في {0}",
+  "Food sold in Saudi Arabia is halal. Here are the mosques and restaurants we know of around {0}.": "الطعام المباع في السعودية حلال. هذه المساجد والمطاعم التي نعرفها حول {0}.",
+  "Showing halal places around your trip destination.": "أماكن حلال حول وجهة رحلتك.",
+  "Show places near me instead": "اعرض الأماكن القريبة مني بدلًا من ذلك",
+  "Restaurants and mosques around {0}": "المطاعم والمساجد حول {0}",
 };

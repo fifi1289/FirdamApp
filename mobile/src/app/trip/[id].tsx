@@ -278,14 +278,28 @@ export default function TripScreen() {
           </T>
         </Card>
 
-        <Pressable accessibilityRole="button" onPress={() => router.push('/halal')}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            router.push({
+              pathname: '/halal',
+              params: {
+                lat: String(trip.latitude),
+                lng: String(trip.longitude),
+                label: trip.destination_label,
+                // Makkah, Madinah and the rest of Saudi Arabia: all food sold is halal.
+                allHalal: pilgrimage || /makkah|mecca|madinah|medina|saudi|jeddah|riyadh/i.test(trip.destination_label) ? '1' : '',
+              },
+            })
+          }
+        >
           {({ pressed }) => (
             <Card style={[{ gap: 2 }, pressed && { opacity: 0.85 }]}>
               <T weight="bold" size={15}>
                 {tr('Halal food & mosques there')}
               </T>
               <T size={13} color={colors.muted}>
-                {tr('Open Halal Places and search')} {tr(trip.destination_label)}
+                {tr('Restaurants and mosques around {0}', [tr(trip.destination_label)])}
               </T>
             </Card>
           )}

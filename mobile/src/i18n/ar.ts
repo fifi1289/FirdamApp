@@ -1590,4 +1590,9 @@ export const AR: Record<string, string> = {
   "No {0} recipe for {1} in the library yet": "لا توجد بعد في المكتبة وصفة {1} ({0})",
   ", ": "، ",
   "Continental": "أوروبية",
+  "Choose a date": "اختر تاريخًا",
+  "Choose the year": "اختر السنة",
+  "Target date (optional)": "التاريخ المستهدف (اختياري)",
+  "Birth date (optional)": "تاريخ الميلاد (اختياري)",
+  "Or pick a date": "أو اختر تاريخًا",
 };

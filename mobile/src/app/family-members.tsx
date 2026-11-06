@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { DateField } from '@/components/date-field';
 import { Chip } from '@/components/kitchen-ui';
 import { Button, Card, Field, T } from '@/components/ui';
 import { loadHousehold } from '@/lib/kitchen';
@@ -146,12 +147,12 @@ export default function FamilyMembers() {
                 <Chip key={r} label={r} selected={draft.relationship === r} onPress={() => setDraft({ ...draft, relationship: r })} />
               ))}
             </View>
-            <Field
-              label={tr('Birth date (optional, YYYY-MM-DD)')}
+            <DateField
+              label={tr('Birth date (optional)')}
               value={draft.birth_date}
-              onChangeText={(t) => setDraft({ ...draft, birth_date: t })}
-              placeholder="2018-04-21"
-              keyboardType="numbers-and-punctuation"
+              onChange={(t) => setDraft({ ...draft, birth_date: t })}
+              optional
+              max={new Date().toISOString().slice(0, 10)}
             />
             <T weight="semibold" size={14}>
               {tr('Portion')}

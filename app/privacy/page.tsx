@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { LegalPage, type LegalSection } from '@/features/legal/legal-page';
 import { SITE } from '@/lib/site';
 import { CookieChoiceButton } from '@/components/consent/analytics';
+import { PRIVACY_AR, PRIVACY_FR } from '@/features/legal/privacy-i18n';
+import { getLang } from '@/lib/i18n';
 
 export const metadata = {
   title: 'Privacy Policy',
@@ -311,6 +313,9 @@ const sections: LegalSection[] = [
 ];
 
 export default function PrivacyPage() {
+  const lang = getLang();
+  const t = lang === 'fr' ? PRIVACY_FR : lang === 'ar' ? PRIVACY_AR : null;
+  if (t) return <LegalPage title={t.title} intro={t.intro} summary={t.summary} sections={t.sections} />;
   return (
     <LegalPage
       title="Privacy Policy"

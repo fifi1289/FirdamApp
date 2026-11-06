@@ -3438,4 +3438,5 @@ export const AR: Record<string, string> = {
   "Download on the": "حمّله من",
   "Android app coming soon": "تطبيق أندرويد قريبًا",
   "iPhone app": "تطبيق آيفون",
+  "This is a translation. If it differs from the English version, the English version applies.": "هذه ترجمة. وإذا اختلفت عن النسخة الإنجليزية، فالنسخة الإنجليزية هي المعتمدة.",
 };

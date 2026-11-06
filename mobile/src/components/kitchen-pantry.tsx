@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
+import { DateField } from '@/components/date-field';
 import { Badge } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
 import type { PantryItem } from '@/lib/db-types';
@@ -344,13 +345,11 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
                   );
                 })}
               </View>
-              <TextInput
+              <DateField
+                label={tr('Or pick a date')}
                 value={expiry ?? ''}
-                onChangeText={(t) => setExpiry(t || null)}
-                placeholder={tr('or type a date: 2026-10-20')}
-                placeholderTextColor="#9C8D84"
-                style={styles.input}
-                accessibilityLabel={tr('Expiry date')}
+                onChange={(t) => setExpiry(t || null)}
+                optional
               />
             </View>
             {problem ? (

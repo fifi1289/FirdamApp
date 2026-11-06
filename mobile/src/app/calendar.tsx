@@ -3,6 +3,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react
 import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { DateField } from '@/components/date-field';
 import { Badge, Chip } from '@/components/kitchen-ui';
 import { HomeButton } from '@/components/screen';
 import { Button, Card, Field, T } from '@/components/ui';
@@ -431,7 +432,7 @@ function EventSheet({
           <Chip key={k} label={EVENT_KIND_LABELS[k]} selected={kind === k} onPress={() => pickKind(k)} />
         ))}
       </View>
-      <Field label={tr('Date (YYYY-MM-DD)')} value={day} onChangeText={(v) => { setDay(v); setProblem(null); }} keyboardType="numbers-and-punctuation" placeholder="2026-12-20" />
+      <DateField label={tr('Date')} value={day} onChange={(v) => { setDay(v); setProblem(null); }} />
       <View style={styles.wrap}>
         <Chip label={tr('All day')} selected={allDay} onPress={() => setAllDay(true)} />
         <Chip label={tr('At a time')} selected={!allDay} onPress={() => setAllDay(false)} />

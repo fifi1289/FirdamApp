@@ -1497,4 +1497,10 @@ export const FR: Record<string, string> = {
   "Continental": "Continentale",
   "Gluten": "Gluten",
   "Lupin": "Lupin",
+  "Choose a date": "Choisir une date",
+  "Choose the year": "Choisir l’année",
+  "Date": "Date",
+  "Target date (optional)": "Date visée (facultatif)",
+  "Birth date (optional)": "Date de naissance (facultatif)",
+  "Or pick a date": "Ou choisir une date",
 };

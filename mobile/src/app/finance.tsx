@@ -3,6 +3,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react
 import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { DateField } from '@/components/date-field';
 import { showAlert } from '@/components/firdam-alert';
 import { Badge, Chip, Segmented } from '@/components/kitchen-ui';
 import { Button, Card, Field, T } from '@/components/ui';
@@ -705,7 +706,7 @@ function EntrySheet({ draft, categories, currency, onClose, onSaved }: { draft: 
         </View>
       ) : null}
       <Field label={tr('Note (optional)')} value={d.description} onChangeText={(v) => setD({ ...d, description: v })} placeholder={d.type === 'sadaqah' ? tr('e.g. Masjid fundraiser') : tr('e.g. Costco')} />
-      <Field label={tr('Date (YYYY-MM-DD)')} value={d.occurred_on} onChangeText={(v) => setD({ ...d, occurred_on: v })} keyboardType="numbers-and-punctuation" />
+      <DateField label={tr('Date')} value={d.occurred_on} onChange={(v) => setD({ ...d, occurred_on: v })} />
       {problem ? (
         <T size={13.5} color={colors.brickText}>
           {problem}
@@ -835,7 +836,7 @@ function GoalSheet({ goal, currency, onClose, onSaved }: { goal: Partial<Savings
       <Field label={tr('Name')} value={name} onChangeText={setName} placeholder={tr(GOAL_KINDS.find((g) => g.value === kind)?.label)} />
       <Field label={tr('Target ({0})', [currency])} value={target} onChangeText={setTarget} keyboardType="decimal-pad" placeholder={tr('e.g. 12000')} />
       <Field label={tr('Saved so far ({0})', [currency])} value={saved} onChangeText={setSaved} keyboardType="decimal-pad" placeholder="0" />
-      <Field label={tr('Target date (optional, YYYY-MM-DD)')} value={date} onChangeText={setDate} keyboardType="numbers-and-punctuation" placeholder="2027-06-01" />
+      <DateField label={tr('Target date (optional)')} value={date} onChange={setDate} optional />
       {problem ? (
         <T size={13.5} color={colors.brickText}>
           {problem}

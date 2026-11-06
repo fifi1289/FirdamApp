@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { DateField } from '@/components/date-field';
 import { showAlert } from '@/components/firdam-alert';
 import { Chip } from '@/components/kitchen-ui';
 import { Button, Field, T } from '@/components/ui';
@@ -119,10 +120,10 @@ export function TripSheet({ trip, onClose, onSaved }: { trip?: Trip | null; onCl
       <Field label={tr('Trip name (optional)')} value={name} onChangeText={setName} placeholder={tr('e.g. Family Umrah 2027')} />
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <View style={{ flex: 1 }}>
-          <Field label={tr('Departure')} value={start} onChangeText={setStart} placeholder="YYYY-MM-DD" keyboardType="numbers-and-punctuation" />
+          <DateField label={tr('Departure')} value={start} onChange={setStart} optional />
         </View>
         <View style={{ flex: 1 }}>
-          <Field label={tr('Return')} value={end} onChangeText={setEnd} placeholder="YYYY-MM-DD" keyboardType="numbers-and-punctuation" />
+          <DateField label={tr('Return')} value={end} onChange={setEnd} optional min={start || undefined} />
         </View>
       </View>
       <View style={{ flexDirection: 'row', gap: 10 }}>

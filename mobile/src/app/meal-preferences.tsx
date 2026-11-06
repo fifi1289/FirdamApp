@@ -114,7 +114,7 @@ export default function MealPreferences() {
             return (
               <View key={type} style={{ gap: 6 }}>
                 <T size={13} weight="bold" color={colors.walnut}>
-                  {type.toUpperCase()}
+                  {tr(MEAL_TYPES.find((m) => m.key === type)?.label ?? type).toUpperCase()}
                 </T>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                   {cuisines.map((c) => (

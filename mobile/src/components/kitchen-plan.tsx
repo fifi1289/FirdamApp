@@ -35,7 +35,8 @@ import { showAlert } from '@/components/firdam-alert';
 import { locale, tr } from '@/lib/i18n';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const TYPE_LABEL: Record<string, string> = { breakfast: 'BREAKFAST', lunch: 'LUNCH', dinner: 'DINNER', snack: 'SNACK' };
+const TYPE_NAME: Record<string, string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+const typeLabel = (t: string) => tr(TYPE_NAME[t] ?? t).toUpperCase();
 
 export function openMeal(meal: MockMeal, date: string) {
   // Library recipes open their recipe page; anything else opens from the plan itself.
@@ -227,9 +228,9 @@ export function PlanView() {
                 <View key={`${m.type}-${m.id}`} style={[styles.meal, styles.needsAI]}>
                   <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
                     <T size={11.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-                      {TYPE_LABEL[m.type] ?? m.type.toUpperCase()}
+                      {typeLabel(m.type)}
                     </T>
-                    <T size={14.5} weight="bold">{tr('No {0} {1} in the library yet', [m.needsAI, m.type])}</T>
+                    <T size={14.5} weight="bold">{tr('No {0} recipe for {1} in the library yet', [tr(m.needsAI), tr(TYPE_NAME[m.type] ?? m.type).toLowerCase()])}</T>
                     <T size={12.5} color={colors.muted}>
                       {tr('The AI chef can create one for your family. It joins the recipe library too.')}
                     </T>
@@ -251,7 +252,7 @@ export function PlanView() {
                 <Photo uri={mealImage(m)} size={64} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <T size={11.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-                    {TYPE_LABEL[m.type] ?? m.type.toUpperCase()}
+                    {typeLabel(m.type)}
                   </T>
                   <T size={15} weight="bold" numberOfLines={1}>
                     {tr(m.name)}
@@ -297,7 +298,7 @@ export function PlanView() {
         </T>
         <T size={13.5} color="#5F5048" style={{ marginTop: 4, lineHeight: 20 }}>
           {tr('For {0} portions', [formatPortions(portions)])}
-          {k.prefs?.allergies.length ? tr(' · no {0}', [k.prefs.allergies.join(', ').toLowerCase()]) : ''}
+          {k.prefs?.allergies.length ? tr(' · no {0}', [k.prefs.allergies.map((a) => tr(a).toLowerCase()).join(tr(', '))]) : ''}
           {k.prefs?.usePantryFirst ? tr(' · uses your pantry first') : ''}
         </T>
         <View style={{ gap: 8, marginTop: 14 }}>

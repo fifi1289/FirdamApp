@@ -1587,4 +1587,7 @@ export const AR: Record<string, string> = {
   "Showing halal places around your trip destination.": "أماكن حلال حول وجهة رحلتك.",
   "Show places near me instead": "اعرض الأماكن القريبة مني بدلًا من ذلك",
   "Restaurants and mosques around {0}": "المطاعم والمساجد حول {0}",
+  "No {0} recipe for {1} in the library yet": "لا توجد بعد في المكتبة وصفة {1} ({0})",
+  ", ": "، ",
+  "Continental": "أوروبية",
 };

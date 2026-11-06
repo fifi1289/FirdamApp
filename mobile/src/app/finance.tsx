@@ -829,7 +829,7 @@ function GoalSheet({ goal, currency, onClose, onSaved }: { goal: Partial<Savings
     <Sheet open onClose={onClose} title={goal.id ? tr('Edit goal') : tr('New savings goal')}>
       <View style={styles.wrap}>
         {GOAL_KINDS.map((g) => (
-          <Chip key={g.value} label={`${g.emoji} ${g.label}`} selected={kind === g.value} onPress={() => setKind(g.value)} />
+          <Chip key={g.value} label={`${g.emoji} ${tr(g.label)}`} selected={kind === g.value} onPress={() => setKind(g.value)} />
         ))}
       </View>
       <Field label={tr('Name')} value={name} onChangeText={setName} placeholder={tr(GOAL_KINDS.find((g) => g.value === kind)?.label)} />

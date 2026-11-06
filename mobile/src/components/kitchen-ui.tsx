@@ -32,7 +32,7 @@ export function Chip({ label, selected, onPress, tone = 'walnut' }: { label: str
       style={[styles.chip, { backgroundColor: bg, borderColor: on ? bg : colors.sand }]}
     >
       <T size={13} weight={on ? 'bold' : 'semibold'} color={on ? colors.linen : colors.espresso}>
-        {label}
+        {tr(label)}
       </T>
     </Pressable>
   );
@@ -50,7 +50,7 @@ export function Badge({ label, tone }: { label: string; tone: 'sage' | 'amber' |
   return (
     <View style={[styles.badge, { backgroundColor: bg }]}>
       <T size={12} weight="bold" color={fg}>
-        {label}
+        {tr(label)}
       </T>
     </View>
   );

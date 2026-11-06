@@ -1492,4 +1492,9 @@ export const FR: Record<string, string> = {
   "Showing halal places around your trip destination.": "Lieux halal autour de la destination de votre voyage.",
   "Show places near me instead": "Voir plutôt les lieux près de moi",
   "Restaurants and mosques around {0}": "Restaurants et mosquées autour de {0}",
+  "No {0} recipe for {1} in the library yet": "Pas encore de recette pour le {1} ({0}) dans la bibliothèque",
+  ", ": ", ",
+  "Continental": "Continentale",
+  "Gluten": "Gluten",
+  "Lupin": "Lupin",
 };

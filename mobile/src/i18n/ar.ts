@@ -1574,5 +1574,12 @@ export const AR: Record<string, string> = {
   'Check whether your airline offers a Muslim meal (MOML) and request it at least 48 hours before departure.': 'تحقّق مما إذا كانت شركة الطيران تقدم وجبة للمسلمين (MOML) واطلبها قبل 48 ساعة على الأقل من الإقلاع.',
   'Many airports have multi-faith prayer rooms — search the airport map for “prayer room”.': 'في كثير من المطارات مصليات متعددة الأديان — ابحث عن «prayer room» في خريطة المطار.',
   "Type a city, e.g. Istanbul or Makkah.": "اكتب اسم مدينة، مثل إسطنبول أو مكة.",
-  "City \u2014 e.g. Istanbul": "المدينة — مثل إسطنبول",
+  "My trips": "رحلاتي",
+  "Agencies": "الوكالات",
+  "Umrah & Hajj": "العمرة والحج",
+  "1 traveller": "مسافر واحد",
+  "{0} travellers": "{0} مسافرين",
+  "{0}/{1} packed": "{0}/{1} جاهز",
+  "Find a trusted {0} operator": "ابحث عن منظّم {0} موثوق",
+  "City — e.g. Istanbul": "المدينة — مثل إسطنبول",
 };

@@ -71,9 +71,9 @@ export default function Travel() {
         </T>
         <Segmented<Tab>
           options={[
-            { key: 'trips', label: 'My trips' },
-            { key: 'agencies', label: 'Agencies' },
-            { key: 'guide', label: 'Umrah & Hajj' },
+            { key: 'trips', label: tr('My trips') },
+            { key: 'agencies', label: tr('Agencies') },
+            { key: 'guide', label: tr('Umrah & Hajj') },
           ]}
           value={tab}
           onChange={setTab}

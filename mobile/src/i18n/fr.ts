@@ -1479,5 +1479,12 @@ export const FR: Record<string, string> = {
   'Check whether your airline offers a Muslim meal (MOML) and request it at least 48 hours before departure.': 'Vérifiez si votre compagnie aérienne propose un repas musulman (MOML) et demandez-le au moins 48 heures avant le départ.',
   'Many airports have multi-faith prayer rooms — search the airport map for “prayer room”.': 'Beaucoup d’aéroports ont des salles de prière multiconfessionnelles — cherchez « prayer room » sur le plan de l’aéroport.',
   "Type a city, e.g. Istanbul or Makkah.": "Tapez une ville, par ex. Istanbul ou La Mecque.",
-  "City \u2014 e.g. Istanbul": "Ville — par ex. Istanbul",
+  "My trips": "Mes voyages",
+  "Agencies": "Agences",
+  "Umrah & Hajj": "Omra et Hajj",
+  "1 traveller": "1 voyageur",
+  "{0} travellers": "{0} voyageurs",
+  "{0}/{1} packed": "{0}/{1} prêts",
+  "Find a trusted {0} operator": "Trouver un organisateur de {0} de confiance",
+  "City — e.g. Istanbul": "Ville — par ex. Istanbul",
 };

@@ -158,8 +158,7 @@ export default function TripScreen() {
             </T>
           ) : null}
           <T size={13.5} color={colors.goldText}>
-            👥 {trip.travellers} {tr('traveller')}
-            {trip.travellers === 1 ? '' : tr('s')}
+            👥 {trip.travellers === 1 ? tr('1 traveller') : tr('{0} travellers', [trip.travellers])}
           </T>
           {daysTo !== null && daysTo >= 0 ? (
             <View style={styles.countdown}>
@@ -176,7 +175,7 @@ export default function TripScreen() {
               {tr('Packing checklist')}
             </T>
             <T size={12.5} color={colors.muted}>
-              {done}/{total} {tr('packed')}
+              {tr('{0}/{1} packed', [done, total])}
             </T>
           </View>
           <View style={styles.bar}>
@@ -297,7 +296,7 @@ export default function TripScreen() {
             {({ pressed }) => (
               <Card style={[{ gap: 2, backgroundColor: colors.amberTint, borderColor: colors.gold }, pressed && { opacity: 0.85 }]}>
                 <T weight="bold" size={15}>
-                  {tr('Find a trusted')} {tr(TRIP_KIND_LABELS[trip.kind])} {tr('operator')}
+                  {tr('Find a trusted {0} operator', [tr(TRIP_KIND_LABELS[trip.kind])])}
                 </T>
                 <T size={13} color={colors.muted}>
                   {tr('Compare Firdam-listed operators and send enquiries in one place.')}

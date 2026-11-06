@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as Location from 'expo-location';
 import { ActivityIndicator, KeyboardAvoidingView, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -113,7 +113,15 @@ function openDirections(p: Place) {
 
 export default function Halal() {
   const { settings, update } = usePrayerSettings();
-  const place = settings?.place ?? null;
+  // A trip can open this screen for its destination: /halal?lat=21.42&lng=39.82&label=Makkah
+  const where = useLocalSearchParams<{ lat?: string; lng?: string; label?: string; allHalal?: string }>();
+  const tripPlace = useMemo(() => {
+    const latitude = Number(where.lat);
+    const longitude = Number(where.lng);
+    if (!where.lat || !where.lng || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+    return { latitude, longitude, label: where.label ?? '' };
+  }, [where.lat, where.lng, where.label]);
+  const place = tripPlace ?? settings?.place ?? null;
   const [places, setPlaces] = useState<Place[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   // The shopping list can open a category directly: /halal?category=butcher
@@ -180,7 +188,24 @@ export default function Halal() {
   }, [places, place, filter]);
 
   return (
-    <TabScreen title={tr('Halal near me')} subtitle={place ? tr('Around {0}', [place.label]) : tr('Restaurants, butchers, groceries and mosques')}>
+    <TabScreen
+      title={tripPlace ? tr('Halal places in {0}', [tr(tripPlace.label)]) : tr('Halal near me')}
+      subtitle={place ? tr('Around {0}', [tr(place.label)]) : tr('Restaurants, butchers, groceries and mosques')}
+    >
+      {tripPlace ? (
+        <Card style={{ gap: 8 }}>
+          {where.allHalal === '1' ? (
+            <T size={14} style={{ lineHeight: 20 }}>
+              {tr('Food sold in Saudi Arabia is halal. Here are the mosques and restaurants we know of around {0}.', [tr(tripPlace.label)])}
+            </T>
+          ) : (
+            <T size={14} style={{ lineHeight: 20 }}>
+              {tr('Showing halal places around your trip destination.')}
+            </T>
+          )}
+          <Chip label={tr('Show places near me instead')} selected={false} onPress={() => router.setParams({ lat: '', lng: '', label: '', allHalal: '' })} />
+        </Card>
+      ) : null}
       {!place ? (
         <Card style={{ gap: 12 }}>
           <T size={15}>{tr('Share your location to see halal places nearby. It stays on your phone; only the area is used for the search.')}</T>

@@ -39,7 +39,6 @@ export function TripSheet({ trip, onClose, onSaved }: { trip?: Trip | null; onCl
   const [dest, setDest] = useState<{ label: string; latitude: number; longitude: number } | null>(
     trip ? { label: trip.destination_label, latitude: trip.latitude, longitude: trip.longitude } : null
   );
-  const [finding, setFinding] = useState(false);
   const [name, setName] = useState(trip?.name ?? '');
   const [start, setStart] = useState(trip?.start_date ?? '');
   const [end, setEnd] = useState(trip?.end_date ?? '');
@@ -48,34 +47,42 @@ export function TripSheet({ trip, onClose, onSaved }: { trip?: Trip | null; onCl
   const [notes, setNotes] = useState(trip?.notes ?? '');
   const [saving, setSaving] = useState(false);
 
-  const find = async () => {
+  /** Looks up the city typed (for its prayer times and Qibla). Runs by itself when saving. */
+  const find = async (): Promise<{ label: string; latitude: number; longitude: number } | null> => {
     const text = destText.trim() || (kind === 'umrah' || kind === 'hajj' ? 'Makkah' : '');
-    if (!text) return;
-    setFinding(true);
+    if (!text) {
+      showAlert(tr('Choose your destination.'), tr('Type a city, e.g. Istanbul or Makkah.'));
+      return null;
+    }
     try {
       const place = await placeFromSearch(text);
       if (!place) {
         showAlert(tr('Place not found'), tr('Try a city name, e.g. Istanbul or Makkah.'));
-        return;
+        return null;
       }
       // Keep what the person typed when it's more precise than the city name.
-      setDest({ label: text.length > place.label.length ? text : place.label, latitude: place.latitude, longitude: place.longitude });
-      setDestText(text.length > place.label.length ? text : place.label);
+      const found = { label: text.length > place.label.length ? text : place.label, latitude: place.latitude, longitude: place.longitude };
+      setDest(found);
+      setDestText(found.label);
+      return found;
     } catch {
       showAlert(tr('Place not found'), tr('Check your connection and try again.'));
-    } finally {
-      setFinding(false);
+      return null;
     }
   };
 
   const save = async () => {
-    if (!dest) return showAlert(tr('Choose your destination.'), tr('Type a city, then tap Find.'));
     if ((start && !isDate(start)) || (end && !isDate(end))) return showAlert(tr('Check the dates'), tr('Use the format YYYY-MM-DD, e.g. 2027-03-15.'));
     if (start && end && end < start) return showAlert(tr('The return date is before the departure date.'));
     setSaving(true);
+    const destination = dest ?? (await find());
+    if (!destination) {
+      setSaving(false);
+      return;
+    }
     try {
       const id = await saveTrip(
-        { name, kind, destination: dest, start, end, travellers: Number(travellers), budget, notes },
+        { name, kind, destination, start, end, travellers: Number(travellers), budget, notes },
         trip
       );
       onSaved(id);
@@ -99,22 +106,16 @@ export function TripSheet({ trip, onClose, onSaved }: { trip?: Trip | null; onCl
           <Chip key={k} label={tr(TRIP_KIND_LABELS[k])} selected={kind === k} onPress={() => setKind(k)} />
         ))}
       </View>
-      <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-end' }}>
-        <View style={{ flex: 1 }}>
-          <Field
-            label={tr('Destination')}
-            value={destText}
-            onChangeText={(v) => {
-              setDestText(v);
-              setDest(null);
-            }}
-            placeholder={kind === 'umrah' || kind === 'hajj' ? tr('Makkah') : tr('Search a city — e.g. Istanbul')}
-            returnKeyType="search"
-            onSubmitEditing={find}
-          />
-        </View>
-        <Button label={dest ? tr('Found ✓') : tr('Find')} variant="secondary" onPress={find} busy={finding} style={{ minWidth: 92 }} />
-      </View>
+      <Field
+        label={tr('Destination')}
+        value={destText}
+        onChangeText={(v) => {
+          setDestText(v);
+          setDest(null);
+        }}
+        placeholder={kind === 'umrah' || kind === 'hajj' ? tr('Makkah') : tr('City — e.g. Istanbul')}
+        returnKeyType="next"
+      />
       <Field label={tr('Trip name (optional)')} value={name} onChangeText={setName} placeholder={tr('e.g. Family Umrah 2027')} />
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <View style={{ flex: 1 }}>

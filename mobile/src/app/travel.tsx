@@ -126,8 +126,10 @@ export default function Travel() {
           onClose={() => setPlanning(false)}
           onSaved={(id) => {
             setPlanning(false);
+            // Open the trip only once the sheet has fully closed: pushing a screen while an iOS
+            // modal is still closing leaves an invisible layer that blocks taps and scrolling.
             load();
-            router.push({ pathname: '/trip/[id]', params: { id } });
+            setTimeout(() => router.push({ pathname: '/trip/[id]', params: { id } }), 500);
           }}
         />
       ) : null}

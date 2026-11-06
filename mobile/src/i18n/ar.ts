@@ -1573,4 +1573,6 @@ export const AR: Record<string, string> = {
   'Save your destination in Firdam before you fly — prayer times, the Qibla and halal food are ready when you land.': 'احفظ وجهتك في فردام قبل السفر — أوقات الصلاة والقبلة والطعام الحلال جاهزة عند وصولك.',
   'Check whether your airline offers a Muslim meal (MOML) and request it at least 48 hours before departure.': 'تحقّق مما إذا كانت شركة الطيران تقدم وجبة للمسلمين (MOML) واطلبها قبل 48 ساعة على الأقل من الإقلاع.',
   'Many airports have multi-faith prayer rooms — search the airport map for “prayer room”.': 'في كثير من المطارات مصليات متعددة الأديان — ابحث عن «prayer room» في خريطة المطار.',
+  "Type a city, e.g. Istanbul or Makkah.": "اكتب اسم مدينة، مثل إسطنبول أو مكة.",
+  "City \u2014 e.g. Istanbul": "المدينة — مثل إسطنبول",
 };

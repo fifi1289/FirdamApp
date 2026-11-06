@@ -288,6 +288,7 @@ export function PartnerAdmin() {
   };
 
   const open = applications.filter((a) => a.status === 'new' || a.status === 'contacted');
+  const done = applications.filter((a) => a.status !== 'new' && a.status !== 'contacted');
 
   if (shops === null) {
     return (
@@ -373,6 +374,26 @@ export function PartnerAdmin() {
                     <Button size="sm" variant="outline" onClick={() => setStatus(a, 'contacted')}>Mark contacted</Button>
                   )}
                   <Button size="sm" variant="ghost" onClick={() => setStatus(a, 'declined')}>Decline</Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {done.length > 0 && (
+        <Card>
+          <CardContent className="space-y-2 p-5">
+            <h3 className="font-semibold text-foreground">Past applications ({done.length})</h3>
+            <p className="text-xs text-muted-foreground">Already listed or declined. You can still email them from Firdam.</p>
+            {done.map((a) => (
+              <div key={a.id} className="flex flex-wrap items-center justify-between gap-2 border-t pt-2 text-sm">
+                <div className="min-w-0">
+                  <span className="font-medium text-foreground">{a.shop_name}</span>{' '}
+                  <span className="text-muted-foreground">· {a.email} · {a.status === 'added' ? 'listed' : a.status}</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <SendEmailButton application={a} onSent={() => undefined} />
                 </div>
               </div>
             ))}

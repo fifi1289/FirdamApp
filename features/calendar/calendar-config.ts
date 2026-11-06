@@ -94,4 +94,4 @@ export const EVENT_KINDS: Record<FamilyEventKind, EventKindMeta> = {
 };
 
 // Shared with the phone app.
-export { EDITABLE_KINDS, ISLAMIC_DATES, formatTime, iso, parseISODate } from '@/features/calendar/calendar-core';
+export { EDITABLE_KINDS, ISLAMIC_DATES, formatTime, hijriMonthName, iso, parseISODate } from '@/features/calendar/calendar-core';

@@ -70,6 +70,18 @@ export interface CalendarMemberRow {
   birth_date: string | null;
 }
 
+/** Hijri months in plain English (the dictionary key); shown in the app's language. */
+export const HIJRI_MONTH_NAMES = [
+  'Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani', 'Jumada al-Ula', 'Jumada al-Akhirah',
+  'Rajab', 'Shaban', 'Ramadan', 'Shawwal', 'Dhu al-Qadah', 'Dhu al-Hijjah',
+] as const;
+
+/** "Jumādá al-ākhirah" from the prayer-times service → "Jumada al-Akhirah" / "Joumada al-Thania" / "جمادى الآخرة". */
+export function hijriMonthName(h: { month: string; monthNumber?: number }): string {
+  const name = h.monthNumber ? HIJRI_MONTH_NAMES[h.monthNumber - 1] : undefined;
+  return name ? tr(name) : h.month;
+}
+
 export interface HijriLabel {
   day: number;
   month: string;
@@ -179,7 +191,7 @@ export function sunnahFastingDays(hijri: Map<string, HijriLabel>, start: Date, e
     if (noVoluntaryFast(h)) return;
     if (opts.sunnahFasts) {
       if (h.day >= 13 && h.day <= 15) {
-        out.push({ date, title: tr('White day, {0} {1}', [h.day, h.month]), why: tr('Fasting three days each month is like fasting the whole year (Bukhari, Muslim).') });
+        out.push({ date, title: tr('White day, {0} {1}', [h.day, hijriMonthName(h)]), why: tr('Fasting three days each month is like fasting the whole year (Bukhari, Muslim).') });
       }
       if (h.monthNumber === 10 && h.day === 2) {
         out.push({ date, title: tr('Six days of Shawwal begin'), why: tr('Any six days this month; with Ramadan, like fasting the whole year (Muslim).') });

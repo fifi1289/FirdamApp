@@ -13,7 +13,7 @@ type OrientationPermission = { requestPermission?: () => Promise<'granted' | 'de
 
 function cardinal(deg: number): string {
   const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-  return dirs[Math.round(deg / 45) % 8] ?? 'N';
+  return tr(dirs[Math.round(deg / 45) % 8] ?? 'N');
 }
 
 export function QiblaCompass({ latitude, longitude }: { latitude: number; longitude: number }) {

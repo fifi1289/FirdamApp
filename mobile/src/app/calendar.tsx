@@ -21,6 +21,7 @@ import {
   EVENT_KIND_LABELS,
   YEARLY_KINDS,
   buildCalendarItems,
+  hijriMonthName,
   formatTime,
   isISODate,
   isTime,
@@ -169,7 +170,7 @@ export default function Calendar() {
             {parseISODate(selected).toLocaleDateString(locale(), { weekday: 'long', month: 'long', day: 'numeric' })}
           </T>
           {hSel ? (
-            <T size={13} color={colors.muted}>{tr('{0} {1} {2} AH', [hSel.day, hSel.month, hSel.year])}</T>
+            <T size={13} color={colors.muted}>{tr('{0} {1} {2} AH', [hSel.day, hijriMonthName(hSel), hSel.year])}</T>
           ) : null}
           {!events ? (
             <ActivityIndicator color={colors.walnut} style={{ marginVertical: 12 }} />

@@ -176,7 +176,7 @@ export function formatCountdown(ms: number): string {
 
 export function compassWord(deg: number): string {
   const words = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-  return words[Math.round(deg / 45) % 8];
+  return tr(words[Math.round(deg / 45) % 8]);
 }
 
 /** Re-renders every 30 seconds so countdowns stay current. */

@@ -38,6 +38,15 @@ function toHtml(text: string): string {
   return `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#2b211b;max-width:600px">${body}</div>`;
 }
 
+/** One tip a month, in turn. */
+const TIPS = [
+  "share your Firdam listing with your own customers on Instagram, Facebook or WhatsApp. Families trust a shop more when they see it in Firdam too.",
+  "listings with 3 to 4 clear photos (without faces) get more taps. Reply with new photos anytime.",
+  "a simple, clear offer works best, for example a percentage off with one code.",
+  "mention Firdam at checkout or in your shop, so families know they can find you in the app.",
+  "seasonal moments like Ramadan and Eid bring many families to Firdam. Tell us about a special offer before then and we'll show it.",
+];
+
 interface Shop {
   id: string;
   name: string;
@@ -106,7 +115,7 @@ Deno.serve(async (req) => {
       results.push({ shop: shop.name, month, total, skipped: "no email on file" });
       continue;
     }
-    const subject = `Your Firdam report for ${monthName}: ${shop.name}`;
+    const subject = `Your Firdam update for ${monthName}: ${shop.name}`;
     if (sent.some((s) => s.to_email === email && s.subject === subject)) {
       results.push({ shop: shop.name, email, month, total, skipped: "already sent" });
       continue;
@@ -116,14 +125,21 @@ Deno.serve(async (req) => {
     const free = shop.free_until
       ? `As a founding partner, your listing stays free until ${new Date(shop.free_until + "T12:00:00Z").toLocaleDateString("en-CA", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}, and we never charge anything unless you agree in writing first.`
       : "";
+    const tapsLine =
+      month === 0
+        ? `No families tapped through to ${shop.name} in ${monthName} yet${total ? ` (${total} since you joined Firdam)` : ""}.`
+        : `${month === 1 ? "1 family" : `${month} families`} tapped through to ${shop.name} in ${monthName} (${total} since you joined Firdam).`;
+    const tip = TIPS[(y * 12 + m) % TIPS.length];
     const text =
       `Assalamu alaykum${owner ? ` ${owner}` : ""},\n\n` +
-      `Here is your Firdam report for ${monthName}.\n\n` +
-      `Taps through to ${shop.name}: ${month} in ${monthName}, ${total} since you joined Firdam.\n\n` +
-      `A tap is a family opening your shop from your Firdam listing. We only count taps; we never share who the families are.\n\n` +
+      `Here is your Firdam update for ${monthName}.\n\n` +
+      `${tapsLine}\n\n` +
+      `Firdam is new and growing, and we are working every week to bring more Muslim families to the app and to your listing, in shaa Allah. As one of our first partners, you are part of that from the start.\n\n` +
+      `A tip for more families: ${tip}\n\n` +
       (offer ? `Your offer for Firdam families: ${offer}.\n\n` : "") +
       `If anything has changed (your offer, prices, link or photos), just reply to this email and we'll update your listing.\n\n` +
       (free ? `${free}\n\n` : "") +
+      `A tap is a family opening your shop from your Firdam listing. We only count taps; we never share who the families are.\n\n` +
       `JazakAllahu khayran for serving Firdam families.\n\nThe Firdam team\nhttps://firdam.com`;
 
     if (body.dryRun || !key) {

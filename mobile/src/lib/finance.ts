@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { supabase } from './supabase';
 import { deviceTimeZone, isCanadianTimeZone } from '@/shared/shop-links';
-import { DEFAULT_CATEGORIES, EMPTY_ZAKAT, REGION_CURRENCY, monthBounds, type SavingsGoalKind, type TransactionType, type ZakatValues } from '@/shared/finance-core';
+import { DEFAULT_CATEGORIES, EMPTY_ZAKAT, REGION_CURRENCY, monthBounds, type AutoPrices, type MetalPrices, type SavingsGoalKind, type TransactionType, type ZakatValues } from '@/shared/finance-core';
 
 /** Same tables as the website's Finance page, so entries show up in both. */
 export interface BudgetCategory {
@@ -169,4 +169,30 @@ export async function saveZakatInputs(values: ZakatValues, basis: 'silver' | 'go
 
 export async function saveFitrInputs(fitr: { people: string; perPerson: string }): Promise<void> {
   await AsyncStorage.setItem(FITR_KEY, JSON.stringify(fitr)).catch(() => {});
+}
+
+const AUTO_PRICES_KEY = 'firdam.zakatAutoPrices';
+
+/** Today's gold and silver price per gram in this currency (null if it can't be loaded). */
+export async function fetchMetalPrices(currency: string): Promise<MetalPrices | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke('metal-prices', { body: { currency } });
+    if (error || !data || typeof data.gold !== 'number') return null;
+    return data as MetalPrices;
+  } catch {
+    return null;
+  }
+}
+
+export async function getAutoPrices(): Promise<AutoPrices | null> {
+  try {
+    const raw = await AsyncStorage.getItem(AUTO_PRICES_KEY);
+    return raw ? (JSON.parse(raw) as AutoPrices) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setAutoPrices(p: AutoPrices): Promise<void> {
+  await AsyncStorage.setItem(AUTO_PRICES_KEY, JSON.stringify(p)).catch(() => {});
 }

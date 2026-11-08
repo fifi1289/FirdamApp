@@ -14,7 +14,10 @@ import {
   deleteGoal,
   deleteTransaction,
   getCurrency,
+  fetchMetalPrices,
+  getAutoPrices,
   getZakatInputs,
+  setAutoPrices,
   loadCategories,
   loadGoals,
   loadMonth,
@@ -38,7 +41,9 @@ import {
   ZAKAT_ASSETS,
   ZAKAT_DESCRIPTIONS,
   computeZakatAlFitr,
+  applyTodaysPrices,
   computeZakatAlMal,
+  type MetalPrices,
   formatMoney,
   monthTotals,
   parseAmount,
@@ -441,6 +446,7 @@ function Zakat({ currency, onRecord }: { currency: string; onRecord: (amount: nu
   const [basis, setBasis] = useState<'silver' | 'gold'>('silver');
   const [fitr, setFitr] = useState({ people: '', perPerson: '' });
   const [ready, setReady] = useState(false);
+  const [today, setToday] = useState<MetalPrices | null>(null);
 
   useEffect(() => {
     getZakatInputs().then((z) => {
@@ -450,6 +456,35 @@ function Zakat({ currency, onRecord }: { currency: string; onRecord: (amount: nu
       setReady(true);
     });
   }, []);
+  // Today's gold and silver prices, filled in unless you typed your own.
+  useEffect(() => {
+    if (!ready) return;
+    let alive = true;
+    (async () => {
+      const prices = await fetchMetalPrices(currency);
+      if (!alive || !prices) return;
+      setToday(prices);
+      const last = await getAutoPrices();
+      setValues((current) => {
+        const next = applyTodaysPrices(current, prices, last && last.currency === currency ? last : null);
+        if (!next) return current;
+        void setAutoPrices(next.auto);
+        saveZakatInputs(next.values, basis);
+        return next.values;
+      });
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [ready, currency]); // eslint-disable-line react-hooks/exhaustive-deps
+  const useToday = () => {
+    if (!today) return;
+    const next = { ...values, goldPrice: String(today.gold), silverPrice: String(today.silver) };
+    setValues(next);
+    saveZakatInputs(next, basis);
+    void setAutoPrices({ currency, gold: String(today.gold), silver: String(today.silver) });
+  };
+  const differsFromToday = !!today && (values.goldPrice !== String(today.gold) || values.silverPrice !== String(today.silver));
   // Everyone in the family by default.
   useEffect(() => {
     if (ready && !fitr.people && k.household?.people) setFitr((f) => ({ ...f, people: String(k.household!.people) }));
@@ -494,11 +529,23 @@ function Zakat({ currency, onRecord }: { currency: string; onRecord: (amount: nu
             <Field label={tr('Silver')} value={values.silverPrice} onChangeText={(v) => set('silverPrice', v)} keyboardType="decimal-pad" placeholder="0.00" />
           </View>
         </View>
+        {today ? (
+          <View style={{ gap: 6 }}>
+            <T size={12.5} color={colors.muted} style={{ lineHeight: 18 }}>
+              {tr("Today's spot price ({0}): gold {1} per gram, silver {2} per gram. Jewellers and banks may charge a little more.", [
+                new Date(today.day + 'T12:00:00Z').toLocaleDateString(locale(), { day: 'numeric', month: 'long' }),
+                formatMoney(today.gold, currency),
+                formatMoney(today.silver, currency),
+              ])}
+            </T>
+            {differsFromToday ? <Button label={tr("Use today's prices")} variant="secondary" onPress={useToday} /> : null}
+          </View>
+        ) : null}
         <View style={styles.wrap}>
           {(['silver', 'gold'] as const).map((b) => (
             <Chip
               key={b}
-              label={tr('{0} nisab ({1} g)', [b === 'silver' ? 'Silver' : 'Gold', b === 'silver' ? SILVER_NISAB_GRAMS : GOLD_NISAB_GRAMS])}
+              label={tr('{0} nisab ({1} g)', [tr(b === 'silver' ? 'Silver' : 'Gold'), b === 'silver' ? SILVER_NISAB_GRAMS : GOLD_NISAB_GRAMS])}
               selected={basis === b}
               onPress={() => {
                 setBasis(b);
@@ -514,7 +561,7 @@ function Zakat({ currency, onRecord }: { currency: string; onRecord: (amount: nu
           {tr('2. What you own')}
         </T>
         {ZAKAT_ASSETS.map((a) => (
-          <Field key={a.key} label={a.hint ? `${a.label} — ${a.hint.toLowerCase()}` : tr(a.label)} value={values[a.key]} onChangeText={(v) => set(a.key, v)} keyboardType="decimal-pad" placeholder="0" />
+          <Field key={a.key} label={a.hint ? `${tr(a.label)} — ${tr(a.hint).toLowerCase()}` : tr(a.label)} value={values[a.key]} onChangeText={(v) => set(a.key, v)} keyboardType="decimal-pad" placeholder="0" />
         ))}
         <T weight="bold" size={14}>
           {tr('3. What you owe now')}

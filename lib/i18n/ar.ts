@@ -3467,4 +3467,6 @@ export const AR: Record<string, string> = {
   "Your location": "موقعك",
   "Tree nuts": "المكسرات",
   "Firdam app feedback": "ملاحظات حول تطبيق فردام",
+  "Today's spot price ({0}): gold {1} per gram, silver {2} per gram. Jewellers and banks may charge a little more.": "سعر السوق اليوم ({0}): الذهب {1} للغرام، والفضة {2} للغرام. قد يبيع الصاغة والبنوك بسعر أعلى قليلًا.",
+  "Use today's prices": "استخدم أسعار اليوم",
 };

@@ -3379,4 +3379,6 @@ export const FR: Record<string, string> = {
   "Your location": "Votre position",
   "Tree nuts": "Fruits à coque",
   "Firdam app feedback": "Commentaires sur l’app Firdam",
+  "Today's spot price ({0}): gold {1} per gram, silver {2} per gram. Jewellers and banks may charge a little more.": "Prix du jour ({0}) : or {1} le gramme, argent {2} le gramme. Les bijoutiers et les banques peuvent vendre un peu plus cher.",
+  "Use today's prices": "Utiliser les prix du jour",
 };

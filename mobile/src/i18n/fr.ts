@@ -1636,4 +1636,6 @@ export const FR: Record<string, string> = {
   "No recipes in the library match these allergies and diets yet. Try removing a diet, or add your own recipes.": "Aucune recette de la bibliothèque ne correspond encore à ces allergies et régimes. Essayez de retirer un régime ou ajoutez vos propres recettes.",
   "Tree nuts": "Fruits à coque",
   "Firdam app feedback": "Commentaires sur l’app Firdam",
+  "Today's spot price ({0}): gold {1} per gram, silver {2} per gram. Jewellers and banks may charge a little more.": "Prix du jour ({0}) : or {1} le gramme, argent {2} le gramme. Les bijoutiers et les banques peuvent vendre un peu plus cher.",
+  "Use today's prices": "Utiliser les prix du jour",
 };

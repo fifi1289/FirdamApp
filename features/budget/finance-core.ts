@@ -261,3 +261,39 @@ export const ZAKAT_AL_FITR_NOTE =
   'Due for each person you provide for — yourself, your spouse, children and anyone you support — and paid before the Eid al-Fitr prayer. Use the amount per person announced by your local mosque or zakat council.';
 
 export const ZAKAT_DESCRIPTIONS = { mal: 'Zakat al-mal', fitr: 'Zakat al-fitr' } as const;
+
+/** Today's spot prices per gram (from the metal-prices function). */
+export interface MetalPrices {
+  currency: string;
+  day: string;
+  gold: number;
+  silver: number;
+  updated: string;
+}
+
+/** The prices Firdam filled in last time, so we know which fields the person typed themselves. */
+export interface AutoPrices {
+  currency: string;
+  gold: string;
+  silver: string;
+}
+
+/**
+ * Puts today's prices in the zakat form, except where the person typed their
+ * own price: empty fields and fields still showing the prices we filled in
+ * before are updated. Returns null when nothing changes.
+ */
+export function applyTodaysPrices(
+  values: ZakatValues,
+  today: MetalPrices,
+  lastAuto: AutoPrices | null,
+): { values: ZakatValues; auto: AutoPrices } | null {
+  const gold = String(today.gold);
+  const silver = String(today.silver);
+  const ours = (v: string, prev: string | undefined) => !v.trim() || (prev !== undefined && v === prev);
+  const next = { ...values };
+  if (ours(values.goldPrice, lastAuto?.gold)) next.goldPrice = gold;
+  if (ours(values.silverPrice, lastAuto?.silver)) next.silverPrice = silver;
+  if (next.goldPrice === values.goldPrice && next.silverPrice === values.silverPrice && lastAuto?.gold === gold && lastAuto?.silver === silver) return null;
+  return { values: next, auto: { currency: today.currency, gold, silver } };
+}

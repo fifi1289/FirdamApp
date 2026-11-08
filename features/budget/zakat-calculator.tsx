@@ -16,18 +16,40 @@ import {
   ZAKAT_AL_FITR_NOTE,
   ZAKAT_ASSETS,
   ZAKAT_DESCRIPTIONS,
+  applyTodaysPrices,
   computeZakatAlFitr,
   computeZakatAlMal,
   parseAmount,
+  type AutoPrices,
+  type MetalPrices,
   type ZakatField,
   type ZakatValues,
 } from '@/features/budget/finance-core';
 import { useHousehold } from '@/lib/pantry/portions';
-import { tr, trn } from '@/lib/i18n';
+import { getLang, tr, trn } from '@/lib/i18n';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 const STORAGE_KEY = 'firdam.zakat.inputs';
 
 const FITR_KEY = 'firdam.zakat.fitr';
+const AUTO_KEY = 'firdam.zakat.autoPrices';
+
+function readAuto(): AutoPrices | null {
+  try {
+    const raw = window.localStorage.getItem(AUTO_KEY);
+    return raw ? (JSON.parse(raw) as AutoPrices) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveAuto(p: AutoPrices) {
+  try {
+    window.localStorage.setItem(AUTO_KEY, JSON.stringify(p));
+  } catch {
+    // ignore
+  }
+}
 
 const num = parseAmount;
 const ASSETS = ZAKAT_ASSETS;
@@ -66,6 +88,42 @@ export function ZakatCalculator({
       return next;
     });
   };
+
+  // Today's gold and silver prices, filled in unless you typed your own.
+  const [today, setToday] = useState<MetalPrices | null>(null);
+  useEffect(() => {
+    let alive = true;
+    createSupabaseBrowserClient()
+      .functions.invoke('metal-prices', { body: { currency } })
+      .then(({ data, error }) => {
+        if (!alive || error || !data || typeof data.gold !== 'number') return;
+        const prices = data as MetalPrices;
+        setToday(prices);
+        const last = readAuto();
+        setValues((current) => {
+          const next = applyTodaysPrices(current, prices, last && last.currency === currency ? last : null);
+          if (!next) return current;
+          saveAuto(next.auto);
+          try {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next.values));
+          } catch {
+            // ignore
+          }
+          return next.values;
+        });
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [currency]);
+  const useToday = () => {
+    if (!today) return;
+    set('goldPrice', String(today.gold));
+    set('silverPrice', String(today.silver));
+    saveAuto({ currency, gold: String(today.gold), silver: String(today.silver) });
+  };
+  const differsFromToday = !!today && (values.goldPrice !== String(today.gold) || values.silverPrice !== String(today.silver));
 
   const result = useMemo(() => computeZakatAlMal(values, basis), [values, basis]);
 
@@ -122,6 +180,22 @@ export function ZakatCalculator({
                 </button>
               ))}
             </div>
+            {today && (
+              <div className="mt-2 space-y-2 text-xs text-muted-foreground">
+                <p>
+                  {tr("Today's spot price ({0}): gold {1} per gram, silver {2} per gram. Jewellers and banks may charge a little more.", [
+                    new Date(today.day + 'T12:00:00Z').toLocaleDateString(getLang() === 'en' ? 'en-CA' : getLang(), { day: 'numeric', month: 'long' }),
+                    formatMoney(today.gold, currency),
+                    formatMoney(today.silver, currency),
+                  ])}
+                </p>
+                {differsFromToday && (
+                  <Button type="button" size="sm" variant="outline" onClick={useToday}>
+                    {tr("Use today's prices")}
+                  </Button>
+                )}
+              </div>
+            )}
             <p className="mt-2 text-xs text-muted-foreground">
               {tr('Many scholars recommend the silver nisab as it benefits more people in need. Follow the opinion you trust.')}
             </p>

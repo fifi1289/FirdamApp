@@ -6,11 +6,13 @@ import { ExternalLink, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { AFFILIATE_NOTE, DEPARTMENT_PICKS, amazonSearchUrl, parseBudget } from '@/features/groceries/shop-links';
+import { AFFILIATE_NOTE, DEPARTMENT_PICKS, amazonIsAffiliate, amazonSearchUrl, amazonStoreName, parseBudget } from '@/features/groceries/shop-links';
 import { tr, trn } from '@/lib/i18n';
 
-/** A shopping department (Household, Clothing…): search Amazon.ca within a budget, or tap a quick pick. */
-export function ShopDepartment({ id, label, note }: { id: string; label: string; note: string }) {
+/** A shopping department (Household, Clothing…): search the family's Amazon store within a budget, or tap a quick pick. */
+export function ShopDepartment({ id, label, note, currency }: { id: string; label: string; note: string; currency?: string | null }) {
+  const store = amazonStoreName(currency);
+  const affiliate = amazonIsAffiliate(currency);
   const [query, setQuery] = useState('');
   const [max, setMax] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export function ShopDepartment({ id, label, note }: { id: string; label: string;
     e.preventDefault();
     if (!query.trim()) return setProblem(tr('Type what you’re looking for.'));
     if (max.trim() && parseBudget(max) == null) return setProblem(tr('Enter your budget as a number, for example 40.'));
-    window.open(amazonSearchUrl(query, parseBudget(max)), '_blank', 'noopener');
+    window.open(amazonSearchUrl(query, parseBudget(max), currency), '_blank', 'noopener');
   };
 
   return (
@@ -28,7 +30,7 @@ export function ShopDepartment({ id, label, note }: { id: string; label: string;
       <CardContent className="space-y-5 p-5">
         <div>
           <h2 className="text-lg font-semibold text-foreground">{trn(label)}</h2>
-          <p className="text-sm text-muted-foreground">{trn(note)}{tr('. Opens on Amazon.ca.')}</p>
+          <p className="text-sm text-muted-foreground">{trn(note)}{tr('. Opens on {0}.', [store])}</p>
         </div>
 
         <form onSubmit={search} className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_150px_auto]">
@@ -48,8 +50,8 @@ export function ShopDepartment({ id, label, note }: { id: string; label: string;
               setProblem(null);
             }}
             inputMode="decimal"
-            placeholder={tr('Max budget ($)')}
-            aria-label={tr('Maximum budget in Canadian dollars (optional)')}
+            placeholder={tr('Max budget')}
+            aria-label={tr('Maximum budget (optional)')}
           />
           <Button type="submit">
             <Search className="mr-2 h-4 w-4" />
@@ -65,7 +67,7 @@ export function ShopDepartment({ id, label, note }: { id: string; label: string;
               {picks.map((p) => (
                 <a
                   key={p.query}
-                  href={amazonSearchUrl(p.query, parseBudget(max))}
+                  href={amazonSearchUrl(p.query, parseBudget(max), currency)}
                   target="_blank"
                   rel="sponsored noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-muted"
@@ -78,7 +80,7 @@ export function ShopDepartment({ id, label, note }: { id: string; label: string;
           </div>
         )}
 
-        <p className="text-xs text-muted-foreground">{tr(AFFILIATE_NOTE)} {tr('Prices and availability are shown on Amazon.ca.')}</p>
+        <p className="text-xs text-muted-foreground">{affiliate ? `${tr(AFFILIATE_NOTE)} ` : ''}{tr('Prices and availability are shown on {0}.', [store])}</p>
       </CardContent>
     </Card>
   );

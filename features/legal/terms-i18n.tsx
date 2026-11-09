@@ -117,7 +117,7 @@ export const TERMS_FR: LegalContent = {
               certifiés halal (viande, gélatine, fromage, bouillon, arômes, etc.) lorsque c’est important pour vous.
             </li>
             <li>
-              Les liens d’achat (par exemple vers Amazon.ca) ouvrent des produits vendus par d’autres entreprises.
+              Les liens d’achat (par exemple vers Amazon) ouvrent des produits vendus par d’autres entreprises.
               Lorsqu’un lien cherche des produits halal, « halal » est la description du vendeur : vérifiez le certificat
               halal sur l’étiquette. Firdam peut toucher une commission sur les achats admissibles ; les prix, la
               livraison et les retours relèvent du vendeur.
@@ -423,7 +423,7 @@ export const TERMS_AR: LegalContent = {
               والمنكّهات وغيرها) حيث يهمّك ذلك.
             </li>
             <li>
-              روابط التسوق (مثل Amazon.ca) تفتح منتجات تبيعها شركات أخرى. عندما يبحث رابط عن منتجات حلال، فكلمة «حلال» هي
+              روابط التسوق (مثل أمازون) تفتح منتجات تبيعها شركات أخرى. عندما يبحث رابط عن منتجات حلال، فكلمة «حلال» هي
               وصف البائع نفسه: تحقّق من شهادة الحلال على الملصق. قد يحصل فردام على عمولة على المشتريات المؤهّلة، والأسعار
               والتوصيل والإرجاع مسؤولية البائع.
             </li>

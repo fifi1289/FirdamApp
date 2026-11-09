@@ -102,7 +102,7 @@ const sections: LegalSection[] = [
             (meat, gelatin, cheese, stock, flavourings and so on) where it matters to you.
           </li>
           <li>
-            Shopping links (for example to Amazon.ca) open products sold by other companies. When a link looks for
+            Shopping links (for example to Amazon) open products sold by other companies. When a link looks for
             halal products, “halal” is the seller’s own description: check the label for a halal certificate. Firdam may
             earn a commission on qualifying purchases; prices, delivery and returns are handled by the seller.
           </li>

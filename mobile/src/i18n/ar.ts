@@ -1701,4 +1701,13 @@ export const AR: Record<string, string> = {
   "Firdam app feedback": "ملاحظات حول تطبيق فردام",
   "Today's spot price ({0}): gold {1} per gram, silver {2} per gram. Jewellers and banks may charge a little more.": "سعر السوق اليوم ({0}): الذهب {1} للغرام، والفضة {2} للغرام. قد يبيع الصاغة والبنوك بسعر أعلى قليلًا.",
   "Use today's prices": "استخدم أسعار اليوم",
+  "1 item available on {0}": "عنصر واحد متوفر على {0}",
+  "{0} items available on {1}": "{0} عناصر متوفرة على {1}",
+  "Available on {0}": "متوفر على {0}",
+  "Search {0} on {1}": "ابحث عن {0} على {1}",
+  "See {0} on {1}": "اعرض {0} على {1}",
+  "Prices and availability are shown on {0}.": "الأسعار والتوفر معروضة على {0}.",
+  ". Opens on {0}.": ". يفتح على {0}.",
+  "Max budget": "أقصى ميزانية",
+  "Maximum budget (optional)": "أقصى ميزانية (اختياري)",
 };

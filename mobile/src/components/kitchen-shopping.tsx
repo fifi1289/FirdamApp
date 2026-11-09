@@ -13,7 +13,7 @@ import { formatQty, groupByAisle, needsHalalSource, parseQuickAdd } from '@/shar
 import { haramItemMessage } from '@/shared/halal';
 import { getCurrency } from '@/lib/finance';
 import { router, type Href } from 'expo-router';
-import { AFFILIATE_NOTE, amazonFoodUrl, canBuyOnline, listNames, needsHalalCheck, nearYouHint, shopsAvailable } from '@/shared/shop-links';
+import { AFFILIATE_NOTE, amazonFoodUrl, amazonIsAffiliate, amazonStoreName, canBuyOnline, listNames, needsHalalCheck, nearYouHint, shopsAvailable } from '@/shared/shop-links';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 import { tr } from '@/lib/i18n';
@@ -26,12 +26,18 @@ export function ShoppingView() {
   const open = useMemo(() => k.items.filter((i) => !i.checked), [k.items]);
   const done = useMemo(() => k.items.filter((i) => i.checked), [k.items]);
   const groups = useMemo(() => groupByAisle(open), [open]);
-  // Amazon.ca links for families who use Canadian dollars (non-fresh items only).
+  // Amazon links in the family's own country store (non-fresh items only).
   const [online, setOnline] = useState(false);
+  const [currency, setCurrency] = useState<string | null>(null);
   const nearYou = useMemo(() => nearYouHint(groups), [groups]);
   const onAmazon = useMemo(() => groups.filter((g) => canBuyOnline(g.category)).flatMap((g) => g.items), [groups]);
   useEffect(() => {
-    getCurrency().then((c) => setOnline(shopsAvailable(c))).catch(() => {});
+    getCurrency()
+      .then((c) => {
+        setCurrency(c);
+        setOnline(shopsAvailable(c));
+      })
+      .catch(() => setOnline(true));
   }, []);
 
   const add = async () => {
@@ -107,7 +113,7 @@ export function ShoppingView() {
       ) : null}
       {online && onAmazon.length ? (
         <View style={styles.banner}>
-          <T size={15.5} weight="bold">{tr('{0} item{1} available on Amazon.ca', [onAmazon.length, onAmazon.length === 1 ? '' : 's'])}</T>
+          <T size={15.5} weight="bold">{onAmazon.length === 1 ? tr('1 item available on {0}', [amazonStoreName(currency)]) : tr('{0} items available on {1}', [onAmazon.length, amazonStoreName(currency)])}</T>
           <T size={13.5} color={colors.muted} numberOfLines={2}>{tr('{0}. See them below.', [listNames(onAmazon.map((i) => i.name))])}</T>
         </View>
       ) : null}
@@ -144,7 +150,7 @@ export function ShoppingView() {
       {online && onAmazon.length ? (
         <View style={{ gap: 6 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            {tr('AVAILABLE ON AMAZON.CA · {0}', [onAmazon.length])}
+            {tr('Available on {0}', [amazonStoreName(currency)]).toUpperCase()} · {onAmazon.length}
           </T>
           <Card style={{ paddingVertical: 2 }}>
             {onAmazon.map((i, idx) => (
@@ -161,8 +167,8 @@ export function ShoppingView() {
                 </View>
                 <Pressable
                   accessibilityRole="link"
-                  accessibilityLabel={tr('See {0} on Amazon.ca', [i.name])}
-                  onPress={() => Linking.openURL(amazonFoodUrl(i.name))}
+                  accessibilityLabel={tr('See {0} on {1}', [tr(i.name), amazonStoreName(currency)])}
+                  onPress={() => Linking.openURL(amazonFoodUrl(i.name, currency))}
                   hitSlop={6}
                   style={styles.buy}
                 >
@@ -173,9 +179,11 @@ export function ShoppingView() {
               </View>
             ))}
           </Card>
-          <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
-            {tr(AFFILIATE_NOTE)}
-          </T>
+          {amazonIsAffiliate(currency) ? (
+            <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
+              {tr(AFFILIATE_NOTE)}
+            </T>
+          ) : null}
         </View>
       ) : null}
 

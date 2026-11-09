@@ -94,8 +94,8 @@ const ALLERGEN_RULES: AllergenRule[] = [
 ];
 
 const MEAT_RE =
-  /\b(chicken|beef|lamb|mutton|goat|veal|turkey|duck|quail|camel|mince|minced meat|meat|sucuk|sujuk|beef chorizo|beef bacon|pastirma|basturma|liver|kidneys?|oxtail|bone broth|gelatin|gelatine|chicken stock|beef stock|lamb stock|stock cube|bouillon)\b/;
-const MEAT_EXCLUDE = /\b(vegetable stock|vegetable bouillon|meat-free|plant-based|coconut meat)\b/;
+  /\b(chickens?|poussins?|hens?|roosters?|beef|lambs?|mutton|goats?|veal|turkeys?|ducks?|duck breasts?|geese|goose|quails?|pigeons?|squabs?|rabbits?|venison|camel|beef steaks?|brisket|chicken (breasts?|thighs?|wings?|drumsticks?)|lamb chops?|mince|minced meat|ground (beef|lamb|chicken|turkey)|meat|meats|meatballs?|kebab meat|shawarma meat|sucuk|sujuk|beef chorizo|beef bacon|turkey bacon|pastirma|basturma|merguez|liver|kidneys?|oxtail|tripe|bone broth|gelatin|gelatine|chicken stock|beef stock|lamb stock|stock cubes?|bouillon)\b/;
+const MEAT_EXCLUDE = /\b(vegetable stock|vegetable bouillon|meat-free|plant-based|coconut meat|vegan meatballs?|veggie meatballs?|hen of the woods|goat'?s? cheese|goat'?s? milk|kidney beans?|chicken of the woods)\b/;
 const SEAFOOD_RULES = ALLERGEN_RULES.filter((r) => r.name === 'Fish' || r.name === 'Shellfish');
 
 function normalize(s: string) {

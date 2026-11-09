@@ -1,9 +1,10 @@
 import { tr } from '@/lib/i18n';
 /**
- * Online shopping links. For now only Amazon.ca, for families who use
- * Canadian dollars; elsewhere no buy links are shown and the rest of Firdam is
- * unchanged. Adding a country later means adding a shop here. Shared by the
- * website and the phone app (the app gets a copy via mobile/scripts/sync-shared.mjs).
+ * Online shopping links: Amazon, in the family's own country store (worldwide).
+ * Firdam earns a commission only where it has an Associates tag (Amazon.ca for
+ * now); other stores get a plain link and no affiliate note. Adding a country's
+ * tag later means adding it to AMAZON_TAGS. Shared by the website and the phone
+ * app (the app gets a copy via mobile/scripts/sync-shared.mjs).
  */
 
 export const AMAZON_CA_TAG = 'firdam-20';
@@ -34,21 +35,24 @@ export function deviceTimeZone(): string | null {
   }
 }
 
-/**
- * Buy links are shown only where Firdam has a shop partner (Canada for now):
- * families who chose Canadian dollars, or whose device is set to a Canadian
- * time zone (browsers often say "English (US)" in Canada, so language alone
- * isn't enough).
- */
-export function shopsAvailable(currency: string | null | undefined, timeZone: string | null | undefined = deviceTimeZone()): boolean {
-  return currency === 'CAD' || isCanadianTimeZone(timeZone);
+/** Amazon links are shown everywhere: every family gets the Amazon store for their country. */
+export function shopsAvailable(_currency?: string | null, _timeZone?: string | null): boolean {
+  return true;
 }
 
-/** Amazon.ca search for `query`, optionally only up to `maxPrice` dollars, with Firdam's tag. */
-export function amazonSearchUrl(query: string, maxPrice?: number | null): string {
-  const params = new URLSearchParams({ k: query.trim(), tag: AMAZON_CA_TAG });
+/** Amazon search in the family's store for `query`, optionally up to `maxPrice` (their currency), with Firdam's tag where it has one. */
+export function amazonSearchUrl(
+  query: string,
+  maxPrice?: number | null,
+  currency?: string | null,
+  timeZone: string | null | undefined = deviceTimeZone(),
+): string {
+  const host = amazonStoreFor(currency, timeZone);
+  const params = new URLSearchParams({ k: query.trim() });
+  const tag = AMAZON_TAGS[host];
+  if (tag) params.set('tag', tag);
   if (maxPrice && maxPrice > 0) params.set('rh', `p_36:-${Math.round(maxPrice * 100)}`);
-  return `https://www.amazon.ca/s?${params.toString()}`;
+  return `https://${host}/s?${params.toString()}`;
 }
 
 /** Fresh food is better bought locally, so these grocery aisles get no Amazon link. */
@@ -133,8 +137,66 @@ export function needsHalalCheck(name: string): boolean {
   return HALAL_SENSITIVE.test(name);
 }
 
-/** Amazon.ca search for a grocery item, asking for halal products where it matters. */
-export function amazonFoodUrl(name: string): string {
+/** Amazon search for a grocery item in the family's store, asking for halal products where it matters. */
+export function amazonFoodUrl(name: string, currency?: string | null, timeZone: string | null | undefined = deviceTimeZone()): string {
   const clean = name.trim();
-  return amazonSearchUrl(needsHalalCheck(clean) && !/\bhalal\b/i.test(clean) ? `halal ${clean}` : clean);
+  return amazonSearchUrl(needsHalalCheck(clean) && !/\bhalal\b/i.test(clean) ? `halal ${clean}` : clean, null, currency, timeZone);
+}
+
+/**
+ * Amazon country stores, worldwide. Firdam earns commission only where it has
+ * an Associates tag; add a store's tag here once Firdam joins that country's program.
+ */
+const AMAZON_STORES: Record<string, string> = {
+  CAD: 'www.amazon.ca', USD: 'www.amazon.com', GBP: 'www.amazon.co.uk', EUR: 'www.amazon.fr', AED: 'www.amazon.ae',
+  SAR: 'www.amazon.sa', EGP: 'www.amazon.eg', AUD: 'www.amazon.com.au', INR: 'www.amazon.in', TRY: 'www.amazon.com.tr',
+  SGD: 'www.amazon.sg', JPY: 'www.amazon.co.jp', MXN: 'www.amazon.com.mx', BRL: 'www.amazon.com.br', SEK: 'www.amazon.se', PLN: 'www.amazon.pl',
+  // North Africa: Amazon.fr ships there and is in French.
+  MAD: 'www.amazon.fr', DZD: 'www.amazon.fr', TND: 'www.amazon.fr',
+};
+export const AMAZON_TAGS: Record<string, string> = { 'www.amazon.ca': AMAZON_CA_TAG };
+
+/** Euro countries each have their own store; the time zone tells which. */
+const EURO_STORES: Record<string, string> = {
+  'Europe/Berlin': 'www.amazon.de', 'Europe/Vienna': 'www.amazon.de', 'Europe/Madrid': 'www.amazon.es', 'Europe/Rome': 'www.amazon.it',
+  'Europe/Amsterdam': 'www.amazon.nl', 'Europe/Brussels': 'www.amazon.com.be', 'Europe/Dublin': 'www.amazon.co.uk',
+};
+
+/** When the family hasn't chosen a currency, the device's time zone suggests a store. */
+const TIME_ZONE_STORES: Record<string, string> = {
+  ...EURO_STORES,
+  'Europe/Paris': 'www.amazon.fr', 'Europe/London': 'www.amazon.co.uk', 'Europe/Istanbul': 'www.amazon.com.tr', 'Europe/Stockholm': 'www.amazon.se',
+  'Europe/Warsaw': 'www.amazon.pl', 'Asia/Dubai': 'www.amazon.ae', 'Asia/Riyadh': 'www.amazon.sa', 'Africa/Cairo': 'www.amazon.eg',
+  'Asia/Kolkata': 'www.amazon.in', 'Asia/Singapore': 'www.amazon.sg', 'Asia/Tokyo': 'www.amazon.co.jp', 'America/Mexico_City': 'www.amazon.com.mx',
+  'America/Sao_Paulo': 'www.amazon.com.br', 'Africa/Casablanca': 'www.amazon.fr', 'Africa/Algiers': 'www.amazon.fr', 'Africa/Tunis': 'www.amazon.fr',
+};
+
+/** The Amazon store for this family: their currency first, then their time zone, otherwise Amazon.com. */
+export function amazonStoreFor(currency: string | null | undefined, timeZone: string | null | undefined = deviceTimeZone()): string {
+  if (currency === 'EUR') return (timeZone && EURO_STORES[timeZone]) || AMAZON_STORES.EUR;
+  if (currency && AMAZON_STORES[currency]) return AMAZON_STORES[currency];
+  if (isCanadianTimeZone(timeZone)) return AMAZON_STORES.CAD;
+  if (timeZone && TIME_ZONE_STORES[timeZone]) return TIME_ZONE_STORES[timeZone];
+  if (timeZone?.startsWith('Australia/')) return AMAZON_STORES.AUD;
+  return AMAZON_STORES.USD;
+}
+
+/** True when this family's Amazon links carry Firdam's tag (then the affiliate note must be shown). */
+export function amazonIsAffiliate(currency: string | null | undefined, timeZone: string | null | undefined = deviceTimeZone()): boolean {
+  return !!AMAZON_TAGS[amazonStoreFor(currency, timeZone)];
+}
+
+/** "Amazon.ca", "Amazon.co.uk"… for the family's store. */
+export function amazonStoreName(currency: string | null | undefined, timeZone: string | null | undefined = deviceTimeZone()): string {
+  const host = amazonStoreFor(currency, timeZone).replace(/^www\.amazon/, 'Amazon');
+  return host;
+}
+
+/** Amazon search in the family's own store; carries Firdam's tag where it has one. */
+export function amazonToolUrl(query: string, currency: string | null | undefined, timeZone: string | null | undefined = deviceTimeZone()): { url: string; affiliate: boolean } {
+  const host = amazonStoreFor(currency, timeZone);
+  const params = new URLSearchParams({ k: query.trim() });
+  const tag = AMAZON_TAGS[host];
+  if (tag) params.set('tag', tag);
+  return { url: `https://${host}/s?${params.toString()}`, affiliate: !!tag };
 }

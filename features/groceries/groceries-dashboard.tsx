@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { ExternalLink, Receipt } from 'lucide-react';
 import { SHOPPING_DEPARTMENTS } from '@/features/groceries/shopping-departments';
-import { AFFILIATE_NOTE, amazonFoodUrl, canBuyOnline, listNames, nearYouHint, needsHalalCheck, shopsAvailable } from '@/features/groceries/shop-links';
+import { AFFILIATE_NOTE, amazonFoodUrl, amazonIsAffiliate, amazonStoreName, canBuyOnline, listNames, nearYouHint, needsHalalCheck, shopsAvailable } from '@/features/groceries/shop-links';
 import { ShopDepartment } from '@/features/groceries/shop-department';
 import { PartnerShops, usePartnerShops } from '@/features/groceries/partner-shops';
 import { partnerDepartments } from '@/features/groceries/partners';
@@ -215,6 +215,8 @@ export function GroceriesDashboard() {
 
   const { currency } = useCurrency();
   const online = shopsAvailable(currency);
+  const store = amazonStoreName(currency);
+  const affiliate = amazonIsAffiliate(currency);
   const partners = usePartnerShops();
   const withPartners = partnerDepartments(partners);
   const [department, setDepartment] = useState('groceries');
@@ -223,7 +225,7 @@ export function GroceriesDashboard() {
   const checked = items.filter((i) => i.checked);
   const groups = useMemo(() => groupByAisle(remaining), [remaining]);
   const nearYou = useMemo(() => nearYouHint(groups), [groups]);
-  // Non-fresh items families can order on Amazon.ca (Canada only).
+  // Non-fresh items families can order on Amazon, in their own country's store.
   const onAmazon = useMemo(() => groups.filter((g) => canBuyOnline(g.category)).flatMap((g) => g.items), [groups]);
   const progress = items.length ? Math.round((checked.length / items.length) * 100) : 0;
   const halalReminder = remaining.some((i) => needsHalalSource(asPantryCategory(i.category)));
@@ -403,7 +405,7 @@ export function GroceriesDashboard() {
         </Button>
       </PageHeader>
 
-      {/* Departments: Groceries, plus Household, Clothing, Kids and Eid on Amazon.ca for families in Canada. */}
+      {/* Departments: Groceries, plus Household, Clothing, Kids and Eid on Amazon (the family's own country store). */}
       <nav aria-label={tr('Shopping departments')} className="mb-5 flex flex-wrap gap-2">
         {SHOPPING_DEPARTMENTS.map((d) =>
           d.live || online || withPartners.has(d.id) ? (
@@ -435,7 +437,7 @@ export function GroceriesDashboard() {
       {department !== 'groceries' ? (
         <div className="space-y-5">
           <PartnerShops shops={partners} department={activeDepartment.id} />
-          {online && <ShopDepartment id={activeDepartment.id} label={tr(activeDepartment.label)} note={activeDepartment.note} />}
+          {online && <ShopDepartment id={activeDepartment.id} label={tr(activeDepartment.label)} note={activeDepartment.note} currency={currency} />}
           <p className="text-sm text-muted-foreground">
             {tr('Run a Muslim-owned shop?')}{' '}
             <Link href="/partners" className="font-semibold text-primary underline-offset-2 hover:underline">
@@ -624,7 +626,7 @@ export function GroceriesDashboard() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-foreground">
-                    {onAmazon.length} {tr('item')}{onAmazon.length === 1 ? '' : tr('s')} {tr('available on Amazon.ca')}
+                    {onAmazon.length === 1 ? tr('1 item available on {0}', [store]) : tr('{0} items available on {1}', [onAmazon.length, store])}
                   </p>
                   <p className="truncate text-sm text-muted-foreground">{listNames(onAmazon.map((i) => i.name))}.</p>
                 </div>
@@ -694,7 +696,7 @@ export function GroceriesDashboard() {
                     <div className="flex items-center gap-2 border-b border-border/70 bg-muted/40 px-4 py-2">
                       <ShoppingCart className="h-4 w-4 text-primary" />
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        {tr('Available on Amazon.ca (')}{onAmazon.length})
+                        {tr('Available on {0}', [store])} ({onAmazon.length})
                       </p>
                     </div>
                     <ul className="divide-y divide-border/60">
@@ -707,7 +709,7 @@ export function GroceriesDashboard() {
                             )}
                           </div>
                           <a
-                            href={amazonFoodUrl(item.name)}
+                            href={amazonFoodUrl(item.name, currency)}
                             target="_blank"
                             rel="sponsored noopener noreferrer"
                             className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-primary hover:bg-muted"
@@ -717,9 +719,11 @@ export function GroceriesDashboard() {
                         </li>
                       ))}
                     </ul>
-                    <p className="border-t border-border/60 px-4 py-2 text-xs text-muted-foreground">
-                      {trn(AFFILIATE_NOTE)}
-                    </p>
+                    {affiliate && (
+                      <p className="border-t border-border/60 px-4 py-2 text-xs text-muted-foreground">
+                        {trn(AFFILIATE_NOTE)}
+                      </p>
+                    )}
                   </Card>
                 )}
 

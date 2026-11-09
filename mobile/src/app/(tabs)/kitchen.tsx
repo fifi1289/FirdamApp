@@ -11,7 +11,7 @@ import { Badge, Chip } from '@/components/kitchen-ui';
 import { PartnerShops } from '@/components/partner-shops';
 import { HomeButton } from '@/components/screen';
 import { getCurrency } from '@/lib/finance';
-import { AFFILIATE_NOTE, DEPARTMENT_PICKS, amazonSearchUrl, parseBudget, shopsAvailable } from '@/shared/shop-links';
+import { AFFILIATE_NOTE, DEPARTMENT_PICKS, amazonIsAffiliate, amazonSearchUrl, amazonStoreName, parseBudget, shopsAvailable } from '@/shared/shop-links';
 import { SHOPPING_DEPARTMENTS } from '@/shared/shopping-departments';
 import { Button, Card, T } from '@/components/ui';
 import { useKitchen } from '@/lib/kitchen-store';
@@ -95,18 +95,22 @@ export default function Kitchen() {
 
 /**
  * One shopping department (Household, Clothing…): partner shops first, then in
- * Canada an Amazon.ca search within a budget. Elsewhere, partners or "soon".
+ * an Amazon search (the family's own country store) within a budget.
  */
 function DepartmentView({ dept }: { dept: string }) {
   const [online, setOnline] = useState<boolean | null>(null);
+  const [currency, setCurrency] = useState<string | null>(null);
   const partners = usePartnerShops();
   const [query, setQuery] = useState('');
   const [max, setMax] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
   useEffect(() => {
     getCurrency()
-      .then((c) => setOnline(shopsAvailable(c)))
-      .catch(() => setOnline(false));
+      .then((c) => {
+        setCurrency(c);
+        setOnline(shopsAvailable(c));
+      })
+      .catch(() => setOnline(true));
   }, []);
   useEffect(() => {
     setQuery('');
@@ -119,7 +123,7 @@ function DepartmentView({ dept }: { dept: string }) {
   const search = () => {
     if (!query.trim()) return setProblem(tr('Type what you’re looking for.'));
     if (max.trim() && parseBudget(max) == null) return setProblem(tr('Enter your budget as a number, for example 40.'));
-    Linking.openURL(amazonSearchUrl(query, parseBudget(max)));
+    Linking.openURL(amazonSearchUrl(query, parseBudget(max), currency));
   };
 
   return (
@@ -133,7 +137,7 @@ function DepartmentView({ dept }: { dept: string }) {
       {online ? (
         <Card style={{ gap: 12 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-            {tr('SEARCH {0} ON AMAZON.CA', [current.label.toUpperCase()])}
+            {tr('Search {0} on {1}', [tr(current.label), amazonStoreName(currency)]).toUpperCase()}
           </T>
           <TextInput
             value={query}
@@ -155,11 +159,11 @@ function DepartmentView({ dept }: { dept: string }) {
                 setMax(v);
                 setProblem(null);
               }}
-              placeholder={tr('Max budget ($)')}
+              placeholder={tr('Max budget')}
               placeholderTextColor={colors.muted}
               keyboardType="decimal-pad"
               style={[styles.input, { flex: 1 }]}
-              accessibilityLabel={tr('Maximum budget in Canadian dollars (optional)')}
+              accessibilityLabel={tr('Maximum budget (optional)')}
             />
             <Button label={tr('Search')} onPress={search} style={{ height: 48, paddingHorizontal: 18 }} />
           </View>
@@ -170,10 +174,10 @@ function DepartmentView({ dept }: { dept: string }) {
           ) : null}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {(DEPARTMENT_PICKS[dept] ?? []).map((p) => (
-              <Chip key={p.query} label={`${p.label} ↗`} onPress={() => Linking.openURL(amazonSearchUrl(p.query, parseBudget(max)))} />
+              <Chip key={p.query} label={`${p.label} ↗`} onPress={() => Linking.openURL(amazonSearchUrl(p.query, parseBudget(max), currency))} />
             ))}
           </View>
-          <T size={12} color={colors.muted}>{tr('{0} Prices and availability are shown on Amazon.ca.', [AFFILIATE_NOTE])}</T>
+          <T size={12} color={colors.muted}>{amazonIsAffiliate(currency) ? `${tr(AFFILIATE_NOTE)} ` : ''}{tr('Prices and availability are shown on {0}.', [amazonStoreName(currency)])}</T>
         </Card>
       ) : !hasPartners ? (
         <Card style={{ gap: 6 }}>

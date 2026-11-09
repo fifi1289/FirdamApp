@@ -1638,4 +1638,13 @@ export const FR: Record<string, string> = {
   "Firdam app feedback": "Commentaires sur l’app Firdam",
   "Today's spot price ({0}): gold {1} per gram, silver {2} per gram. Jewellers and banks may charge a little more.": "Prix du jour ({0}) : or {1} le gramme, argent {2} le gramme. Les bijoutiers et les banques peuvent vendre un peu plus cher.",
   "Use today's prices": "Utiliser les prix du jour",
+  "1 item available on {0}": "1 article disponible sur {0}",
+  "{0} items available on {1}": "{0} articles disponibles sur {1}",
+  "Available on {0}": "Disponible sur {0}",
+  "Search {0} on {1}": "Chercher {0} sur {1}",
+  "See {0} on {1}": "Voir {0} sur {1}",
+  "Prices and availability are shown on {0}.": "Les prix et la disponibilité sont indiqués sur {0}.",
+  ". Opens on {0}.": ". S’ouvre sur {0}.",
+  "Max budget": "Budget max",
+  "Maximum budget (optional)": "Budget maximum (facultatif)",
 };

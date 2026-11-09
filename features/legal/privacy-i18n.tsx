@@ -129,9 +129,9 @@ export const PRIVACY_FR: LegalContent = {
             <li>vous répondre quand vous nous contactez, sécuriser l’app et corriger les problèmes.</li>
           </ul>
           <p>
-            Nous <strong>ne vendons pas</strong> vos informations et <strong>n’affichons pas de publicité</strong>. Pour
-            les familles au Canada, certains articles de courses renvoient vers Amazon.ca ; Firdam touche une petite
-            commission sur les achats admissibles, et Amazon gère l’achat selon sa propre politique de confidentialité.
+            Nous <strong>ne vendons pas</strong> vos informations et <strong>n’affichons pas de publicité</strong>. Certains
+            articles de courses renvoient vers la boutique Amazon de votre pays ; pour Amazon.ca, Firdam touche une petite
+            commission sur les achats admissibles. Amazon gère l’achat selon sa propre politique de confidentialité.
             Nous ne partageons pas votre liste de courses avec Amazon, seulement la recherche que vous ouvrez. Quand vous
             touchez « Visiter la boutique » chez un partenaire, nous comptons ce clic pour indiquer à la boutique combien
             de familles Firdam lui a envoyées ; les boutiques ne voient que des totaux, jamais qui vous êtes. Si vous
@@ -459,8 +459,8 @@ export const PRIVACY_AR: LegalContent = {
             <li>الردّ عليك عندما تراسلنا، والحفاظ على أمان التطبيق، وإصلاح المشكلات.</li>
           </ul>
           <p>
-            نحن <strong>لا نبيع</strong> معلوماتك و<strong>لا نعرض إعلانات</strong>. للعائلات في كندا، تفتح بعض عناصر
-            التسوق روابط إلى Amazon.ca، ويحصل فردام على عمولة صغيرة على المشتريات المؤهّلة، وتتولّى أمازون عملية الشراء وفق
+            نحن <strong>لا نبيع</strong> معلوماتك و<strong>لا نعرض إعلانات</strong>. تفتح بعض عناصر
+            التسوق روابط إلى متجر أمازون في بلدك، ويحصل فردام على عمولة صغيرة على المشتريات المؤهّلة من Amazon.ca، وتتولّى أمازون عملية الشراء وفق
             سياسة الخصوصية الخاصة بها. لا نشارك قائمة تسوقك مع أمازون، بل فقط عملية البحث التي تفتحها. عندما تضغط «زيارة
             المتجر» لدى متجر شريك، نحسب هذه الضغطة لنُعلم المتجر بعدد العائلات التي أرسلها إليه فردام؛ ولا ترى المتاجر إلا
             الأعداد الإجمالية، ولا تعرف من أنت أبدًا. إذا تقدّمت لتصبح شريكًا، نحتفظ بالمعلومات والصور التي ترسلها (النشاط

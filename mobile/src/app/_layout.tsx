@@ -79,6 +79,7 @@ function Navigator() {
         <Stack.Screen name="learning" />
         <Stack.Screen name="services" />
         <Stack.Screen name="travel" />
+        <Stack.Screen name="lunchbox" />
         <Stack.Screen name="trip/[id]" />
         <Stack.Screen name="notifications" />
         <Stack.Screen name="household" />

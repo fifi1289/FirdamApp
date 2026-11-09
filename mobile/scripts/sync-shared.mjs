@@ -36,6 +36,7 @@ const FILES = {
   'features/quran/surahs.ts': 'surahs.ts',
   'features/quran/quran-core.ts': 'quran-core.ts',
   'features/travel/travel-data.ts': 'travel-data.ts',
+  'features/lunchbox/lunchbox-core.ts': 'lunchbox-core.ts',
 };
 
 const REWRITES = [
@@ -45,6 +46,7 @@ const REWRITES = [
   [/'@\/supabase\/functions\/_shared\/(pantry-[a-z]+|kitchen-items)'/g, "'./$1'"],
   [/'@\/features\/groceries\/grocery-utils'/g, "'./grocery-utils'"],
   [/'@\/features\/quran\/surahs'/g, "'./surahs'"],
+  [/'@\/features\/groceries\/shop-links'/g, "'./shop-links'"],
   [/'@\/types\/database'/g, "'../lib/db-types'"],
   [/(from\s+["']\.\/[a-z-]+)\.ts(["'])/g, '$1$2'],
 ];

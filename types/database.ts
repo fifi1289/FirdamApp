@@ -1426,6 +1426,46 @@ export type Database = {
         };
         Relationships: [];
       };
+      lunchbox_ideas: {
+        Row: {
+          id: string;
+          name: string;
+          items: string[];
+          fun_tip: string;
+          tools: string[];
+          tags: string[];
+          min_age: number;
+          image_path: string | null;
+          source: string;
+          i18n: unknown;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      lunchbox_plans: {
+        Row: {
+          user_id: string;
+          week_start: string;
+          children: unknown;
+          days: unknown;
+          updated_at: string;
+        };
+        Insert: {
+          user_id?: string;
+          week_start: string;
+          children?: unknown;
+          days?: unknown;
+        };
+        Update: {
+          children?: unknown;
+          days?: unknown;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       community_events: {
         Row: {
           id: string;

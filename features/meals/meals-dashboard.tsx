@@ -503,6 +503,19 @@ export function MealsDashboard() {
       </PageHeader>
 
       <div className="space-y-4">
+        <Link
+          href="/dashboard/lunchbox"
+          className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-muted/50"
+        >
+          <span className="text-3xl" aria-hidden>
+            🍱
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold text-foreground">{tr('School lunchboxes')}</span>
+            <span className="block text-sm text-muted-foreground">{tr('3 ideas a day for your child to pick. Nut-free and halal.')}</span>
+          </span>
+          <ChevronRight className="h-5 w-5 text-muted-foreground rtl:rotate-180" />
+        </Link>
         {(() => {
           const latest = savedPlans[0];
           if (!latest) return null;

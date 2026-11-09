@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -289,6 +289,21 @@ export function PlanView() {
         </Card>
       )}
 
+      <Pressable accessibilityRole="button" onPress={() => router.push('/lunchbox' as Href)} style={styles.lunchbox}>
+        <T size={30}>🍱</T>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <T size={15.5} weight="extrabold">
+            {tr('School lunchboxes')}
+          </T>
+          <T size={13} color={colors.muted}>
+            {tr('3 ideas a day for your child to pick. Nut-free and halal.')}
+          </T>
+        </View>
+        <T size={18} weight="bold" color={colors.walnut}>
+          ›
+        </T>
+      </Pressable>
+
       <View style={styles.planCard}>
         <View style={styles.planStar} pointerEvents="none">
           <StarPattern size={150} strokeWidth={1} />
@@ -336,6 +351,7 @@ export function PlanView() {
 }
 
 const styles = StyleSheet.create({
+  lunchbox: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line },
   day: { width: 48, paddingVertical: 8, borderRadius: 14, alignItems: 'center', gap: 2 },
   dayOn: { backgroundColor: colors.walnut },
   needsAI: { borderStyle: 'dashed', borderColor: colors.sand, backgroundColor: colors.tint, padding: 14 },

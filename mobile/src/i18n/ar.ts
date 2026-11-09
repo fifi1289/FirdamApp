@@ -1763,4 +1763,9 @@ export const AR: Record<string, string> = {
   "Wednesday": "الأربعاء",
   "Thursday": "الخميس",
   "Friday": "الجمعة",
+  "Family meals": "وجبات العائلة",
+  "New {0} idea": "فكرة جديدة · {0}",
+  "Not in the library yet": "غير موجودة في المكتبة بعد",
+  "Create a {0} recipe with the AI chef": "أنشئ وصفة جديدة ({0}) مع طاهي الذكاء الاصطناعي",
+  "Create": "إنشاء",
 };

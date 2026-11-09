@@ -1700,4 +1700,9 @@ export const FR: Record<string, string> = {
   "Wednesday": "Mercredi",
   "Thursday": "Jeudi",
   "Friday": "Vendredi",
+  "Family meals": "Repas en famille",
+  "New {0} idea": "Nouvelle idée · {0}",
+  "Not in the library yet": "Pas encore dans la bibliothèque",
+  "Create a {0} recipe with the AI chef": "Créer une recette ({0}) avec le chef IA",
+  "Create": "Créer",
 };

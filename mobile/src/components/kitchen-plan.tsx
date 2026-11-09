@@ -1,9 +1,10 @@
-import { router, type Href } from 'expo-router';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { StarPattern } from '@/components/art';
-import { Badge, Chip, Photo } from '@/components/kitchen-ui';
+import { Badge, Chip, Photo, Segmented } from '@/components/kitchen-ui';
+import { LunchboxView } from '@/components/lunchbox-view';
 import { Button, Card, T } from '@/components/ui';
 import {
   AI_PLANS_PER_MONTH,
@@ -35,6 +36,7 @@ import { showAlert } from '@/components/firdam-alert';
 import { locale, tr } from '@/lib/i18n';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MEAL_ORDER = ['breakfast', 'lunch', 'dinner', 'snack'];
 const TYPE_NAME: Record<string, string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
 const typeLabel = (t: string) => tr(TYPE_NAME[t] ?? t).toUpperCase();
 
@@ -76,6 +78,8 @@ export function PlanView() {
   };
   const [busy, setBusy] = useState<'ai' | 'library' | 'shop' | null>(null);
   const [swapping, setSwapping] = useState<string | null>(null);
+  // Family meals, or the children's school lunchboxes for the same week.
+  const [mode, setMode] = useState<'meals' | 'lunchbox'>('meals');
 
   const plan = wk?.plan ?? null;
   const day = plan?.days.find((d) => d.date === selected) ?? null;
@@ -200,6 +204,18 @@ export function PlanView() {
         <Chip label={tr('This week')} selected={offset === 0} onPress={() => switchWeek(0)} />
         <Chip label={k.nextWeek ? tr('Next week · ready') : tr('Next week')} selected={offset === 1} onPress={() => switchWeek(1)} />
       </View>
+      <Segmented<'meals' | 'lunchbox'>
+        options={[
+          { key: 'meals', label: tr('Family meals') },
+          { key: 'lunchbox', label: tr('School lunchboxes') },
+        ]}
+        value={mode}
+        onChange={setMode}
+      />
+      {mode === 'lunchbox' ? (
+        <LunchboxView week={offset ? 'next' : 'this'} />
+      ) : (
+      <>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
         {days.map((d) => {
           const iso = formatDateISO(d);
@@ -221,26 +237,37 @@ export function PlanView() {
 
       {day?.meals.length ? (
         <View style={{ gap: 10 }}>
-          {day.meals.map((m) => {
+          {[...day.meals].sort((a, b) => MEAL_ORDER.indexOf(a.type) - MEAL_ORDER.indexOf(b.type)).map((m) => {
             if (m.needsAI) {
               const busyHere = swapping === `${selected}-${m.type}`;
               return (
                 <View key={`${m.type}-${m.id}`} style={[styles.meal, styles.needsAI]}>
-                  <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                  <View style={styles.emptyPhoto}>
+                    <T size={22}>✨</T>
+                  </View>
+                  <View style={{ flex: 1, minWidth: 0 }}>
                     <T size={11.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
                       {typeLabel(m.type)}
                     </T>
-                    <T size={14.5} weight="bold">{tr('No {0} recipe for {1} in the library yet', [tr(m.needsAI), tr(TYPE_NAME[m.type] ?? m.type).toLowerCase()])}</T>
-                    <T size={12.5} color={colors.muted}>
-                      {tr('The AI chef can create one for your family. It joins the recipe library too.')}
+                    <T size={14.5} weight="bold" numberOfLines={2}>
+                      {tr('New {0} idea', [tr(m.needsAI)])}
                     </T>
-                    <Button
-                      label={busyHere ? tr('Creating…') : tr('Create with the AI chef')}
-                      onPress={() => swapFrom(m, 'ai')}
-                      busy={busyHere}
-                      style={{ height: 40, alignSelf: 'flex-start', paddingHorizontal: 14, marginTop: 4 }}
-                    />
+                    <T size={12.5} color={colors.muted} numberOfLines={1}>
+                      {tr('Not in the library yet')}
+                    </T>
                   </View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={tr('Create a {0} recipe with the AI chef', [tr(m.needsAI)])}
+                    hitSlop={8}
+                    disabled={busyHere}
+                    onPress={() => swapFrom(m, 'ai')}
+                    style={styles.create}
+                  >
+                    <T size={12.5} weight="bold" color={colors.linen}>
+                      {busyHere ? '…' : tr('Create')}
+                    </T>
+                  </Pressable>
                 </View>
               );
             }
@@ -289,21 +316,6 @@ export function PlanView() {
         </Card>
       )}
 
-      <Pressable accessibilityRole="button" onPress={() => router.push('/lunchbox' as Href)} style={styles.lunchbox}>
-        <T size={30}>🍱</T>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <T size={15.5} weight="extrabold">
-            {tr('School lunchboxes')}
-          </T>
-          <T size={13} color={colors.muted}>
-            {tr('3 ideas a day for your child to pick. Nut-free and halal.')}
-          </T>
-        </View>
-        <T size={18} weight="bold" color={colors.walnut}>
-          ›
-        </T>
-      </Pressable>
-
       <View style={styles.planCard}>
         <View style={styles.planStar} pointerEvents="none">
           <StarPattern size={150} strokeWidth={1} />
@@ -346,15 +358,18 @@ export function PlanView() {
           </View>
         ) : null}
       </View>
+      </>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  lunchbox: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line },
   day: { width: 48, paddingVertical: 8, borderRadius: 14, alignItems: 'center', gap: 2 },
   dayOn: { backgroundColor: colors.walnut },
-  needsAI: { borderStyle: 'dashed', borderColor: colors.sand, backgroundColor: colors.tint, padding: 14 },
+  needsAI: { borderStyle: 'dashed', borderColor: colors.sand, backgroundColor: colors.tint },
+  emptyPhoto: { width: 64, height: 64, borderRadius: 14, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  create: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14, backgroundColor: colors.walnut },
   swap: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: colors.line },
   dot: { width: 5, height: 5, borderRadius: 3, marginTop: 2 },
   meal: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 10 },

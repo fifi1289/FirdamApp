@@ -3526,4 +3526,9 @@ export const AR: Record<string, string> = {
   "We couldn't find a lunchbox that fits these allergies yet. Try again later.": "لم نجد بعد علبة غداء تناسب هذه الحساسيات. حاول لاحقًا.",
   "Choose a week.": "اختر أسبوعًا.",
   "Please sign in.": "يرجى تسجيل الدخول.",
+  "Family meals": "وجبات العائلة",
+  "New {0} idea": "فكرة جديدة · {0}",
+  "Not in the library yet": "غير موجودة في المكتبة بعد",
+  "Create a {0} recipe with the AI chef": "أنشئ وصفة جديدة ({0}) مع طاهي الذكاء الاصطناعي",
+  "Create": "إنشاء",
 };

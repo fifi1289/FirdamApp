@@ -25,6 +25,7 @@ import {
   type LunchboxIdea,
   type LunchboxPlan,
 } from '@/features/lunchbox/lunchbox-core';
+import { MealsTabs } from '@/features/meals/meals-tabs';
 import { formatDateISO, getStartOfWeek } from '@/features/meals/plan-core';
 import { getLang, locale, tr } from '@/lib/i18n';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -202,6 +203,7 @@ export function LunchboxDashboard() {
         description={tr('3 lunchbox ideas a day, so your child picks. Always nut-free and halal, with no sweets, and safe for little ones.')}
       />
       <div className="space-y-5">
+        <MealsTabs active="lunchbox" />
         <div className="inline-flex rounded-xl border border-border p-1">
           {(['this', 'next'] as Week[]).map((w) => (
             <button

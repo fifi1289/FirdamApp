@@ -3438,4 +3438,9 @@ export const FR: Record<string, string> = {
   "We couldn't find a lunchbox that fits these allergies yet. Try again later.": "Nous n’avons pas encore trouvé de boîte à lunch adaptée à ces allergies. Réessayez plus tard.",
   "Choose a week.": "Choisissez une semaine.",
   "Please sign in.": "Veuillez vous connecter.",
+  "Family meals": "Repas en famille",
+  "New {0} idea": "Nouvelle idée · {0}",
+  "Not in the library yet": "Pas encore dans la bibliothèque",
+  "Create a {0} recipe with the AI chef": "Créer une recette ({0}) avec le chef IA",
+  "Create": "Créer",
 };

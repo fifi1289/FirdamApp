@@ -96,7 +96,7 @@ export function LunchboxDashboard() {
       let current: LunchboxPlan | null = null;
       if (saved) {
         current = { weekStart, children: (saved.children ?? []) as LunchboxChild[], days: (saved.days ?? []) as LunchboxDay[] };
-        const ids = [...new Set(current.days.flatMap((d) => d.options.flatMap((o) => (o.kind === 'idea' ? [o.id] : []))))];
+        const ids = Array.from(new Set(current.days.flatMap((d) => d.options.flatMap((o) => (o.kind === 'idea' ? [o.id] : [])))));
         const { data: rows } = ids.length ? await supabase.from('lunchbox_ideas').select('*').in('id', ids) : { data: [] };
         setIdeas((rows ?? []) as LunchboxIdea[]);
       } else {

@@ -3531,4 +3531,5 @@ export const AR: Record<string, string> = {
   "Not in the library yet": "غير موجودة في المكتبة بعد",
   "Create a {0} recipe with the AI chef": "أنشئ وصفة جديدة ({0}) مع طاهي الذكاء الاصطناعي",
   "Create": "إنشاء",
+  "No {0} recipes fit your filters yet.": "لا توجد بعد وصفات ({0}) تناسب عوامل التصفية لديك.",
 };

@@ -3443,4 +3443,5 @@ export const FR: Record<string, string> = {
   "Not in the library yet": "Pas encore dans la bibliothèque",
   "Create a {0} recipe with the AI chef": "Créer une recette ({0}) avec le chef IA",
   "Create": "Créer",
+  "No {0} recipes fit your filters yet.": "Aucune recette ({0}) ne correspond encore à vos filtres.",
 };

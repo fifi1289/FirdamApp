@@ -280,8 +280,30 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
     const date = new Date(start);
     date.setDate(date.getDate() + i);
 
+    // A slot the library can't fill: the app offers the AI chef for it.
+    const emptySlot = (type: string, cuisine: string): MockMeal => {
+      const label = cuisine || type[0].toUpperCase() + type.slice(1);
+      return {
+      id: `needs-ai-${i}-${type}`,
+      name: cuisine ? `${cuisine} ${type}` : label,
+      type,
+      description: cuisine ? tr('No more {0} {1} recipes in the library yet.', [cuisine, type]) : tr('No {0} recipes fit your filters yet.', [type]),
+      image: getMealImage(`${cuisine} ${type}`.trim(), type),
+      ingredients: [],
+      recipe: [],
+      prepTime: 0,
+      cookTime: 0,
+      servings: householdSize,
+      difficulty: 'Easy',
+      needsAI: label,
+      };
+    };
+
     const meals: MockMeal[] = lowerTypes.map((type, idx) => {
-      const typePool = byType[type] ?? recipes;
+      // Only recipes of this meal type, or a nearby one (snack ↔ breakfast,
+      // lunch ↔ dinner): a dinner soup is never planned as a snack.
+      const typePool = byType[type] ?? (NEAR_MEALS[type] ?? []).flatMap((t) => byType[t] ?? []);
+      if (typePool.length === 0) return emptySlot(type, '');
       let pool = typePool;
       // Chosen cuisines are respected: only those cuisines for this meal, also
       // from a nearby meal type (snack ↔ breakfast, lunch ↔ dinner). When the
@@ -293,23 +315,7 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
         const same = ofCuisine(typePool).filter((r) => !usedIds.has(r.id));
         const near = ofCuisine(NEAR_MEALS[type]?.flatMap((t) => byType[t] ?? []) ?? []).filter((r) => !usedIds.has(r.id));
         pool = same.length ? same : near;
-        if (pool.length === 0) {
-          const cuisine = (cuisinePrefs[type] ?? []).join(' or ');
-          return {
-            id: `needs-ai-${i}-${type}`,
-            name: `${cuisine} ${type}`,
-            type,
-            description: tr('No more {0} {1} recipes in the library yet.', [cuisine, type]),
-            image: getMealImage(`${cuisine} ${type}`, type),
-            ingredients: [],
-            recipe: [],
-            prepTime: 0,
-            cookTime: 0,
-            servings: householdSize,
-            difficulty: 'Easy',
-            needsAI: cuisine,
-          } satisfies MockMeal;
-        }
+        if (pool.length === 0) return emptySlot(type, (cuisinePrefs[type] ?? []).join(' or '));
       }      let candidate: RecipeRow | undefined;
 
       let unused = pool.filter((r) => !usedIds.has(r.id));
@@ -336,9 +342,7 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
         rotationCursors[type] = cursor + 1;
       }
 
-      if (!candidate) {
-        candidate = recipes[i % recipes.length];
-      }
+      if (!candidate) return emptySlot(type, '');
 
       usedIds.add(candidate.id);
       return toMockMeal(candidate, type, householdSize);

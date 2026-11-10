@@ -75,7 +75,7 @@ export function countUsageToday(userId: string, kind: string): Promise<number> {
   return countUsageSince(userId, kind, new Date(Date.now() - 24 * 3600_000).toISOString());
 }
 
-async function countUsageSince(userId: string, kind: string, since: string): Promise<number> {
+export async function countUsageSince(userId: string, kind: string, since: string): Promise<number> {
   const url = env("SUPABASE_URL");
   const headers = serviceHeaders();
   if (!url || !headers) return 0;

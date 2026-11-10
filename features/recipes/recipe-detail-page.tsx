@@ -1,5 +1,6 @@
 'use client';
 
+import { LittlePlatesWeb } from '@/features/little-plates/little-plates-web';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -533,6 +534,8 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
               </ol>
             </CardContent>
           </Card>
+
+          <LittlePlatesWeb id={recipe.id} name={recipe.name} ingredients={recipe.ingredients.map((i) => i.name)} steps={recipe.steps.map((st) => st.text)} />
 
           {(recipe.tips.length > 0 || recipe.storage || recipe.reheating || recipe.equipment.length > 0) && (
             <Card>

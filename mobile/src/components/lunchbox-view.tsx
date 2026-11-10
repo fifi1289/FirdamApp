@@ -165,10 +165,10 @@ export function LunchboxView({ week: shownWeek }: { week?: Week } = {}) {
           {babies.length ? (
             <Card style={{ backgroundColor: colors.amberTint, gap: 4 }}>
               <T size={14} weight="bold" color={colors.amberText}>
-                {tr('Little Plates is coming soon')}
+                {tr('Little Plates for the little ones')}
               </T>
               <T size={13.5} color={colors.amberText}>
-                {tr('{0} is under 2, so lunchboxes are not for them yet. Baby and toddler versions of your family meals are coming soon.', [babies.map((b) => b.name).join(', ')])}
+                {tr('{0} is under 2, so lunchboxes are not for them yet. Open any meal in your meal plan to see its baby or toddler version.', [babies.map((b) => b.name).join(', ')])}
               </T>
             </Card>
           ) : null}

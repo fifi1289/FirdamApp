@@ -1,5 +1,6 @@
 'use client';
 
+import { LittlePlatesWeb } from '@/features/little-plates/little-plates-web';
 import { useEffect, useState } from 'react';
 import {
   AlertTriangle,
@@ -712,6 +713,13 @@ export function MealDetailDialog({
                     ))}
                   </ol>
                 </div>
+              </>
+            )}
+
+            {meal && (
+              <>
+                <Separator />
+                <LittlePlatesWeb id={recipe?.id ?? meal.id} name={meal.name} ingredients={ingredients.map((i) => i.name)} steps={steps.map((st) => st.instruction)} />
               </>
             )}
 

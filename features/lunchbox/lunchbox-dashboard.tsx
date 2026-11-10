@@ -226,9 +226,9 @@ export function LunchboxDashboard() {
             {babies.length > 0 && (
               <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40">
                 <CardContent className="space-y-1 p-4">
-                  <p className="font-semibold text-amber-900 dark:text-amber-200">{tr('Little Plates is coming soon')}</p>
+                  <p className="font-semibold text-amber-900 dark:text-amber-200">{tr('Little Plates for the little ones')}</p>
                   <p className="text-sm text-amber-900/90 dark:text-amber-200/90">
-                    {tr('{0} is under 2, so lunchboxes are not for them yet. Baby and toddler versions of your family meals are coming soon.', [babies.join(', ')])}
+                    {tr('{0} is under 2, so lunchboxes are not for them yet. Open any meal in your meal plan to see its baby or toddler version.', [babies.join(', ')])}
                   </p>
                 </CardContent>
               </Card>

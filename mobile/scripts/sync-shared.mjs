@@ -37,6 +37,7 @@ const FILES = {
   'features/quran/quran-core.ts': 'quran-core.ts',
   'features/travel/travel-data.ts': 'travel-data.ts',
   'features/lunchbox/lunchbox-core.ts': 'lunchbox-core.ts',
+  'features/little-plates/little-plates-core.ts': 'little-plates-core.ts',
 };
 
 const REWRITES = [

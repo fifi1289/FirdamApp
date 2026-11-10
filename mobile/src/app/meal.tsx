@@ -15,6 +15,7 @@ import { showAlert } from '@/components/firdam-alert';
 import { ToBuyButton } from '@/components/to-buy-button';
 import { tr } from '@/lib/i18n';
 import { addRecipeSteps } from '@/lib/recipe-i18n';
+import { LittlePlatesSection } from '@/components/little-plates-section';
 
 /** A meal the AI chef wrote (not from the recipe library). */
 export default function MealScreen() {
@@ -148,6 +149,13 @@ export default function MealScreen() {
               </View>
             ))}
           </View>
+          <LittlePlatesSection
+            id={meal.id}
+            name={meal.name}
+            ingredients={meal.ingredients.map((i) => i.name)}
+            steps={meal.recipe ?? []}
+            allergies={k.prefs?.allergies ?? []}
+          />
         </View>
       </ScrollView>
       {toBuy.length ? (

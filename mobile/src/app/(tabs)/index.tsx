@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Icon, StarPattern } from '@/components/art';
+import { Icon } from '@/components/art';
 import { FeatureRing } from '@/components/feature-ring';
 import { openMeal } from '@/components/kitchen-plan';
 import { Badge, Photo } from '@/components/kitchen-ui';
@@ -18,75 +18,13 @@ import { loadEvents, loadMembers } from '@/lib/calendar';
 import { duaOfTheDay } from '@/shared/duas';
 import { buildCalendarItems, iso, parseISODate, type CalendarItem } from '@/shared/calendar-core';
 import { formatPortions } from '@/shared/pantry-portions';
-import { PRAYERS, formatCountdown, formatTime, nextPrayer, timesFor, useNow, usePrayerSettings } from '@/lib/prayer';
+import { useNow, usePrayerSettings } from '@/lib/prayer';
 import { colors, fonts } from '@/theme';
 import { LanguageButton } from '@/components/language-picker';
 import { locale, tr, isRTL } from '@/lib/i18n';
 
 function todayLabel(now: Date) {
   return now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'short' });
-}
-
-function PrayerCard() {
-  const { settings } = usePrayerSettings();
-  const now = useNow();
-  const place = settings?.place ?? null;
-
-  const next = settings && place ? nextPrayer(settings, place, now) : null;
-  const today = settings && place ? timesFor(settings, place, now) : null;
-  const nextInfo = next ? PRAYERS.find((p) => p.id === next.id) : null;
-  const sameDay = next ? next.at.toDateString() === now.toDateString() : false;
-
-  return (
-    <Pressable accessibilityRole="button" onPress={() => router.push('/prayer')} style={styles.prayer}>
-      <View style={styles.star} pointerEvents="none">
-        <StarPattern size={190} color={colors.gold} strokeWidth={0.8} />
-      </View>
-      <T size={13} weight="semibold" color={colors.goldText} style={{ letterSpacing: 0.4 }}>
-        {place ? tr('NEXT PRAYER · {0}', [place.label.toUpperCase()]) : tr('PRAYER TIMES')}
-      </T>
-      {next && nextInfo && today ? (
-        <>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 6 }}>
-            <T size={34} weight="extrabold" color={colors.linen}>
-              {tr(nextInfo.name)}
-            </T>
-            <T size={30} weight="regular" color={colors.goldText}>
-              {formatTime(next.at)}
-            </T>
-          </View>
-          <T size={14} color="#E9DCCD">
-            {formatCountdown(next.at.getTime() - now.getTime())}
-            {settings?.alerts[next.id] ? tr(' · adhan alert on') : ''}
-          </T>
-          <View style={styles.row}>
-            {PRAYERS.filter((p) => p.alert).map((p) => {
-              const active = sameDay && p.id === next.id;
-              return (
-                <View key={p.id} style={[styles.cell, active && styles.cellActive]}>
-                  <T size={12} weight={active ? 'bold' : 'regular'} color={active ? colors.espresso : '#CDB9A5'}>
-                    {tr(p.name)}
-                  </T>
-                  <T size={12} weight={active ? 'bold' : 'semibold'} color={active ? colors.espresso : '#E9DCCD'}>
-                    {formatTime(today.times[p.id]).replace(/ ?[ap]m$/, '')}
-                  </T>
-                </View>
-              );
-            })}
-          </View>
-        </>
-      ) : (
-        <>
-          <T size={24} weight="extrabold" color={colors.linen} style={{ marginTop: 6 }}>
-            {tr('Set your location')}
-          </T>
-          <T size={14} color="#E9DCCD" style={{ marginTop: 4 }}>
-            {tr('Tap here to see today’s prayer times and turn on adhan alerts.')}
-          </T>
-        </>
-      )}
-    </Pressable>
-  );
 }
 
 /** Food at home that should be eaten soon: expired, today, or within 3 days. */
@@ -284,7 +222,7 @@ function TonightCard() {
           <T size={15} color="#5F5048">
             {tr('No plan yet. Firdam can plan your week in seconds, sized for your family.')}
           </T>
-          <Button label={tr('Plan my week')} onPress={() => router.push('/kitchen')} style={{ height: 44 }} />
+          <Button label={tr('Plan my week')} onPress={() => router.push({ pathname: '/kitchen', params: { section: 'plan' } })} style={{ height: 44 }} />
         </Card>
       )}
       {openItems ? (
@@ -348,7 +286,17 @@ export default function Today() {
   return (
     <TabScreen home action={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><LanguageButton /><BellButton /></View>} title={todayLabel(now)} subtitle={tr('Assalamu alaikum{0}', [firstName ? `, ${firstName}` : ''])}>
       <FeatureRing />
-      <PrayerCard />
+      <Pressable accessibilityRole="button" onPress={() => router.push('/features')} style={styles.all}>
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <T size={15} weight="bold">
+            {tr('All features')}
+          </T>
+          <T size={12.5} color={colors.muted} numberOfLines={1}>
+            {tr('Halal places, Finance & zakat, Travel and more')}
+          </T>
+        </View>
+        <Icon name="chevron" size={18} color={colors.walnut} />
+      </Pressable>
       <DuaCard />
       <UseSoonCard />
       <TonightCard />
@@ -360,17 +308,13 @@ export default function Today() {
 }
 
 const styles = StyleSheet.create({
+  all: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 18, paddingVertical: 14, paddingHorizontal: 16 },
   bell: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
   shopCard: { gap: 10, backgroundColor: '#EEF4EA', borderWidth: 1, borderColor: '#CFE0C6', borderRadius: 20, padding: 16 },
   shopItem: { backgroundColor: colors.card, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: '#CFE0C6' },
   soonDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.gold },
   warn: { gap: 8, backgroundColor: '#FFF4E0', borderWidth: 1, borderColor: '#F0D29A', borderRadius: 20, padding: 16 },
   warnRed: { backgroundColor: '#FCEAE6', borderColor: '#EDB9AE' },
-  prayer: { backgroundColor: colors.espresso, borderRadius: 24, padding: 20, overflow: 'hidden' },
-  star: { position: 'absolute', right: -50, top: -40, opacity: 0.35 },
-  row: { flexDirection: 'row', gap: 6, marginTop: 18 },
-  cell: { flex: 1, alignItems: 'center', borderRadius: 10, paddingVertical: 4, gap: 2 },
-  cellActive: { backgroundColor: colors.gold },
   dinner: { flexDirection: 'row', gap: 14, alignItems: 'center', padding: 14 },
   shopping: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 20, padding: 16 },
 });

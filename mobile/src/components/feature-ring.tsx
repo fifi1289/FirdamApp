@@ -2,19 +2,22 @@ import { router, type Href } from 'expo-router';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
-import { Icon, type IconName, Logo } from '@/components/art';
+import { Icon, StarPattern, type IconName } from '@/components/art';
 import { T } from '@/components/ui';
+import { useFavourites } from '@/lib/home-favourites';
+import { tr } from '@/lib/i18n';
+import { PRAYERS, formatCountdown, formatTime, nextPrayer, useNow, usePrayerSettings } from '@/lib/prayer';
 import { HOME_FEATURES, ringPoint, type HomeFeatureId } from '@/shared/home-features';
 import { colors } from '@/theme';
-import { tr } from '@/lib/i18n';
 
-const ICONS: Record<HomeFeatureId, IconName> = {
+export const FEATURE_ICONS: Record<HomeFeatureId, IconName> = {
   prayer: 'prayer',
   qibla: 'qibla',
   quran: 'quran',
   fasting: 'fasting',
   halal: 'halal',
-  meals: 'kitchen',
+  kitchen: 'kitchen',
+  meals: 'today',
   recipes: 'recipes',
   shopping: 'cart',
   pantry: 'pantry',
@@ -27,129 +30,175 @@ const ICONS: Record<HomeFeatureId, IconName> = {
 };
 
 /*
- * Layout at full size (366 px wide, scaled down on smaller phones):
- * hub 76, bubbles 66, inner ring radius 76, outer ring radius 148. The rings
- * are far enough apart that their bubbles never touch.
+ * Layout at full size (340 px wide, scaled down on smaller phones): the next
+ * prayer in a 150 px hub, the favourites in 72 px bubbles on a 128 px ring.
  */
-const BASE = 366;
-const HUB = 76;
-const BUBBLE = 66;
-const INNER_R = 76;
-const OUTER_R = 148;
-
-const inner = HOME_FEATURES.filter((f) => f.ring === 'inner');
-const outer = HOME_FEATURES.filter((f) => f.ring === 'outer');
+const BASE = 340;
+const HUB = 150;
+const BUBBLE = 72;
+const RADIUS = 128;
 
 /**
- * Home: every feature in two rings around the Firdam logo (they stay still, so every button is easy to find and tap) —
- * faith and family close in, everyday living around them.
+ * Home: the next prayer in the middle, the family's 5 favourite features
+ * around it, and an Edit bubble to change them. Everything else is in
+ * "All features" (the /features screen).
  */
 export function FeatureRing() {
   const { width } = useWindowDimensions();
-  const size = Math.min(width - 24, BASE);
+  const { favourites } = useFavourites();
+  const size = Math.min(width - 32, BASE);
   const k = size / BASE;
   const center = size / 2;
+  const items = favourites.map((id) => HOME_FEATURES.find((f) => f.id === id)!).filter(Boolean);
+  const slots = items.length + 1; // + Edit
+  const bubble = BUBBLE * k;
 
   return (
-    <View style={{ width: size, height: size, alignSelf: 'center' }} accessibilityLabel={tr('Firdam features')}>
+    <View style={{ width: size, height: size, alignSelf: 'center' }} accessibilityLabel={tr('Your favourite features')}>
       <Svg width={size} height={size} style={StyleSheet.absoluteFill} pointerEvents="none">
-        <Circle cx={center} cy={center} r={OUTER_R * k} stroke={colors.sand} strokeWidth={1} strokeDasharray="2 7" fill="none" />
-        <Circle cx={center} cy={center} r={INNER_R * k} stroke={colors.gold} strokeWidth={1} strokeDasharray="2 6" fill="none" opacity={0.7} />
+        <Circle cx={center} cy={center} r={RADIUS * k} stroke={colors.sand} strokeWidth={1.2} strokeDasharray="3 7" fill="none" />
       </Svg>
 
-      <Ring items={outer} radius={OUTER_R * k} bubble={BUBBLE * k} size={size} tone="outer" />
-      <Ring items={inner} radius={INNER_R * k} bubble={BUBBLE * k} size={size} tone="inner" />
+      {items.map((f, i) => {
+        const p = ringPoint(i, slots);
+        return (
+          <Bubble
+            key={f.id}
+            left={center + p.x * RADIUS * k - bubble / 2}
+            top={center + p.y * RADIUS * k - bubble / 2}
+            size={bubble}
+            icon={FEATURE_ICONS[f.id]}
+            label={tr(f.label)}
+            strong={f.id === 'kitchen'}
+            onPress={() => router.push(f.app as Href)}
+          />
+        );
+      })}
+      {(() => {
+        const p = ringPoint(items.length, slots);
+        return (
+          <Bubble
+            left={center + p.x * RADIUS * k - bubble / 2}
+            top={center + p.y * RADIUS * k - bubble / 2}
+            size={bubble}
+            label={tr('Edit')}
+            dashed
+            hint={tr('Choose your favourite features')}
+            onPress={() => router.push({ pathname: '/features', params: { edit: '1' } })}
+          />
+        );
+      })()}
 
-      <View
-        style={[styles.hub, { width: HUB * k, height: HUB * k, borderRadius: (HUB * k) / 2, left: center - (HUB * k) / 2, top: center - (HUB * k) / 2 }]}
-        accessibilityRole="image"
-        accessibilityLabel={tr('Firdam')}
-      >
-        <Logo size={Math.round(26 * k)} />
-        <T weight="extrabold" size={Math.round(12.5 * k)} color={colors.walnut} style={{ marginTop: 2 }}>
-          {tr('Firdam')}
-        </T>
-      </View>
+      <PrayerHub size={HUB * k} left={center - (HUB * k) / 2} top={center - (HUB * k) / 2} />
     </View>
   );
 }
 
-function Ring({
-  items,
-  radius,
-  bubble,
+function Bubble({
+  left,
+  top,
   size,
-  tone,
+  icon,
+  label,
+  onPress,
+  strong = false,
+  dashed = false,
+  hint,
 }: {
-  items: typeof HOME_FEATURES;
-  radius: number;
-  bubble: number;
+  left: number;
+  top: number;
   size: number;
-  tone: 'inner' | 'outer';
+  icon?: IconName;
+  label: string;
+  onPress: () => void;
+  strong?: boolean;
+  dashed?: boolean;
+  hint?: string;
 }) {
-  const center = size / 2;
-  const scale = bubble / BUBBLE;
-
+  const scale = size / BUBBLE;
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      {items.map((f, i) => {
-        const p = ringPoint(i, items.length);
-        return (
+    <View style={{ position: 'absolute', left, top, width: size, height: size }}>
+      <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityHint={hint} onPress={onPress}>
+        {({ pressed }) => (
           <View
-            key={f.id}
-            style={{
-              position: 'absolute',
-              left: center + p.x * radius - bubble / 2,
-              top: center + p.y * radius - bubble / 2,
-              width: bubble,
-              height: bubble,
-            }}
+            style={[
+              styles.bubble,
+              { width: size, height: size, borderRadius: size / 2 },
+              strong ? styles.strong : dashed ? styles.dashed : styles.plain,
+              pressed && styles.pressed,
+            ]}
           >
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={tr(f.label)}
-              onPress={() => router.push(f.app as Href)}
+            {icon ? (
+              <Icon name={icon} size={Math.round(22 * scale)} color={strong ? colors.linen : colors.walnut} />
+            ) : (
+              <T size={Math.round(22 * scale)} weight="bold" color={colors.walnut} style={{ lineHeight: Math.round(24 * scale) }}>
+                +
+              </T>
+            )}
+            <T
+              size={Math.max(9, Math.round(10.5 * scale * 10) / 10)}
+              weight="bold"
+              color={strong ? colors.linen : colors.espresso}
+              numberOfLines={2}
+              style={{ textAlign: 'center', lineHeight: Math.round(12 * scale), marginTop: 2, paddingHorizontal: 5 }}
             >
-              {({ pressed }) => (
-                <View
-                  style={[
-                    styles.bubble,
-                    { width: bubble, height: bubble, borderRadius: bubble / 2 },
-                    tone === 'inner' ? styles.inner : styles.outer,
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Icon name={ICONS[f.id]} size={Math.round(21 * scale)} color={colors.walnut} />
-                  <T
-                    size={Math.max(8.5, Math.round(10 * scale * 10) / 10)}
-                    weight="bold"
-                    color={colors.espresso}
-                    numberOfLines={2}
-                    style={{ textAlign: 'center', lineHeight: Math.round(11 * scale), marginTop: 2, paddingHorizontal: 5 }}
-                  >
-                    {tr(f.label)}
-                  </T>
-                </View>
-              )}
-            </Pressable>
+              {label}
+            </T>
           </View>
-        );
-      })}
+        )}
+      </Pressable>
     </View>
+  );
+}
+
+/** The next prayer, in the middle of the ring; opens Prayer. */
+function PrayerHub({ size, left, top }: { size: number; left: number; top: number }) {
+  const { settings } = usePrayerSettings();
+  const now = useNow();
+  const place = settings?.place ?? null;
+  const next = settings && place ? nextPrayer(settings, place, now) : null;
+  const info = next ? PRAYERS.find((p) => p.id === next.id) : null;
+  const k = size / HUB;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={next && info ? tr('Next prayer: {0} at {1}', [tr(info.name), formatTime(next.at)]) : tr('Prayer times')}
+      onPress={() => router.push('/prayer')}
+      style={[styles.hub, { width: size, height: size, borderRadius: size / 2, left, top }]}
+    >
+      <View style={styles.hubStar} pointerEvents="none">
+        <StarPattern size={size * 1.1} color={colors.gold} strokeWidth={0.8} />
+      </View>
+      {next && info ? (
+        <>
+          <T size={Math.round(11 * k)} weight="bold" color={colors.goldText} style={{ letterSpacing: 0.6 }}>
+            {tr(info.name).toUpperCase()}
+          </T>
+          <T size={Math.round(27 * k)} weight="extrabold" color={colors.linen}>
+            {formatTime(next.at)}
+          </T>
+          <T size={Math.round(11.5 * k)} color={colors.goldText} numberOfLines={1} style={{ paddingHorizontal: 10 }}>
+            {formatCountdown(next.at.getTime() - now.getTime())}
+          </T>
+        </>
+      ) : (
+        <>
+          <Icon name="prayer" size={Math.round(24 * k)} color={colors.goldText} />
+          <T size={Math.round(13 * k)} weight="bold" color={colors.linen} style={{ textAlign: 'center', marginTop: 4, paddingHorizontal: 14 }}>
+            {tr('Set your location')}
+          </T>
+        </>
+      )}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  hub: {
-    position: 'absolute',
-    backgroundColor: colors.card,
-    borderWidth: 2.5,
-    borderColor: colors.gold,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  hub: { position: 'absolute', backgroundColor: colors.espresso, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', gap: 2 },
+  hubStar: { position: 'absolute', opacity: 0.25 },
   bubble: { alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
-  inner: { backgroundColor: colors.tint, borderColor: '#E2D2C1' },
-  outer: { backgroundColor: colors.card, borderColor: colors.line },
-  pressed: { backgroundColor: colors.sand, transform: [{ scale: 0.95 }] },
+  plain: { backgroundColor: colors.card, borderColor: colors.line },
+  strong: { backgroundColor: colors.walnut, borderColor: colors.walnut },
+  dashed: { backgroundColor: colors.card, borderColor: colors.sand, borderStyle: 'dashed', borderWidth: 1.5 },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.95 }] },
 });

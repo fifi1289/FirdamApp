@@ -6,13 +6,14 @@ import { tr } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 /** Meal plan sections: family meals and the children's school lunchboxes (same as the app). */
-export function MealsTabs({ active }: { active: 'meals' | 'lunchbox' }) {
+export function MealsTabs({ active }: { active: 'kitchen' | 'meals' | 'lunchbox' }) {
   const tabs = [
+    { key: 'kitchen', href: '/dashboard/kitchen', label: tr('Kitchen') },
     { key: 'meals', href: '/dashboard/meals', label: tr('Family meals') },
     { key: 'lunchbox', href: '/dashboard/lunchbox', label: tr('School lunchboxes') },
   ] as const;
   return (
-    <nav className="inline-flex rounded-xl border border-border bg-card p-1" aria-label={tr('Meal plan')}>
+    <nav className="inline-flex max-w-full overflow-x-auto rounded-xl border border-border bg-card p-1" aria-label={tr('Meal plan')}>
       {tabs.map((t) => (
         <Link
           key={t.key}

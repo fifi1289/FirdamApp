@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, RefreshControl, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { KitchenHome } from '@/components/kitchen-home';
 import { PlanView } from '@/components/kitchen-plan';
 import { RecipesView } from '@/components/kitchen-recipes';
 import { ShoppingView } from '@/components/kitchen-shopping';
@@ -19,19 +20,19 @@ import { usePartnerShops } from '@/lib/partners';
 import { colors } from '@/theme';
 import { tr } from '@/lib/i18n';
 
-type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
+type Section = 'home' | 'plan' | 'recipes' | 'shopping' | 'pantry';
 
-const TITLES: Record<Section, string> = { plan: 'Meal plan', recipes: 'Recipes', shopping: 'Shopping', pantry: 'Pantry' };
+const TITLES: Record<Section, string> = { home: 'Kitchen', plan: 'Meal plan', recipes: 'Recipes', shopping: 'Shopping', pantry: 'Pantry' };
+const SECTIONS = ['plan', 'recipes', 'shopping', 'pantry'];
 
 export default function Kitchen() {
   const k = useKitchen();
-  // Each kitchen feature on the Home ring opens its own screen: /kitchen?section=shopping
+  // /kitchen opens Kitchen's front page; /kitchen?section=shopping opens one part directly.
   const params = useLocalSearchParams<{ section?: string }>();
-  const [section, setSection] = useState<Section>(
-    params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section) ? (params.section as Section) : 'plan'
-  );
+  const direct = !!params.section && SECTIONS.includes(params.section);
+  const [section, setSection] = useState<Section>(direct ? (params.section as Section) : 'home');
   useEffect(() => {
-    if (params.section && ['plan', 'recipes', 'shopping', 'pantry'].includes(params.section)) setSection(params.section as Section);
+    if (params.section && SECTIONS.includes(params.section)) setSection(params.section as Section);
   }, [params.section]);
   const [refreshing, setRefreshing] = useState(false);
   // Shopping departments: Groceries by default, the others always one tap away at the top.
@@ -50,8 +51,9 @@ export default function Kitchen() {
         keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.walnut} />}
       >
-        <View style={{ alignSelf: 'flex-start' }}>
+        <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'flex-start' }}>
           <HomeButton />
+          {section !== 'home' && !direct ? <Chip label={tr('‹ Kitchen')} onPress={() => setSection('home')} /> : null}
         </View>
         <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">
           {tr(TITLES[section])}
@@ -63,6 +65,8 @@ export default function Kitchen() {
             <T color={colors.brickText}>{k.error}</T>
             <Button label={tr('Try again')} variant="secondary" onPress={k.refresh} />
           </View>
+        ) : section === 'home' ? (
+          <KitchenHome onOpen={setSection} />
         ) : section === 'plan' ? (
           <PlanView />
         ) : section === 'recipes' ? (

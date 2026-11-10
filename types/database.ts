@@ -1438,6 +1438,7 @@ export type Database = {
           image_path: string | null;
           source: string;
           i18n: unknown;
+          steps: unknown;
           active: boolean;
           created_at: string;
         };

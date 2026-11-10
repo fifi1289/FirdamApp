@@ -23,6 +23,8 @@ export interface LunchboxIdea extends LunchboxText {
   image_path: string | null;
   source: string;
   i18n: Partial<Record<'fr' | 'ar', Partial<LunchboxText>>>;
+  /** "How to make it", written once per idea in each language (null until then). */
+  steps?: Partial<Record<LunchboxLang, string[]>> | null;
 }
 
 export type LunchboxOption =
@@ -103,6 +105,8 @@ export interface OptionView extends LunchboxText {
   leftover: boolean;
   /** English tool names, for Amazon searches. */
   toolQueries: string[];
+  /** How to make it (empty until written). */
+  steps: string[];
 }
 
 /** Everything a screen needs to show one option. */
@@ -124,13 +128,20 @@ export function optionView(option: LunchboxOption, ideas: LunchboxIdea[], lang: 
       image: null,
       leftover: true,
       toolQueries: option.tools,
+      steps: [
+        tr('Keep a portion of dinner in the fridge overnight.'),
+        tr('In the morning, roll it in a wrap or spoon it over rice in one compartment.'),
+        tr('Add cucumber or carrot sticks and a piece of fruit in the others.'),
+        tr('Pack it cold with an ice pack.'),
+      ],
     };
   }
   const idea = ideas.find((i) => i.id === option.id);
   if (!idea) return null;
   const text = ideaText(idea, lang);
   const toolNames = lang === 'en' ? idea.tools : idea.i18n?.[lang]?.tools?.length === idea.tools.length ? idea.i18n[lang]!.tools! : idea.tools;
-  return { ...text, tools: toolNames, key: idea.id, image: idea.image_path, leftover: false, toolQueries: idea.tools };
+  const steps = idea.steps?.[lang]?.length ? idea.steps[lang]! : (idea.steps?.en ?? []);
+  return { ...text, tools: toolNames, key: idea.id, image: idea.image_path, leftover: false, toolQueries: idea.tools, steps };
 }
 
 /** Amazon links for a lunchbox's tools in the family's own store (Firdam's tag only where it has one). */

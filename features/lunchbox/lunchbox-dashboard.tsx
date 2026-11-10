@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Check, ExternalLink, Loader2, Sparkles } from 'lucide-react';
+import { ExternalLink, Loader2, Sparkles } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
@@ -66,6 +66,8 @@ export function LunchboxDashboard() {
   const [newName, setNewName] = useState('');
   const [newAge, setNewAge] = useState('');
   const [day, setDay] = useState(0);
+  const [showOthers, setShowOthers] = useState(false);
+  useEffect(() => setShowOthers(false), [day, weekStart]);
 
   useEffect(() => {
     supabase
@@ -168,6 +170,7 @@ export function LunchboxDashboard() {
     if (!plan) return;
     const current = plan.days.find((d) => d.date === date)?.chosen;
     const next = chooseOption(plan, date, current === index ? null : index);
+    setShowOthers(false);
     setPlan(next);
     supabase
       .from('lunchbox_plans')
@@ -341,14 +344,14 @@ export function LunchboxDashboard() {
 
                 {current && (
                   <>
-                    <p className="text-sm text-muted-foreground">
-                      {current.chosen === null ? tr('Show these to your child and let them pick one.') : tr('Picked! Click it again to change.')}
-                    </p>
-                    <div className="grid gap-4 md:grid-cols-3">
+                    {current.chosen === null && <p className="text-sm text-muted-foreground">{tr('Show these to your child and let them pick one.')}</p>}
+                    <div className={cn('grid gap-4', current.chosen === null || showOthers ? 'md:grid-cols-3' : 'max-w-xl')}>
                       {current.options.map((o, i) => {
                         const v = optionView(o, ideas, lang);
                         if (!v) return null;
                         const chosen = current.chosen === i;
+                        // Once a lunchbox is picked, it opens up with how to make it; the other ideas fold away.
+                        if (current.chosen !== null && !chosen && !showOthers) return null;
                         const links = toolLinks(v, currency);
                         return (
                           <Card key={v.key} className={cn('flex flex-col overflow-hidden', chosen && 'ring-2 ring-primary')}>
@@ -361,20 +364,42 @@ export function LunchboxDashboard() {
                               </div>
                             )}
                             <CardContent className="flex flex-1 flex-col gap-3 p-4">
+                              {chosen && (
+                                <span className="self-start rounded-lg bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
+                                  {tr('✓ Picked for {0}', [tr(LUNCHBOX_DAY_NAMES[day] ?? '')])}
+                                </span>
+                              )}
                               <div className="flex flex-wrap items-center gap-2">
                                 <h3 className="text-base font-bold text-foreground">{v.name}</h3>
                                 {v.leftover && <Badge variant="secondary">{tr('Leftovers')}</Badge>}
-                                {chosen && <Badge>{tr('Picked')}</Badge>}
                               </div>
+                              {chosen && <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr('What goes in')}</p>}
                               <ul className="list-disc space-y-0.5 ps-5 text-sm text-foreground">
                                 {v.items.map((it) => (
                                   <li key={it}>{it}</li>
                                 ))}
                               </ul>
+                              {chosen && (
+                                <div className="space-y-2">
+                                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr('How to make it')}</p>
+                                  {v.steps.length ? (
+                                    <ol className="space-y-2">
+                                      {v.steps.map((st, n) => (
+                                        <li key={n} className="flex gap-3 text-sm text-foreground">
+                                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">{n + 1}</span>
+                                          <span className="pt-0.5">{st}</span>
+                                        </li>
+                                      ))}
+                                    </ol>
+                                  ) : (
+                                    <p className="text-sm text-muted-foreground">{tr('The steps for this lunchbox are being written. Check back in a few minutes.')}</p>
+                                  )}
+                                </div>
+                              )}
                               <p className="rounded-lg bg-emerald-50 p-2.5 text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">✨ {v.fun_tip}</p>
-                              {links.length > 0 && (
+                              {chosen && links.length > 0 && (
                                 <div className="space-y-1.5">
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr('To make it')}</p>
+                                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr('Handy tools')}</p>
                                   <div className="flex flex-wrap gap-1.5">
                                     {links.map((l) => (
                                       <a
@@ -390,21 +415,21 @@ export function LunchboxDashboard() {
                                   </div>
                                 </div>
                               )}
-                              <Button className="mt-auto" variant={chosen ? 'outline' : 'default'} onClick={() => choose(current.date, i)}>
-                                {chosen ? (
-                                  <>
-                                    <Check className="me-2 h-4 w-4" />
-                                    {tr('Picked')}
-                                  </>
-                                ) : (
-                                  tr('Pick this one')
-                                )}
-                              </Button>
+                              {!chosen && (
+                                <Button className="mt-auto" onClick={() => choose(current.date, i)}>
+                                  {tr('Pick this one')}
+                                </Button>
+                              )}
                             </CardContent>
                           </Card>
                         );
                       })}
                     </div>
+                    {current.chosen !== null && (
+                      <Button variant="outline" onClick={() => setShowOthers((x) => !x)}>
+                        {showOthers ? tr('Hide the other ideas') : tr('Change: see the other {0} ideas', [current.options.length - 1])}
+                      </Button>
+                    )}
                   </>
                 )}
                 <p className="text-xs text-muted-foreground">

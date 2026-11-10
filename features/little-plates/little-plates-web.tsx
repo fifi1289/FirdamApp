@@ -70,41 +70,51 @@ export function LittlePlatesWeb({
 }) {
   const ones = useLittleOnes();
   const stages = useMemo(() => Array.from(new Set(ones.map((o) => o.stage).filter((s): s is LittleStage => !!s))), [ones]);
+  // Starts on the family's plate; the switch shows a little one's plate instead.
   const [picked, setPicked] = useState<LittleStage | null>(null);
-  const stage = picked && stages.includes(picked) ? picked : (stages[0] ?? null);
-  const onMilk = ones.filter((o) => !o.stage);
-  if (!ones.length) return null;
+  const stage = picked && stages.includes(picked) ? picked : null;
+  if (!stages.length) return null;
+  const first = stages[0];
+  const youngest = ones.find((o) => o.stage === first)!;
+  const changes = littleChanges(ingredients, first).filter((c) => c.action !== 'allergen');
+  const label = (s: LittleStage) => {
+    const kid = ones.find((o) => o.stage === s)!;
+    return tr('{0}’s plate · {1}', [ones.filter((o) => o.stage === s).map((o) => o.name).join(', '), ageLabel(kid.months)]);
+  };
 
   return (
     <section className={cn('space-y-3', className)} aria-label={tr('Little Plates')}>
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-semibold text-foreground">{tr('Little Plates')}</h2>
-        <span className="text-xs text-muted-foreground">{tr('Baby and toddler version')}</span>
+      <div className="flex gap-1 rounded-2xl bg-[#EFE4D8] p-1 dark:bg-muted" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={!stage}
+          onClick={() => setPicked(null)}
+          className={cn('flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold', !stage ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground')}
+        >
+          {tr('For the family')}
+        </button>
+        {stages.map((s) => (
+          <button
+            key={s}
+            type="button"
+            role="tab"
+            aria-selected={s === stage}
+            onClick={() => setPicked(s)}
+            className={cn('flex-1 truncate rounded-xl px-3 py-2.5 text-sm font-semibold', s === stage ? 'bg-[#2F5A40] text-white' : 'bg-[#E3EDE6] text-[#2F5A40]')}
+          >
+            {label(s)}
+          </button>
+        ))}
       </div>
-      {stages.length > 1 && (
-        <div className="flex flex-wrap gap-2" role="tablist">
-          {stages.map((s) => (
-            <button
-              key={s}
-              type="button"
-              role="tab"
-              aria-selected={s === stage}
-              onClick={() => setPicked(s)}
-              className={cn('rounded-xl border px-3 py-1.5 text-sm font-semibold', s === stage ? 'border-[#2F5A40] bg-[#2F5A40] text-white' : 'border-border')}
-            >
-              {ones
-                .filter((o) => o.stage === s)
-                .map((o) => o.name)
-                .join(', ')}
-            </button>
-          ))}
-        </div>
-      )}
-      {stage && <StageCard key={stage} stage={stage} id={id} name={name} ingredients={ingredients} steps={steps} allergies={allergies} kids={ones.filter((o) => o.stage === stage)} />}
-      {onMilk.length > 0 && (
-        <p className="text-sm text-muted-foreground">
-          {tr('{0} is under 6 months: milk only for now. Solid food usually starts at around 6 months.', [onMilk.map((b) => b.name).join(', ')])}
-        </p>
+      {!stage ? (
+        <button type="button" onClick={() => setPicked(first)} className="w-full rounded-2xl bg-[#E3EDE6] px-4 py-3 text-left text-sm text-[#24402F] dark:bg-emerald-950/30 dark:text-emerald-100">
+          <span className="font-semibold">{changes.length ? tr('{0} changes for {1}', [changes.length, youngest.name]) : tr('Ready for {0}', [youngest.name])}</span>
+          {' · '}
+          {changes.length ? tr(changes[0].text) : tr('Just adjust the texture.')}
+        </button>
+      ) : (
+        <StageCard key={stage} stage={stage} id={id} name={name} ingredients={ingredients} steps={steps} allergies={allergies} kids={ones.filter((o) => o.stage === stage)} />
       )}
     </section>
   );

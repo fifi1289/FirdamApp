@@ -41,10 +41,12 @@ const MEAL_ORDER = ['breakfast', 'lunch', 'dinner', 'snack'];
 const TYPE_NAME: Record<string, string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
 const typeLabel = (t: string) => tr(TYPE_NAME[t] ?? t).toUpperCase();
 
-export function openMeal(meal: MockMeal, date: string) {
+export function openMeal(meal: MockMeal, date: string, littlePlate = false) {
   // Library recipes open their recipe page; anything else opens from the plan itself.
-  if (UUID.test(meal.id) && isLibraryRecipe(meal.id)) router.push({ pathname: '/recipe/[id]', params: { id: meal.id } });
-  else router.push({ pathname: '/meal', params: { date, type: meal.type } });
+  // With littlePlate the page opens on the little one's plate (Little Plates).
+  const plate = littlePlate ? { plate: '1' } : {};
+  if (UUID.test(meal.id) && isLibraryRecipe(meal.id)) router.push({ pathname: '/recipe/[id]', params: { id: meal.id, ...plate } });
+  else router.push({ pathname: '/meal', params: { date, type: meal.type, ...plate } });
 }
 
 function weekDays(weekStart: Date) {
@@ -292,7 +294,7 @@ export function PlanView() {
                   ) : (
                     <T size={12.5} color={colors.muted}>{tr('{0} min · for {1}', [m.prepTime + m.cookTime, formatPortions(m.servings)])}</T>
                   )}
-                  <LittlePlatesHint ingredients={m.ingredients.map((i) => i.name)} />
+                  <LittlePlatesHint ingredients={m.ingredients.map((i) => i.name)} onPress={() => openMeal(m, selected, true)} />
                 </View>
                 <Pressable
                   accessibilityRole="button"

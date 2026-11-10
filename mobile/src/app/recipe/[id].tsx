@@ -6,7 +6,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Icon } from '@/components/art';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { Button, Card, T } from '@/components/ui';
-import { LittlePlatesSection } from '@/components/little-plates-section';
+import { LittlePlateView, PlateSwitch, useLittlePlate } from '@/components/little-plates-section';
 import { addShoppingItems, markHave, checkRecipe, fitsDiets, isSafeFor, loadRecipes, recipeAllergens, recipeImage, totalMinutes, type RecipeRow } from '@/lib/kitchen';
 import { refreshKitchen, refreshShopping, useKitchen } from '@/lib/kitchen-store';
 import { addRecipeSteps } from '@/lib/recipe-i18n';
@@ -31,7 +31,8 @@ const STATUS: Record<string, { label: string; color: string }> = {
 };
 
 export default function RecipeScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, plate: openPlate } = useLocalSearchParams<{ id: string; plate?: string }>();
+  const little = useLittlePlate(openPlate === '1');
   const insets = useSafeAreaInsets();
   const k = useKitchen();
   const [recipe, setRecipe] = useState<RecipeRow | null | undefined>(undefined);
@@ -157,6 +158,20 @@ export default function RecipeScreen() {
             </T>
           ) : null}
 
+          <PlateSwitch ones={little.ones} stages={little.stages} plate={little.plate} onChange={little.setPlate} ingredients={check.lines.map((l) => l.need.name)} />
+
+          {little.plate ? (
+            <LittlePlateView
+              stage={little.plate}
+              ones={little.ones}
+              id={recipe.id}
+              name={recipe.name}
+              ingredients={check.lines.map((l) => l.need.name)}
+              steps={steps.map((st) => st.instruction)}
+              allergies={allergies}
+            />
+          ) : (
+          <>
           <Card style={styles.portions}>
             <View style={{ flex: 1 }}>
               <T weight="bold">{tr('Sized for your family')}</T>
@@ -232,13 +247,8 @@ export default function RecipeScreen() {
               </View>
             ))}
           </View>
-          <LittlePlatesSection
-            id={recipe.id}
-            name={recipe.name}
-            ingredients={check.lines.map((l) => l.need.name)}
-            steps={steps.map((st) => st.instruction)}
-            allergies={allergies}
-          />
+          </>
+          )}
           <T size={12} color={colors.muted} style={{ marginTop: 18, lineHeight: 18 }}>
             {tr('Allergy labels are worked out from the ingredient names. Always check the labels on the products you buy, and choose halal-certified meat, stock and gelatin.')}
           </T>

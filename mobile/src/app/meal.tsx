@@ -15,11 +15,12 @@ import { showAlert } from '@/components/firdam-alert';
 import { ToBuyButton } from '@/components/to-buy-button';
 import { tr } from '@/lib/i18n';
 import { addRecipeSteps } from '@/lib/recipe-i18n';
-import { LittlePlatesSection } from '@/components/little-plates-section';
+import { LittlePlateView, PlateSwitch, useLittlePlate } from '@/components/little-plates-section';
 
 /** A meal the AI chef wrote (not from the recipe library). */
 export default function MealScreen() {
-  const { date, type } = useLocalSearchParams<{ date: string; type: string }>();
+  const { date, type, plate: openPlate } = useLocalSearchParams<{ date: string; type: string; plate?: string }>();
+  const little = useLittlePlate(openPlate === '1');
   const insets = useSafeAreaInsets();
   const k = useKitchen();
   const [adding, setAdding] = useState(false);
@@ -103,6 +104,20 @@ export default function MealScreen() {
               <Badge label={tr('Written by the AI chef — check labels for allergens')} tone="amber" />
             )}
           </View>
+          <PlateSwitch ones={little.ones} stages={little.stages} plate={little.plate} onChange={little.setPlate} ingredients={meal.ingredients.map((i) => i.name)} />
+
+          {little.plate ? (
+            <LittlePlateView
+              stage={little.plate}
+              ones={little.ones}
+              id={meal.id}
+              name={meal.name}
+              ingredients={meal.ingredients.map((i) => i.name)}
+              steps={meal.recipe ?? []}
+              allergies={k.prefs?.allergies ?? []}
+            />
+          ) : (
+          <>
           <T weight="bold" size={17} style={{ marginTop: 20, marginBottom: 8 }}>
             {tr('Ingredients')}
           </T>
@@ -149,13 +164,8 @@ export default function MealScreen() {
               </View>
             ))}
           </View>
-          <LittlePlatesSection
-            id={meal.id}
-            name={meal.name}
-            ingredients={meal.ingredients.map((i) => i.name)}
-            steps={meal.recipe ?? []}
-            allergies={k.prefs?.allergies ?? []}
-          />
+          </>
+          )}
         </View>
       </ScrollView>
       {toBuy.length ? (

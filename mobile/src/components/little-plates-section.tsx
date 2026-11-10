@@ -1,9 +1,8 @@
-import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { Badge } from '@/components/kitchen-ui';
-import { Card, T } from '@/components/ui';
+import { T } from '@/components/ui';
 import { getLang, tr } from '@/lib/i18n';
 import { loadLittleGuide, useLittleOnes } from '@/lib/little-plates';
 import {
@@ -13,6 +12,7 @@ import {
   littleChanges,
   type LittleAction,
   type LittleGuide,
+  type LittleOne,
   type LittleStage,
 } from '@/shared/little-plates-core';
 import { colors } from '@/theme';
@@ -27,96 +27,123 @@ const ACTION: Record<LittleAction, { label: string; tone: 'brick' | 'amber' | 's
   allergen: { label: 'Allergen', tone: 'sage' },
 };
 
+/** Names of the little ones at one stage: "Adam" or "Adam, Sara". */
+const namesAt = (ones: LittleOne[], s: LittleStage) =>
+  ones
+    .filter((o) => o.stage === s)
+    .map((o) => o.name)
+    .join(', ');
+
 /**
- * Little Plates on a recipe or meal: the baby or toddler version of this meal
- * for each little one in the family. Only shown when the family has a child
- * under 4. The safety changes are fixed rules; the steps come from a saved guide.
+ * Which plate a recipe page shows: the family's (null) or a little one's stage.
+ * With `open` the page starts on the youngest little one's plate (from Kitchen
+ * or the meal plan).
  */
-export function LittlePlatesSection({
+export function useLittlePlate(open = false) {
+  const ones = useLittleOnes();
+  const stages = useMemo(() => Array.from(new Set(ones.map((o) => o.stage).filter((s): s is LittleStage => !!s))), [ones]);
+  const [plate, setPlate] = useState<LittleStage | null>(null);
+  const [opened, setOpened] = useState(false);
+  useEffect(() => {
+    if (open && !opened && stages.length) {
+      setPlate(stages[0]);
+      setOpened(true);
+    }
+  }, [open, opened, stages]);
+  return { ones, stages, plate: plate && stages.includes(plate) ? plate : null, setPlate };
+}
+
+/**
+ * The switch under a recipe's title: "For the family | Adam's plate · 9 m".
+ * On the family plate, one line says how many changes the little one needs.
+ */
+export function PlateSwitch({
+  ones,
+  stages,
+  plate,
+  onChange,
+  ingredients,
+}: {
+  ones: LittleOne[];
+  stages: LittleStage[];
+  plate: LittleStage | null;
+  onChange: (p: LittleStage | null) => void;
+  ingredients: string[];
+}) {
+  if (!stages.length) return null;
+  const first = stages[0];
+  const youngest = ones.find((o) => o.stage === first)!;
+  const changes = littleChanges(ingredients, first).filter((c) => c.action !== 'allergen');
+  const tabs: { key: LittleStage | null; label: string }[] = [
+    { key: null, label: tr('For the family') },
+    ...stages.map((s) => {
+      const kid = ones.find((o) => o.stage === s)!;
+      return { key: s, label: tr('{0}’s plate · {1}', [namesAt(ones, s), ageLabel(kid.months)]) };
+    }),
+  ];
+  return (
+    <View style={{ marginTop: 14, gap: 10 }}>
+      <View style={styles.switch} accessibilityRole="tablist">
+        {tabs.map((t) => {
+          const on = t.key === plate;
+          return (
+            <Pressable
+              key={t.key ?? 'family'}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: on }}
+              onPress={() => onChange(t.key)}
+              style={[styles.tab, on && (t.key ? styles.tabBaby : styles.tabFamily), !on && t.key ? styles.tabBabyOff : null]}
+            >
+              <T size={13.5} weight="bold" numberOfLines={1} color={on && t.key ? colors.linen : t.key ? colors.sageDark : colors.espresso}>
+                {t.label}
+              </T>
+            </Pressable>
+          );
+        })}
+      </View>
+      {!plate ? (
+        <Pressable accessibilityRole="button" onPress={() => onChange(first)} style={styles.hint}>
+          <T size={13.5} color="#24402F" style={{ flex: 1, lineHeight: 19 }}>
+            <T size={13.5} weight="bold" color="#24402F">
+              {changes.length ? tr('{0} changes for {1}', [changes.length, youngest.name]) : tr('Ready for {0}', [youngest.name])}
+            </T>
+            {changes.length ? ` · ${tr(changes[0].text)}` : ` · ${tr('Just adjust the texture.')}`}
+          </T>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * The little one's plate, shown in place of the family's ingredients and method:
+ * the texture, what to do before cooking (fixed safety rules), and how to make
+ * the plate (a saved guide written once per recipe and stage).
+ */
+export function LittlePlateView({
+  stage,
+  ones,
   id,
   name,
   ingredients,
   steps,
   allergies = [],
 }: {
+  stage: LittleStage;
+  ones: LittleOne[];
   id?: string | null;
   name: string;
   ingredients: string[];
   steps: string[];
   allergies?: string[];
 }) {
-  const ones = useLittleOnes();
-  const stages = useMemo(() => [...new Set(ones.map((o) => o.stage).filter((s): s is LittleStage => !!s))], [ones]);
-  const [stage, setStage] = useState<LittleStage | null>(null);
-  const active = stage && stages.includes(stage) ? stage : (stages[0] ?? null);
-  const babiesOnMilk = ones.filter((o) => !o.stage);
-  if (!ones.length) return null;
-
-  return (
-    <View style={{ marginTop: 24, gap: 10 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
-        <T weight="bold" size={17}>
-          {tr('Little Plates')}
-        </T>
-        <T size={12.5} color={colors.muted}>
-          {tr('Baby and toddler version')}
-        </T>
-      </View>
-
-      {stages.length > 1 ? (
-        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-          {stages.map((s) => (
-            <Pressable
-              key={s}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: s === active }}
-              onPress={() => setStage(s)}
-              style={[styles.tab, s === active && styles.tabOn]}
-            >
-              <T size={13} weight="bold" color={s === active ? colors.linen : colors.espresso}>
-                {ones
-                  .filter((o) => o.stage === s)
-                  .map((o) => o.name)
-                  .join(', ')}
-              </T>
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
-
-      {active ? <StageCard key={active} stage={active} id={id} name={name} ingredients={ingredients} steps={steps} allergies={allergies} names={ones.filter((o) => o.stage === active)} /> : null}
-
-      {babiesOnMilk.length ? (
-        <T size={13} color={colors.muted}>
-          {tr('{0} is under 6 months: milk only for now. Solid food usually starts at around 6 months.', [babiesOnMilk.map((b) => b.name).join(', ')])}
-        </T>
-      ) : null}
-    </View>
-  );
-}
-
-function StageCard({
-  stage,
-  id,
-  name,
-  ingredients,
-  steps,
-  allergies,
-  names,
-}: {
-  stage: LittleStage;
-  id?: string | null;
-  name: string;
-  ingredients: string[];
-  steps: string[];
-  allergies: string[];
-  names: { name: string; months: number }[];
-}) {
   const info = LITTLE_STAGES.find((s) => s.id === stage)!;
   const changes = useMemo(() => littleChanges(ingredients, stage, allergies), [ingredients, stage, allergies]);
   const [guide, setGuide] = useState<LittleGuide | null>(null);
   const [state, setState] = useState<'loading' | 'done' | 'error' | 'limit'>('loading');
   const lang = getLang();
+  const kids = ones.filter((o) => o.stage === stage);
+  const onMilk = ones.filter((o) => !o.stage);
 
   useEffect(() => {
     let alive = true;
@@ -135,83 +162,76 @@ function StageCard({
   }, [id, name, stage, lang]);
 
   return (
-    <Card style={{ gap: 12, backgroundColor: colors.sageTint, borderColor: '#CFE0C6' }}>
-      <View style={{ gap: 2 }}>
-        <T size={12.5} weight="bold" color={colors.sageDark} style={{ letterSpacing: 0.4 }}>
-          {tr('{0} · {1}', [tr(info.label).toUpperCase(), tr(info.ages)])}
-        </T>
-        <T size={15} weight="bold" color="#24402F">
-          {names.map((n) => `${n.name} (${ageLabel(n.months)})`).join(', ')}
-        </T>
-        <T size={13} color={colors.sageDark}>
-          {tr(info.texture)}
-        </T>
-      </View>
+    <View style={{ marginTop: 14, gap: 18 }}>
+      <T size={13.5} weight="semibold" color={colors.sageDark}>
+        {tr('{0} · {1}', [tr(info.label), tr(info.texture).toLowerCase()])}
+        {kids.length > 1 ? `\n${kids.map((k) => `${k.name} (${ageLabel(k.months)})`).join(', ')}` : ''}
+      </T>
 
-      {changes.length ? (
-        <View style={{ gap: 8 }}>
-          <T size={12} weight="bold" color={colors.sageDark} style={{ letterSpacing: 0.4 }}>
-            {tr('SAFETY CHANGES')}
-          </T>
-          {changes.map((c, i) => (
+      <View style={{ gap: 8 }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          {tr('BEFORE YOU COOK')}
+        </T>
+        {changes.length ? (
+          changes.map((c, i) => (
             <View key={i} style={styles.change}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <Badge label={ACTION[c.action].label} tone={ACTION[c.action].tone} />
-                <T size={13} weight="bold" style={{ flexShrink: 1 }}>
+              <Badge label={ACTION[c.action].label} tone={ACTION[c.action].tone} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <T size={13} weight="bold">
                   {c.ingredient
                     .split(', ')
                     .map((x) => tr(x))
                     .join(', ')}
                 </T>
+                <T size={13.5} color="#4A3F39" style={{ lineHeight: 19 }}>
+                  {tr(c.text)}
+                </T>
               </View>
-              <T size={13} color="#3F4A42" style={{ lineHeight: 18 }}>
-                {tr(c.text)}
-              </T>
             </View>
-          ))}
-        </View>
-      ) : (
-        <T size={13} color={colors.sageDark}>
-          {tr('No safety changes needed for this meal. Just adjust the texture.')}
-        </T>
-      )}
+          ))
+        ) : (
+          <T size={14} color={colors.muted}>
+            {tr('No safety changes needed for this meal. Just adjust the texture.')}
+          </T>
+        )}
+      </View>
 
-      <View style={{ gap: 8 }}>
-        <T size={12} weight="bold" color={colors.sageDark} style={{ letterSpacing: 0.4 }}>
-          {tr('HOW TO MAKE IT')}
+      <View style={{ gap: 10 }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          {kids.length === 1 ? tr('MAKE {0}’S PLATE', [kids[0].name.toUpperCase()]) : tr('MAKE THEIR PLATE')}
         </T>
         {state === 'loading' ? (
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             <ActivityIndicator color={colors.sage} />
-            <T size={13} color={colors.sageDark}>
+            <T size={13.5} color={colors.sageDark}>
               {tr('Preparing the little one’s version…')}
             </T>
           </View>
         ) : guide ? (
           <>
             {guide.steps.map((s, i) => (
-              <View key={i} style={{ flexDirection: 'row', gap: 10 }}>
+              <View key={i} style={{ flexDirection: 'row', gap: 12 }}>
                 <View style={styles.no}>
-                  <T size={12} weight="bold" color={colors.sageDark}>
+                  <T size={13} weight="bold" color={colors.sageDark}>
                     {i + 1}
                   </T>
                 </View>
-                <T size={14} style={{ flex: 1, lineHeight: 20 }}>
+                <T size={15} style={{ flex: 1, lineHeight: 22 }}>
                   {s}
                 </T>
               </View>
             ))}
             {guide.serve ? (
-              <T size={13.5} color="#24402F">
-                <T size={13.5} weight="bold" color="#24402F">
+              <T size={14} color="#24402F" style={{ lineHeight: 20 }}>
+                <T size={14} weight="bold" color="#24402F">
                   {tr('Serve: ')}
                 </T>
                 {guide.serve}
               </T>
             ) : null}
             {guide.portion ? (
-              <T size={13.5} color="#24402F">
-                <T size={13.5} weight="bold" color="#24402F">
+              <T size={14} color="#24402F">
+                <T size={14} weight="bold" color="#24402F">
                   {tr('Portion: ')}
                 </T>
                 {guide.portion}
@@ -219,16 +239,23 @@ function StageCard({
             ) : null}
           </>
         ) : (
-          <T size={13} color={colors.sageDark}>
-            {state === 'limit' ? tr('You’ve opened many new Little Plates today. Try again tomorrow; the safety changes above still apply.') : tr('The steps couldn’t load just now. The safety changes above still apply.')}
+          <T size={13.5} color={colors.sageDark}>
+            {state === 'limit'
+              ? tr('You’ve opened many new Little Plates today. Try again tomorrow; the safety changes above still apply.')
+              : tr('The steps couldn’t load just now. The safety changes above still apply.')}
           </T>
         )}
       </View>
 
-      <T size={11.5} color="#4F5E54" style={{ lineHeight: 16 }}>
+      {onMilk.length ? (
+        <T size={13} color={colors.muted}>
+          {tr('{0} is under 6 months: milk only for now. Solid food usually starts at around 6 months.', [onMilk.map((b) => b.name).join(', ')])}
+        </T>
+      ) : null}
+      <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
         {tr('General guidance, not medical advice. Ask your doctor or health visitor about allergies and new foods.')}
       </T>
-    </Card>
+    </View>
   );
 }
 
@@ -252,11 +279,13 @@ export function LittlePlatesHint({ ingredients, onPress }: { ingredients: string
   );
 }
 
-export const openFamily = () => router.push('/family');
-
 const styles = StyleSheet.create({
-  tab: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14, borderWidth: 1, borderColor: colors.sand },
-  tabOn: { backgroundColor: colors.sageDark, borderColor: colors.sageDark },
-  change: { gap: 4, backgroundColor: colors.card, borderRadius: 12, padding: 10 },
-  no: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  switch: { flexDirection: 'row', backgroundColor: colors.tint, borderRadius: 18, padding: 4, gap: 4 },
+  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 14, paddingVertical: 11, paddingHorizontal: 6 },
+  tabFamily: { backgroundColor: colors.card },
+  tabBaby: { backgroundColor: colors.sageDark },
+  tabBabyOff: { backgroundColor: colors.sageTint },
+  hint: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.sageTint, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14 },
+  change: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 14, padding: 12 },
+  no: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.sageTint, alignItems: 'center', justifyContent: 'center' },
 });

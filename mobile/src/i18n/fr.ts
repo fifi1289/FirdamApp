@@ -1742,7 +1742,6 @@ export const FR: Record<string, string> = {
   "‹ Kitchen": "‹ Cuisine",
   "Kitchen": "Cuisine",
   "Meals, lunchboxes, recipes, shopping and pantry in one place.": "Repas, boîtes à lunch, recettes, courses et garde-manger au même endroit.",
-  "Faith": "Foi",
   "Everyday": "Au quotidien",
   "{0}: {1}": "{0} : {1}",
 };

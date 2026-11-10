@@ -1805,7 +1805,6 @@ export const AR: Record<string, string> = {
   "‹ Kitchen": "‹ المطبخ",
   "Kitchen": "المطبخ",
   "Meals, lunchboxes, recipes, shopping and pantry in one place.": "الوجبات وعلب الغداء والوصفات والتسوق والمخزن في مكان واحد.",
-  "Faith": "الإيمان",
   "Everyday": "الحياة اليومية",
   "{0}: {1}": "{0}: {1}",
 };

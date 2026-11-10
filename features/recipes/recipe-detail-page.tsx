@@ -487,6 +487,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
         </Card>
 
         <div className="space-y-6">
+          <LittlePlatesWeb id={recipe.id} name={recipe.name} ingredients={recipe.ingredients.map((i) => i.name)} steps={recipe.steps.map((st) => st.text)} />
           <Card>
             <CardContent className="p-5">
               <h2 className="font-semibold text-foreground">{tr('Method')}</h2>
@@ -535,7 +536,6 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
             </CardContent>
           </Card>
 
-          <LittlePlatesWeb id={recipe.id} name={recipe.name} ingredients={recipe.ingredients.map((i) => i.name)} steps={recipe.steps.map((st) => st.text)} />
 
           {(recipe.tips.length > 0 || recipe.storage || recipe.reheating || recipe.equipment.length > 0) && (
             <Card>

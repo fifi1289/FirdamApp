@@ -54,11 +54,11 @@ function useWeeklyPlanReminder() {
     scheduleWeeklyPlanReminder().catch(() => {});
     Notifications.getLastNotificationResponseAsync()
       .then((r) => {
-        if (isWeeklyPlanTap(r)) router.push('/kitchen');
+        if (isWeeklyPlanTap(r)) router.push({ pathname: '/kitchen', params: { section: 'plan' } });
       })
       .catch(() => {});
     const sub = Notifications.addNotificationResponseReceivedListener((r) => {
-      if (isWeeklyPlanTap(r)) router.push('/kitchen');
+      if (isWeeklyPlanTap(r)) router.push({ pathname: '/kitchen', params: { section: 'plan' } });
     });
     return () => sub.remove();
   }, []);

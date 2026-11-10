@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { StarPattern } from '@/components/art';
 import { Badge, Chip, Photo, Segmented } from '@/components/kitchen-ui';
 import { LunchboxView } from '@/components/lunchbox-view';
+import { LittlePlatesHint } from '@/components/little-plates-section';
 import { Button, Card, T } from '@/components/ui';
 import {
   AI_PLANS_PER_MONTH,
@@ -291,6 +292,7 @@ export function PlanView() {
                   ) : (
                     <T size={12.5} color={colors.muted}>{tr('{0} min · for {1}', [m.prepTime + m.cookTime, formatPortions(m.servings)])}</T>
                   )}
+                  <LittlePlatesHint ingredients={m.ingredients.map((i) => i.name)} />
                 </View>
                 <Pressable
                   accessibilityRole="button"

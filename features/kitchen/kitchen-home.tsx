@@ -11,6 +11,8 @@ import { getLang, tr } from '@/lib/i18n';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { formatDateISO, getStartOfWeek } from '@/features/meals/plan-core';
 import { optionView, type LunchboxDay, type LunchboxIdea } from '@/features/lunchbox/lunchbox-core';
+import { ageLabel } from '@/features/little-plates/little-plates-core';
+import { useLittleOnes } from '@/features/little-plates/little-plates-web';
 
 type Dinner = { name: string; minutes: number; image?: string };
 type Lunch = { title: string; sub: string; action: string; image: string | null } | null;
@@ -179,17 +181,33 @@ export function KitchenHome() {
           />
         </div>
 
-        <div className="flex items-center gap-3 rounded-2xl border border-dashed border-[#D9C8BA] bg-card p-4">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E6D3]">
-            <Sparkles className="h-5 w-5 text-[#6B4A1E]" />
-          </span>
-          <div>
-            <p className="text-sm font-bold text-foreground">{tr('Little Plates · coming soon')}</p>
-            <p className="text-xs text-muted-foreground">{tr('Baby and toddler versions of your family meals')}</p>
-          </div>
-        </div>
+        <LittlePlatesCard />
       </div>
     </AppShell>
+  );
+}
+
+/** Little Plates: baby and toddler versions of the family's meals. */
+function LittlePlatesCard() {
+  const ones = useLittleOnes();
+  const eating = ones.filter((o) => o.stage);
+  const youngest = eating[0];
+  const title = youngest ? tr('Little Plates for {0} ({1})', [eating.map((o) => o.name).join(', '), ageLabel(youngest.months)]) : tr('Little Plates');
+  const sub = youngest
+    ? tr('Open any meal to see its baby or toddler version.')
+    : ones.length
+      ? tr('{0} is under 6 months: milk only for now. Baby versions start at about 6 months.', [ones.map((o) => o.name).join(', ')])
+      : tr('Add a little one’s birth date in Family to see baby and toddler versions of your meals.');
+  return (
+    <Link href={youngest ? '/dashboard/meals' : '/dashboard/family'} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-muted/50">
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E6D3]">
+        <Sparkles className="h-5 w-5 text-[#6B4A1E]" />
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-bold text-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground">{sub}</p>
+      </div>
+    </Link>
   );
 }
 

@@ -10,6 +10,8 @@ import { getLang, tr } from '@/lib/i18n';
 import { formatDateISO, getStartOfWeek, mealImage, useFreshMealPhotos } from '@/lib/kitchen';
 import { useKitchen } from '@/lib/kitchen-store';
 import { loadLunchboxPlan } from '@/lib/lunchbox';
+import { useLittleOnes } from '@/lib/little-plates';
+import { ageLabel, littleChanges } from '@/shared/little-plates-core';
 import { optionView, type LunchboxIdea, type LunchboxPlan } from '@/shared/lunchbox-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
@@ -110,20 +112,51 @@ export function KitchenHome({ onOpen }: { onOpen: (s: Section) => void }) {
         />
       </View>
 
-      <View style={styles.soon}>
-        <View style={styles.soonIcon}>
-          <Icon name="family" size={20} color={colors.amberText} />
-        </View>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <T size={14} weight="bold">
-            {tr('Little Plates · coming soon')}
-          </T>
-          <T size={12.5} color={colors.muted}>
-            {tr('Baby and toddler versions of your family meals')}
-          </T>
-        </View>
-      </View>
+      <LittlePlatesCard dinner={dinner ? { ingredients: dinner.ingredients.map((i) => i.name), open: () => openMeal(dinner, today) } : null} />
     </View>
+  );
+}
+
+/** Little Plates: the baby or toddler version of tonight's dinner. */
+function LittlePlatesCard({ dinner }: { dinner: { ingredients: string[]; open: () => void } | null }) {
+  const ones = useLittleOnes();
+  const youngest = ones.find((o) => o.stage);
+  let title: string;
+  let sub: string;
+  let onPress: () => void;
+  if (youngest?.stage) {
+    const n = dinner ? littleChanges(dinner.ingredients, youngest.stage).filter((c) => c.action !== 'allergen').length : 0;
+    title = tr('Little Plates for {0} ({1})', [ones.filter((o) => o.stage).map((o) => o.name).join(', '), ageLabel(youngest.months)]);
+    sub = dinner
+      ? n
+        ? tr('Tonight’s dinner needs {0} small changes. Tap to see them.', [n])
+        : tr('Tonight’s dinner is ready for little ones. Tap for the steps.')
+      : tr('Open any meal to see its baby or toddler version.');
+    onPress = dinner ? dinner.open : () => router.push({ pathname: '/kitchen', params: { section: 'plan' } });
+  } else if (ones.length) {
+    title = tr('Little Plates');
+    sub = tr('{0} is under 6 months: milk only for now. Baby versions start at about 6 months.', [ones.map((o) => o.name).join(', ')]);
+    onPress = () => router.push('/family');
+  } else {
+    title = tr('Little Plates');
+    sub = tr('Add a little one’s birth date in Family to see baby and toddler versions of your meals.');
+    onPress = () => router.push('/family');
+  }
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.soon, pressed && { opacity: 0.9 }]}>
+      <View style={styles.soonIcon}>
+        <Icon name="family" size={20} color={colors.amberText} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <T size={14} weight="bold">
+          {title}
+        </T>
+        <T size={12.5} color={colors.muted}>
+          {sub}
+        </T>
+      </View>
+      <Icon name="chevron" size={16} color={colors.walnut} />
+    </Pressable>
   );
 }
 
@@ -233,6 +266,6 @@ const styles = StyleSheet.create({
   cell: { width: '46%', flexGrow: 1, height: '44%', borderRadius: 7 },
   tile: { flex: 1, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 18, padding: 12, gap: 6 },
   tileIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  soon: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderWidth: 1, borderStyle: 'dashed', borderColor: colors.sand, borderRadius: 18, padding: 14 },
+  soon: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 18, padding: 14 },
   soonIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: colors.amberTint, alignItems: 'center', justifyContent: 'center' },
 });

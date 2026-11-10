@@ -69,7 +69,7 @@ export function LittlePlatesWeb({
   className?: string;
 }) {
   const ones = useLittleOnes();
-  const stages = useMemo(() => [...new Set(ones.map((o) => o.stage).filter((s): s is LittleStage => !!s))], [ones]);
+  const stages = useMemo(() => Array.from(new Set(ones.map((o) => o.stage).filter((s): s is LittleStage => !!s))), [ones]);
   const [picked, setPicked] = useState<LittleStage | null>(null);
   const stage = picked && stages.includes(picked) ? picked : (stages[0] ?? null);
   const onMilk = ones.filter((o) => !o.stage);

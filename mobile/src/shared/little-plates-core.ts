@@ -221,7 +221,7 @@ export function littleChanges(ingredients: string[], stage: LittleStage, familyA
   for (const rule of RULES) {
     if (!rule.stages.includes(stage)) continue;
     const hits = ingredients.filter((i) => rule.re.test(i) && !(rule.not && rule.not.test(i)));
-    if (hits.length) out.push({ ingredient: [...new Set(hits)].slice(0, 3).join(', '), action: rule.action, text: rule.text });
+    if (hits.length) out.push({ ingredient: Array.from(new Set(hits)).slice(0, 3).join(', '), action: rule.action, text: rule.text });
   }
   if (stage === 'baby') {
     const allergic = familyAllergies.map((a) => a.toLowerCase());

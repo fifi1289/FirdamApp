@@ -60,6 +60,8 @@ export function LunchboxView({ week: shownWeek }: { week?: Week } = {}) {
   const [newName, setNewName] = useState('');
   const [newAge, setNewAge] = useState('');
   const [day, setDay] = useState(0);
+  const [showOthers, setShowOthers] = useState(false);
+  useEffect(() => setShowOthers(false), [day, weekStart]);
 
   useEffect(() => {
     getCurrency().then(setCurrency).catch(() => {});
@@ -127,6 +129,7 @@ export function LunchboxView({ week: shownWeek }: { week?: Week } = {}) {
     if (!plan) return;
     const current = plan.days.find((d) => d.date === date)?.chosen;
     const next = chooseOption(plan, date, current === index ? null : index);
+    setShowOthers(false);
     setPlan(next);
     saveLunchboxChoices(next).catch(() => {});
   };
@@ -290,24 +293,39 @@ export function LunchboxView({ week: shownWeek }: { week?: Week } = {}) {
 
               {current ? (
                 <View style={{ gap: 12 }}>
-                  <T size={13.5} color={colors.muted}>
-                    {current.chosen === null ? tr('Show these to your child and let them pick one.') : tr('Picked! Tap it again to change.')}
-                  </T>
+                  {current.chosen === null ? (
+                    <T size={13.5} color={colors.muted}>
+                      {tr('Show these to your child and let them pick one.')}
+                    </T>
+                  ) : null}
                   {current.options.map((o, i) => {
                     const v = optionView(o, ideas, lang);
                     if (!v) return null;
                     const chosen = current.chosen === i;
+                    // Once a lunchbox is picked, it opens up with how to make it; the other ideas fold away.
+                    if (current.chosen !== null && !chosen && !showOthers) return null;
                     const links = toolLinks(v, currency);
                     return (
                       <Card key={v.key} style={[{ gap: 10, padding: 12 }, chosen && styles.chosen]}>
-                        {v.image ? <Photo uri={v.image} height={170} /> : <View style={styles.noPhoto}><T size={40}>{v.leftover ? '🥡' : '🍱'}</T></View>}
+                        {chosen ? (
+                          <View style={styles.pickedBanner}>
+                            <T size={13} weight="bold" color={colors.linen}>
+                              {tr('✓ Picked for {0}', [tr(LUNCHBOX_DAY_NAMES[day] ?? '')])}
+                            </T>
+                          </View>
+                        ) : null}
+                        {v.image ? <Photo uri={v.image} height={chosen ? 200 : 160} /> : <View style={styles.noPhoto}><T size={40}>{v.leftover ? '🥡' : '🍱'}</T></View>}
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                           <T size={17} weight="extrabold" style={{ flexShrink: 1 }}>
                             {v.name}
                           </T>
                           {v.leftover ? <Badge label="Leftovers" tone="sage" /> : null}
-                          {chosen ? <Badge label="Picked" tone="walnut" /> : null}
                         </View>
+                        {chosen ? (
+                          <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.3 }}>
+                            {tr('WHAT GOES IN')}
+                          </T>
+                        ) : null}
                         <View style={{ gap: 3 }}>
                           {v.items.map((it) => (
                             <T key={it} size={14}>
@@ -315,15 +333,40 @@ export function LunchboxView({ week: shownWeek }: { week?: Week } = {}) {
                             </T>
                           ))}
                         </View>
+                        {chosen ? (
+                          <View style={{ gap: 8, marginTop: 4 }}>
+                            <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.3 }}>
+                              {tr('HOW TO MAKE IT')}
+                            </T>
+                            {v.steps.length ? (
+                              v.steps.map((st, n) => (
+                                <View key={n} style={{ flexDirection: 'row', gap: 10 }}>
+                                  <View style={styles.stepNo}>
+                                    <T size={12} weight="bold" color={colors.walnut}>
+                                      {n + 1}
+                                    </T>
+                                  </View>
+                                  <T size={14} style={{ flex: 1, lineHeight: 20 }}>
+                                    {st}
+                                  </T>
+                                </View>
+                              ))
+                            ) : (
+                              <T size={13.5} color={colors.muted}>
+                                {tr('The steps for this lunchbox are being written. Check back in a few minutes.')}
+                              </T>
+                            )}
+                          </View>
+                        ) : null}
                         <View style={styles.tip}>
                           <T size={13.5} color={colors.sageDark}>
                             {`✨ ${v.fun_tip}`}
                           </T>
                         </View>
-                        {links.length ? (
+                        {chosen && links.length ? (
                           <View style={{ gap: 6 }}>
                             <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.3 }}>
-                              {tr('TO MAKE IT')}
+                              {tr('HANDY TOOLS')}
                             </T>
                             <View style={styles.wrap}>
                               {links.map((l) => (
@@ -332,10 +375,17 @@ export function LunchboxView({ week: shownWeek }: { week?: Week } = {}) {
                             </View>
                           </View>
                         ) : null}
-                        <Button label={chosen ? tr('Picked ✓') : tr('Pick this one')} variant={chosen ? 'secondary' : 'primary'} onPress={() => choose(current.date, i)} />
+                        {chosen ? null : <Button label={tr('Pick this one')} onPress={() => choose(current.date, i)} />}
                       </Card>
                     );
                   })}
+                  {current.chosen !== null ? (
+                    <Button
+                      label={showOthers ? tr('Hide the other ideas') : tr('Change: see the other {0} ideas', [current.options.length - 1])}
+                      variant="secondary"
+                      onPress={() => setShowOthers((x) => !x)}
+                    />
+                  ) : null}
                 </View>
               ) : null}
               <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
@@ -371,4 +421,6 @@ const styles = StyleSheet.create({
   chosen: { borderWidth: 2, borderColor: colors.walnut },
   noPhoto: { height: 120, borderRadius: 14, backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
   tip: { backgroundColor: colors.sageTint, borderRadius: 10, padding: 10 },
+  pickedBanner: { alignSelf: 'flex-start', backgroundColor: colors.walnut, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 },
+  stepNo: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
 });

@@ -8,6 +8,7 @@ import { FEATURE_ICONS } from '@/components/feature-ring';
 import { HomeButton } from '@/components/screen';
 import { Button, T } from '@/components/ui';
 import { useFavourites } from '@/lib/home-favourites';
+import { showAlert } from '@/components/firdam-alert';
 import { tr } from '@/lib/i18n';
 import { HOME_FEATURES, HOME_FEATURE_GROUPS, MAX_FAVOURITES, type HomeFeatureId } from '@/shared/home-features';
 import { colors } from '@/theme';
@@ -29,7 +30,7 @@ export default function Features() {
     setPicked((p) => {
       if (p.includes(id)) return p.filter((x) => x !== id);
       if (p.length >= MAX_FAVOURITES) {
-        setNote(tr('You can keep {0} favourites. Remove one first.', [MAX_FAVOURITES]));
+        showAlert(tr('Your Home ring is full'), tr('You can keep {0} favourites around the prayer. Untick one first; everything else stays one tap away under More in Firdam.', [MAX_FAVOURITES]));
         return p;
       }
       return [...p, id];
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.linen },
   content: { padding: 20, paddingBottom: 48, gap: 16 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  tile: { width: '31%', flexGrow: 1, maxWidth: '32%', alignItems: 'center', gap: 8, paddingVertical: 14, paddingHorizontal: 6, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line },
+  tile: { width: '31%', alignItems: 'center', gap: 8, paddingVertical: 14, paddingHorizontal: 6, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line },
   tileOn: { borderColor: colors.walnut, borderWidth: 2 },
   icon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
   check: { position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: colors.sand, alignItems: 'center', justifyContent: 'center' },

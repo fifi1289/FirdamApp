@@ -17,7 +17,7 @@ export const FEATURE_ICONS: Record<HomeFeatureId, IconName> = {
   fasting: 'fasting',
   halal: 'halal',
   kitchen: 'kitchen',
-  meals: 'today',
+  meals: 'plate',
   recipes: 'recipes',
   shopping: 'cart',
   pantry: 'pantry',

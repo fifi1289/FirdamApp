@@ -48,10 +48,10 @@ export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app
 export const HOME_FEATURE_GROUPS: HomeFeatureGroup[] = ['Faith', 'Kitchen', 'Family', 'Everyday'];
 
 /** How many favourites fit around the prayer on Home. */
-export const MAX_FAVOURITES = 5;
+export const MAX_FAVOURITES = 7;
 
 /** Until the family chooses their own. */
-export const DEFAULT_FAVOURITES: HomeFeatureId[] = ['quran', 'qibla', 'kitchen', 'calendar', 'family'];
+export const DEFAULT_FAVOURITES: HomeFeatureId[] = ['quran', 'qibla', 'kitchen', 'halal', 'calendar', 'family'];
 
 /** Keeps only known features, without repeats, at most MAX_FAVOURITES. */
 export function cleanFavourites(ids: unknown): HomeFeatureId[] {

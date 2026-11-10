@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/art';
-import { FeatureRing } from '@/components/feature-ring';
+import { FEATURE_ICONS, FeatureRing } from '@/components/feature-ring';
 import { openMeal } from '@/components/kitchen-plan';
 import { Badge, Photo } from '@/components/kitchen-ui';
 import { TabScreen } from '@/components/screen';
@@ -19,6 +19,9 @@ import { duaOfTheDay } from '@/shared/duas';
 import { buildCalendarItems, iso, parseISODate, type CalendarItem } from '@/shared/calendar-core';
 import { formatPortions } from '@/shared/pantry-portions';
 import { useNow, usePrayerSettings } from '@/lib/prayer';
+import { mealForNow, mealForNowLabel } from '@/shared/plan-core';
+import { HOME_FEATURES } from '@/shared/home-features';
+import { useFavourites } from '@/lib/home-favourites';
 import { colors, fonts } from '@/theme';
 import { LanguageButton } from '@/components/language-picker';
 import { locale, tr, isRTL } from '@/lib/i18n';
@@ -188,12 +191,61 @@ function ComingSoonCard() {
   );
 }
 
+/** Everything not on the ring, one tap away: a strip under the ring, then All features. */
+function MoreFeatures() {
+  const { favourites } = useFavourites();
+  const rest = HOME_FEATURES.filter((f) => !favourites.includes(f.id) && f.id !== 'prayer');
+  return (
+    <View style={{ gap: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+        <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+          {tr('MORE IN FIRDAM')}
+        </T>
+        <Pressable accessibilityRole="button" hitSlop={8} onPress={() => router.push('/features')}>
+          <T size={13} weight="bold" color={colors.walnut}>
+            {tr('See all ›')}
+          </T>
+        </Pressable>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 4 }}>
+        {rest.map((f) => (
+          <Pressable
+            key={f.id}
+            accessibilityRole="button"
+            accessibilityLabel={tr(f.label)}
+            onPress={() => router.push(f.app as Href)}
+            style={({ pressed }) => [styles.more, pressed && { opacity: 0.85 }]}
+          >
+            <View style={styles.moreIcon}>
+              <Icon name={FEATURE_ICONS[f.id]} size={22} color={colors.walnut} />
+            </View>
+            <T size={12} weight="bold" numberOfLines={2} style={{ textAlign: 'center' }}>
+              {tr(f.label)}
+            </T>
+          </Pressable>
+        ))}
+        <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/features', params: { edit: '1' } })} style={[styles.more, styles.moreEdit]}>
+          <View style={[styles.moreIcon, { backgroundColor: colors.card }]}>
+            <T size={22} weight="bold" color={colors.walnut}>
+              +
+            </T>
+          </View>
+          <T size={12} weight="bold" numberOfLines={2} style={{ textAlign: 'center' }}>
+            {tr('Edit ring')}
+          </T>
+        </Pressable>
+      </ScrollView>
+    </View>
+  );
+}
+
 function TonightCard() {
   const k = useKitchen();
-  const today = formatDateISO(new Date());
-  // Skip meals still waiting for the AI chef (no recipe yet).
-  const meals = (k.week?.plan.days.find((d) => d.date === today)?.meals ?? []).filter((m) => !m.needsAI);
-  const meal = meals.find((m) => m.type === 'dinner') ?? meals[meals.length - 1];
+  // The meal that matters now on the family's own clock (tomorrow's breakfast late at night).
+  const now = useNow(60000);
+  const pick = mealForNow({ days: [...(k.week?.plan.days ?? []), ...(k.nextWeek?.plan.days ?? [])] }, now);
+  const meal = pick?.meal;
+  const today = pick?.date ?? formatDateISO(now);
   useFreshMealPhotos(meal ? [meal] : undefined);
   const openItems = k.items.filter((i) => !i.checked).length;
 
@@ -205,7 +257,7 @@ function TonightCard() {
           <Photo uri={mealImage(meal)} size={92} radius={18} />
           <View style={{ flex: 1, minWidth: 0 }}>
             <T size={12} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
-              {meal.type === 'dinner' ? tr('TONIGHT’S DINNER') : tr('TODAY · {0}', [meal.type.toUpperCase()])}
+              {mealForNowLabel(pick!.when, meal.type)}
             </T>
             <T size={18} weight="bold" numberOfLines={2} style={{ marginTop: 3 }}>
               {tr(meal.name)}
@@ -286,17 +338,7 @@ export default function Today() {
   return (
     <TabScreen home action={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><LanguageButton /><BellButton /></View>} title={todayLabel(now)} subtitle={tr('Assalamu alaikum{0}', [firstName ? `, ${firstName}` : ''])}>
       <FeatureRing />
-      <Pressable accessibilityRole="button" onPress={() => router.push('/features')} style={styles.all}>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <T size={15} weight="bold">
-            {tr('All features')}
-          </T>
-          <T size={12.5} color={colors.muted} numberOfLines={1}>
-            {tr('Halal places, Finance & zakat, Travel and more')}
-          </T>
-        </View>
-        <Icon name="chevron" size={18} color={colors.walnut} />
-      </Pressable>
+      <MoreFeatures />
       <DuaCard />
       <UseSoonCard />
       <TonightCard />
@@ -308,6 +350,9 @@ export default function Today() {
 }
 
 const styles = StyleSheet.create({
+  more: { width: 84, alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 4, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line },
+  moreEdit: { borderStyle: 'dashed', borderColor: colors.sand },
+  moreIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
   all: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 18, paddingVertical: 14, paddingHorizontal: 16 },
   bell: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
   shopCard: { gap: 10, backgroundColor: '#EEF4EA', borderWidth: 1, borderColor: '#CFE0C6', borderRadius: 20, padding: 16 },

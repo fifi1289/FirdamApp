@@ -5,10 +5,14 @@ import {
   buildPlanFromRecipes,
   mealsMissingIngredients,
   fillMissingIngredients,
+  formatDateISO,
+  repairPlan,
   type GeneratedMealPlan,
   type MealPlanGeneratorInput,
   type RecipeRow,
 } from '@/features/meals/plan-core';
+
+import type { MealPreferencesState } from '@/features/meals/meals-config';
 
 export * from '@/features/meals/plan-core';
 
@@ -52,4 +56,17 @@ export async function repairPlanIngredients(planId: string, plan: GeneratedMealP
   if (!data?.length || !fillMissingIngredients(plan, data as unknown as RecipeRow[])) return plan;
   await supabase.from('meal_plans').update({ plan_data: plan as unknown as Record<string, unknown> }).eq('id', planId);
   return plan;
+}
+
+/**
+ * Plans saved before the planner's checks were stricter can hold a dinner in a
+ * snack slot or a meal that doesn't fit the family's diet: those meals are
+ * swapped from today on, and the plan is saved back. Same as the phone app.
+ */
+export async function repairPlanSlots(planId: string, plan: GeneratedMealPlan, preferences: MealPreferencesState, householdSize: number): Promise<GeneratedMealPlan> {
+  const res = repairPlan(plan, await loadLibraryRecipes(), preferences, householdSize, formatDateISO(new Date()));
+  if (!res.changed) return plan;
+  const supabase = createSupabaseBrowserClient();
+  await supabase.from('meal_plans').update({ plan_data: res.plan as unknown as Record<string, unknown> }).eq('id', planId);
+  return res.plan;
 }

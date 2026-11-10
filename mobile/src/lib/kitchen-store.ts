@@ -12,13 +12,17 @@ import {
   loadHousehold,
   loadPantry,
   loadPreferences,
+  loadRecipes,
   loadShoppingItems,
   loadWeekPlan,
   type Household,
   type MealPreferencesState,
   type WeekPlan,
 } from './kitchen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { tr } from '@/lib/i18n';
+import { repairPlan } from '@/shared/plan-core';
 
 /** Everything the kitchen screens share, loaded once and refreshed on demand. */
 export interface KitchenState {
@@ -82,6 +86,29 @@ async function ensureNextWeekPlan() {
   set({ nextWeek: { id, plan } });
 }
 
+/**
+ * Plans saved before the planner's checks were stricter can hold a dinner in a
+ * snack slot, or a meal that doesn't fit the family's diet. Each saved plan is
+ * checked once (per check version) and fixed from today on.
+ */
+const REPAIR_VERSION = 'v1';
+async function repairSavedPlans() {
+  if (!state.prefs) return;
+  const today = formatDateISO(new Date());
+  for (const which of ['week', 'nextWeek'] as const) {
+    const wk = state[which];
+    if (!wk?.id) continue;
+    const mark = `firdam.planRepaired.${wk.id}`;
+    if ((await AsyncStorage.getItem(mark).catch(() => null)) === REPAIR_VERSION) continue;
+    const res = repairPlan(wk.plan, await loadRecipes(), state.prefs, state.household?.portions ?? 2, today);
+    if (res.changed) {
+      const id = await saveWeekPlan(res.plan, state.prefs, wk.id);
+      if (state[which]?.id === wk.id) set({ [which]: { id, plan: res.plan } } as Partial<KitchenState>);
+    }
+    await AsyncStorage.setItem(mark, REPAIR_VERSION).catch(() => {});
+  }
+}
+
 export async function refreshKitchen(): Promise<void> {
   if (inflight) return inflight;
   inflight = (async () => {
@@ -99,6 +126,7 @@ export async function refreshKitchen(): Promise<void> {
       const items = await loadShoppingItems(list.id);
       set({ loading: false, error: null, prefs, household, pantry, week, nextWeek: nextWeekPlan, listId: list.id, items, paid, aiUsed });
       ensureNextWeekPlan().catch(() => {});
+      repairSavedPlans().catch(() => {});
     } catch (e) {
       set({ loading: false, error: e instanceof Error ? e.message : tr('Could not load your kitchen.') });
     } finally {

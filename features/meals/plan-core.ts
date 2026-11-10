@@ -543,3 +543,56 @@ export async function fetchAllPages<T>(
     if (batch.length < size) return rows;
   }
 }
+
+/**
+ * Fixes a saved plan made before the planner's checks were stricter: a library
+ * recipe planned in the wrong kind of slot (a dinner soup as a snack) or one that
+ * no longer fits the family's allergies and diets is swapped for a library recipe
+ * that does, or becomes an empty slot the AI chef can fill. Past days stay as
+ * they were. Meals written by the AI chef are not touched.
+ */
+export function repairPlan(
+  plan: GeneratedMealPlan,
+  all: RecipeRow[],
+  preferences: MealPreferencesState,
+  householdSize: number,
+  today: string,
+): { plan: GeneratedMealPlan; changed: number } {
+  const byId = new Map(all.map((r) => [r.id, r]));
+  const allergies = preferences.allergies ?? [];
+  const firm = (preferences.dietaryPreferences ?? []).filter((d) => !SOFT_DIETS.includes(d.toLowerCase()));
+  let next = plan;
+  let changed = 0;
+  for (const day of plan.days) {
+    if (day.date < today) continue;
+    for (const m of day.meals) {
+      const r = byId.get(m.id);
+      if (!r || m.needsAI) continue;
+      const kind = mealTypeKey(r.meal_type?.name ?? '');
+      const slot = mealTypeKey(m.type);
+      const rightSlot = kind === slot || (NEAR_TYPES[slot] ?? []).includes(kind);
+      if (rightSlot && recipeSuits(r, allergies, firm)) continue;
+      const res = swapPlanMeal(next, day.date, m.type, all, preferences, householdSize);
+      if (res) {
+        next = res.plan;
+      } else {
+        const cuisine = (preferences.cuisinePreferences?.[m.type] ?? []).join(' or ');
+        const label = cuisine || m.type[0].toUpperCase() + m.type.slice(1);
+        const empty: MockMeal = {
+          ...m,
+          id: `needs-ai-${day.date}-${m.type}`,
+          name: cuisine ? `${cuisine} ${m.type}` : label,
+          description: tr('No {0} recipes fit your filters yet.', [m.type]),
+          ingredients: [],
+          recipe: [],
+          prepTime: 0,
+          cookTime: 0,
+          needsAI: label,
+        };
+        next = { ...next, days: next.days.map((d) => (d.date !== day.date ? d : { ...d, meals: d.meals.map((x) => (x.type === m.type ? empty : x)) })) };
+      }
+      changed++;
+    }
+  }
+  return { plan: next, changed };
+}

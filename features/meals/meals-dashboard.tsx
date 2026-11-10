@@ -44,6 +44,7 @@ import {
   generateMealPlanFromSupabase,
   normalizePlan,
   repairPlanIngredients,
+  repairPlanSlots,
   formatWeekRange,
   getStartOfWeek,
   formatDateISO,
@@ -350,7 +351,8 @@ export function MealsDashboard() {
   };
 
   const openSavedPlan = async (record: MealPlanRecord) => {
-    const plan = await repairPlanIngredients(record.id, normalizePlan(record.plan_data as Record<string, unknown>));
+    const filled = await repairPlanIngredients(record.id, normalizePlan(record.plan_data as Record<string, unknown>));
+    const plan = filled?.days?.length ? await repairPlanSlots(record.id, filled, preferences, householdSize).catch(() => filled) : filled;
     if (!plan || !Array.isArray(plan.days) || plan.days.length === 0) {
       toast.error(tr('This meal plan could not be opened.'));
       return;

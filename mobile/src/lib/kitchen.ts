@@ -16,6 +16,7 @@ import { DEFAULT_PREFERENCES, type MealPreferencesState } from '@/shared/meals-c
 import { checkNeeds, Ledger, mergeShortfalls, type Line, type Need } from '@/shared/pantry-engine';
 import { householdFrom, type Household } from '@/shared/pantry-portions';
 import { addAmounts, convertBase, ingredientKey, toBase } from '@/shared/pantry-units';
+import { effectiveExpiry } from '@/shared/kitchen-items';
 import {
   RECIPE_SELECT,
   buildPlanFromRecipes,
@@ -312,7 +313,10 @@ export async function buildAIPlan(prefs: MealPreferencesState, portions: number,
         name: p.name,
         quantity: p.quantity,
         unit: p.unit,
-        useSoon: !!p.expiration_date && new Date(`${p.expiration_date}T12:00:00`).getTime() - Date.now() <= 4 * 86_400_000,
+        useSoon: (() => {
+          const { date } = effectiveExpiry(p);
+          return !!date && new Date(`${date}T12:00:00`).getTime() - Date.now() <= 4 * 86_400_000;
+        })(),
       })),
     }),
   });

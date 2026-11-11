@@ -39,6 +39,7 @@ import { useRecipeFavorites } from '@/features/recipes/use-favorites';
 import { RecipeFormDialog } from '@/features/recipes/recipe-form-dialog';
 import { CookWithWhatIHave } from '@/features/recipes/cook-with-what-i-have';
 import { tr, trn } from '@/lib/i18n';
+import { sameFood } from '@/supabase/functions/_shared/kitchen-items';
 
 type Tab = 'all' | 'cook' | 'favorites' | 'mine';
 
@@ -162,6 +163,12 @@ export function RecipesDashboard() {
   const [time, setTime] = useState('any');
   const [freeFrom, setFreeFrom] = useState<string[]>([]);
   const [diet, setDiet] = useState('any');
+  // ?use=Tomatoes (from the pantry's "Use soon"): only recipes that use that food.
+  const [food, setFood] = useState<string | null>(null);
+  useEffect(() => {
+    const use = new URLSearchParams(window.location.search).get('use');
+    if (use) setFood(use);
+  }, []);
   const [facts, setFacts] = useState<Map<string, RecipeFacts> | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
@@ -201,7 +208,7 @@ export function RecipesDashboard() {
 
   // Show the list a page at a time; changing a filter starts again from the top.
   const [shown, setShown] = useState(PAGE_SIZE);
-  useEffect(() => setShown(PAGE_SIZE), [tab, meal, cuisine, time, query, freeFrom, diet]);
+  useEffect(() => setShown(PAGE_SIZE), [tab, meal, cuisine, time, query, freeFrom, diet, food]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -212,6 +219,7 @@ export function RecipesDashboard() {
       if (cuisine !== 'all' && r.cuisine !== cuisine) return false;
       if (time !== 'any' && totalMinutes(r) > Number(time)) return false;
       if (q && !`${r.name} ${r.description ?? ''} ${r.cuisine ?? ''}`.toLowerCase().includes(q)) return false;
+      if (food && facts !== null && !(facts.get(r.key)?.ingredients ?? []).some((i) => sameFood(food, i))) return false;
       // Allergy/diet filtering needs per-recipe ingredient facts. If a recipe's
       // facts aren't available (still loading, or the facts request failed), we
       // can't prove it's unsafe, so show it. Hiding everything when facts are
@@ -224,7 +232,7 @@ export function RecipesDashboard() {
       }
       return true;
     });
-  }, [recipes, tab, favorites, meal, cuisine, time, query, freeFrom, diet, facts]);
+  }, [recipes, tab, favorites, meal, cuisine, time, query, freeFrom, diet, facts, food]);
 
   // For "What can I cook?": only recipes that are safe for the chosen allergies and diet.
   // As above, a recipe without loaded facts can't be proven unsafe, so keep it.
@@ -306,6 +314,13 @@ export function RecipesDashboard() {
         )
       ) : (
       <>
+      {food && (
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={() => setFood(null)} aria-label={tr('Show all recipes')}>
+            {tr('Recipes with {0}', [trn(food).toLowerCase()])} ✕
+          </Button>
+        </div>
+      )}
       <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_auto_auto] xl:grid-cols-[1fr_auto_auto_auto_auto_auto]">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

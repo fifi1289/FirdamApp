@@ -1,5 +1,6 @@
 'use client';
 
+import { effectiveExpiry } from '@/supabase/functions/_shared/kitchen-items';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Check, ChefHat, ClipboardCheck, MoreHorizontal, Utensils, X } from 'lucide-react';
@@ -64,7 +65,7 @@ export function TodayCookingCard() {
     const [plans, logs, pantryRows, lastCheck] = await Promise.all([
       supabase.from('meal_plans').select('id, plan_data, updated_at').order('updated_at', { ascending: false }).limit(10),
       supabase.from('cooking_log').select('*').eq('cooked_on', today),
-      supabase.from('pantry_items').select('name, expiration_date, tracking, level'),
+      supabase.from('pantry_items').select('name, category, expiration_date, created_at, tracking, level'),
       supabase.from('pantry_events').select('created_at').eq('source', 'check').order('created_at', { ascending: false }).limit(1),
     ]);
     const found: TodayMeal[] = [];
@@ -84,8 +85,9 @@ export function TodayCookingCard() {
     const startOfToday = new Date(`${today}T00:00:00`).getTime();
     setUseSoon(
       rows
-        .filter((r) => r.expiration_date)
-        .map((r) => ({ name: r.name, days: Math.round((new Date(`${r.expiration_date}T00:00:00`).getTime() - startOfToday) / 86400000) }))
+        .map((r) => ({ name: r.name, date: effectiveExpiry(r).date }))
+        .filter((r): r is { name: string; date: string } => !!r.date)
+        .map((r) => ({ name: r.name, days: Math.round((new Date(`${r.date}T00:00:00`).getTime() - startOfToday) / 86400000) }))
         .filter((r) => r.days >= 0 && r.days <= 3)
         .sort((a, b) => a.days - b.days)
         .slice(0, 5)

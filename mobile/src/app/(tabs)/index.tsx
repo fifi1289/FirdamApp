@@ -21,6 +21,7 @@ import { formatPortions } from '@/shared/pantry-portions';
 import { useNow, usePrayerSettings } from '@/lib/prayer';
 import { mealForNow, mealForNowLabel } from '@/shared/plan-core';
 import { HOME_FEATURES } from '@/shared/home-features';
+import { effectiveExpiry } from '@/shared/kitchen-items';
 import { useFavourites } from '@/lib/home-favourites';
 import { colors, fonts } from '@/theme';
 import { LanguageButton } from '@/components/language-picker';
@@ -35,23 +36,27 @@ function UseSoonCard() {
   const k = useKitchen();
   const today = new Date(`${formatDateISO(new Date())}T12:00:00`).getTime();
   const soon = k.pantry
-    .filter((i) => i.expiration_date)
-    .map((i) => ({ i, d: Math.round((new Date(`${i.expiration_date}T12:00:00`).getTime() - today) / 86_400_000) }))
+    .map((i) => ({ i, e: effectiveExpiry(i) }))
+    .filter((x) => x.e.date)
+    .map(({ i, e }) => ({ i, estimated: e.estimated, d: Math.round((new Date(`${e.date}T12:00:00`).getTime() - today) / 86_400_000) }))
     .filter((x) => x.d <= 3)
     .sort((a, b) => a.d - b.d);
   if (k.loading || soon.length === 0) return null;
-  const expired = soon.filter((x) => x.d < 0).length;
+  const expired = soon.filter((x) => x.d < 0 && !x.estimated).length;
   return (
     <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/kitchen', params: { section: 'pantry' } })} style={[styles.warn, expired ? styles.warnRed : null]}>
       <T size={12.5} weight="bold" color={expired ? colors.brickText : '#8A5A16'} style={{ letterSpacing: 0.4 }}>
         {expired ? tr('USE SOON · {0} EXPIRED', [expired]) : tr('USE SOON')}
       </T>
-      {soon.slice(0, 4).map(({ i, d }) => (
+      {soon.slice(0, 4).map(({ i, d, estimated }) => (
         <View key={i.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <T size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={1}>
             {tr(i.name)}
           </T>
-          <Badge label={d < 0 ? tr('Expired') : d === 0 ? tr('Today') : d === 1 ? tr('Tomorrow') : tr('{0} days', [d])} tone={d <= 0 ? 'brick' : 'amber'} />
+          <Badge
+            label={estimated && d < 0 ? tr('Check it') : `${estimated ? '≈ ' : ''}${d < 0 ? tr('Expired') : d === 0 ? tr('Today') : d === 1 ? tr('Tomorrow') : tr('{0} days', [d])}`}
+            tone={d <= 0 && !estimated ? 'brick' : 'amber'}
+          />
         </View>
       ))}
       <T size={12.5} color={colors.muted}>

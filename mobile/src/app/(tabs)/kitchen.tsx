@@ -28,7 +28,7 @@ const SECTIONS = ['plan', 'recipes', 'shopping', 'pantry'];
 export default function Kitchen() {
   const k = useKitchen();
   // /kitchen opens Kitchen's front page; /kitchen?section=shopping opens one part directly.
-  const params = useLocalSearchParams<{ section?: string }>();
+  const params = useLocalSearchParams<{ section?: string; use?: string }>();
   const direct = !!params.section && SECTIONS.includes(params.section);
   const [section, setSection] = useState<Section>(direct ? (params.section as Section) : 'home');
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function Kitchen() {
         ) : section === 'plan' ? (
           <PlanView />
         ) : section === 'recipes' ? (
-          <RecipesView />
+          <RecipesView use={params.use} />
         ) : section === 'shopping' ? (
           <>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} accessibilityLabel={tr('Shopping departments')}>

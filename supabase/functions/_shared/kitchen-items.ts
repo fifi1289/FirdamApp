@@ -157,7 +157,18 @@ export function estimateExpiry(name: string, category?: string | null, from: Dat
 export function effectiveExpiry(item: { name: string; category?: string | null; expiration_date?: string | null; created_at?: string | null; tracking?: string | null }): { date: string | null; estimated: boolean } {
   // A date that matches the estimate from the day it was added was filled in by Firdam, not typed.
   if (item.expiration_date) return { date: item.expiration_date, estimated: !!item.created_at && item.expiration_date === estimateExpiry(item.name, item.category, item.created_at) };
-  if (item.tracking === 'level' || !item.created_at) return { date: null, estimated: false };
+  if (!item.created_at) return { date: null, estimated: false };
   const date = estimateExpiry(item.name, item.category, item.created_at);
   return { date, estimated: !!date };
+}
+
+/**
+ * Whether a recipe ingredient is the same food as a pantry item, for "Recipes
+ * with tomatoes": the shelf-life list knows the food's other names and plurals.
+ */
+export function sameFood(pantryName: string, ingredient: string): boolean {
+  const hit = FOODS.find((f) => f.re.test(pantryName));
+  if (hit) return hit.re.test(ingredient) && !LONG_LASTING.test(ingredient);
+  const stem = pantryName.toLowerCase().trim().replace(/(es|s)$/, '');
+  return stem.length > 2 && ingredient.toLowerCase().includes(stem);
 }

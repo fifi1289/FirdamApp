@@ -57,6 +57,8 @@ import {
   type PantryItemFormValues,
 } from '@/features/pantry/pantry-item-form-dialog';
 import { locale, tr, trn } from '@/lib/i18n';
+import Link from 'next/link';
+import { effectiveExpiry, shelfLife } from '@/supabase/functions/_shared/kitchen-items';
 
 export { PANTRY_ITEMS_CHANGED } from '@/features/pantry/pantry-item-form-dialog';
 
@@ -141,8 +143,11 @@ function PantryItemCard({
   onDelete: (item: PantryItem) => void;
 }) {
   const Icon = CATEGORY_ICONS[item.category] ?? Archive;
-  const exp = computeStatus(item.expiration_date);
-  const relative = relativeExpiration(item.expiration_date);
+  // Items without a typed date get an estimate (≈) from the day they were added.
+  const eff = effectiveExpiry(item);
+  const exp = computeStatus(eff.date);
+  const relative = relativeExpiration(eff.date);
+  const life = exp && exp.status !== 'fresh' ? shelfLife(item.name, item.category) : null;
 
   return (
     <div className="group rounded-xl border border-border/60 bg-card p-4 transition-colors hover:border-border">
@@ -186,9 +191,9 @@ function PantryItemCard({
             {exp && (
               <Badge
                 variant="outline"
-                className={cn('text-[10px] font-medium', STATUS_BADGE[exp.status].className)}
+                className={cn('text-[10px] font-medium', STATUS_BADGE[eff.estimated && exp.status === 'expired' ? 'soon' : exp.status].className)}
               >
-                {tr(STATUS_BADGE[exp.status].label)}
+                {eff.estimated && exp.status === 'expired' ? tr('Check it') : `${eff.estimated ? '≈ ' : ''}${tr(STATUS_BADGE[exp.status].label)}`}
               </Badge>
             )}
             {item.tracking === 'level' ? (
@@ -204,7 +209,7 @@ function PantryItemCard({
               <p
                 className={cn(
                   'flex items-center gap-1 text-xs font-medium',
-                  exp.status === 'expired'
+                  exp.status === 'expired' && !eff.estimated
                     ? 'text-destructive'
                     : exp.status === 'soon'
                     ? 'text-amber-600 dark:text-amber-400'
@@ -212,11 +217,23 @@ function PantryItemCard({
                 )}
               >
                 <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-                {trn(relative)}
+                {eff.estimated ? `≈ ${trn(relative)}` : trn(relative)}
               </p>
               <p className="mt-0.5 pl-[18px] text-[11px] text-muted-foreground/80">
-                {tr(exp.label)}
+                {eff.estimated ? tr('Estimated from the day you added it') : tr(exp.label)}
               </p>
+            </div>
+          )}
+          {life && (
+            <div className="mt-2 rounded-lg bg-brand-sage/10 p-2.5 text-xs leading-relaxed text-foreground/80">
+              <span className="font-semibold text-brand-sage">{tr('Save it: ')}</span>
+              {tr(life.save)}
+              <Link
+                href={`/dashboard/recipes?use=${encodeURIComponent(item.name)}`}
+                className="mt-1 block font-semibold text-primary hover:underline"
+              >
+                {tr('Recipes with {0} ›', [trn(item.name).toLowerCase()])}
+              </Link>
             </div>
           )}
           {item.notes && (
@@ -244,10 +261,12 @@ function sortItems(list: PantryItem[], sort: SortOption): PantryItem[] {
   switch (sort) {
     case 'expiration':
       sorted.sort((a, b) => {
-        if (!a.expiration_date && !b.expiration_date) return 0;
-        if (!a.expiration_date) return 1;
-        if (!b.expiration_date) return -1;
-        return a.expiration_date.localeCompare(b.expiration_date);
+        const ea = effectiveExpiry(a).date;
+        const eb = effectiveExpiry(b).date;
+        if (!ea && !eb) return 0;
+        if (!ea) return 1;
+        if (!eb) return -1;
+        return ea.localeCompare(eb);
       });
       break;
     case 'recent':

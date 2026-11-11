@@ -8,6 +8,7 @@ import { checkRecipe, fitsDiets, isSafeFor, loadRecipes, recipeImage, totalMinut
 import { useKitchen } from '@/lib/kitchen-store';
 import { colors, fonts } from '@/theme';
 import { tr } from '@/lib/i18n';
+import { sameFood } from '@/shared/kitchen-items';
 
 type Filter = 'safe' | 'quick' | 'cook';
 
@@ -17,8 +18,11 @@ const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free'
 /** Recipes shown per page; "Show more" adds the next page. */
 const PAGE_SIZE = 40;
 
-export function RecipesView() {
+/** With `use` (a pantry food, e.g. "Tomatoes") only recipes that use it are shown. */
+export function RecipesView({ use }: { use?: string } = {}) {
   const k = useKitchen();
+  const [food, setFood] = useState<string | null>(use || null);
+  useEffect(() => setFood(use || null), [use]);
   const [recipes, setRecipes] = useState<RecipeRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -29,7 +33,7 @@ export function RecipesView() {
   const [diet, setDiet] = useState<string | null>(null);
   const [sheet, setSheet] = useState(false);
   // A new search or filter starts again from the top.
-  useEffect(() => setLimit(PAGE_SIZE), [query, filters, meal, cuisine, diet]);
+  useEffect(() => setLimit(PAGE_SIZE), [query, filters, meal, cuisine, diet, food]);
 
   useEffect(() => {
     loadRecipes()
@@ -58,10 +62,11 @@ export function RecipesView() {
       .filter((r) => !meal || (r.meal_type?.name ?? '').toLowerCase().includes(meal))
       .filter((r) => !cuisine || r.cuisine?.name === cuisine)
       .filter((r) => !diet || fitsDiets(r, [diet]))
+      .filter((r) => !food || r.recipe_ingredients.some((x) => !!x.ingredient?.name && sameFood(food, x.ingredient.name)))
       .map((r) => ({ r, check: k.pantry.length ? checkRecipe(r, k.pantry, portions) : null }))
       .filter(({ check }) => !filters.has('cook') || (check && check.verdict !== 'far'))
       .sort((a, b) => (filters.has('cook') && a.check && b.check ? a.check.missingCount - b.check.missingCount : 0));
-  }, [recipes, query, filters, meal, cuisine, diet, allergies, diets, k.pantry, portions]);
+  }, [recipes, query, filters, meal, cuisine, diet, food, allergies, diets, k.pantry, portions]);
 
   const toggle = (f: Filter) =>
     setFilters((cur) => {
@@ -72,6 +77,7 @@ export function RecipesView() {
     });
 
   const active = [
+    ...(food ? [{ label: tr('Recipes with {0}', [tr(food).toLowerCase()]), clear: () => setFood(null) }] : []),
     ...(filters.has('safe') ? [{ label: allergies.length ? 'Safe for my family' : 'Fits my diet', clear: () => toggle('safe') }] : []),
     ...(filters.has('quick') ? [{ label: '30 min or less', clear: () => toggle('quick') }] : []),
     ...(filters.has('cook') ? [{ label: 'Cook with what I have', clear: () => toggle('cook') }] : []),

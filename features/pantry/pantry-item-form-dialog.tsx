@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { isStapleFood } from '@/lib/pantry/quick-add';
+import { estimateExpiry, shelfLife } from '@/supabase/functions/_shared/kitchen-items';
 import {
   Select,
   SelectContent,
@@ -112,7 +113,8 @@ export function PantryItemFormDialog({
       category: values.category,
       quantity,
       unit: values.unit,
-      expiration_date: values.expiration_date || null,
+      // A new item with no date gets the usual shelf life for that food (shown with ≈).
+      expiration_date: values.expiration_date || (item ? null : estimateExpiry(trimmed, values.category)),
       notes: values.notes.trim() || null,
       tracking: values.staple ? ('level' as const) : ('count' as const),
       level: values.staple ? (item?.level ?? 'full') : null,
@@ -247,6 +249,22 @@ export function PantryItemFormDialog({
                 value={values.expiration_date}
                 onChange={(e) => update({ expiration_date: e.target.value })}
               />
+              {(() => {
+                const life = values.name.trim() ? shelfLife(values.name.trim(), values.category) : null;
+                if (!life) return null;
+                const where = life.place === 'fridge' ? tr('in the fridge') : life.place === 'counter' ? tr('on the counter') : tr('in a cool cupboard');
+                return (
+                  <div className="space-y-1 rounded-lg bg-brand-sage/10 p-2.5 text-xs leading-relaxed text-foreground/80">
+                    <p className="font-semibold text-brand-sage">{tr('Usually keeps about {0} days {1}.', [life.days, where])}</p>
+                    {life.store && <p>{tr(life.store)}</p>}
+                    <p>
+                      <span className="font-semibold">{tr('Save it: ')}</span>
+                      {tr(life.save)}
+                    </p>
+                    {!values.expiration_date && !item && <p className="text-muted-foreground">{tr('Leave the date empty and Firdam will estimate it.')}</p>}
+                  </div>
+                );
+              })()}
             </div>
             <div className="space-y-2">
               <Label htmlFor="pantry-notes">{tr('Notes (optional)')}</Label>

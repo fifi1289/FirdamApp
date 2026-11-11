@@ -14,6 +14,7 @@ import { useLittleOnes } from '@/lib/little-plates';
 import { ageLabel, littleChanges } from '@/shared/little-plates-core';
 import { optionView, type LunchboxIdea, type LunchboxPlan } from '@/shared/lunchbox-core';
 import { mealForNow, type MockMeal } from '@/shared/plan-core';
+import { effectiveExpiry } from '@/shared/kitchen-items';
 import { colors } from '@/theme';
 
 type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
@@ -46,7 +47,10 @@ export function KitchenHome({ onOpen }: { onOpen: (s: Section) => void }) {
   useFreshMealPhotos(meals.length ? meals : undefined);
   const toBuy = k.items.filter((i) => !i.checked).length;
   const todayMs = new Date(`${today}T12:00:00`).getTime();
-  const expiring = k.pantry.filter((i) => i.expiration_date && (new Date(`${i.expiration_date}T12:00:00`).getTime() - todayMs) / 86_400_000 <= 3).length;
+  const expiring = k.pantry.filter((i) => {
+    const { date } = effectiveExpiry(i);
+    return !!date && (new Date(`${date}T12:00:00`).getTime() - todayMs) / 86_400_000 <= 3;
+  }).length;
 
   return (
     <View style={{ gap: 14 }}>

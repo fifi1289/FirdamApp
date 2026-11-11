@@ -880,7 +880,7 @@ async function aiIdeas(count: number, allergies: string[], youngest: number | nu
         content:
           `Write ${count} different school lunchbox ideas${youngest !== null ? ` for children aged ${youngest} and up` : ""}. ` +
           `Don't repeat these: ${avoidNames.slice(0, 60).join("; ")}. ` +
-          `Answer as JSON: {"lunchboxes":[{"name":"playful name, max 40 characters","items":["4 to 6 items with simple amounts"],"fun_tip":"one sentence","tools":["1 to 3 reusable kitchen tools to make it, e.g. star cookie cutter, bento box, food picks"],"tags":["vegetarian" or "pescatarian" or "gluten-free", if true]}]}`,
+          `Answer as JSON: {"lunchboxes":[{"name":"playful name, max 40 characters","items":["4 to 6 items with simple amounts"],"fun_tip":"one sentence","tools":["1 to 3 reusable kitchen tools to make it, named as a shopper would search for them, with the exact shape the tip uses, e.g. butterfly sandwich cutter (not just sandwich cutter), star cookie cutter, bento box, food picks"],"tags":["vegetarian" or "pescatarian" or "gluten-free", if true]}]}`,
       },
     ],
   });

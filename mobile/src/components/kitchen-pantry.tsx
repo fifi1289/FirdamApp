@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
@@ -12,7 +13,7 @@ import { patchKitchen, refreshKitchen, useKitchen } from '@/lib/kitchen-store';
 import { supabase } from '@/lib/supabase';
 import { groupByAisle, guessCategory, parseQuickAdd, toPantryUnit } from '@/shared/grocery-utils';
 import { haramItemMessage } from '@/shared/halal';
-import { isNonFood, suggestedExpiry } from '@/shared/kitchen-items';
+import { effectiveExpiry, estimateExpiry, isNonFood, shelfLife } from '@/shared/kitchen-items';
 import { formatAmount } from '@/shared/pantry-units';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
@@ -36,9 +37,15 @@ const AISLE_COLORS: Record<string, string> = {
 const aisleColor = (c: string) => AISLE_COLORS[c] ?? '#9C8D84';
 
 /** Expiry label and colour: red when past, amber when close, green when fine. */
-function expiryBadge(date: string | null): { label: string; tone: 'brick' | 'amber' | 'sage' } | null {
+/** The badge for an item; dates Firdam estimated (nobody typed them) start with ≈. */
+function expiryBadge(date: string | null, estimated = false): { label: string; tone: 'brick' | 'amber' | 'sage' } | null {
   const d = daysLeft(date);
   if (d == null) return null;
+  if (estimated) {
+    if (d < 0) return { label: tr('Check it'), tone: 'amber' };
+    if (d <= 3) return { label: `≈ ${d <= 0 ? tr('Use today') : d === 1 ? tr('Use tomorrow') : tr('Use in {0} days', [d])}`, tone: 'amber' };
+    return { label: `≈ ${new Date(`${date}T12:00:00`).toLocaleDateString(locale(), { month: 'short', day: 'numeric' })}`, tone: 'sage' };
+  }
   if (d < 0) return { label: tr('Expired'), tone: 'brick' };
   if (d === 0) return { label: tr('Use today'), tone: 'brick' };
   if (d <= 3) return { label: d === 1 ? tr('Use tomorrow') : tr('Use in {0} days', [d]), tone: 'amber' };
@@ -65,7 +72,10 @@ export function PantryView() {
   const soon = useMemo(
     () =>
       k.pantry
-        .map((i) => ({ i, d: daysLeft(i.expiration_date) }))
+        .map((i) => {
+          const e = effectiveExpiry(i);
+          return { i, d: daysLeft(e.date), estimated: e.estimated, life: shelfLife(i.name, i.category) };
+        })
         .filter((x) => x.d != null && x.d <= 3)
         .sort((a, b) => (a.d ?? 0) - (b.d ?? 0)),
     [k.pantry],
@@ -85,7 +95,7 @@ export function PantryView() {
         quantity: p.quantity ?? 1,
         unit: toPantryUnit(p.unit),
         tracking: 'count' as const,
-        expiration_date: suggestedExpiry(guessCategory(p.name)),
+        expiration_date: estimateExpiry(p.name, guessCategory(p.name)),
       }));
     setBusy(true);
     try {
@@ -136,7 +146,7 @@ export function PantryView() {
                 unit: i.unit,
                 tracking: i.staple ? 'level' : 'count',
                 ...(i.staple ? { level: 'full' } : {}),
-                expiration_date: i.staple ? null : suggestedExpiry(i.category),
+                expiration_date: i.staple ? null : estimateExpiry(i.name, i.category),
               })),
             );
             if (error) showAlert(tr('Could not add'), error.message);
@@ -176,18 +186,49 @@ export function PantryView() {
       <Button label={scanning ? tr('Reading your receipt…') : tr('Scan a receipt')} variant="secondary" onPress={scanReceipt} busy={scanning} />
 
       {soon.length ? (
-        <Card style={{ gap: 8 }}>
+        <Card style={{ gap: 12 }}>
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
             {tr('USE SOON')}
           </T>
-          {soon.map(({ i, d }) => (
-            <View key={i.id} style={styles.soonRow}>
-              <T size={15} weight="semibold" style={{ flex: 1 }}>
-                {tr(i.name)}
-              </T>
-              <Badge label={d! < 0 ? tr('Past its date') : d === 0 ? tr('Today') : d === 1 ? tr('Tomorrow') : tr('{0} days', [d])} tone={d! <= 0 ? 'brick' : 'amber'} />
+          {soon.map(({ i, d, estimated, life }, idx) => (
+            <View key={i.id} style={[{ gap: 6 }, idx < soon.length - 1 && styles.soonLine]}>
+              <Pressable accessibilityRole="button" accessibilityHint={tr('Edit amount or expiry date')} onPress={() => setEditing(i)} style={styles.soonRow}>
+                <T size={15} weight="semibold" style={{ flex: 1 }}>
+                  {tr(i.name)}
+                </T>
+                <Badge
+                  label={
+                    estimated && d! < 0
+                      ? tr('Check it')
+                      : `${estimated ? '≈ ' : ''}${d! < 0 ? tr('Past its date') : d === 0 ? tr('Today') : d === 1 ? tr('Tomorrow') : tr('{0} days', [d])}`
+                  }
+                  tone={d! <= 0 && !estimated ? 'brick' : 'amber'}
+                />
+              </Pressable>
+              {life ? (
+                <T size={13.5} color="#4A3F39" style={{ lineHeight: 19 }}>
+                  <T size={13.5} weight="bold" color={colors.sageDark}>
+                    {tr('Save it: ')}
+                  </T>
+                  {tr(life.save)}
+                </T>
+              ) : null}
+              <Pressable
+                accessibilityRole="link"
+                hitSlop={6}
+                onPress={() => router.push({ pathname: '/kitchen', params: { section: 'recipes', use: i.name } })}
+              >
+                <T size={13.5} weight="bold" color={colors.walnut}>
+                  {tr('Recipes with {0} ›', [tr(i.name).toLowerCase()])}
+                </T>
+              </Pressable>
             </View>
           ))}
+          {soon.some((x) => x.estimated) ? (
+            <T size={12} color={colors.muted}>
+              {tr('≈ is an estimate from the day you added it. Tap an item to set the real date.')}
+            </T>
+          ) : null}
         </Card>
       ) : null}
 
@@ -224,7 +265,11 @@ export function PantryView() {
                       {amount(i)}
                     </T>
                   </View>
-                  {expiryBadge(i.expiration_date) ? <Badge {...expiryBadge(i.expiration_date)!} /> : null}
+                  {(() => {
+                    const e = effectiveExpiry(i);
+                    const b = expiryBadge(e.date, e.estimated);
+                    return b ? <Badge {...b} /> : null;
+                  })()}
                   <View style={styles.edit}>
                     <T size={12.5} weight="bold" color={colors.walnut}>
                       {tr('Edit')}
@@ -249,6 +294,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 50 },
   line: { borderBottomWidth: 1, borderBottomColor: colors.line },
   soonRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  keeps: { gap: 4, backgroundColor: colors.sageTint, borderRadius: 14, padding: 12, marginTop: 4 },
+  soonLine: { borderBottomWidth: 1, borderBottomColor: colors.line, paddingBottom: 12 },
   dot: { width: 10, height: 10, borderRadius: 5 },
   edit: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: colors.line },
   backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },
@@ -351,6 +398,29 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
                 onChange={(t) => setExpiry(t || null)}
                 optional
               />
+              {(() => {
+                const life = shelfLife(item.name, item.category);
+                if (!life) return null;
+                const where = life.place === 'fridge' ? tr('in the fridge') : life.place === 'counter' ? tr('on the counter') : tr('in a cool cupboard');
+                return (
+                  <View style={styles.keeps}>
+                    <T size={13.5} weight="bold" color={colors.sageDark}>
+                      {tr('Usually keeps about {0} days {1}.', [life.days, where])}
+                    </T>
+                    {life.store ? (
+                      <T size={13.5} color="#24402F" style={{ lineHeight: 19 }}>
+                        {tr(life.store)}
+                      </T>
+                    ) : null}
+                    <T size={13.5} color="#24402F" style={{ lineHeight: 19 }}>
+                      <T size={13.5} weight="bold" color="#24402F">
+                        {tr('Save it: ')}
+                      </T>
+                      {tr(life.save)}
+                    </T>
+                  </View>
+                );
+              })()}
             </View>
             {problem ? (
               <T size={13.5} color={colors.brickText}>

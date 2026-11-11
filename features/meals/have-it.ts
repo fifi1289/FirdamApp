@@ -5,7 +5,7 @@
  * so they behave the same.
  */
 import { guessCategory, toPantryUnit } from '@/features/groceries/grocery-utils';
-import { suggestedExpiry } from '@/supabase/functions/_shared/kitchen-items';
+import { estimateExpiry } from '@/supabase/functions/_shared/kitchen-items';
 import type { Line } from '@/supabase/functions/_shared/pantry-engine';
 import { convertBase, toBase } from '@/supabase/functions/_shared/pantry-units';
 
@@ -54,7 +54,7 @@ export function haveItChange(line: Line, now = new Date()): HaveItChange {
       level: level ? 'full' : null,
       quantity: level ? 1 : (line.scaled as number),
       unit: level ? 'Pack' : (mapped as ReturnType<typeof toPantryUnit>),
-      expiration_date: suggestedExpiry(category, now),
+      expiration_date: estimateExpiry(name, category, now),
     },
   };
 }

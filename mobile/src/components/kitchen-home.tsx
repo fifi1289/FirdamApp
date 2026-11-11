@@ -13,7 +13,8 @@ import { loadLunchboxPlan } from '@/lib/lunchbox';
 import { useLittleOnes } from '@/lib/little-plates';
 import { ageLabel, littleChanges } from '@/shared/little-plates-core';
 import { optionView, type LunchboxIdea, type LunchboxPlan } from '@/shared/lunchbox-core';
-import type { MockMeal } from '@/shared/plan-core';
+import { mealForNow, type MockMeal } from '@/shared/plan-core';
+import { effectiveExpiry } from '@/shared/kitchen-items';
 import { colors } from '@/theme';
 
 type Section = 'plan' | 'recipes' | 'shopping' | 'pantry';
@@ -41,11 +42,15 @@ export function KitchenHome({ onOpen }: { onOpen: (s: Section) => void }) {
   const slots = [...(k.week?.plan.days.find((d) => d.date === today)?.meals ?? [])].sort((x, y) => ORDER.indexOf(x.type) - ORDER.indexOf(y.type));
   const meals = slots.filter((m) => !m.needsAI);
   // The little one's plate: tonight's dinner, or the next real meal of the day.
-  const dinner = meals.find((m) => m.type === 'dinner') ?? meals.find((m) => m.type === 'lunch') ?? meals[0];
+  // The little one's next plate: the meal that fits the time of day (tomorrow's breakfast late at night).
+  const pick = mealForNow({ days: [...(k.week?.plan.days ?? []), ...(k.nextWeek?.plan.days ?? [])] });
   useFreshMealPhotos(meals.length ? meals : undefined);
   const toBuy = k.items.filter((i) => !i.checked).length;
   const todayMs = new Date(`${today}T12:00:00`).getTime();
-  const expiring = k.pantry.filter((i) => i.expiration_date && (new Date(`${i.expiration_date}T12:00:00`).getTime() - todayMs) / 86_400_000 <= 3).length;
+  const expiring = k.pantry.filter((i) => {
+    const { date } = effectiveExpiry(i);
+    return !!date && (new Date(`${date}T12:00:00`).getTime() - todayMs) / 86_400_000 <= 3;
+  }).length;
 
   return (
     <View style={{ gap: 14 }}>
@@ -107,7 +112,7 @@ export function KitchenHome({ onOpen }: { onOpen: (s: Section) => void }) {
         )}
       </View>
 
-      <LittlePlatesCard dinner={dinner ? { meal: dinner, open: () => openMeal(dinner, today, true) } : null} />
+      <LittlePlatesCard dinner={pick ? { meal: pick.meal, when: pick.when, open: () => openMeal(pick.meal, pick.date, true) } : null} />
 
       <LunchboxCard />
 
@@ -138,7 +143,7 @@ export function KitchenHome({ onOpen }: { onOpen: (s: Section) => void }) {
 }
 
 /** Little Plates: the little one's plate for tonight's dinner (or the next meal of the day). */
-function LittlePlatesCard({ dinner }: { dinner: { meal: MockMeal; open: () => void } | null }) {
+function LittlePlatesCard({ dinner }: { dinner: { meal: MockMeal; when: string; open: () => void } | null }) {
   const ones = useLittleOnes();
   const eating = ones.filter((o) => o.stage);
   const youngest = eating[0];
@@ -165,9 +170,11 @@ function LittlePlatesCard({ dinner }: { dinner: { meal: MockMeal; open: () => vo
   const title = !youngest
     ? tr('Milk only for now')
     : dinner
-      ? dinner.meal.type === 'dinner'
-        ? tr('{0}’s plate tonight', [names])
-        : tr('{0}’s plate today', [names])
+      ? dinner.when === 'tomorrow'
+        ? tr('{0}’s plate tomorrow', [names])
+        : dinner.when === 'dinner'
+          ? tr('{0}’s plate tonight', [names])
+          : tr('{0}’s plate today', [names])
       : tr('{0}’s plates', [names]);
   const sub = !youngest
     ? tr('{0} is under 6 months: milk only for now. Baby versions start at about 6 months.', [ones.map((o) => o.name).join(', ')])

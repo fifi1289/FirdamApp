@@ -596,3 +596,49 @@ export function repairPlan(
   }
   return { plan: next, changed };
 }
+
+/** When each meal of the day usually ends (minutes after midnight, the family's own clock). */
+const MEAL_TIMES: { type: string; until: number }[] = [
+  { type: 'breakfast', until: 10 * 60 + 30 },
+  { type: 'lunch', until: 15 * 60 },
+  { type: 'snack', until: 17 * 60 },
+  { type: 'dinner', until: 21 * 60 + 30 },
+];
+
+/**
+ * The meal that matters right now on the phone's own clock: breakfast in the
+ * morning, lunch at midday, the snack in the afternoon, dinner in the evening,
+ * and tomorrow's breakfast late at night. Empty AI chef slots are skipped.
+ */
+export function mealForNow(
+  plan: { days: { date: string; meals: MockMeal[] }[] } | null | undefined,
+  now: Date = new Date(),
+): { meal: MockMeal; date: string; when: 'breakfast' | 'lunch' | 'snack' | 'dinner' | 'tomorrow' } | null {
+  if (!plan) return null;
+  const today = formatDateISO(now);
+  const tomorrowDate = new Date(now);
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = formatDateISO(tomorrowDate);
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const start = MEAL_TIMES.findIndex((t) => minutes < t.until);
+  const real = (date: string) => (plan.days.find((d) => d.date === date)?.meals ?? []).filter((m) => !m.needsAI);
+  if (start >= 0) {
+    const meals = real(today);
+    for (const slot of MEAL_TIMES.slice(start)) {
+      const m = meals.find((x) => x.type === slot.type);
+      if (m) return { meal: m, date: today, when: slot.type as 'breakfast' | 'lunch' | 'snack' | 'dinner' };
+    }
+  }
+  const next = real(tomorrow);
+  for (const slot of MEAL_TIMES) {
+    const m = next.find((x) => x.type === slot.type);
+    if (m) return { meal: m, date: tomorrow, when: 'tomorrow' };
+  }
+  return null;
+}
+
+/** The heading for mealForNow's meal. */
+export function mealForNowLabel(when: 'breakfast' | 'lunch' | 'snack' | 'dinner' | 'tomorrow', type: string): string {
+  if (when === 'tomorrow') return tr('TOMORROW · {0}', [tr(type[0].toUpperCase() + type.slice(1)).toUpperCase()]);
+  return when === 'breakfast' ? tr('THIS MORNING’S BREAKFAST') : when === 'lunch' ? tr('TODAY’S LUNCH') : when === 'snack' ? tr('AFTERNOON SNACK') : tr('TONIGHT’S DINNER');
+}

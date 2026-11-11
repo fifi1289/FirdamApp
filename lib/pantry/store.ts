@@ -10,7 +10,7 @@ import { guessCategory } from '@/features/groceries/grocery-utils';
 import { matchScore, toBase, toUnit } from '@/lib/pantry/units';
 import type { Deduction } from '@/lib/pantry/engine';
 import type { PantryCategory, PantryEventSource, PantryItem, PantryUnit } from '@/types/database';
-import { suggestedExpiry } from '@/supabase/functions/_shared/kitchen-items';
+import { estimateExpiry } from '@/supabase/functions/_shared/kitchen-items';
 
 type Row = Record<string, unknown>;
 
@@ -158,7 +158,7 @@ export function changesForAdding(
         tracking: it.tracking ?? 'count',
         level: it.tracking === 'level' ? it.level ?? 'full' : null,
         // Fresh food gets a typical "use by" date so the app can warn in time.
-        expiration_date: suggestedExpiry(it.category ?? guessCategory(it.name)),
+        expiration_date: estimateExpiry(it.name, it.category ?? guessCategory(it.name)),
       },
     });
   }

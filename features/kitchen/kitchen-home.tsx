@@ -1,5 +1,6 @@
 'use client';
 
+import { effectiveExpiry } from '@/supabase/functions/_shared/kitchen-items';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { Archive, BookOpen, ShoppingCart, Sparkles } from 'lucide-react';
@@ -68,12 +69,17 @@ export function KitchenHome() {
       .then(({ count }: { count: number | null }) => setToBuy(count ?? 0));
 
     db.from('pantry_items')
-      .select('expiration_date')
-      .then(({ data }: { data: { expiration_date: string | null }[] | null }) => {
+      .select('name, category, expiration_date, created_at')
+      .then(({ data }: { data: { name: string; category: string | null; expiration_date: string | null; created_at: string }[] | null }) => {
         const rows = data ?? [];
         const t = new Date(`${today}T12:00:00`).getTime();
         setPantryCount(rows.length);
-        setExpiring(rows.filter((r) => r.expiration_date && (new Date(`${r.expiration_date}T12:00:00`).getTime() - t) / 86_400_000 <= 3).length);
+        setExpiring(
+          rows.filter((r) => {
+            const { date } = effectiveExpiry(r);
+            return !!date && (new Date(`${date}T12:00:00`).getTime() - t) / 86_400_000 <= 3;
+          }).length,
+        );
       });
 
     const target = nextSchoolDay();

@@ -6,7 +6,7 @@
  * so they behave the same.
  */
 import { guessCategory, toPantryUnit } from './grocery-utils';
-import { suggestedExpiry } from './kitchen-items';
+import { estimateExpiry } from './kitchen-items';
 import type { Line } from './pantry-engine';
 import { convertBase, toBase } from './pantry-units';
 
@@ -55,7 +55,7 @@ export function haveItChange(line: Line, now = new Date()): HaveItChange {
       level: level ? 'full' : null,
       quantity: level ? 1 : (line.scaled as number),
       unit: level ? 'Pack' : (mapped as ReturnType<typeof toPantryUnit>),
-      expiration_date: suggestedExpiry(category, now),
+      expiration_date: estimateExpiry(name, category, now),
     },
   };
 }

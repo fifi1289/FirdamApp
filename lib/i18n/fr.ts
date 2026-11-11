@@ -3665,4 +3665,7 @@ export const FR: Record<string, string> = {
   "Freeze it, or turn it into breadcrumbs.": "Congelez-le, ou faites-en de la chapelure.",
   "Beat and freeze in portions for baking: keeps 6 months.": "Battez-les et congelez-les en portions pour la pâtisserie : 6 mois.",
   "Use it in today’s cooking.": "Utilisez-le dans la cuisine d’aujourd’hui.",
+  "Prayer is always on Home": "La prière est toujours sur l’accueil",
+  "The next prayer sits in the middle of your ring, so it doesn’t need a place around it.": "La prochaine prière est au centre de votre cercle : elle n’a donc pas besoin d’une place autour.",
+  "Always in the middle": "Toujours au centre",
 };

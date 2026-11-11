@@ -25,20 +25,24 @@ export default function Features() {
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => setPicked(favourites), [favourites]);
 
+  // Each tap is saved straight away, so going back to Home never loses a choice.
   const toggle = (id: HomeFeatureId) => {
     setNote(null);
-    setPicked((p) => {
-      if (p.includes(id)) return p.filter((x) => x !== id);
-      if (p.length >= MAX_FAVOURITES) {
-        showAlert(tr('Your Home ring is full'), tr('You can keep {0} favourites around the prayer. Untick one first; everything else stays one tap away under More in Firdam.', [MAX_FAVOURITES]));
-        return p;
-      }
-      return [...p, id];
-    });
+    if (id === 'prayer') {
+      showAlert(tr('Prayer is always on Home'), tr('The next prayer sits in the middle of your ring, so it doesn’t need a place around it.'));
+      return;
+    }
+    let next: HomeFeatureId[];
+    if (picked.includes(id)) next = picked.filter((x) => x !== id);
+    else if (picked.length >= MAX_FAVOURITES) {
+      showAlert(tr('Your Home ring is full'), tr('You can keep {0} favourites around the prayer. Untick one first; everything else stays one tap away under More in Firdam.', [MAX_FAVOURITES]));
+      return;
+    } else next = [...picked, id];
+    setPicked(next);
+    void save(next);
   };
 
-  const done = async () => {
-    await save(picked);
+  const done = () => {
     if (params.edit === '1') router.back();
     else setEditing(false);
   };
@@ -65,7 +69,8 @@ export default function Features() {
             </T>
             <View style={styles.grid}>
               {HOME_FEATURES.filter((f) => f.group === g).map((f) => {
-                const on = picked.includes(f.id);
+                const fixed = f.id === 'prayer';
+                const on = fixed || picked.includes(f.id);
                 return (
                   <Pressable
                     key={f.id}
@@ -81,6 +86,11 @@ export default function Features() {
                     <T size={13} weight="bold" numberOfLines={2} style={{ textAlign: 'center' }}>
                       {tr(f.label)}
                     </T>
+                    {editing && fixed ? (
+                      <T size={11} color={colors.muted} style={{ textAlign: 'center', marginTop: -4 }}>
+                        {tr('Always in the middle')}
+                      </T>
+                    ) : null}
                     {editing ? (
                       <View style={[styles.check, on && styles.checkOn]}>{on ? <T size={11} weight="bold" color={colors.linen}>✓</T> : null}</View>
                     ) : null}
@@ -97,7 +107,7 @@ export default function Features() {
           </T>
         ) : null}
         {editing ? (
-          <Button label={tr('Save favourites')} onPress={done} />
+          <Button label={tr('Done')} onPress={done} />
         ) : (
           <Button label={tr('Edit favourites')} variant="secondary" onPress={() => setEditing(true)} />
         )}

@@ -53,13 +53,13 @@ export const MAX_FAVOURITES = 7;
 /** Until the family chooses their own. */
 export const DEFAULT_FAVOURITES: HomeFeatureId[] = ['quran', 'qibla', 'kitchen', 'halal', 'calendar', 'family'];
 
-/** Keeps only known features, without repeats, at most MAX_FAVOURITES. */
+/** Keeps only known features, without repeats, at most MAX_FAVOURITES. Prayer is always in the middle of the ring, so it is never a favourite. */
 export function cleanFavourites(ids: unknown): HomeFeatureId[] {
   if (!Array.isArray(ids)) return [...DEFAULT_FAVOURITES];
   const known = new Set(HOME_FEATURES.map((f) => f.id));
   const out: HomeFeatureId[] = [];
   for (const id of ids) {
-    if (typeof id === 'string' && known.has(id as HomeFeatureId) && !out.includes(id as HomeFeatureId)) out.push(id as HomeFeatureId);
+    if (typeof id === 'string' && id !== 'prayer' && known.has(id as HomeFeatureId) && !out.includes(id as HomeFeatureId)) out.push(id as HomeFeatureId);
   }
   return out.slice(0, MAX_FAVOURITES);
 }

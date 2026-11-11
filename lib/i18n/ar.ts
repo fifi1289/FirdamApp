@@ -3753,4 +3753,7 @@ export const AR: Record<string, string> = {
   "Freeze it, or turn it into breadcrumbs.": "جمّده، أو حوّله إلى بقسماط.",
   "Beat and freeze in portions for baking: keeps 6 months.": "اخفقه وجمّده حصصًا للخَبز: يبقى 6 أشهر.",
   "Use it in today’s cooking.": "استعمله في طبخ اليوم.",
+  "Prayer is always on Home": "الصلاة موجودة دائمًا في الصفحة الرئيسية",
+  "The next prayer sits in the middle of your ring, so it doesn’t need a place around it.": "الصلاة القادمة في وسط دائرتك، فلا تحتاج إلى مكان حولها.",
+  "Always in the middle": "دائمًا في الوسط",
 };

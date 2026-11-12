@@ -1446,6 +1446,72 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      newcomer_plans: {
+        Row: {
+          id: string;
+          user_id: string;
+          household_id: string | null;
+          country: string;
+          region: string | null;
+          city: string | null;
+          status: 'pr' | 'work' | 'study' | 'refugee' | 'sponsor';
+          arrival_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id?: string;
+          household_id?: string | null;
+          country?: string;
+          region?: string | null;
+          city?: string | null;
+          status: 'pr' | 'work' | 'study' | 'refugee' | 'sponsor';
+          arrival_date?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          country?: string;
+          region?: string | null;
+          city?: string | null;
+          status?: 'pr' | 'work' | 'study' | 'refugee' | 'sponsor';
+          arrival_date?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      newcomer_steps: {
+        Row: {
+          id: string;
+          user_id: string;
+          household_id: string | null;
+          plan_id: string;
+          step_key: string;
+          assignee: string | null;
+          done_at: string | null;
+          done_by: string | null;
+          note: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          user_id?: string;
+          household_id?: string | null;
+          plan_id: string;
+          step_key: string;
+          assignee?: string | null;
+          done_at?: string | null;
+          done_by?: string | null;
+          note?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          assignee?: string | null;
+          done_at?: string | null;
+          done_by?: string | null;
+          note?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       lunchbox_plans: {
         Row: {
           user_id: string;

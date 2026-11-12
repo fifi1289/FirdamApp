@@ -33,8 +33,14 @@ export interface NewcomerStep {
   link?: NewcomerLink;
   /** Another Firdam feature that helps with this step. */
   feature?: 'halal';
-  /** Opens a tab of the help screen. */
-  opens?: 'discounts';
+  /** Opens a tab of the Newcomer screen. */
+  opens?: 'discounts' | 'around';
+  /** What to search on a map for the nearest office (English), for "Get directions". */
+  place?: string;
+  /** Roughly how long it takes. */
+  takes?: NewcomerText;
+  /** Practical tips from Firdam. */
+  tips?: NewcomerText[];
   /** Province/state rules that replace or add to the general text. */
   byRegion?: Record<string, { title?: NewcomerText; note?: NewcomerText; link?: NewcomerLink }>;
 }
@@ -51,8 +57,17 @@ export interface NewcomerHelp {
   feature?: 'halal';
 }
 
+/** A city's public transit, for Getting around. */
+export interface NewcomerTransit {
+  city: string;
+  region: string;
+  agency: string;
+  url: string;
+}
+
 export interface NewcomerCountry {
   code: string;
+  transit?: NewcomerTransit[];
   name: NewcomerText;
   regions: { code: string; name: NewcomerText }[];
   statuses: { id: NewcomerStatus; name: NewcomerText }[];
@@ -125,6 +140,8 @@ export function stepView(step: NewcomerStep, region: string | null, lang: Newcom
     how: step.how.map((h) => pick(h, lang)),
     bring: step.bring ? pick(step.bring, lang) : null,
     link: local?.link ?? step.link ?? null,
+    takes: step.takes ? pick(step.takes, lang) : null,
+    tips: (step.tips ?? []).map((x) => pick(x, lang)),
   };
 }
 
@@ -155,4 +172,21 @@ export function nextStep(steps: NewcomerStep[], rows: NewcomerStepRow[], phase: 
   // Overdue first (earlier phases), urgent before the rest.
   const sorted = open.sort((a, b) => order.indexOf(a.phase) - order.indexOf(b.phase) || Number(!!b.urgent) - Number(!!a.urgent));
   return sorted.find((s) => order.indexOf(s.phase) <= from) ?? sorted[0] ?? null;
+}
+
+/** Google Maps directions by public transit to the nearest place of a kind ("Service Canada Centre Ottawa ON Canada"). */
+export function directionsUrl(place: string, plan: Pick<NewcomerPlan, 'city' | 'region' | 'country'>, mode: 'transit' | 'driving' | 'walking' = 'transit'): string {
+  const where = [place, plan.city, plan.region, plan.country === 'CA' ? 'Canada' : plan.country].filter(Boolean).join(' ');
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(where)}&travelmode=${mode}`;
+}
+
+/** Google Maps ready to plan a trip by public transit from where you are (live bus times where the city shares them). */
+export function tripPlannerUrl(): string {
+  return 'https://www.google.com/maps/dir/?api=1&travelmode=transit';
+}
+
+/** The transit agency for the family's city, if Firdam knows it. */
+export function transitFor(country: NewcomerCountry, plan: Pick<NewcomerPlan, 'city'>): NewcomerTransit | null {
+  const city = (plan.city ?? '').trim().toLowerCase();
+  return country.transit?.find((x) => x.city.toLowerCase() === city) ?? null;
 }

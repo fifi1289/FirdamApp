@@ -17,6 +17,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   // ── Before you land ───────────────────────────────────────────────
   {
     key: 'documents',
+    takes: t("A few weeks before you leave", "Quelques semaines avant le départ", "بضعة أسابيع قبل السفر"),
+    tips: [
+      t("Put originals in one folder you carry yourself, never in checked luggage.", "Mettez les originaux dans un dossier que vous gardez sur vous, jamais en soute.", "ضع الأصول في ملف تحمله بنفسك، ولا تضعها أبدًا في الحقائب المشحونة."),
+    ],
     phase: 'before',
     who: 'family',
     title: t('Gather your documents', 'Rassemblez vos documents', 'اجمع وثائقك'),
@@ -34,6 +38,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'driving-record',
+    takes: t("Can take weeks from abroad: ask early", "Peut prendre des semaines depuis l’étranger : demandez tôt", "قد يستغرق أسابيع من الخارج، فاطلبه مبكرًا"),
+    tips: [
+      t("A letter that shows the date of your first licence can save you a year of waiting in some provinces.", "Une lettre indiquant la date de votre premier permis peut vous éviter un an d’attente dans certaines provinces.", "رسالة تبيّن تاريخ أول رخصة قد توفر عليك سنة انتظار في بعض المقاطعات."),
+    ],
     phase: 'before',
     who: 'each-adult',
     title: t('Get a letter of your driving history', 'Obtenez une attestation de votre expérience de conduite', 'احصل على شهادة بسجل قيادتك'),
@@ -64,6 +72,9 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'money',
+    tips: [
+      t("Rent usually asks for the first month and sometimes a deposit on day one.", "Le loyer demande souvent le premier mois et parfois un dépôt dès le premier jour.", "غالبًا يُطلب إيجار الشهر الأول وأحيانًا تأمين من اليوم الأول."),
+    ],
     phase: 'before',
     who: 'family',
     title: t('Plan your money for the first months', 'Prévoyez votre argent pour les premiers mois', 'خطّط لمصاريف الأشهر الأولى'),
@@ -82,6 +93,11 @@ const CANADA_STEPS: NewcomerStep[] = [
   // ── First week ────────────────────────────────────────────────────
   {
     key: 'refugee-boc',
+    place: "legal aid clinic",
+    takes: t("Due about 15 days after referral", "Dû environ 15 jours après le renvoi", "موعدها نحو 15 يومًا بعد الإحالة"),
+    tips: [
+      t("If you cannot meet the date, ask a lawyer right away about an extension.", "Si vous ne pouvez pas respecter la date, demandez tout de suite une prolongation à un avocat.", "إن لم تستطع الالتزام بالموعد فاسأل محاميًا فورًا عن التمديد."),
+    ],
     phase: 'week',
     who: 'each-adult',
     statuses: ['refugee'],
@@ -101,6 +117,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'ifhp',
+    place: "walk-in clinic",
+    tips: [
+      t("Keep your claimant document with you: clinics and pharmacies ask for it every time.", "Gardez votre document de demandeur sur vous : cliniques et pharmacies le demandent à chaque fois.", "احمل وثيقة طالب اللجوء دائمًا، فالعيادات والصيدليات تطلبها في كل مرة."),
+    ],
     phase: 'week',
     who: 'family',
     statuses: ['refugee'],
@@ -119,6 +139,12 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'sin',
+    place: "Service Canada Centre",
+    takes: t("About 30 minutes in person", "Environ 30 minutes en personne", "نحو 30 دقيقة عند الحضور شخصيًا"),
+    tips: [
+      t("Go early in the morning: lines are shorter.", "Allez tôt le matin : les files sont plus courtes.", "اذهب في الصباح الباكر، فالطوابير أقصر."),
+      t("Never give your SIN over the phone to someone who calls you. The government does not call to ask for it.", "Ne donnez jamais votre NAS au téléphone à quelqu’un qui vous appelle. Le gouvernement n’appelle pas pour le demander.", "لا تعطِ رقمك أبدًا عبر الهاتف لمن يتصل بك، فالحكومة لا تتصل لطلبه."),
+    ],
     phase: 'week',
     who: 'each-adult',
     title: t('Get your Social Insurance Number (SIN)', 'Obtenez votre numéro d’assurance sociale (NAS)', 'احصل على رقم التأمين الاجتماعي'),
@@ -141,6 +167,11 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'phone',
+    place: "phone store",
+    takes: t("About 30 minutes", "Environ 30 minutes", "نحو 30 دقيقة"),
+    tips: [
+      t("Bring an unlocked phone: a SIM or eSIM is much cheaper than a new phone on contract.", "Apportez un téléphone déverrouillé : une carte SIM ou eSIM coûte beaucoup moins qu’un nouveau téléphone avec contrat.", "أحضر هاتفًا غير مقفل، فشريحة SIM أو eSIM أرخص بكثير من هاتف جديد بعقد."),
+    ],
     phase: 'week',
     who: 'each-adult',
     title: t('Get a Canadian phone number', 'Obtenez un numéro de téléphone canadien', 'احصل على رقم هاتف كندي'),
@@ -153,6 +184,12 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'bank',
+    place: "bank",
+    takes: t("About 1 hour, book an appointment", "Environ 1 heure, prenez rendez-vous", "نحو ساعة، احجز موعدًا"),
+    tips: [
+      t("Ask for a no-fee newcomer package and a credit card at the same visit.", "Demandez un forfait nouveaux arrivants sans frais et une carte de crédit lors du même rendez-vous.", "اطلب باقة القادمين الجدد بلا رسوم وبطاقة ائتمان في الزيارة نفسها."),
+      t("Ask whether they offer a halal or riba-free option.", "Demandez s’ils offrent une option halal ou sans riba.", "اسأل إن كانوا يقدمون خيارًا حلالًا أو خاليًا من الربا."),
+    ],
     phase: 'week',
     who: 'each-adult',
     title: t('Open a bank account', 'Ouvrez un compte bancaire', 'افتح حسابًا بنكيًا'),
@@ -169,6 +206,12 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'health-card',
+    place: "health card office",
+    takes: t("About 1 hour; the card arrives by mail", "Environ 1 heure ; la carte arrive par la poste", "نحو ساعة، وتصل البطاقة بالبريد"),
+    tips: [
+      t("Each person, including babies, needs to be there for a photo in most provinces.", "Dans la plupart des provinces, chaque personne, bébés compris, doit être présente pour la photo.", "في معظم المقاطعات يجب حضور كل فرد، حتى الرضّع، لالتقاط الصورة."),
+      t("Keep the paper receipt: it proves you applied until the card comes.", "Gardez le reçu papier : il prouve votre demande jusqu’à l’arrivée de la carte.", "احتفظ بالإيصال الورقي، فهو يثبت تقديمك إلى أن تصل البطاقة."),
+    ],
     phase: 'week',
     who: 'family',
     statuses: ['pr', 'sponsor', 'work', 'refugee'],
@@ -219,6 +262,7 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'student-insurance',
+    place: "university international student office",
     phase: 'week',
     who: 'each-adult',
     statuses: ['study'],
@@ -235,6 +279,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'home',
+    tips: [
+      t("Ask for a written lease and a receipt for every payment.", "Demandez un bail écrit et un reçu pour chaque paiement.", "اطلب عقد إيجار مكتوبًا وإيصالًا لكل دفعة."),
+      t("Check heating, hot water and that windows close before you sign: winters are cold.", "Vérifiez le chauffage, l’eau chaude et que les fenêtres ferment avant de signer : les hivers sont froids.", "تحقّق من التدفئة والماء الساخن وإغلاق النوافذ قبل التوقيع، فالشتاء بارد."),
+    ],
     phase: 'week',
     who: 'family',
     title: t('Find a home, and know your rights as a tenant', 'Trouvez un logement et connaissez vos droits de locataire', 'ابحث عن سكن واعرف حقوقك كمستأجر'),
@@ -261,9 +309,14 @@ const CANADA_STEPS: NewcomerStep[] = [
     how: [t('Open Halal places in Firdam to see what is near you.', 'Ouvrez Lieux halal dans Firdam pour voir ce qui est près de vous.', 'افتح «أماكن حلال» في فردام لترى ما هو قريب منك.')],
     cost: 'free',
     feature: 'halal',
+    place: 'mosque',
   },
   {
     key: 'transit',
+    tips: [
+      t("Use the Getting around tab to plan a trip by bus, with live times.", "Utilisez l’onglet Se déplacer pour planifier un trajet en autobus, avec les horaires en direct.", "استخدم تبويب «التنقل» لتخطيط رحلتك بالحافلة مع المواعيد المباشرة."),
+    ],
+    opens: 'around',
     phase: 'week',
     who: 'anyone',
     title: t('Learn the buses and get a transit card', 'Apprenez les autobus et procurez-vous une carte de transport', 'تعرّف على الحافلات واحصل على بطاقة النقل'),
@@ -282,6 +335,12 @@ const CANADA_STEPS: NewcomerStep[] = [
   // ── First month ───────────────────────────────────────────────────
   {
     key: 'school',
+    place: "school board office",
+    takes: t("About 1 to 2 hours, with a short assessment", "Environ 1 à 2 heures, avec une courte évaluation", "نحو ساعة إلى ساعتين مع تقييم قصير"),
+    tips: [
+      t("Children usually go to the school closest to your home. You can ask about others.", "Les enfants vont en général à l’école la plus proche de la maison. Vous pouvez en demander une autre.", "يذهب الأطفال عادةً إلى أقرب مدرسة من المنزل، ويمكنك السؤال عن غيرها."),
+      t("Ask about a prayer space and Friday prayer for older children.", "Renseignez-vous sur un espace de prière et la prière du vendredi pour les plus grands.", "اسأل عن مكان للصلاة وصلاة الجمعة للأطفال الأكبر سنًا."),
+    ],
     phase: 'month',
     who: 'family',
     kids: true,
@@ -304,6 +363,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'child-benefit',
+    takes: t("About 20 minutes online; payments start after it is approved", "Environ 20 minutes en ligne ; les paiements commencent après l’approbation", "نحو 20 دقيقة عبر الإنترنت، وتبدأ الدفعات بعد الموافقة"),
+    tips: [
+      t("The parent who mainly cares for the children usually applies (often the mother).", "Le parent qui s’occupe principalement des enfants fait généralement la demande (souvent la mère).", "عادةً يقدّم الطلب الوالد الذي يتولى رعاية الأطفال أساسًا، وغالبًا الأم."),
+    ],
     phase: 'month',
     who: 'family',
     kids: true,
@@ -325,6 +388,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'gst-credit',
+    takes: t("About 15 minutes", "Environ 15 minutes", "نحو 15 دقيقة"),
+    tips: [
+      t("Each adult applies once, then it continues as long as you file taxes every year.", "Chaque adulte fait la demande une fois, puis cela continue tant que vous produisez vos impôts chaque année.", "يقدّم كل بالغ الطلب مرة واحدة، ويستمر ما دمت تقدّم إقرارك الضريبي كل سنة."),
+    ],
     phase: 'month',
     who: 'each-adult',
     title: t('Apply for the GST/HST credit', 'Demandez le crédit pour la TPS/TVH', 'قدّم طلب رصيد ضريبة المبيعات'),
@@ -339,6 +406,11 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'licence',
+    place: "driver licence office",
+    takes: t("About 1 hour; longer if you need tests", "Environ 1 heure ; plus si des examens sont nécessaires", "نحو ساعة، وأكثر إن احتجت إلى اختبارات"),
+    tips: [
+      t("Car insurance is much cheaper with proof of your driving years and no accidents.", "L’assurance auto coûte beaucoup moins cher avec une preuve de vos années de conduite sans accident.", "يكون تأمين السيارة أرخص بكثير مع إثبات سنوات القيادة دون حوادث."),
+    ],
     phase: 'month',
     who: 'each-adult',
     title: t('Get your provincial driver’s licence', 'Obtenez votre permis de conduire provincial', 'احصل على رخصة القيادة الإقليمية'),
@@ -374,6 +446,11 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'settlement',
+    place: "newcomer settlement services",
+    takes: t("A first meeting of about 1 hour", "Une première rencontre d’environ 1 heure", "لقاء أول مدته نحو ساعة"),
+    tips: [
+      t("Ask for a worker who speaks Arabic or French if that is easier for you.", "Demandez un intervenant qui parle arabe ou français si c’est plus facile pour vous.", "اطلب مرشدًا يتحدث العربية أو الفرنسية إن كان ذلك أسهل لك."),
+    ],
     phase: 'month',
     who: 'anyone',
     title: t('Visit a settlement agency', 'Rendez visite à un organisme d’établissement', 'زُر منظمة لتوطين القادمين الجدد'),
@@ -391,6 +468,8 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'library',
+    place: "public library",
+    takes: t("About 10 minutes", "Environ 10 minutes", "نحو 10 دقائق"),
     phase: 'month',
     who: 'anyone',
     title: t('Get a public library card', 'Obtenez une carte de bibliothèque', 'احصل على بطاقة المكتبة العامة'),
@@ -404,6 +483,9 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'credit',
+    tips: [
+      t("Keep your balance low (under a third of your limit) and never miss a payment.", "Gardez un solde bas (moins du tiers de votre limite) et ne manquez jamais un paiement.", "أبقِ الرصيد منخفضًا (أقل من ثلث الحد) ولا تفوّت أي دفعة."),
+    ],
     phase: 'month',
     who: 'each-adult',
     title: t('Start your Canadian credit history', 'Commencez votre historique de crédit canadien', 'ابدأ سجلك الائتماني في كندا'),
@@ -422,6 +504,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   // ── First 3 months ────────────────────────────────────────────────
   {
     key: 'language',
+    place: "language assessment centre",
+    tips: [
+      t("Classes can be part-time or evenings, so you can work or care for children too.", "Les cours peuvent être à temps partiel ou le soir, pour pouvoir aussi travailler ou garder les enfants.", "يمكن أن تكون الدروس بدوام جزئي أو مسائية لتتمكن من العمل أو رعاية الأطفال أيضًا."),
+    ],
     phase: 'three',
     who: 'each-adult',
     statuses: ['pr', 'sponsor', 'refugee'],
@@ -447,6 +533,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'doctor',
+    place: "walk-in clinic",
+    tips: [
+      t("For an emergency, call 911 or go to the hospital. For advice, many provinces have a free health phone line (811 in most).", "En cas d’urgence, appelez le 911 ou allez à l’hôpital. Pour un conseil, beaucoup de provinces ont une ligne santé gratuite (811 dans la plupart).", "في حالات الطوارئ اتصل بالرقم 911 أو اذهب إلى المستشفى، وللاستشارة لدى كثير من المقاطعات خط صحي مجاني (811 في معظمها)."),
+    ],
     phase: 'three',
     who: 'family',
     statuses: ['pr', 'sponsor', 'work', 'refugee'],
@@ -475,6 +565,10 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'job',
+    place: "employment services for newcomers",
+    tips: [
+      t("Many jobs are found through people you know. Volunteering is a good way to start.", "Beaucoup d’emplois se trouvent par les contacts. Le bénévolat est un bon début.", "تُوجد وظائف كثيرة عبر المعارف، والعمل التطوعي بداية جيدة."),
+    ],
     phase: 'three',
     who: 'each-adult',
     statuses: ['pr', 'sponsor', 'refugee', 'work'],
@@ -518,6 +612,9 @@ const CANADA_STEPS: NewcomerStep[] = [
   // ── First 6 months ────────────────────────────────────────────────
   {
     key: 'credentials',
+    tips: [
+      t("Start early: some professions take 1 to 2 years to license.", "Commencez tôt : certaines professions prennent 1 à 2 ans pour obtenir le permis.", "ابدأ مبكرًا، فبعض المهن تحتاج من سنة إلى سنتين للترخيص."),
+    ],
     phase: 'six',
     who: 'each-adult',
     statuses: ['pr', 'sponsor', 'refugee', 'work'],
@@ -535,6 +632,7 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'activities',
+    place: "community recreation centre",
     phase: 'six',
     who: 'family',
     kids: true,
@@ -564,6 +662,11 @@ const CANADA_STEPS: NewcomerStep[] = [
   // ── First year ────────────────────────────────────────────────────
   {
     key: 'taxes',
+    place: "free tax clinic",
+    takes: t("About 1 hour with a free clinic", "Environ 1 heure avec un comptoir gratuit", "نحو ساعة في عيادة مجانية"),
+    tips: [
+      t("Keep all slips and receipts in one folder through the year.", "Gardez tous les feuillets et reçus dans un seul dossier pendant l’année.", "احتفظ بكل الأوراق والإيصالات في ملف واحد طوال السنة."),
+    ],
     phase: 'year',
     who: 'each-adult',
     title: t('File your first tax return', 'Produisez votre première déclaration de revenus', 'قدّم أول إقرار ضريبي'),
@@ -581,6 +684,9 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'permit-renewal',
+    tips: [
+      t("Firdam will remind you before your permit ends once you add the date in Deadlines (coming soon).", "Firdam vous rappellera avant la fin de votre permis quand vous ajouterez la date dans Échéances (bientôt).", "سيذكّرك فردام قبل انتهاء تصريحك بعد إضافة التاريخ في قسم المواعيد (قريبًا)."),
+    ],
     phase: 'year',
     who: 'each-adult',
     statuses: ['work', 'study'],
@@ -610,6 +716,9 @@ const CANADA_STEPS: NewcomerStep[] = [
   },
   {
     key: 'citizenship',
+    tips: [
+      t("Keep boarding passes or passport stamps: they help prove your travel dates.", "Gardez les cartes d’embarquement ou les tampons du passeport : ils aident à prouver vos dates de voyage.", "احتفظ ببطاقات الصعود أو أختام الجواز، فهي تساعد في إثبات تواريخ سفرك."),
+    ],
     phase: 'year',
     who: 'each-adult',
     statuses: ['pr', 'sponsor', 'refugee'],
@@ -671,6 +780,26 @@ export const CANADA: NewcomerCountry = {
     { id: 'sponsor', name: t('Family sponsorship', 'Parrainage familial', 'كفالة عائلية') },
   ],
   steps: CANADA_STEPS,
+  transit: [
+    { city: 'Ottawa', region: 'ON', agency: 'OC Transpo', url: 'https://www.octranspo.com/' },
+    { city: 'Toronto', region: 'ON', agency: 'TTC', url: 'https://www.ttc.ca/' },
+    { city: 'Mississauga', region: 'ON', agency: 'MiWay', url: 'https://www.mississauga.ca/miway-transit/' },
+    { city: 'Brampton', region: 'ON', agency: 'Brampton Transit', url: 'https://www.brampton.ca/en/residents/transit/' },
+    { city: 'Hamilton', region: 'ON', agency: 'HSR', url: 'https://www.hamilton.ca/streets-transportation/hsr-bus-schedules-fares' },
+    { city: 'London', region: 'ON', agency: 'London Transit', url: 'https://www.londontransit.ca/' },
+    { city: 'Montréal', region: 'QC', agency: 'STM', url: 'https://www.stm.info/' },
+    { city: 'Montreal', region: 'QC', agency: 'STM', url: 'https://www.stm.info/' },
+    { city: 'Laval', region: 'QC', agency: 'STL', url: 'https://stlaval.ca/' },
+    { city: 'Gatineau', region: 'QC', agency: 'STO', url: 'https://www.sto.ca/' },
+    { city: 'Québec', region: 'QC', agency: 'RTC', url: 'https://www.rtcquebec.ca/' },
+    { city: 'Quebec City', region: 'QC', agency: 'RTC', url: 'https://www.rtcquebec.ca/' },
+    { city: 'Vancouver', region: 'BC', agency: 'TransLink', url: 'https://www.translink.ca/' },
+    { city: 'Surrey', region: 'BC', agency: 'TransLink', url: 'https://www.translink.ca/' },
+    { city: 'Calgary', region: 'AB', agency: 'Calgary Transit', url: 'https://www.calgarytransit.com/' },
+    { city: 'Edmonton', region: 'AB', agency: 'Edmonton Transit Service', url: 'https://www.edmonton.ca/ets' },
+    { city: 'Winnipeg', region: 'MB', agency: 'Winnipeg Transit', url: 'https://info.winnipegtransit.com/' },
+    { city: 'Halifax', region: 'NS', agency: 'Halifax Transit', url: 'https://www.halifax.ca/transportation/halifax-transit' },
+  ],
   help: CANADA_HELP,
   checked: CHECKED,
 };

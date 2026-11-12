@@ -329,30 +329,46 @@ function StepRow({
     }
   };
   const who = done ? tr('Done by {0}', [nameOf(people, row?.done_by) ?? tr('family')]) : row?.assignee ? nameOf(people, row.assignee) ?? tr('Family') : tr('Anyone');
+  const inside = [
+    (v.how.length === 1 ? tr('1 step') : tr('{0} steps', [v.how.length])),
+    v.bring ? tr('What to bring') : null,
+    v.tips.length ? tr('Tips') : null,
+    step.place ? tr('Directions') : null,
+  ].filter(Boolean) as string[];
   return (
     <View style={styles.row}>
-      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: done }} accessibilityLabel={v.title} onPress={toggle} hitSlop={8} style={[styles.box, done && styles.boxOn]}>
-        {done ? (
-          <T size={13} weight="extrabold" color={colors.linen}>
-            ✓
+      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
+        <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: done }} accessibilityLabel={v.title} onPress={toggle} hitSlop={8} style={[styles.box, done && styles.boxOn]}>
+          {done ? (
+            <T size={13} weight="extrabold" color={colors.linen}>
+              ✓
+            </T>
+          ) : null}
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityHint={tr('Opens the step')} onPress={onOpen} style={{ flex: 1, gap: 6 }}>
+          <T size={15.5} weight="bold" color={done ? colors.muted : colors.espresso} style={done ? { textDecorationLine: 'line-through' } : undefined}>
+            {v.title}
           </T>
-        ) : null}
-      </Pressable>
-      <Pressable accessibilityRole="button" accessibilityHint={tr('Opens the step')} onPress={onOpen} style={{ flex: 1, gap: 4 }}>
-        <T size={15} weight="bold" color={done ? colors.muted : colors.espresso} style={done ? { textDecorationLine: 'line-through' } : undefined}>
-          {v.title}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+            {step.urgent && !done ? <Badge label={tr('Urgent')} tone="brick" /> : null}
+            {step.cost === 'free' ? <Badge label={tr('Free')} tone="sage" /> : null}
+            <T size={12.5} color={done ? colors.sageDark : colors.muted} weight={done ? 'bold' : 'regular'}>
+              {who}
+            </T>
+          </View>
+          {!done ? (
+            <T size={13.5} color="#4A3F39" numberOfLines={2} style={{ lineHeight: 19 }}>
+              {v.why}
+            </T>
+          ) : null}
+        </Pressable>
+      </View>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${tr('How to do it')}: ${v.title}`} onPress={onOpen} style={({ pressed }) => [styles.open, pressed && { opacity: 0.8 }]}>
+        <T size={12} color={colors.muted} numberOfLines={1} style={{ flex: 1 }}>
+          {inside.join(' · ')}
         </T>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-          {step.urgent && !done ? <Badge label={tr('Urgent')} tone="brick" /> : null}
-          {step.cost === 'free' ? <Badge label={tr('Free')} tone="sage" /> : null}
-          <T size={12.5} color={done ? colors.sageDark : colors.muted} weight={done ? 'bold' : 'regular'}>
-            {who}
-          </T>
-        </View>
-      </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel={tr('Open')} onPress={onOpen} hitSlop={10} style={styles.chev}>
-        <T size={20} weight="bold" color={colors.walnut}>
-          ›
+        <T size={14} weight="bold" color={colors.walnut}>
+          {tr('How to do it ›')}
         </T>
       </Pressable>
     </View>
@@ -704,13 +720,13 @@ const styles = StyleSheet.create({
   hero: { backgroundColor: colors.espresso, borderRadius: 20, padding: 16, gap: 10 },
   bar: { height: 8, backgroundColor: '#5A463E', borderRadius: 99 },
   barFill: { height: 8, backgroundColor: colors.goldText, borderRadius: 99 },
-  row: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 16, padding: 14 },
+  row: { gap: 12, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 16, padding: 14 },
+  open: { flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 10, marginStart: 38 },
   box: { width: 26, height: 26, borderRadius: 13, borderWidth: 1.5, borderColor: colors.sand, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   boxOn: { backgroundColor: colors.sageDark, borderColor: colors.sageDark },
   close: { alignSelf: 'flex-end', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.tint },
   note: { backgroundColor: colors.sageTint, borderRadius: 14, padding: 12 },
   doneBox: { backgroundColor: colors.sageTint, borderRadius: 12, padding: 12, gap: 4 },
-  chev: { alignSelf: 'center', paddingHorizontal: 2 },
   tips: { backgroundColor: colors.amberTint, borderRadius: 16, padding: 14, gap: 6 },
   num: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
 });

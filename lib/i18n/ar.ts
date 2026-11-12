@@ -3843,4 +3843,9 @@ export const AR: Record<string, string> = {
   "Wait inside the shelter and dress the children warmly: hat, mittens and boots.": "انتظر داخل المظلة وألبس الأطفال ملابس دافئة: قبعة وقفازات وأحذية شتوية.",
   "See cheaper bus passes": "عرض اشتراكات الحافلات الأرخص",
   "Times come from your city’s transit system through the map. Firdam’s own live bus times, with warnings when a bus may not come, are coming next.": "تأتي المواعيد من نظام النقل في مدينتك عبر الخريطة. مواعيد فردام المباشرة، مع تنبيه عندما قد لا تأتي الحافلة، قادمة قريبًا.",
+  "How to do it": "طريقة الإنجاز",
+  "How to do it ›": "طريقة الإنجاز ›",
+  "{0} steps": "{0} خطوات",
+  "What to bring": "ما تحضره",
+  "1 step": "خطوة واحدة",
 };

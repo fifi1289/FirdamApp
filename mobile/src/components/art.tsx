@@ -30,13 +30,19 @@ export function StarPattern({ size, color = colors.sand, strokeWidth = 0.6 }: { 
 
 export type IconName =
   | 'today' | 'kitchen' | 'prayer' | 'halal' | 'family' | 'shield' | 'chevron' | 'cart' | 'back'
-  | 'qibla' | 'money' | 'recipes' | 'pantry' | 'calendar' | 'quran' | 'fasting' | 'bell' | 'learning' | 'services' | 'travel' | 'plate';
+  | 'qibla' | 'money' | 'recipes' | 'pantry' | 'calendar' | 'quran' | 'fasting' | 'bell' | 'learning' | 'services' | 'travel' | 'plate' | 'newcomer';
 
 /** Line icons drawn to match the design. */
 export function Icon({ name, size = 24, color = colors.walnut, fill = 'none' }: { name: IconName; size?: number; color?: ColorValue; fill?: ColorValue }) {
   const common = { stroke: color, strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {name === 'newcomer' && (
+        <>
+          <Path d="M12 3v18M8 21h8" {...common} />
+          <Path d="M12 5h6.5l2 2-2 2H12zM12 11H5.5l-2 2 2 2H12z" fill={fill} {...common} />
+        </>
+      )}
       {name === 'plate' && (
         <>
           <Circle cx={12} cy={12} r={6.5} fill={fill} {...common} />

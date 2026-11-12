@@ -15,6 +15,7 @@ export type ModuleId =
   | 'health'
   | 'community'
   | 'travel'
+  | 'newcomer'
   | 'directory'
   | 'services'
   | 'finance';
@@ -57,6 +58,7 @@ export type ModuleIconName =
   | 'handshake'
   | 'plane'
   | 'store'
-  | 'sunrise';
+  | 'sunrise'
+  | 'signpost';
 
 export type Theme = 'light' | 'dark' | 'system';

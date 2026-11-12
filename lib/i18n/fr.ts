@@ -3755,4 +3755,9 @@ export const FR: Record<string, string> = {
   "Wait inside the shelter and dress the children warmly: hat, mittens and boots.": "Attendez dans l’abribus et habillez chaudement les enfants : tuque, mitaines et bottes.",
   "See cheaper bus passes": "Voir les laissez-passer moins chers",
   "Times come from your city’s transit system through the map. Firdam’s own live bus times, with warnings when a bus may not come, are coming next.": "Les horaires viennent du réseau de transport de votre ville par la carte. Les horaires en direct de Firdam, avec des alertes quand un autobus risque de ne pas passer, arrivent bientôt.",
+  "How to do it": "Comment faire",
+  "How to do it ›": "Comment faire ›",
+  "{0} steps": "{0} étapes",
+  "What to bring": "Quoi apporter",
+  "1 step": "1 étape",
 };

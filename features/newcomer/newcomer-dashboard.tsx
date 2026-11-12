@@ -231,28 +231,36 @@ export function NewcomerDashboard() {
                   const isDone = !!row?.done_at;
                   return (
                     <Card key={s.key}>
-                      <CardContent className="flex items-start gap-3 p-4">
-                        <button
-                          role="checkbox"
-                          aria-checked={isDone}
-                          aria-label={v.title}
-                          onClick={() => saveStep(s.key, isDone ? { done_at: null, done_by: null } : { done_at: new Date().toISOString(), done_by: me?.id ?? null })}
-                          className={cn('mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2', isDone ? 'border-brand-sage bg-brand-sage text-white' : 'border-muted-foreground/40')}
-                        >
-                          {isDone && <Check className="h-3.5 w-3.5" />}
-                        </button>
-                        <button className="flex-1 space-y-1 text-start" onClick={() => setOpen(s)}>
-                          <span className={cn('block font-semibold', isDone && 'text-muted-foreground line-through')}>{v.title}</span>
-                          <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                            {s.urgent && !isDone && <Badge variant="destructive">{tr('Urgent')}</Badge>}
-                            {s.cost === 'free' && <Badge variant="secondary">{tr('Free')}</Badge>}
-                            <span className={cn(isDone && 'font-semibold text-brand-sage')}>
-                              {isDone ? tr('Done by {0}', [nameOf(row?.done_by) ?? tr('family')]) : row?.assignee ? nameOf(row.assignee) ?? tr('Family') : tr('Anyone')}
+                      <CardContent className="space-y-3 p-4">
+                        <div className="flex items-start gap-3">
+                          <button
+                            role="checkbox"
+                            aria-checked={isDone}
+                            aria-label={v.title}
+                            onClick={() => saveStep(s.key, isDone ? { done_at: null, done_by: null } : { done_at: new Date().toISOString(), done_by: me?.id ?? null })}
+                            className={cn('mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2', isDone ? 'border-brand-sage bg-brand-sage text-white' : 'border-muted-foreground/40')}
+                          >
+                            {isDone && <Check className="h-3.5 w-3.5" />}
+                          </button>
+                          <button className="flex-1 space-y-1.5 text-start" onClick={() => setOpen(s)}>
+                            <span className={cn('block font-semibold', isDone && 'text-muted-foreground line-through')}>{v.title}</span>
+                            <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                              {s.urgent && !isDone && <Badge variant="destructive">{tr('Urgent')}</Badge>}
+                              {s.cost === 'free' && <Badge variant="secondary">{tr('Free')}</Badge>}
+                              <span className={cn(isDone && 'font-semibold text-brand-sage')}>
+                                {isDone ? tr('Done by {0}', [nameOf(row?.done_by) ?? tr('family')]) : row?.assignee ? nameOf(row.assignee) ?? tr('Family') : tr('Anyone')}
+                              </span>
                             </span>
+                            {!isDone && <span className="line-clamp-2 block text-sm text-foreground/75">{v.why}</span>}
+                          </button>
+                        </div>
+                        <button onClick={() => setOpen(s)} className="ms-9 flex w-[calc(100%-2.25rem)] items-center gap-3 border-t pt-2.5 text-start">
+                          <span className="flex-1 truncate text-xs text-muted-foreground">
+                            {[(v.how.length === 1 ? tr('1 step') : tr('{0} steps', [v.how.length])), v.bring ? tr('What to bring') : null, v.tips.length ? tr('Tips') : null, s.place ? tr('Directions') : null].filter(Boolean).join(' · ')}
                           </span>
-                        </button>
-                        <button onClick={() => setOpen(s)} aria-label={tr('Open')} className="self-center text-primary">
-                          <ChevronRight className="h-5 w-5" />
+                          <span className="inline-flex items-center text-sm font-semibold text-primary">
+                            {tr('How to do it')} <ChevronRight className="h-4 w-4" />
+                          </span>
                         </button>
                       </CardContent>
                     </Card>

@@ -7,6 +7,7 @@ import {
   Handshake,
   HeartPulse,
   Plane,
+  Signpost,
   Store,
   Sunrise,
   CalendarHeart,
@@ -38,6 +39,7 @@ export const moduleIconMap: Record<ModuleIconName, LucideIcon> = {
   'heart-pulse': HeartPulse,
   handshake: Handshake,
   plane: Plane,
+  signpost: Signpost,
   store: Store,
   sunrise: Sunrise,
 };
@@ -216,6 +218,16 @@ export const allModules: LifeModule[] = [
     accent: 'from-brand-mid to-brand-light',
     icon: 'plane',
     href: '/dashboard/travel',
+    group: 'Community & travel',
+  },
+  {
+    id: 'newcomer',
+    name: 'Newcomer',
+    description: 'Your first year in a new country, step by step: shared with your family, with free help, discounts and deals.',
+    status: 'active',
+    accent: 'from-brand-dark to-brand-light',
+    icon: 'signpost',
+    href: '/dashboard/newcomer',
     group: 'Community & travel',
   },
   {

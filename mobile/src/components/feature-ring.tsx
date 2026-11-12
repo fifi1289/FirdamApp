@@ -27,6 +27,7 @@ export const FEATURE_ICONS: Record<HomeFeatureId, IconName> = {
   learning: 'learning',
   services: 'services',
   travel: 'travel',
+  newcomer: 'newcomer',
 };
 
 /*

@@ -38,6 +38,9 @@ const FILES = {
   'features/travel/travel-data.ts': 'travel-data.ts',
   'features/lunchbox/lunchbox-core.ts': 'lunchbox-core.ts',
   'features/little-plates/little-plates-core.ts': 'little-plates-core.ts',
+  'features/newcomer/newcomer-core.ts': 'newcomer-core.ts',
+  'features/newcomer/newcomer-canada.ts': 'newcomer-canada.ts',
+  'features/newcomer/newcomer-countries.ts': 'newcomer-countries.ts',
 };
 
 const REWRITES = [

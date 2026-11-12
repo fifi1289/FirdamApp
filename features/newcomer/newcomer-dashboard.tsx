@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Check, ExternalLink, Loader2 } from 'lucide-react';
+import { Bus, Car, Check, ChevronRight, ExternalLink, Footprints, Loader2 } from 'lucide-react';
 
 import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/layout/page-header';
@@ -16,12 +16,16 @@ import {
   NEWCOMER_PHASES,
   currentPhase,
   daysInCountry,
+  directionsUrl,
   helpFor,
   nextStep,
   pick,
   progress,
   stepsFor,
   stepView,
+  transitFor,
+  tripPlannerUrl,
+  type NewcomerCountry,
   type NewcomerPhase,
   type NewcomerPlan,
   type NewcomerStatus,
@@ -33,7 +37,7 @@ import { getLang, locale, tr } from '@/lib/i18n';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 
-type Tab = 'plan' | 'free' | 'discount' | 'deal';
+type Tab = 'plan' | 'around' | 'free' | 'discount' | 'deal';
 interface Person {
   id: string;
   name: string;
@@ -182,8 +186,8 @@ export function NewcomerDashboard() {
           </p>
         </div>
 
-        <div role="tablist" className="flex gap-1 rounded-xl bg-muted p-1">
-          {(['plan', 'free', 'discount', 'deal'] as Tab[]).map((k) => (
+        <div role="tablist" className="flex flex-wrap gap-1 rounded-xl bg-muted p-1">
+          {(['plan', 'around', 'free', 'discount', 'deal'] as Tab[]).map((k) => (
             <button
               key={k}
               role="tab"
@@ -191,7 +195,7 @@ export function NewcomerDashboard() {
               onClick={() => setTab(k)}
               className={cn('flex-1 rounded-lg px-3 py-2 text-sm font-semibold', tab === k ? 'bg-background shadow-sm' : 'text-muted-foreground')}
             >
-              {tr({ plan: 'Our plan', free: 'Free help', discount: 'Discounts', deal: 'Deals' }[k])}
+              {tr({ plan: 'Our plan', around: 'Getting around', free: 'Free help', discount: 'Discounts', deal: 'Deals' }[k])}
             </button>
           ))}
         </div>
@@ -217,6 +221,7 @@ export function NewcomerDashboard() {
                 );
               })}
             </div>
+            <p className="text-sm text-muted-foreground">{tr('Tap a step to see how to do it, what to bring and where to go.')}</p>
             <div className="space-y-2">
               {steps
                 .filter((s) => s.phase === viewing)
@@ -246,6 +251,9 @@ export function NewcomerDashboard() {
                             </span>
                           </span>
                         </button>
+                        <button onClick={() => setOpen(s)} aria-label={tr('Open')} className="self-center text-primary">
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
                       </CardContent>
                     </Card>
                   );
@@ -255,6 +263,8 @@ export function NewcomerDashboard() {
               {tr('Checked against official sources on {0}. General guidance, not immigration or legal advice.', [fmtDay(country.checked)])}
             </p>
           </>
+        ) : tab === 'around' ? (
+          <Around country={country} plan={plan} onDiscounts={() => setTab('discount')} />
         ) : (
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
@@ -299,9 +309,9 @@ export function NewcomerDashboard() {
         nameOf={nameOf}
         onClose={() => setOpen(null)}
         onSave={saveStep}
-        onDiscounts={() => {
+        onTab={(t) => {
           setOpen(null);
-          setTab('discount');
+          setTab(t);
         }}
       />
     </AppShell>
@@ -408,7 +418,7 @@ function StepDialog({
   nameOf,
   onClose,
   onSave,
-  onDiscounts,
+  onTab,
 }: {
   step: NewcomerStep | null;
   plan: NewcomerPlan;
@@ -418,7 +428,7 @@ function StepDialog({
   nameOf: (id: string | null | undefined) => string | null;
   onClose: () => void;
   onSave: (key: string, patch: Partial<Pick<NewcomerStepRow, 'assignee' | 'done_at' | 'done_by' | 'note'>>) => Promise<void>;
-  onDiscounts: () => void;
+  onTab: (t: Tab) => void;
 }) {
   const lang = getLang();
   const [note, setNote] = useState('');
@@ -438,6 +448,7 @@ function StepDialog({
           </div>
           <DialogTitle className="text-xl">{v.title}</DialogTitle>
           <DialogDescription className="text-base text-foreground/80">{v.why}</DialogDescription>
+          {v.takes && <p className="text-sm font-semibold text-muted-foreground">⏱ {v.takes}</p>}
         </DialogHeader>
         {v.note && <p className="rounded-lg bg-brand-sage/10 p-3 text-sm">{v.note}</p>}
 
@@ -493,14 +504,57 @@ function StepDialog({
           )}
         </div>
 
+        {v.tips.length > 0 && (
+          <div className="space-y-1.5 rounded-xl bg-amber-50 p-4 text-sm dark:bg-amber-950/30">
+            <h3 className="text-xs font-bold tracking-wide text-amber-800 dark:text-amber-300">{tr('TIPS')}</h3>
+            <ul className="list-disc space-y-1 ps-5">
+              {v.tips.map((x, i) => (
+                <li key={i}>{x}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {step.place && (
+          <div className="space-y-2 rounded-xl border p-4">
+            <h3 className="text-xs font-bold tracking-wide text-primary">{tr('WHERE TO GO')}</h3>
+            <p className="text-sm text-foreground/80">{tr('Firdam opens the map with the nearest one, and how to get there by bus with live times.')}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild size="sm">
+                <a href={directionsUrl(step.place, plan, 'transit')} target="_blank" rel="noopener noreferrer">
+                  <Bus className="me-1.5 h-4 w-4" />
+                  {tr('By bus')}
+                </a>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <a href={directionsUrl(step.place, plan, 'driving')} target="_blank" rel="noopener noreferrer">
+                  <Car className="me-1.5 h-4 w-4" />
+                  {tr('By car')}
+                </a>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <a href={directionsUrl(step.place, plan, 'walking')} target="_blank" rel="noopener noreferrer">
+                  <Footprints className="me-1.5 h-4 w-4" />
+                  {tr('Walking')}
+                </a>
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2">
+          {step.opens === 'around' && (
+            <Button variant="outline" size="sm" onClick={() => onTab('around')}>
+              {tr('Open Getting around')}
+            </Button>
+          )}
           {step.feature === 'halal' && (
             <Button asChild variant="outline" size="sm">
               <Link href="/dashboard/halal-places">{tr('Open Halal places')}</Link>
             </Button>
           )}
           {step.opens === 'discounts' && (
-            <Button variant="outline" size="sm" onClick={onDiscounts}>
+            <Button variant="outline" size="sm" onClick={() => onTab('discount')}>
               {tr('See discounts')}
             </Button>
           )}
@@ -513,5 +567,66 @@ function StepDialog({
         <p className="text-xs text-muted-foreground">{tr('General guidance, not immigration or legal advice. Rules change: check the official page.')}</p>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function Around({ country, plan, onDiscounts }: { country: NewcomerCountry; plan: NewcomerPlan; onDiscounts: () => void }) {
+  const agency = transitFor(country, plan);
+  const list = (items: string[]) => (
+    <ul className="list-disc space-y-1 ps-5 text-sm text-foreground/80">
+      {items.map((x, i) => (
+        <li key={i}>{x}</li>
+      ))}
+    </ul>
+  );
+  return (
+    <div className="space-y-3">
+      <Card>
+        <CardContent className="space-y-3 p-5">
+          <h3 className="text-lg font-bold">{tr('Plan a trip by bus')}</h3>
+          <p className="text-sm text-foreground/80">{tr('See the map, which bus to take, where to catch it and when it comes, with live times where your city shares them.')}</p>
+          <Button asChild>
+            <a href={tripPlannerUrl()} target="_blank" rel="noopener noreferrer">
+              <Bus className="me-2 h-4 w-4" />
+              {tr('Open the trip planner')}
+            </a>
+          </Button>
+          {agency && (
+            <a href={agency.url} target="_blank" rel="noopener noreferrer" className="block text-sm font-semibold text-primary hover:underline">
+              {tr('{0}: fares, passes and service changes ›', [agency.agency])}
+            </a>
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="space-y-2 p-5">
+          <h3 className="font-semibold">{tr('Bus or Uber?')}</h3>
+          {list([
+            tr('One person or two: the bus is usually much cheaper. A transit card costs less than paying cash.'),
+            tr('A family with young children: many cities let young children ride the bus free or for less. Check your city’s rules.'),
+            tr('Taxi or Uber is faster door to door: good when it is very cold, late at night, or you have heavy bags.'),
+            tr('Ask the driver or the app for the price first. In a taxi, check the meter is on.'),
+          ])}
+        </CardContent>
+      </Card>
+      <div className="space-y-1.5 rounded-xl bg-amber-50 p-5 dark:bg-amber-950/30">
+        <h3 className="font-semibold text-amber-900 dark:text-amber-200">{tr('Car seats for children')}</h3>
+        <p className="text-sm text-foreground/80">
+          {tr('In Canada, babies and young children must ride in a car seat or booster that fits their age and size. Taxis and rides like Uber usually don’t bring one, so take yours, or choose the bus.')}
+        </p>
+      </div>
+      <Card>
+        <CardContent className="space-y-2 p-5">
+          <h3 className="font-semibold">{tr('Winter tips')}</h3>
+          {list([tr('Leave earlier when it snows: buses can be late.'), tr('Wait inside the shelter and dress the children warmly: hat, mittens and boots.')])}
+        </CardContent>
+      </Card>
+      <Button variant="outline" onClick={onDiscounts}>
+        {tr('See cheaper bus passes')}
+      </Button>
+      <p className="text-xs text-muted-foreground">
+        {tr('Times come from your city’s transit system through the map. Firdam’s own live bus times, with warnings when a bus may not come, are coming next.')}
+      </p>
+    </div>
   );
 }

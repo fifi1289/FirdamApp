@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DateField, formatDay } from '@/components/date-field';
 import { showAlert } from '@/components/firdam-alert';
-import { Badge, Segmented } from '@/components/kitchen-ui';
+import { Badge } from '@/components/kitchen-ui';
 import { HomeButton } from '@/components/screen';
 import { Button, Card, T } from '@/components/ui';
 import { getLang, tr } from '@/lib/i18n';
@@ -14,12 +14,16 @@ import {
   NEWCOMER_PHASES,
   currentPhase,
   daysInCountry,
+  directionsUrl,
   helpFor,
   nextStep,
   pick,
   progress,
   stepsFor,
   stepView,
+  transitFor,
+  tripPlannerUrl,
+  type NewcomerCountry,
   type NewcomerHelp,
   type NewcomerPhase,
   type NewcomerPlan,
@@ -30,7 +34,7 @@ import {
 import { NEWCOMER_COUNTRIES, newcomerCountry } from '@/shared/newcomer-countries';
 import { colors, fonts } from '@/theme';
 
-type Tab = 'plan' | 'free' | 'discount' | 'deal';
+type Tab = 'plan' | 'around' | 'free' | 'discount' | 'deal';
 
 /**
  * Newcomer: the family's first year in a new country, step by step. Shared by
@@ -244,16 +248,19 @@ function PlanView({
         </T>
       </View>
 
-      <Segmented<Tab>
-        options={[
-          { key: 'plan', label: 'Our plan' },
-          { key: 'free', label: 'Free help' },
-          { key: 'discount', label: 'Discounts' },
-          { key: 'deal', label: 'Deals' },
-        ]}
-        value={tab}
-        onChange={setTab}
-      />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }} accessibilityRole="tablist">
+        {(
+          [
+            ['plan', 'Our plan'],
+            ['around', 'Getting around'],
+            ['free', 'Free help'],
+            ['discount', 'Discounts'],
+            ['deal', 'Deals'],
+          ] as [Tab, string][]
+        ).map(([k, label]) => (
+          <Pill key={k} label={tr(label)} on={tab === k} onPress={() => setTab(k)} />
+        ))}
+      </ScrollView>
 
       {tab === 'plan' ? (
         <>
@@ -265,6 +272,9 @@ function PlanView({
               return <Pill key={p.id} label={`${tr(p.label)}${allDone ? ' ✓' : ''}`} on={shown === p.id} onPress={() => setShown(p.id)} />;
             })}
           </ScrollView>
+          <T size={13} color={colors.muted} style={{ lineHeight: 18 }}>
+            {tr('Tap a step to see how to do it, what to bring and where to go.')}
+          </T>
           <View style={{ gap: 10 }}>
             {steps
               .filter((s) => s.phase === shown)
@@ -276,6 +286,8 @@ function PlanView({
             {tr('Checked against official sources on {0}. General guidance, not immigration or legal advice.', [formatDay(country.checked)])}
           </T>
         </>
+      ) : tab === 'around' ? (
+        <Around country={country} plan={plan} onDiscounts={() => setTab('discount')} />
       ) : (
         <HelpList items={helpFor(country, plan, tab)} kind={tab} />
       )}
@@ -337,6 +349,11 @@ function StepRow({
             {who}
           </T>
         </View>
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel={tr('Open')} onPress={onOpen} hitSlop={10} style={styles.chev}>
+        <T size={20} weight="bold" color={colors.walnut}>
+          ›
+        </T>
       </Pressable>
     </View>
   );
@@ -402,6 +419,11 @@ function StepSheet({
             <T size={15} color="#4A3F39" style={{ lineHeight: 22 }}>
               {v.why}
             </T>
+            {v.takes ? (
+              <T size={13.5} weight="semibold" color={colors.muted}>
+                ⏱ {v.takes}
+              </T>
+            ) : null}
             {v.note ? (
               <View style={styles.note}>
                 <T size={14} color="#24402F" style={{ lineHeight: 20 }}>
@@ -487,6 +509,36 @@ function StepSheet({
             ) : null}
           </View>
 
+          {v.tips.length ? (
+            <View style={styles.tips}>
+              <T size={12.5} weight="bold" color={colors.amberText} style={{ letterSpacing: 0.4 }}>
+                {tr('TIPS')}
+              </T>
+              {v.tips.map((x, i) => (
+                <T key={i} size={14} color="#4A3F39" style={{ lineHeight: 20 }}>
+                  • {x}
+                </T>
+              ))}
+            </View>
+          ) : null}
+
+          {step.place ? (
+            <Card style={{ gap: 10 }}>
+              <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
+                {tr('WHERE TO GO')}
+              </T>
+              <T size={14} color="#4A3F39" style={{ lineHeight: 20 }}>
+                {tr('Firdam opens the map with the nearest one, and how to get there by bus with live times.')}
+              </T>
+              <View style={styles.wrap}>
+                <Pill label={tr('By bus')} on onPress={() => Linking.openURL(directionsUrl(step.place!, plan, 'transit'))} />
+                <Pill label={tr('By car')} on={false} onPress={() => Linking.openURL(directionsUrl(step.place!, plan, 'driving'))} />
+                <Pill label={tr('Walking')} on={false} onPress={() => Linking.openURL(directionsUrl(step.place!, plan, 'walking'))} />
+              </View>
+            </Card>
+          ) : null}
+
+          {step.opens === 'around' ? <Button label={tr('Open Getting around')} variant="secondary" onPress={() => onTab('around')} /> : null}
           {step.feature === 'halal' ? <Button label={tr('Open Halal places')} variant="secondary" onPress={() => { onClose(); router.push('/halal'); }} /> : null}
           {step.opens === 'discounts' ? <Button label={tr('See discounts')} variant="secondary" onPress={() => onTab('discount')} /> : null}
 
@@ -503,6 +555,73 @@ function StepSheet({
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
+  );
+}
+
+/* ── Getting around ────────────────────────────────────────────────── */
+
+function Around({ country, plan, onDiscounts }: { country: NewcomerCountry; plan: NewcomerPlan; onDiscounts: () => void }) {
+  const agency = transitFor(country, plan);
+  return (
+    <View style={{ gap: 12 }}>
+      <Card style={{ gap: 10 }}>
+        <T size={17} weight="extrabold">
+          {tr('Plan a trip by bus')}
+        </T>
+        <T size={14} color="#4A3F39" style={{ lineHeight: 20 }}>
+          {tr('See the map, which bus to take, where to catch it and when it comes, with live times where your city shares them.')}
+        </T>
+        <Button label={tr('Open the trip planner')} onPress={() => Linking.openURL(tripPlannerUrl())} />
+        {agency ? (
+          <Pressable accessibilityRole="link" onPress={() => Linking.openURL(agency.url)} hitSlop={6}>
+            <T size={14} weight="bold" color={colors.walnut}>
+              {tr('{0}: fares, passes and service changes ›', [agency.agency])}
+            </T>
+          </Pressable>
+        ) : null}
+      </Card>
+
+      <Card style={{ gap: 8 }}>
+        <T size={15} weight="bold">
+          {tr('Bus or Uber?')}
+        </T>
+        {[
+          tr('One person or two: the bus is usually much cheaper. A transit card costs less than paying cash.'),
+          tr('A family with young children: many cities let young children ride the bus free or for less. Check your city’s rules.'),
+          tr('Taxi or Uber is faster door to door: good when it is very cold, late at night, or you have heavy bags.'),
+          tr('Ask the driver or the app for the price first. In a taxi, check the meter is on.'),
+        ].map((x, i) => (
+          <T key={i} size={14} color="#4A3F39" style={{ lineHeight: 20 }}>
+            • {x}
+          </T>
+        ))}
+      </Card>
+
+      <View style={styles.tips}>
+        <T size={15} weight="bold" color={colors.amberText}>
+          {tr('Car seats for children')}
+        </T>
+        <T size={14} color="#4A3F39" style={{ lineHeight: 20 }}>
+          {tr('In Canada, babies and young children must ride in a car seat or booster that fits their age and size. Taxis and rides like Uber usually don’t bring one, so take yours, or choose the bus.')}
+        </T>
+      </View>
+
+      <Card style={{ gap: 8 }}>
+        <T size={15} weight="bold">
+          {tr('Winter tips')}
+        </T>
+        {[tr('Leave earlier when it snows: buses can be late.'), tr('Wait inside the shelter and dress the children warmly: hat, mittens and boots.')].map((x, i) => (
+          <T key={i} size={14} color="#4A3F39" style={{ lineHeight: 20 }}>
+            • {x}
+          </T>
+        ))}
+      </Card>
+
+      <Button label={tr('See cheaper bus passes')} variant="secondary" onPress={onDiscounts} />
+      <T size={12} color={colors.muted} style={{ lineHeight: 17 }}>
+        {tr('Times come from your city’s transit system through the map. Firdam’s own live bus times, with warnings when a bus may not come, are coming next.')}
+      </T>
+    </View>
   );
 }
 
@@ -591,5 +710,7 @@ const styles = StyleSheet.create({
   close: { alignSelf: 'flex-end', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.tint },
   note: { backgroundColor: colors.sageTint, borderRadius: 14, padding: 12 },
   doneBox: { backgroundColor: colors.sageTint, borderRadius: 12, padding: 12, gap: 4 },
+  chev: { alignSelf: 'center', paddingHorizontal: 2 },
+  tips: { backgroundColor: colors.amberTint, borderRadius: 16, padding: 14, gap: 6 },
   num: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.tint, alignItems: 'center', justifyContent: 'center' },
 });

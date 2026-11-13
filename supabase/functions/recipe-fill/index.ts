@@ -16,6 +16,8 @@ import { translateMeals } from "../_shared/recipe-translate.ts";
  * each meal type × cuisine × mix of those three, the library needs TARGET such
  * "free-from-everything" recipes. This function counts what is missing and
  * writes the missing recipes (with nutrition, tags, French and Arabic, and a photo).
+ * A new recipe stays hidden (is_active = false) until its photo is made:
+ * families never see a recipe without its picture.
  *
  *   POST { action: "status" }        → how many slots still need recipes
  *   POST { action: "fill", limit? }  → writes up to `limit` (1–3) recipes
@@ -98,7 +100,7 @@ async function findGaps(): Promise<{ gaps: Slot[]; cuisines: string[] }> {
   const rows: Row[] = [];
   for (let from = 0; ; from += 1000) {
     const page = await rest<Row[]>(
-      `recipes?select=id,name,protein,carbs,cuisine:cuisines(name),meal_type:meal_types(name),recipe_ingredients(ingredient:ingredients(name)),recipe_allergens(allergen:allergens(name)),recipe_tags(tag:tags(name))&is_active=eq.true&order=id`,
+      `recipes?select=id,name,protein,carbs,cuisine:cuisines(name),meal_type:meal_types(name),recipe_ingredients(ingredient:ingredients(name)),recipe_allergens(allergen:allergens(name)),recipe_tags(tag:tags(name))&or=(is_active.eq.true,source.eq.ai-fill)&order=id`,
       { headers: { Range: `${from}-${from + 999}` } },
     );
     rows.push(...page);
@@ -252,7 +254,8 @@ async function save(w: Written): Promise<string | null> {
   await rest(`recipes?id=eq.${id}`, {
     method: "PATCH",
     headers: { Prefer: "return=minimal" },
-    body: JSON.stringify({ protein: w.protein, carbs: w.carbs, calories: w.calories, source: "ai-fill" }),
+    // Hidden until its photo is made (see showPhotographed).
+    body: JSON.stringify({ protein: w.protein, carbs: w.carbs, calories: w.calories, source: "ai-fill", is_active: false }),
   });
   const tags = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Nut-free", ...(w.kidFriendly ? ["Kid-friendly"] : []), ...(w.protein >= 25 ? ["High-protein"] : []), ...(w.carbs <= 25 ? ["Low-carb"] : [])];
   const ids = await tagIds(tags);
@@ -262,6 +265,18 @@ async function save(w: Written): Promise<string | null> {
     body: JSON.stringify(ids.map((tag_id) => ({ recipe_id: id, tag_id }))),
   });
   return id;
+}
+
+/** Makes photos for filler recipes still waiting for one, then shows the ones that have it. */
+async function photographAndShow(newIds: string[], budgetMs: number) {
+  const waiting = await rest<{ id: string }[]>("recipes?select=id&source=eq.ai-fill&is_active=eq.false&image_path=is.null&order=created_at&limit=6");
+  const ids = Array.from(new Set([...newIds, ...waiting.map((w) => w.id)]));
+  if (ids.length) await photographRecipes(ids, budgetMs);
+  await rest("recipes?source=eq.ai-fill&is_active=eq.false&image_path=not.is.null", {
+    method: "PATCH",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({ is_active: true }),
+  });
 }
 
 async function skip(slot: Slot, error: string) {
@@ -326,7 +341,7 @@ Deno.serve(async (req) => {
     }
     // Photos after the response, so the database job isn't kept waiting.
     // deno-lint-ignore no-explicit-any
-    (globalThis as any).EdgeRuntime?.waitUntil?.(photographRecipes(ids, 120_000).catch((e) => console.error("photos", e)));
+    (globalThis as any).EdgeRuntime?.waitUntil?.(photographAndShow(ids, 120_000).catch((e) => console.error("photos", e)));
     return json({ made, remaining: Math.max(0, gaps.length - made.length) });
   } catch (e) {
     console.error(e);

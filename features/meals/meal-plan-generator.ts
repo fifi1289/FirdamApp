@@ -27,6 +27,8 @@ export function loadLibraryRecipes(force = false): Promise<RecipeRow[]> {
         .from('recipes')
         .select(RECIPE_SELECT)
         .eq('is_active', true)
+        // Never planned before its photo is ready.
+        .not('image_path', 'is', null)
         .order('created_at', { ascending: true })
         .order('id')
         .range(from, to)

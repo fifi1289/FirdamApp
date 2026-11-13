@@ -139,6 +139,8 @@ export async function fetchAllRecipes(): Promise<{ recipes: RecipeSummary[]; use
         .from('recipes')
         .select(`${SUMMARY_SELECT}, has_ingredients:recipe_ingredients!inner(display_order)`)
         .eq('is_active', true)
+        // Never shown before its photo is ready.
+        .not('image_path', 'is', null)
         .order('name')
         .order('id')
         .range(from, to)
@@ -338,6 +340,7 @@ export async function fetchRecipeIngredientIndex(): Promise<Map<string, { name: 
         .from('recipes')
         .select('id, recipe_ingredients(optional, ingredient:ingredients(name))')
         .eq('is_active', true)
+        .not('image_path', 'is', null)
         .order('id')
         .range(from, to)
     ).then((data) => ({ data })),
@@ -379,6 +382,7 @@ export async function fetchRecipeFacts(): Promise<Map<string, RecipeFacts>> {
         .from('recipes')
         .select('id, protein, carbs, recipe_ingredients(ingredient:ingredients(name)), recipe_allergens(allergen:allergens(name)), recipe_tags(tag:tags(name))')
         .eq('is_active', true)
+        .not('image_path', 'is', null)
         .order('id')
         .range(from, to)
     ).then((data) => ({ data })),
@@ -428,6 +432,7 @@ export async function fetchRecipeNeeds(): Promise<Map<string, RecipeNeeds>> {
         .from('recipes')
         .select('id, servings, recipe_ingredients(quantity, unit, optional, ingredient:ingredients(name))')
         .eq('is_active', true)
+        .not('image_path', 'is', null)
         .order('id')
         .range(from, to)
     ).then((data) => ({ data })),

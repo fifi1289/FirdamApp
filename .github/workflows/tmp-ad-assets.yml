@@ -1,0 +1,21 @@
+name: tmp-ad-assets
+on:
+  push:
+    branches: [tmp-ad-assets]
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          mkdir img && cd img
+          B=https://psxwslmsjdtfzneoujea.supabase.co/storage/v1/object/public/recipe-images
+          curl -fsSL -o tagine.png "$B/tajine-marocain-au-poulet-olives-et-citron.png"
+          curl -fsSL -o butterfly.webp "$B/lunchbox/butterfly-sandwich-624f61fd.webp"
+          curl -fsSL -o hummus.webp "$B/lunchbox/hummus-garden-254031a0.webp"
+          curl -fsSL -o leftover.webp "$B/lunchbox/leftover-dinner-wrap-e27b22fa.webp"
+          ls -la
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ad-images
+          path: img
+          retention-days: 1

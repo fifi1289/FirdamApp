@@ -14,6 +14,7 @@ import {
   childrenFromFamily,
   chooseOption,
   dinnersFromPlan,
+  staleLeftover,
   optionView,
   pickedCount,
   toolLinks,
@@ -300,6 +301,8 @@ export function LunchboxView({ week: shownWeek }: { week?: Week } = {}) {
                   ) : null}
                   {current.options.map((o, i) => {
                     const v = optionView(o, ideas, lang);
+                    // Leftovers from a dinner that isn't really planned (or no longer is) aren't offered, unless already picked.
+                    if (staleLeftover(o, mealPlan) && current.chosen !== i) return null;
                     if (!v) return null;
                     const chosen = current.chosen === i;
                     // Once a lunchbox is picked, it opens up with how to make it; the other ideas fold away.

@@ -3586,6 +3586,7 @@ export const AR: Record<string, string> = {
   "No safety changes needed for this meal. Just adjust the texture.": "لا يحتاج هذا الطبق إلى تغييرات للسلامة. فقط عدّل القوام.",
   "Open any meal to see its baby or toddler version.": "افتح أي وجبة لترى نسختها للرضّع أو الأطفال الصغار.",
   "Portion: ": "الحصة: ",
+  "The step-by-step for little ones isn’t ready for this recipe yet. The safety changes above still apply.": "خطوات تحضير طبق الصغار لهذه الوصفة ليست جاهزة بعد. تغييرات السلامة أعلاه ما زالت تنطبق.",
   "Preparing the little one’s version…": "جارٍ تحضير نسخة الصغير…",
   "SAFETY CHANGES": "تغييرات للسلامة",
   "Safety changes": "تغييرات للسلامة",

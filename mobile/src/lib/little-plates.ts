@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from './config';
 import { supabase } from './supabase';
 import { littleOnesFromFamily, type LittleGuideSet, type LittleOne, type LittleStage } from '@/shared/little-plates-core';
 
@@ -45,15 +44,7 @@ export async function loadLittleGuide(input: { key: string; name: string; ingred
     guides.set(id, saved.guide as LittleGuideSet);
     return saved.guide as LittleGuideSet;
   }
-  const { data } = await supabase.auth.getSession();
-  if (!data.session) throw new Error('Please sign in again.');
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/little-plates`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}`, apikey: SUPABASE_ANON_KEY },
-    body: JSON.stringify(input),
-  });
-  const json = (await res.json().catch(() => null)) as { guide?: LittleGuideSet; error?: string } | null;
-  if (!res.ok || !json?.guide) throw new Error(json?.error === 'limit' ? 'limit' : (json?.error ?? 'The guide could not be written just now.'));
-  guides.set(id, json.guide);
-  return json.guide;
+  // Guides are written ahead of time for every library recipe; opening a plate
+  // never starts an AI call.
+  throw new Error('pending');
 }

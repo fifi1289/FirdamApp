@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
-import { countUsageSince, getUser, recordUsage } from "../_shared/plan.ts";
+import { getUser } from "../_shared/plan.ts";
 
 /**
  * Little Plates: how to make a baby or toddler version of one family meal.
@@ -8,20 +8,23 @@ import { countUsageSince, getUser, recordUsage } from "../_shared/plan.ts";
  * POST { key, name, ingredients: string[], steps: string[], stage: "baby" | "little" | "toddler" }
  * → { guide: { en, fr, ar }: { steps: string[], serve: string, portion: string } }
  *
- * Each guide is written once per recipe and stage, checked, and saved in
- * little_plates, so every family gets it free after that. The fixed safety
- * changes (no honey before 12 months, no added salt for babies, cut round foods,
+ * Guides are written ahead of time for every library recipe and stage by the
+ * scheduled "fill" action (header x-lunchbox-token), checked and saved in
+ * little_plates. Families only read saved guides: opening a plate never starts
+ * an AI call, so nobody can spend AI money by switching plates.
+ *   POST { action: "fill", limit? } | { action: "status" }   (scheduled job)
+ *
+ * The fixed safety changes (no honey before 12 months, no added salt for babies, cut round foods,
  * no whole nuts…) are worked out in the app itself; this guide only adds the
  * steps, and is checked against the same rules before it is saved.
  */
 
 const MODEL = "gpt-4o-mini";
-const PER_DAY = 40;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, x-lunchbox-token",
 };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 const env = (n: string) => {
@@ -78,82 +81,105 @@ function cleanGuide(raw: unknown): Guide | null {
   return steps.length >= 2 ? { steps, serve, portion } : null;
 }
 
+type GuideSet = Record<string, Guide>;
+
+/** Writes and checks one guide (en, fr, ar), or null if it broke a rule twice. */
+async function writeGuide(apiKey: string, stage: string, name: string, ingredients: string[], steps: string[]): Promise<GuideSet | null> {
+  let reason = "";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const res = await fetchOpenAI(apiKey, {
+      model: MODEL,
+      temperature: 0.3,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: `You help Muslim parents make a version of the family meal for ${STAGES[stage]}. Short, warm, practical steps a busy parent can follow while cooking the family meal. ${RULES}`,
+        },
+        {
+          role: "user",
+          content:
+            `Family meal: ${name}\nIngredients: ${ingredients.join("; ")}\nFamily method: ${steps.join(" ")}\n` +
+            (reason ? `Your last answer broke a rule (${reason}). Fix it.\n` : "") +
+            `Write 3 to 4 steps: when to take the little one's portion out, how to change the texture, how to cut or shape it. Then how to serve it and a small portion size.\n` +
+            `Answer as JSON with English, French and Modern Standard Arabic: {"en":{"steps":[],"serve":"","portion":""},"fr":{...},"ar":{...}}`,
+        },
+      ],
+    });
+    if (!res.ok) throw new Error((await describeOpenAIFailure(res)).message);
+    const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    let parsed: Record<string, unknown> = {};
+    try {
+      parsed = JSON.parse(data.choices?.[0]?.message?.content ?? "{}");
+    } catch {
+      continue;
+    }
+    const en = cleanGuide(parsed.en);
+    if (!en) continue;
+    const problem = guideProblem([...en.steps, en.serve, en.portion].join(" "), stage);
+    if (problem) {
+      reason = problem;
+      continue;
+    }
+    const out: GuideSet = { en };
+    const fr = cleanGuide(parsed.fr);
+    const ar = cleanGuide(parsed.ar);
+    if (fr) out.fr = fr;
+    if (ar) out.ar = ar;
+    return out;
+  }
+  return null;
+}
+
+interface Todo { id: string; name: string; stages: string[]; ingredients: string[]; steps: string[] }
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Use POST." }, 405);
   try {
+    const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+    const token = req.headers.get("x-lunchbox-token");
+
+    // Scheduled job: write the guides still missing for library recipes.
+    if (token) {
+      const ok = (await rest<boolean>("rpc/check_lunchbox_admin_token", { method: "POST", body: JSON.stringify({ p_token: token }) })) === true;
+      if (!ok) return json({ error: "Admins only." }, 403);
+      if (body.action !== "fill") return json({ remaining: await rest<number>("rpc/little_plates_remaining", { method: "POST", body: "{}" }) });
+      const apiKey = env("OPENAI_API_KEY");
+      if (!apiKey) return json({ error: "AI is not set up." }, 503);
+      const limit = Math.min(5, Math.max(1, Number(body.limit) || 3));
+      const todo = await rest<Todo[]>("rpc/little_plates_todo", { method: "POST", body: JSON.stringify({ p_limit: limit }) });
+      const jobs = todo.flatMap((r) => (r.stages ?? []).map((stage) => ({ r, stage })));
+      let written = 0;
+      const failed: string[] = [];
+      await Promise.all(
+        jobs.map(async ({ r, stage }) => {
+          try {
+            const guide = await writeGuide(apiKey, stage, r.name, (r.ingredients ?? []).slice(0, 40), (r.steps ?? []).map((x) => String(x).slice(0, 300)).slice(0, 15));
+            if (!guide) return void failed.push(`${r.name} (${stage})`);
+            await rest("little_plates?on_conflict=recipe_key,stage", {
+              method: "POST",
+              headers: { Prefer: "resolution=ignore-duplicates" },
+              body: JSON.stringify({ recipe_key: r.id, stage, name: r.name, guide }),
+            });
+            written++;
+          } catch (e) {
+            failed.push(`${r.name} (${stage}): ${(e as Error).message}`);
+          }
+        }),
+      );
+      return json({ written, failed });
+    }
+
+    // Families: saved guides only, never a new AI call.
     const user = await getUser(req);
     if (!user) return json({ error: "Please sign in." }, 401);
-    const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
     const key = String(body.key ?? "").trim().slice(0, 120);
     const stage = String(body.stage ?? "");
-    const name = String(body.name ?? "").trim().slice(0, 120);
-    if (!key || !name || !STAGES[stage]) return json({ error: "Missing recipe or stage." }, 400);
-
+    if (!key || !STAGES[stage]) return json({ error: "Missing recipe or stage." }, 400);
     const saved = await rest<{ guide: unknown }[]>(`little_plates?select=guide&recipe_key=eq.${encodeURIComponent(key)}&stage=eq.${stage}`);
     if (saved[0]) return json({ guide: saved[0].guide, cached: true });
-
-    const since = new Date(Date.now() - 86_400_000).toISOString();
-    if ((await countUsageSince(user.id, "little_plates_ai", since)) >= PER_DAY) return json({ error: "limit" }, 429);
-
-    const ingredients = (Array.isArray(body.ingredients) ? body.ingredients : []).map((x) => String(x).slice(0, 80)).slice(0, 40);
-    const steps = (Array.isArray(body.steps) ? body.steps : []).map((x) => String(x).slice(0, 300)).slice(0, 15);
-    const apiKey = env("OPENAI_API_KEY");
-    if (!apiKey) return json({ error: "AI is not set up." }, 503);
-
-    let guide: Record<string, Guide> | null = null;
-    let reason = "";
-    for (let attempt = 0; attempt < 2 && !guide; attempt++) {
-      const res = await fetchOpenAI(apiKey, {
-        model: MODEL,
-        temperature: 0.3,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: `You help Muslim parents make a version of the family meal for ${STAGES[stage]}. Short, warm, practical steps a busy parent can follow while cooking the family meal. ${RULES}`,
-          },
-          {
-            role: "user",
-            content:
-              `Family meal: ${name}\nIngredients: ${ingredients.join("; ")}\nFamily method: ${steps.join(" ")}\n` +
-              (reason ? `Your last answer broke a rule (${reason}). Fix it.\n` : "") +
-              `Write 3 to 4 steps: when to take the little one's portion out, how to change the texture, how to cut or shape it. Then how to serve it and a small portion size.\n` +
-              `Answer as JSON with English, French and Modern Standard Arabic: {"en":{"steps":[],"serve":"","portion":""},"fr":{...},"ar":{...}}`,
-          },
-        ],
-      });
-      if (!res.ok) return json({ error: (await describeOpenAIFailure(res)).message }, 502);
-      const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-      let parsed: Record<string, unknown> = {};
-      try {
-        parsed = JSON.parse(data.choices?.[0]?.message?.content ?? "{}");
-      } catch {
-        continue;
-      }
-      const en = cleanGuide(parsed.en);
-      if (!en) continue;
-      const problem = guideProblem([...en.steps, en.serve, en.portion].join(" "), stage);
-      if (problem) {
-        reason = problem;
-        continue;
-      }
-      const out: Record<string, Guide> = { en };
-      const fr = cleanGuide(parsed.fr);
-      const ar = cleanGuide(parsed.ar);
-      if (fr) out.fr = fr;
-      if (ar) out.ar = ar;
-      guide = out;
-    }
-    await recordUsage(user.id, "little_plates_ai");
-    if (!guide) return json({ error: "We couldn't write this guide just now. The safety changes above still apply." }, 422);
-
-    await rest("little_plates?on_conflict=recipe_key,stage", {
-      method: "POST",
-      headers: { Prefer: "resolution=ignore-duplicates" },
-      body: JSON.stringify({ recipe_key: key, stage, name, guide }),
-    });
-    return json({ guide, cached: false });
+    return json({ error: "pending" }, 404);
   } catch (e) {
     console.error(e);
     return json({ error: (e as Error).message }, 500);

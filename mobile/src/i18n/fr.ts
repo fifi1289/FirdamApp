@@ -1760,6 +1760,7 @@ export const FR: Record<string, string> = {
   "No safety changes needed for this meal. Just adjust the texture.": "Aucun changement de sécurité nécessaire pour ce repas. Adaptez simplement la texture.",
   "Open any meal to see its baby or toddler version.": "Ouvrez un repas pour voir sa version bébé ou tout-petit.",
   "Portion: ": "Portion : ",
+  "The step-by-step for little ones isn’t ready for this recipe yet. The safety changes above still apply.": "Les étapes pour les petits ne sont pas encore prêtes pour cette recette. Les changements de sécurité ci-dessus s’appliquent toujours.",
   "Preparing the little one’s version…": "Préparation de la version pour le petit…",
   "SAFETY CHANGES": "CHANGEMENTS DE SÉCURITÉ",
   "Safety changes": "Changements de sécurité",

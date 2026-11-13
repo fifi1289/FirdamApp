@@ -218,7 +218,12 @@ export function RecipesDashboard() {
       if (meal !== 'all' && r.mealType !== meal) return false;
       if (cuisine !== 'all' && r.cuisine !== cuisine) return false;
       if (time !== 'any' && totalMinutes(r) > Number(time)) return false;
-      if (q && !`${r.name} ${r.description ?? ''} ${r.cuisine ?? ''}`.toLowerCase().includes(q)) return false;
+      if (q) {
+        // Every word, singular or plural, in the name, description, cuisine or ingredients.
+        const hay = `${r.name} ${trn(r.name)} ${r.description ?? ''} ${r.cuisine ?? ''} ${(facts?.get(r.key)?.ingredients ?? []).join(' ')}`.toLowerCase();
+        const words = q.split(/\s+/).filter(Boolean).map((w) => (w.length > 3 ? w.replace(/ies$/, 'y').replace(/(es|s)$/, '') : w));
+        if (!words.every((w) => hay.includes(w))) return false;
+      }
       if (food && facts !== null && !(facts.get(r.key)?.ingredients ?? []).some((i) => sameFood(food, i))) return false;
       // Allergy/diet filtering needs per-recipe ingredient facts. If a recipe's
       // facts aren't available (still loading, or the facts request failed), we

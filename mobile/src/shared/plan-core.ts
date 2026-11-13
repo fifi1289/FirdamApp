@@ -239,10 +239,13 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
   if (all.length === 0) {
     throw new Error('No recipe found.');
   }
-  // Allergies and diets are never relaxed: unsafe recipes are removed up front.
-  const recipes = all.filter((r) =>
-    recipeSuits(r, preferences.allergies ?? [], preferences.dietaryPreferences ?? [])
-  );
+  // Allergies and firm diets (vegetarian, gluten-free…) are never relaxed. Softer
+  // wishes (high-protein, low-carb, kid-friendly) give way before a meal is left empty.
+  const diets = preferences.dietaryPreferences ?? [];
+  const firmDiets = diets.filter((d) => !SOFT_DIETS.includes(d.toLowerCase()));
+  const strict = all.filter((r) => recipeSuits(r, preferences.allergies ?? [], diets));
+  const firm = firmDiets.length === diets.length ? strict : all.filter((r) => recipeSuits(r, preferences.allergies ?? [], firmDiets));
+  const recipes = strict.length ? strict : firm;
   if (recipes.length === 0) {
     throw new Error(
       'No recipes in the library match these allergies and diets yet. Try removing a diet, or add your own recipes.'
@@ -261,6 +264,11 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
     const key = mealTypeKey(recipe.meal_type?.name ?? '');
     if (!byType[key]) byType[key] = [];
     byType[key].push(recipe);
+  }
+  const byTypeFirm: Record<string, RecipeRow[]> = {};
+  for (const recipe of firm) {
+    const key = mealTypeKey(recipe.meal_type?.name ?? '');
+    (byTypeFirm[key] ??= []).push(recipe);
   }
 
   const rotationCursors: Record<string, number> = {};
@@ -303,7 +311,9 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
     const meals: MockMeal[] = lowerTypes.map((type, idx) => {
       // Only recipes of this meal type, or a nearby one (snack ↔ breakfast,
       // lunch ↔ dinner): a dinner soup is never planned as a snack.
-      const typePool = byType[type] ?? (NEAR_MEALS[type] ?? []).flatMap((t) => byType[t] ?? []);
+      const near = (src: Record<string, RecipeRow[]>) => (NEAR_MEALS[type] ?? []).flatMap((t) => src[t] ?? []);
+      let typePool = byType[type] ?? near(byType);
+      if (typePool.length === 0) typePool = byTypeFirm[type] ?? near(byTypeFirm);
       if (typePool.length === 0) return emptySlot(type, '');
       let pool = typePool;
       // Chosen cuisines are respected: only those cuisines for this meal, also
@@ -314,13 +324,15 @@ export function buildPlanFromRecipes(all: RecipeRow[], input: MealPlanGeneratorI
       if (strictCuisine) {
         const ofCuisine = (rs: RecipeRow[]) => rs.filter((r) => wanted.includes((r.cuisine?.name ?? '').toLowerCase()));
         const same = ofCuisine(typePool).filter((r) => !usedIds.has(r.id));
-        const near = ofCuisine(NEAR_MEALS[type]?.flatMap((t) => byType[t] ?? []) ?? []).filter((r) => !usedIds.has(r.id));
-        pool = same.length ? same : near;
-        if (pool.length === 0) return emptySlot(type, (cuisinePrefs[type] ?? []).join(' or '));
-      }      let candidate: RecipeRow | undefined;
+        const nearby = ofCuisine(near(byType)).filter((r) => !usedIds.has(r.id));
+        pool = same.length ? same : nearby;
+      }
+      // No chosen-cuisine recipe left: other cuisines rather than an empty slot.
+      const fallback = strictCuisine && pool.length === 0;
+      if (fallback) pool = typePool;      let candidate: RecipeRow | undefined;
 
       let unused = pool.filter((r) => !usedIds.has(r.id));
-      if (unused.length === 0 && !strictCuisine) unused = typePool.filter((r) => !usedIds.has(r.id));
+      if (unused.length === 0 && (!strictCuisine || fallback)) unused = typePool.filter((r) => !usedIds.has(r.id));
       if (unused.length > 0 && pantryFirst) {
         const scored = shuffle(unused).map((r) => {
           const c = checkNeeds(needsOf(r), pantry, { factor: factorOf(r), ledger });

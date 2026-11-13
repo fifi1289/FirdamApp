@@ -2088,4 +2088,11 @@ export const AR: Record<string, string> = {
   "What to bring": "ما تحضره",
   "Tips": "نصائح",
   "1 step": "خطوة واحدة",
+  "Showing recipes safe for your allergies; not every diet wish matches.": "وصفات آمنة لحساسيات عائلتك، لكنها لا تطابق كل التفضيلات الغذائية.",
+  "Match everything again": "طابق كل التفضيلات مجددًا",
+  "{0} recipes with “{1}”, but none fit everything your family chose.": "{0} وصفات تحتوي على «{1}»، لكن لا توجد وصفة تناسب كل اختيارات عائلتك.",
+  "Your family’s choices: {0}. Few recipes meet all of them at once.": "اختيارات عائلتك: {0}. قليل من الوصفات يحققها كلها معًا.",
+  "no {0}": "بدون {0}",
+  "Show the closest (still allergy-safe)": "عرض الأقرب (مع بقائها آمنة من مسببات الحساسية)",
+  "No recipe in the library has “{0}” yet. Try another word, like the main ingredient.": "لا توجد بعد وصفة في المكتبة تحتوي على «{0}». جرّب كلمة أخرى، مثل المكوّن الرئيسي.",
 };

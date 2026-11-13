@@ -78,14 +78,30 @@ export function childrenFromFamily(
 
 /** Dinners from the meal plan (with ingredients, so they can be checked), so yesterday's dinner can become today's lunchbox. */
 export function dinnersFromPlan(
-  plan: { days: { date: string; meals: { type: string; name: string; ingredients?: { name: string }[] }[] }[] } | null | undefined,
+  plan: { days: { date: string; meals: { type: string; name: string; needsAI?: string; ingredients?: { name: string }[] }[] }[] } | null | undefined,
 ): { date: string; name: string; ingredients: string[] }[] {
   if (!plan) return [];
   return plan.days.flatMap((d) =>
     d.meals
-      .filter((m) => m.type === 'dinner' && m.name)
+      // A slot still waiting for the AI chef isn't a real dinner, so it can't be tomorrow's leftovers.
+      .filter((m) => m.type === 'dinner' && m.name && !m.needsAI)
       .map((m) => ({ date: d.date, name: m.name, ingredients: (m.ingredients ?? []).map((i) => i.name).filter(Boolean) })),
   );
+}
+
+/** Photo for leftover lunchboxes (from the lunchbox library). */
+export const LEFTOVER_IMAGE = 'https://psxwslmsjdtfzneoujea.supabase.co/storage/v1/object/public/recipe-images/lunchbox/leftover-dinner-wrap-e27b22fa.webp';
+
+/**
+ * Leftovers offered from a dinner that is no longer in the meal plan (or never
+ * was: an empty slot waiting for the AI chef). Screens hide these options.
+ */
+export function staleLeftover(
+  option: LunchboxOption,
+  plan: Parameters<typeof dinnersFromPlan>[0],
+): boolean {
+  if (option.kind !== 'leftover' || !plan) return false;
+  return !dinnersFromPlan(plan).some((d) => d.name.trim().slice(0, 60) === option.dinner);
 }
 
 /** The idea's text in the family's language (English when no translation yet). */
@@ -125,7 +141,7 @@ export function optionView(option: LunchboxOption, ideas: LunchboxIdea[], lang: 
       fun_tip: tr("Turn last night's dinner into a new lunch: roll it in a wrap and cut it into pinwheels."),
       tools: option.tools.map((t) => tr(t)),
       key: `left-${option.dinner}`,
-      image: null,
+      image: LEFTOVER_IMAGE,
       leftover: true,
       toolQueries: option.tools,
       steps: [

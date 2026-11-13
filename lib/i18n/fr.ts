@@ -3760,4 +3760,11 @@ export const FR: Record<string, string> = {
   "{0} steps": "{0} étapes",
   "What to bring": "Quoi apporter",
   "1 step": "1 étape",
+  "Showing recipes safe for your allergies; not every diet wish matches.": "Recettes sans risque pour vos allergies ; tous les choix alimentaires ne sont pas respectés.",
+  "Match everything again": "Tout respecter à nouveau",
+  "{0} recipes with “{1}”, but none fit everything your family chose.": "{0} recettes avec « {1} », mais aucune ne respecte tous les choix de votre famille.",
+  "Your family’s choices: {0}. Few recipes meet all of them at once.": "Les choix de votre famille : {0}. Peu de recettes les respectent tous à la fois.",
+  "no {0}": "sans {0}",
+  "Show the closest (still allergy-safe)": "Voir les plus proches (toujours sans allergènes)",
+  "No recipe in the library has “{0}” yet. Try another word, like the main ingredient.": "Aucune recette de la bibliothèque ne contient encore « {0} ». Essayez un autre mot, comme l’ingrédient principal.",
 };

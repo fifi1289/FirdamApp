@@ -12,6 +12,17 @@ import { sameFood } from '@/shared/kitchen-items';
 
 type Filter = 'safe' | 'quick' | 'cook';
 
+/** "lentils" → "lentil", "berries" → "berry": so the plural finds the dish too. */
+const stem = (w: string) => (w.length > 3 ? w.replace(/ies$/, 'y').replace(/(es|s)$/, '') : w);
+
+/** Whether a recipe matches every word typed, in its name, cuisine or ingredients. */
+function matchesQuery(r: RecipeRow, q: string): boolean {
+  const words = q.split(/\s+/).filter(Boolean).map(stem);
+  if (!words.length) return true;
+  const hay = [r.name, tr(r.name), r.cuisine?.name ?? '', ...r.recipe_ingredients.map((x) => x.ingredient?.name ?? '')].join(' ').toLowerCase();
+  return words.every((w) => hay.includes(w));
+}
+
 const MEALS = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
 
@@ -28,6 +39,8 @@ export function RecipesView({ use }: { use?: string } = {}) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<Set<Filter>>(new Set(['safe']));
   const [limit, setLimit] = useState(PAGE_SIZE);
+  // "Show the closest": still safe for allergies, but not every diet wish has to match.
+  const [relaxed, setRelaxed] = useState(false);
   const [meal, setMeal] = useState<string | null>(null);
   const [cuisine, setCuisine] = useState<string | null>(null);
   const [diet, setDiet] = useState<string | null>(null);
@@ -56,8 +69,8 @@ export function RecipesView({ use }: { use?: string } = {}) {
     if (!recipes) return [];
     const q = query.trim().toLowerCase();
     return recipes
-      .filter((r) => !q || r.name.toLowerCase().includes(q) || tr(r.name).toLowerCase().includes(q) || (r.cuisine?.name ?? '').toLowerCase().includes(q))
-      .filter((r) => !filters.has('safe') || (isSafeFor(r, allergies) && fitsDiets(r, diets)))
+      .filter((r) => matchesQuery(r, q))
+      .filter((r) => !filters.has('safe') || (isSafeFor(r, allergies) && (relaxed || fitsDiets(r, diets))))
       .filter((r) => !filters.has('quick') || totalMinutes(r) <= 30)
       .filter((r) => !meal || (r.meal_type?.name ?? '').toLowerCase().includes(meal))
       .filter((r) => !cuisine || r.cuisine?.name === cuisine)
@@ -66,7 +79,10 @@ export function RecipesView({ use }: { use?: string } = {}) {
       .map((r) => ({ r, check: k.pantry.length ? checkRecipe(r, k.pantry, portions) : null }))
       .filter(({ check }) => !filters.has('cook') || (check && check.verdict !== 'far'))
       .sort((a, b) => (filters.has('cook') && a.check && b.check ? a.check.missingCount - b.check.missingCount : 0));
-  }, [recipes, query, filters, meal, cuisine, diet, food, allergies, diets, k.pantry, portions]);
+  }, [recipes, query, filters, meal, cuisine, diet, food, allergies, diets, k.pantry, portions, relaxed]);
+
+  // How many recipes match the search alone, to explain an empty list.
+  const matchingSearch = useMemo(() => (recipes && query.trim() ? recipes.filter((r) => matchesQuery(r, query.trim().toLowerCase())).length : 0), [recipes, query]);
 
   const toggle = (f: Filter) =>
     setFilters((cur) => {
@@ -191,10 +207,35 @@ export function RecipesView({ use }: { use?: string } = {}) {
           onPress={() => setLimit((n) => n + PAGE_SIZE)}
         />
       ) : null}
+      {relaxed && filters.has('safe') && diets.length ? (
+        <Pressable accessibilityRole="button" onPress={() => setRelaxed(false)} hitSlop={6}>
+          <T size={13} color={colors.muted}>
+            {tr('Showing recipes safe for your allergies; not every diet wish matches.')} <T size={13} weight="bold" color={colors.walnut}>{tr('Match everything again')}</T>
+          </T>
+        </Pressable>
+      ) : null}
       {shown.length === 0 ? (
-        <T size={14} color={colors.muted}>
-          {tr('No recipes match. Try fewer filters.')}
-        </T>
+        <View style={styles.empty}>
+          {matchingSearch > 0 && filters.has('safe') && !relaxed && diets.length ? (
+            <>
+              <T size={15} weight="bold">
+                {tr('{0} recipes with “{1}”, but none fit everything your family chose.', [matchingSearch, query.trim()])}
+              </T>
+              <T size={13.5} color={colors.muted} style={{ lineHeight: 19 }}>
+                {tr('Your family’s choices: {0}. Few recipes meet all of them at once.', [[...diets, ...allergies.map((a) => tr('no {0}', [a.toLowerCase()]))].join(', ').toLowerCase()])}
+              </T>
+              <Button label={tr('Show the closest (still allergy-safe)')} onPress={() => setRelaxed(true)} />
+            </>
+          ) : query.trim() && matchingSearch === 0 ? (
+            <T size={14} color={colors.muted} style={{ lineHeight: 20 }}>
+              {tr('No recipe in the library has “{0}” yet. Try another word, like the main ingredient.', [query.trim()])}
+            </T>
+          ) : (
+            <T size={14} color={colors.muted}>
+              {tr('No recipes match. Try fewer filters.')}
+            </T>
+          )}
+        </View>
       ) : null}
     </View>
   );
@@ -212,6 +253,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
+  empty: { gap: 10, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 16, padding: 14 },
   filterBtn: { height: 48, paddingHorizontal: 16, borderRadius: 16, backgroundColor: colors.espresso, alignItems: 'center', justifyContent: 'center' },
   backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },
   sheet: { maxHeight: '85%', backgroundColor: colors.linen, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 34 },

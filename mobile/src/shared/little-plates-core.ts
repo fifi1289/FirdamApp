@@ -131,6 +131,7 @@ const RULES: Rule[] = [
   },
   {
     re: /\b(grapes?|cherry tomato(es)?|blueberries|cherries|olives?|lychees?|cocktail tomato(es)?)\b/i,
+    not: /\bolive (oil|leaves|wood)\b|\b(grape ?seed oil|grape leaves|vine leaves)\b/i,
     stages: ALL,
     action: 'cut',
     text: 'Cut round foods into quarters lengthwise: whole they are a choking risk.',

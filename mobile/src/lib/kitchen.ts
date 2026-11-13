@@ -177,6 +177,8 @@ export async function loadRecipes(force = false): Promise<RecipeRow[]> {
       .from('recipes')
       .select(RECIPE_SELECT.replace('recipe_ingredients(', 'recipe_ingredients!inner('))
       .eq('is_active', true)
+      // Never shown before its photo is ready.
+      .not('image_path', 'is', null)
       .order('name', { ascending: true })
       .order('id')
       .range(from, to)

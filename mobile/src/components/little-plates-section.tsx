@@ -140,7 +140,7 @@ export function LittlePlateView({
   const info = LITTLE_STAGES.find((s) => s.id === stage)!;
   const changes = useMemo(() => littleChanges(ingredients, stage, allergies), [ingredients, stage, allergies]);
   const [guide, setGuide] = useState<LittleGuide | null>(null);
-  const [state, setState] = useState<'loading' | 'done' | 'error' | 'limit'>('loading');
+  const [state, setState] = useState<'loading' | 'done' | 'error' | 'pending'>('loading');
   const lang = getLang();
   const kids = ones.filter((o) => o.stage === stage);
   const onMilk = ones.filter((o) => !o.stage);
@@ -154,7 +154,7 @@ export function LittlePlateView({
         setGuide(g[lang] ?? g.en ?? null);
         setState('done');
       })
-      .catch((e: Error) => alive && setState(e.message === 'limit' ? 'limit' : 'error'));
+      .catch((e: Error) => alive && setState(e.message === 'pending' ? 'pending' : 'error'));
     return () => {
       alive = false;
     };
@@ -240,8 +240,8 @@ export function LittlePlateView({
           </>
         ) : (
           <T size={13.5} color={colors.sageDark}>
-            {state === 'limit'
-              ? tr('You’ve opened many new Little Plates today. Try again tomorrow; the safety changes above still apply.')
+            {state === 'pending'
+              ? tr('The step-by-step for little ones isn’t ready for this recipe yet. The safety changes above still apply.')
               : tr('The steps couldn’t load just now. The safety changes above still apply.')}
           </T>
         )}

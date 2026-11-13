@@ -140,7 +140,7 @@ function StageCard({
   const info = LITTLE_STAGES.find((s) => s.id === stage)!;
   const changes = useMemo(() => littleChanges(ingredients, stage, allergies), [ingredients, stage, allergies]);
   const [guide, setGuide] = useState<LittleGuide | null>(null);
-  const [state, setState] = useState<'loading' | 'done' | 'error' | 'limit'>('loading');
+  const [state, setState] = useState<'loading' | 'done' | 'error' | 'pending'>('loading');
   const lang = getLang();
 
   useEffect(() => {
@@ -151,22 +151,12 @@ function StageCard({
       const db = supabase as unknown as { from: (t: string) => any };
       const { data: saved } = await db.from('little_plates').select('guide').eq('recipe_key', key).eq('stage', stage).maybeSingle();
       let set = saved?.guide as LittleGuideSet | undefined;
-      if (!set) {
-        const { data } = await supabase.auth.getSession();
-        if (!data.session) throw new Error('auth');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/little-plates`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}`, apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '' },
-          body: JSON.stringify({ key, name, ingredients, steps, stage }),
-        });
-        const json = (await res.json().catch(() => null)) as { guide?: LittleGuideSet; error?: string } | null;
-        if (!res.ok || !json?.guide) throw new Error(json?.error === 'limit' ? 'limit' : 'error');
-        set = json.guide;
-      }
+      // Written ahead of time for every library recipe; never an AI call here.
+      if (!set) throw new Error('pending');
       if (!alive) return;
       setGuide(set[lang] ?? set.en ?? null);
       setState('done');
-    })().catch((e: Error) => alive && setState(e.message === 'limit' ? 'limit' : 'error'));
+    })().catch((e: Error) => alive && setState(e.message === 'pending' ? 'pending' : 'error'));
     return () => {
       alive = false;
     };
@@ -236,8 +226,8 @@ function StageCard({
           </>
         ) : (
           <p className="text-sm text-[#2F5A40] dark:text-emerald-300">
-            {state === 'limit'
-              ? tr('You’ve opened many new Little Plates today. Try again tomorrow; the safety changes above still apply.')
+            {state === 'pending'
+              ? tr('The step-by-step for little ones isn’t ready for this recipe yet. The safety changes above still apply.')
               : tr('The steps couldn’t load just now. The safety changes above still apply.')}
           </p>
         )}

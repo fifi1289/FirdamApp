@@ -2,20 +2,23 @@ name: tmp-ad-assets
 on:
   push:
     branches: [tmp-ad-assets]
+permissions:
+  contents: write
 jobs:
   fetch:
+    if: "!contains(github.event.head_commit.message, 'ad photos')"
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: |
-          mkdir img && cd img
+          mkdir -p ad-img && cd ad-img
           B=https://psxwslmsjdtfzneoujea.supabase.co/storage/v1/object/public/recipe-images
           curl -fsSL -o tagine.png "$B/tajine-marocain-au-poulet-olives-et-citron.png"
           curl -fsSL -o butterfly.webp "$B/lunchbox/butterfly-sandwich-624f61fd.webp"
           curl -fsSL -o hummus.webp "$B/lunchbox/hummus-garden-254031a0.webp"
           curl -fsSL -o leftover.webp "$B/lunchbox/leftover-dinner-wrap-e27b22fa.webp"
           ls -la
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ad-images
-          path: img
-          retention-days: 1
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add ad-img && git commit -m "ad photos" && git push

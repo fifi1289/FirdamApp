@@ -38,7 +38,7 @@ BEGIN
   LOOP
     EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', 'require_2fa_when_enabled', t.relname);
     EXECUTE format(
-      'CREATE POLICY %I ON public.%I AS RESTRICTIVE FOR ALL TO authenticated USING (public.mfa_satisfied()) WITH CHECK (public.mfa_satisfied())',
+      'CREATE POLICY %I ON public.%I AS RESTRICTIVE FOR ALL TO authenticated USING ((SELECT public.mfa_satisfied())) WITH CHECK ((SELECT public.mfa_satisfied()))',
       'require_2fa_when_enabled', t.relname
     );
   END LOOP;

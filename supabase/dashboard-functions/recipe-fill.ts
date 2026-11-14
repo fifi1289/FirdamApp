@@ -757,8 +757,24 @@ async function translateOne(apiKey: string, meal: TranslatableMeal, lang: "fr" |
     const t = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as Partial<Translated>;
     const okList = (a: unknown, n: number) => Array.isArray(a) && a.length === n && a.every((s) => typeof s === "string" && s.trim());
     if (typeof t.name !== "string" || !t.name.trim()) return null;
+    let name = t.name.trim();
+    if (lang === "ar" && /[A-Za-z]/.test(name)) {
+      // Arabic names are written in Arabic: keep the Arabic part, or ask once for the name alone.
+      let arabic = name.replace(/[A-Za-z\u00C0-\u024F'’-]+/g, " ").replace(/\(\s*\)/g, " ").replace(/\s+/g, " ").trim();
+      if (/^\(.*\)$/.test(arabic) && !/\)\s*\(/.test(arabic)) arabic = arabic.slice(1, -1).trim();
+      if ((arabic.match(/\(/g) ?? []).length !== (arabic.match(/\)/g) ?? []).length) arabic = arabic.replace(/[()]/g, " ").replace(/\s+/g, " ").trim();
+      if (/[\u0600-\u06FF]/.test(arabic)) name = arabic;
+      else {
+        const again = await fetchOpenAI(apiKey, { model: MODEL_shared, temperature: 0, max_tokens: 60, messages: [
+          { role: "system", content: "Write this dish name in Arabic script only (transliterate the dish name, translate any description). Answer with the name only." },
+          { role: "user", content: meal.name } ] });
+        const text = again.ok ? (((await again.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "").trim() : "";
+        if (!/[\u0600-\u06FF]/.test(text) || /[A-Za-z]/.test(text)) return null;
+        name = text;
+      }
+    }
     return {
-      name: t.name.trim(),
+      name,
       description: typeof t.description === "string" ? t.description.trim() : "",
       steps: okList(t.steps, source.steps.length) ? (t.steps as string[]) : [],
       ingredients: okList(t.ingredients, source.ingredients.length) ? (t.ingredients as string[]) : [],
@@ -874,7 +890,8 @@ const FOODS: [RegExp, Per100, Per100?][] = [
   [/\bchickpeas?\b|\bgarbanzo/, [19, 61, 364], [7, 23, 139]],
   [/\b(fava|broad) beans?\b|\bfoul\b|\bful\b/, [26, 58, 341], [7.6, 20, 110]],
   [/\bmung beans?\b/, [24, 63, 347], [7, 19, 105]],
-  [/\b(split )?peas?\b(?! protein)/, [5, 14, 81], [5, 14, 81]],
+  [/\b(split|dried|yellow split|green split) peas?\b|\bfava split peas\b/, [24, 60, 341], [8, 21, 118]],
+  [/\bpeas?\b(?! protein)/, [5, 14, 81], [5, 14, 81]],
   [/\bbeans?\b|\bcowpeas?\b|\blegumes?\b/, [21, 62, 341], [7.5, 23, 130]],
   [/\bquinoa\b/, [14, 64, 368], [4.4, 21, 120]],
   [/\b(basmati|jasmine|brown|white|wild|sticky|glutinous)? ?rice\b(?! (paper|noodles?|vermicelli|flour))/, [7, 79, 360], [2.7, 28, 130]],
@@ -1108,7 +1125,7 @@ async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | n
       {
         role: "user",
         content:
-          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that people in that cuisine actually cook (naturally vegan, or a faithful vegan version of a classic), called by its real name, with an English description in brackets if the name is not English. No invented \"bowls\". Use quinoa only if it is traditional in ${slot.cuisine} cooking.` +
+          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that people in that cuisine actually cook (naturally vegan, or a faithful vegan version of a classic), called by its real name, with an English description in brackets if the name is not English. Its name must not mention meat, fish, eggs, dairy or anything it does not contain. No invented \"bowls\". Use quinoa only if it is traditional in ${slot.cuisine} cooking.` +
           (wants.length ? ` It must be ${wants.join("; ")}.` : "") +
           ` Do not repeat: ${avoidNames.slice(0, 40).join("; ")}.` +
           (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
@@ -1159,6 +1176,10 @@ function problemWith(w: Written, slot: Slot): string | null {
   if (!freeFromEverything(ings, [], tags)) return "contained an allergen, gluten or an animal product";
   // Numbers must be believable: plant food free of soy, nuts and gluten always
   // has at least as many carbs as protein, and the calories must cover both.
+  // The name must not promise a food the recipe doesn't contain (an allergy or a vegan diet relies on it).
+  const named = detectAllergens([w.name]);
+  if (named.size || hasMeat([w.name]) || hasSeafood([w.name]) || /\b(huevos|labneh|mas huni|tuna|keema|shrimp|prawn|chingri)\b/i.test(w.name))
+    return "was named after a food it does not contain (meat, fish, eggs or dairy); choose a dish that is vegan by tradition and name it truthfully";
   if (!w.weighed) return "did not give the weight in grams of every ingredient";
   if (!(w.calories > 0)) return "had no nutrition numbers";
   if (/\b(bowl|medley|delight|power|protein[- ]packed|hash)\b/i.test(w.name)) return "had an invented-sounding name (bowl, medley, delight…); write a real traditional dish and use its real name";

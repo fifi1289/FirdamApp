@@ -432,8 +432,24 @@ async function translateOne(apiKey: string, meal: TranslatableMeal, lang: "fr" |
     const t = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as Partial<Translated>;
     const okList = (a: unknown, n: number) => Array.isArray(a) && a.length === n && a.every((s) => typeof s === "string" && s.trim());
     if (typeof t.name !== "string" || !t.name.trim()) return null;
+    let name = t.name.trim();
+    if (lang === "ar" && /[A-Za-z]/.test(name)) {
+      // Arabic names are written in Arabic: keep the Arabic part, or ask once for the name alone.
+      let arabic = name.replace(/[A-Za-z\u00C0-\u024F'’-]+/g, " ").replace(/\(\s*\)/g, " ").replace(/\s+/g, " ").trim();
+      if (/^\(.*\)$/.test(arabic) && !/\)\s*\(/.test(arabic)) arabic = arabic.slice(1, -1).trim();
+      if ((arabic.match(/\(/g) ?? []).length !== (arabic.match(/\)/g) ?? []).length) arabic = arabic.replace(/[()]/g, " ").replace(/\s+/g, " ").trim();
+      if (/[\u0600-\u06FF]/.test(arabic)) name = arabic;
+      else {
+        const again = await fetchOpenAI(apiKey, { model: MODEL_shared, temperature: 0, max_tokens: 60, messages: [
+          { role: "system", content: "Write this dish name in Arabic script only (transliterate the dish name, translate any description). Answer with the name only." },
+          { role: "user", content: meal.name } ] });
+        const text = again.ok ? (((await again.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "").trim() : "";
+        if (!/[\u0600-\u06FF]/.test(text) || /[A-Za-z]/.test(text)) return null;
+        name = text;
+      }
+    }
     return {
-      name: t.name.trim(),
+      name,
       description: typeof t.description === "string" ? t.description.trim() : "",
       steps: okList(t.steps, source.steps.length) ? (t.steps as string[]) : [],
       ingredients: okList(t.ingredients, source.ingredients.length) ? (t.ingredients as string[]) : [],

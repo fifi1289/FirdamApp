@@ -188,7 +188,7 @@ async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | n
       {
         role: "user",
         content:
-          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that people in that cuisine actually cook (naturally vegan, or a faithful vegan version of a classic), called by its real name, with an English description in brackets if the name is not English. No invented \"bowls\". Use quinoa only if it is traditional in ${slot.cuisine} cooking.` +
+          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that people in that cuisine actually cook (naturally vegan, or a faithful vegan version of a classic), called by its real name, with an English description in brackets if the name is not English. Its name must not mention meat, fish, eggs, dairy or anything it does not contain. No invented \"bowls\". Use quinoa only if it is traditional in ${slot.cuisine} cooking.` +
           (wants.length ? ` It must be ${wants.join("; ")}.` : "") +
           ` Do not repeat: ${avoidNames.slice(0, 40).join("; ")}.` +
           (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
@@ -239,6 +239,10 @@ function problemWith(w: Written, slot: Slot): string | null {
   if (!freeFromEverything(ings, [], tags)) return "contained an allergen, gluten or an animal product";
   // Numbers must be believable: plant food free of soy, nuts and gluten always
   // has at least as many carbs as protein, and the calories must cover both.
+  // The name must not promise a food the recipe doesn't contain (an allergy or a vegan diet relies on it).
+  const named = detectAllergens([w.name]);
+  if (named.size || hasMeat([w.name]) || hasSeafood([w.name]) || /\b(huevos|labneh|mas huni|tuna|keema|shrimp|prawn|chingri)\b/i.test(w.name))
+    return "was named after a food it does not contain (meat, fish, eggs or dairy); choose a dish that is vegan by tradition and name it truthfully";
   if (!w.weighed) return "did not give the weight in grams of every ingredient";
   if (!(w.calories > 0)) return "had no nutrition numbers";
   if (/\b(bowl|medley|delight|power|protein[- ]packed|hash)\b/i.test(w.name)) return "had an invented-sounding name (bowl, medley, delight…); write a real traditional dish and use its real name";

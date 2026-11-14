@@ -31,6 +31,8 @@ export interface EventDraft {
   member_ids: string[];
   repeats_yearly: boolean;
   repeats_weekly: boolean;
+  /** Chosen reminders ([] = none). */
+  reminders: string[];
 }
 
 export async function saveEvent(draft: EventDraft, id?: string): Promise<void> {

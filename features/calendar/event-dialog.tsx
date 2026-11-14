@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import type { FamilyEvent, FamilyEventKind, FamilyMember } from '@/types/database';
 import { EDITABLE_KINDS, EVENT_KINDS } from '@/features/calendar/calendar-config';
 import { FAMILY_EVENTS_CHANGED } from '@/features/calendar/use-calendar';
+import { REMINDER_CHOICES, defaultReminders, eventReminders, type ReminderCode } from '@/features/calendar/calendar-core';
 import { tr, trn } from '@/lib/i18n';
 
 interface EventDialogProps {
@@ -51,7 +52,16 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
   const [notes, setNotes] = useState('');
   const [memberIds, setMemberIds] = useState<string[]>([]);
   const [repeat, setRepeat] = useState<'once' | 'weekly' | 'yearly'>('once');
+  const [reminders, setReminders] = useState<ReminderCode[]>(defaultReminders(false));
   const [saving, setSaving] = useState(false);
+  const choices = REMINDER_CHOICES[allDay ? 'allDay' : 'timed'];
+  const shown = reminders.filter((r) => choices.some((c) => c.code === r));
+  const toggleReminder = (code: ReminderCode) => setReminders((now) => (now.includes(code) ? now.filter((c) => c !== code) : [...now, code]));
+  const pickAllDay = (on: boolean) => {
+    setAllDay(on);
+    // Untouched default: switch to the other kind's default.
+    setReminders((now) => (now.join() === defaultReminders(on).join() || now.join() === defaultReminders(!on).join() ? defaultReminders(!on) : now));
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -65,6 +75,7 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
     setNotes(event?.notes ?? '');
     setMemberIds(event?.member_ids ?? []);
     setRepeat(event?.repeats_weekly ? 'weekly' : event?.repeats_yearly ? 'yearly' : 'once');
+    setReminders(eventReminders(event?.reminders, !!event?.start_time));
   }, [open, event, defaultDate]);
 
   useEffect(() => {
@@ -91,6 +102,7 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
       member_ids: memberIds,
       repeats_yearly: repeat === 'yearly',
       repeats_weekly: repeat === 'weekly',
+      reminders: shown,
       updated_at: new Date().toISOString(),
     };
     setSaving(true);
@@ -167,7 +179,7 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
             <Label htmlFor="ev-allday" className="text-sm">
               {tr('All day')}
             </Label>
-            <Switch id="ev-allday" checked={allDay} onCheckedChange={setAllDay} />
+            <Switch id="ev-allday" checked={allDay} onCheckedChange={pickAllDay} />
           </div>
           {!allDay && (
             <div className="grid grid-cols-2 gap-3">
@@ -246,6 +258,38 @@ export function EventDialog({ open, onOpenChange, event, defaultDate, members }:
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>{tr('Remind me')}</Label>
+            <div className="flex flex-wrap gap-2" role="group" aria-label={tr('Remind me')}>
+              {choices.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  aria-pressed={shown.includes(c.code)}
+                  onClick={() => toggleReminder(c.code)}
+                  className={cn(
+                    'rounded-xl border px-3 py-2 text-sm font-medium transition-colors',
+                    shown.includes(c.code) ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary/40'
+                  )}
+                >
+                  {tr(c.label)}
+                </button>
+              ))}
+              <button
+                type="button"
+                aria-pressed={!shown.length}
+                onClick={() => setReminders([])}
+                className={cn(
+                  'rounded-xl border px-3 py-2 text-sm font-medium transition-colors',
+                  !shown.length ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary/40'
+                )}
+              >
+                {tr('No reminder')}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">{tr('Reminders arrive on the Firdam app on your phone.')}</p>
           </div>
 
           <div className="space-y-1.5">

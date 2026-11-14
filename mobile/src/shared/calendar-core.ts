@@ -62,6 +62,65 @@ export interface CalendarEventRow {
   repeats_yearly: boolean;
   /** Every week on the same weekday (older rows may not have it). */
   repeats_weekly?: boolean | null;
+  /** When to remind (REMINDER_CODES); null = the default, [] = no reminder. */
+  reminders?: string[] | null;
+}
+
+// ---------- Reminders ----------
+
+export type ReminderCode = 'at' | '15m' | '1h' | '1d' | '1w';
+
+/** The reminder choices for an event at a time, and for an all-day event. */
+export const REMINDER_CHOICES: Record<'timed' | 'allDay', { code: ReminderCode; label: string }[]> = {
+  timed: [
+    { code: 'at', label: 'At the start' },
+    { code: '15m', label: '15 minutes before' },
+    { code: '1h', label: '1 hour before' },
+    { code: '1d', label: 'The evening before' },
+    { code: '1w', label: 'A week before' },
+  ],
+  allDay: [
+    { code: 'at', label: 'That morning' },
+    { code: '1d', label: 'The evening before' },
+    { code: '1w', label: 'A week before' },
+  ],
+};
+
+/** Firdam's reminders when the family hasn't chosen. */
+export function defaultReminders(timed: boolean): ReminderCode[] {
+  return timed ? ['1d', '1h'] : ['1d', 'at'];
+}
+
+/** The event's reminders, keeping only the choices that fit an all-day or timed event. */
+export function eventReminders(reminders: string[] | null | undefined, timed: boolean): ReminderCode[] {
+  if (reminders == null) return defaultReminders(timed);
+  const ok = REMINDER_CHOICES[timed ? 'timed' : 'allDay'].map((c) => c.code);
+  return ok.filter((c) => reminders.includes(c));
+}
+
+/**
+ * When each reminder goes off for one day of an event: at the start (or 8 am
+ * that morning), 15 minutes or an hour before, 7 pm the evening before, or
+ * 7 pm a week before.
+ */
+export function reminderMoments(date: string, startTime: string | null | undefined, codes: ReminderCode[]): { code: ReminderCode; when: Date }[] {
+  const day = (offset: number, h: number, m = 0) => {
+    const d = parseISODate(date);
+    d.setDate(d.getDate() + offset);
+    d.setHours(h, m, 0, 0);
+    return d;
+  };
+  const [h, m] = (startTime ?? '').split(':').map(Number);
+  const start = startTime && Number.isFinite(h) ? day(0, h, m || 0) : day(0, 8);
+  return codes.map((code) => ({
+    code,
+    when:
+      code === 'at' ? start
+      : code === '15m' ? new Date(start.getTime() - 15 * 60_000)
+      : code === '1h' ? new Date(start.getTime() - 60 * 60_000)
+      : code === '1d' ? day(-1, 19)
+      : day(-7, 19),
+  }));
 }
 
 export interface CalendarMemberRow {

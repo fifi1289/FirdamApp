@@ -134,7 +134,8 @@ async function findGaps(): Promise<{ gaps: Slot[]; cuisines: string[] }> {
     }
   }
   // Most extras first: one high-protein + low-carb + kid-friendly recipe also fills the easier mixes.
-  gaps.sort((a, b) => bits(b.extras) - bits(a.extras) || a.have - b.have);
+  // Combinations most families pick first; high-protein (often impossible for this food) last.
+  gaps.sort((a, b) => (a.extras & 1) - (b.extras & 1) || bits(b.extras) - bits(a.extras) || a.have - b.have);
   return { gaps, cuisines };
 }
 const bits = (n: number) => (n & 1) + ((n >> 1) & 1) + ((n >> 2) & 1);
@@ -298,7 +299,8 @@ async function skip(slot: Slot, error: string) {
   await rest("recipe_fill_skips?on_conflict=key", {
     method: "POST",
     headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-    body: JSON.stringify({ key, tries: (prev[0]?.tries ?? 0) + 1, last_error: error.slice(0, 300), updated_at: new Date().toISOString() }),
+    // Two honest, weighed-out tries that fell short of a protein or carb target: the food can't reach it.
+    body: JSON.stringify({ key, tries: /^was not (high-protein|low-carb)/.test(error) ? 3 : (prev[0]?.tries ?? 0) + 1, last_error: error.slice(0, 300), updated_at: new Date().toISOString() }),
   });
 }
 

@@ -6,7 +6,7 @@ import { getRemindersOn, loadEvents } from './calendar';
 import { getFastingPrefs, upcomingFasts } from './fasting';
 import { loadMakeup } from './makeup';
 import { makeupReminderDates } from '@/shared/makeup-core';
-import { buildCalendarItems, formatTime, parseISODate, type FastingDay } from '@/shared/calendar-core';
+import { buildCalendarItems, eventReminders, formatTime, parseISODate, reminderMoments, type FastingDay } from '@/shared/calendar-core';
 import { tr } from '@/lib/i18n';
 
 const KIND = 'family-event';
@@ -31,9 +31,9 @@ function at(date: string, hour: number, minute = 0, dayOffset = 0): Date {
 }
 
 /**
- * Replaces the scheduled family-calendar reminders with the next month's:
- * the evening before (7 pm) and, for timed events, an hour before; all-day
- * events on the morning itself (8 am). Sunnah fasts the family chose get a
+ * Replaces the scheduled family-calendar reminders with the next month's, at
+ * the times each event chose (default: 7 pm the evening before, and an hour
+ * before or 8 am that morning). Sunnah fasts the family chose get a
  * reminder at 8 pm the evening before, for suhoor. Days left to make up get a
  * reminder a month and a week before the next Ramadan. Safe to call often.
  */
@@ -65,13 +65,17 @@ export async function scheduleEventAlerts(): Promise<number> {
   }
   for (const it of items) {
     const time = formatTime(it.startTime);
-    alerts.push({ when: at(it.date, 19, 0, -1), title: tr('Tomorrow: {0}', [it.title]), body: time ? tr('At {0}{1}', [time, it.location ? ` · ${it.location}` : '']) : tr('From your family calendar') });
-    if (it.startTime) {
-      const [h, m] = it.startTime.split(':').map(Number);
-      const startAt = at(it.date, h ?? 9, m ?? 0);
-      alerts.push({ when: new Date(startAt.getTime() - 60 * 60_000), title: tr('In an hour: {0}', [it.title]), body: it.location ? tr('At {0}', [it.location]) : tr('At {0}', [time]) });
-    } else {
-      alerts.push({ when: at(it.date, 8), title: tr('Today: {0}', [it.title]), body: tr('From your family calendar') });
+    const where = it.location ? ` · ${it.location}` : '';
+    const codes = eventReminders(it.event?.reminders, !!it.startTime);
+    for (const { code, when } of reminderMoments(it.date, it.startTime, codes)) {
+      const title =
+        code === 'at' ? (it.startTime ? tr('Starting now: {0}', [it.title]) : tr('Today: {0}', [it.title]))
+        : code === '15m' ? tr('In 15 minutes: {0}', [it.title])
+        : code === '1h' ? tr('In an hour: {0}', [it.title])
+        : code === '1d' ? tr('Tomorrow: {0}', [it.title])
+        : tr('In a week: {0}', [it.title]);
+      const body = time ? tr('At {0}{1}', [time, where]) : it.location ? tr('At {0}', [it.location]) : tr('From your family calendar');
+      alerts.push({ when, title, body });
     }
   }
 

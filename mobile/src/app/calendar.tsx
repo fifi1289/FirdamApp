@@ -19,8 +19,11 @@ import { scheduleEventAlerts } from '@/lib/event-alerts';
 import {
   EDITABLE_KINDS,
   EVENT_KIND_LABELS,
+  REMINDER_CHOICES,
   YEARLY_KINDS,
   buildCalendarItems,
+  defaultReminders,
+  eventReminders,
   hijriMonthName,
   formatTime,
   isISODate,
@@ -31,6 +34,7 @@ import {
   type CalendarItem,
   type CalendarMemberRow,
   type HijriLabel,
+  type ReminderCode,
 } from '@/shared/calendar-core';
 import { colors } from '@/theme';
 import { locale, tr } from '@/lib/i18n';
@@ -240,13 +244,15 @@ function MonthGrid({
   hijri: Map<string, HijriLabel>;
 }) {
   const { width } = useWindowDimensions();
-  const cell = Math.floor((Math.min(width, 520) - 40 - 20) / 7);
+  // Seven columns of the grid's own width (the card's padding varies).
+  const [gridWidth, setGridWidth] = useState(0);
+  const cell = Math.floor((gridWidth || Math.min(width, 520) - 100) / 7);
   const cells: (Date | null)[] = [...Array(first.getDay()).fill(null)];
   for (let d = 1; d <= last.getDate(); d++) cells.push(new Date(first.getFullYear(), first.getMonth(), d));
   while (cells.length % 7) cells.push(null);
 
   return (
-    <View>
+    <View onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}>
       <View style={{ flexDirection: 'row' }}>
         {WEEKDAYS.map((w, i) => (
           <T key={i} size={12} weight="bold" color={colors.muted} style={{ width: cell, textAlign: 'center' }}>
@@ -371,9 +377,18 @@ function EventSheet({
   const [notes, setNotes] = useState(event?.notes ?? '');
   const [who, setWho] = useState<string[]>(event?.member_ids ?? []);
   const [repeat, setRepeat] = useState<'once' | 'weekly' | 'yearly'>(event?.repeats_weekly ? 'weekly' : event?.repeats_yearly ? 'yearly' : 'once');
+  const [reminders, setReminders] = useState<ReminderCode[]>(() => eventReminders(event?.reminders, !!event?.start_time));
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const choices = REMINDER_CHOICES[allDay ? 'allDay' : 'timed'];
+  const shown = reminders.filter((r) => choices.some((c) => c.code === r));
+  const toggleReminder = (code: ReminderCode) => setReminders((now) => (now.includes(code) ? now.filter((c) => c !== code) : [...now, code]));
+  const pickAllDay = (on: boolean) => {
+    setAllDay(on);
+    // Untouched default: switch to the other kind's default.
+    setReminders((now) => (now.join() === defaultReminders(on).join() || now.join() === defaultReminders(!on).join() ? defaultReminders(!on) : now));
+  };
 
   const pickKind = (k: CalendarEventKind) => {
     setKind(k);
@@ -402,6 +417,7 @@ function EventSheet({
           member_ids: who,
           repeats_yearly: repeat === 'yearly',
           repeats_weekly: repeat === 'weekly',
+          reminders: shown,
         },
         event?.id,
       );
@@ -435,8 +451,8 @@ function EventSheet({
       </View>
       <DateField label={tr('Date')} value={day} onChange={(v) => { setDay(v); setProblem(null); }} />
       <View style={styles.wrap}>
-        <Chip label={tr('All day')} selected={allDay} onPress={() => setAllDay(true)} />
-        <Chip label={tr('At a time')} selected={!allDay} onPress={() => setAllDay(false)} />
+        <Chip label={tr('All day')} selected={allDay} onPress={() => pickAllDay(true)} />
+        <Chip label={tr('At a time')} selected={!allDay} onPress={() => pickAllDay(false)} />
       </View>
       <View style={styles.wrap}>
         <Chip label={tr('Once')} selected={repeat === 'once'} onPress={() => setRepeat('once')} tone="sage" />
@@ -453,6 +469,17 @@ function EventSheet({
           </View>
         </View>
       ) : null}
+      <View style={{ gap: 6 }}>
+        <T size={13.5} weight="semibold" color={colors.muted}>
+          {tr('Remind me')}
+        </T>
+        <View style={styles.wrap}>
+          {choices.map((c) => (
+            <Chip key={c.code} label={tr(c.label)} selected={shown.includes(c.code)} onPress={() => toggleReminder(c.code)} tone="sage" />
+          ))}
+          <Chip label={tr('No reminder')} selected={!shown.length} onPress={() => setReminders([])} tone="sage" />
+        </View>
+      </View>
       <Field label={tr('Place (optional)')} value={location} onChangeText={setLocation} placeholder={tr('Ottawa Main Mosque')} />
       {members.length ? (
         <View style={{ gap: 6 }}>

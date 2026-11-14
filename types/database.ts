@@ -1128,6 +1128,7 @@ export type Database = {
           member_ids: string[];
           repeats_yearly: boolean;
           repeats_weekly: boolean;
+          reminders: string[] | null;
           created_at: string;
           updated_at: string;
         };
@@ -1144,6 +1145,7 @@ export type Database = {
           member_ids?: string[];
           repeats_yearly?: boolean;
           repeats_weekly?: boolean;
+          reminders?: string[] | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -1158,6 +1160,7 @@ export type Database = {
           member_ids?: string[];
           repeats_yearly?: boolean;
           repeats_weekly?: boolean;
+          reminders?: string[] | null;
           updated_at?: string;
         };
         Relationships: [];

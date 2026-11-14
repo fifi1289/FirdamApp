@@ -419,7 +419,7 @@ async function translateOne(apiKey: string, meal: TranslatableMeal, lang: "fr" |
         role: "system",
         content:
           `You translate halal family recipes from English into ${LANG_NAME[lang]} for a cooking app. ` +
-          "Keep dish names that are known by their own name (tajine, biryani, shawarma…) in their usual form for that language. " +
+          "Keep dish names that are known by their own name (tajine, biryani, shawarma…) in their usual form for that language, but always translate the descriptive words around them, and always write Arabic in Arabic script (never leave an English name). " +
           "Keep every number, temperature and quantity exactly. Keep the same number of steps and ingredients, in the same order. " +
           'Return JSON {"name": string, "description": string, "steps": string[], "ingredients": string[]}.',
       },

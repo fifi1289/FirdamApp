@@ -92,14 +92,20 @@ export function RecipesView({ use }: { use?: string } = {}) {
       return next;
     });
 
+  // Allergies and diets are saved in English ("Eggs", "gluten-free"): show them in the app's language.
+  const word = (w: string) => {
+    const cap = w ? w[0].toUpperCase() + w.slice(1) : w;
+    const t = tr(cap);
+    return t !== cap ? t : tr(w);
+  };
   const active = [
     ...(food ? [{ label: tr('Recipes with {0}', [tr(food).toLowerCase()]), clear: () => setFood(null) }] : []),
-    ...(filters.has('safe') ? [{ label: allergies.length ? 'Safe for my family' : 'Fits my diet', clear: () => toggle('safe') }] : []),
-    ...(filters.has('quick') ? [{ label: '30 min or less', clear: () => toggle('quick') }] : []),
-    ...(filters.has('cook') ? [{ label: 'Cook with what I have', clear: () => toggle('cook') }] : []),
-    ...(meal ? [{ label: meal[0].toUpperCase() + meal.slice(1), clear: () => setMeal(null) }] : []),
-    ...(diet ? [{ label: diet, clear: () => setDiet(null) }] : []),
-    ...(cuisine ? [{ label: cuisine, clear: () => setCuisine(null) }] : []),
+    ...(filters.has('safe') ? [{ label: allergies.length ? tr('Safe for my family') : tr('Fits my diet'), clear: () => toggle('safe') }] : []),
+    ...(filters.has('quick') ? [{ label: tr('30 min or less'), clear: () => toggle('quick') }] : []),
+    ...(filters.has('cook') ? [{ label: tr('Cook with what I have'), clear: () => toggle('cook') }] : []),
+    ...(meal ? [{ label: word(meal), clear: () => setMeal(null) }] : []),
+    ...(diet ? [{ label: word(diet), clear: () => setDiet(null) }] : []),
+    ...(cuisine ? [{ label: tr(cuisine), clear: () => setCuisine(null) }] : []),
   ];
   const activeCount = active.length;
 
@@ -177,8 +183,8 @@ export function RecipesView({ use }: { use?: string } = {}) {
       </Modal>
       <T size={12.5} color={colors.muted}>
         {shown.length > limit ? tr('Showing {0} of {1} recipes', [limit, shown.length]) : tr('{0} recipe{1}', [shown.length, shown.length === 1 ? '' : 's'])}
-        {filters.has('safe') && allergies.length ? tr(' · without {0}', [allergies.join(', ').toLowerCase()]) : ''}
-        {filters.has('safe') && diets.length ? ` · ${diets.join(', ').toLowerCase()}` : ''}
+        {filters.has('safe') && allergies.length ? tr(' · without {0}', [allergies.map(word).join(', ').toLowerCase()]) : ''}
+        {filters.has('safe') && diets.length ? ` · ${diets.map(word).join(', ').toLowerCase()}` : ''}
       </T>
 
       {shown.slice(0, limit).map(({ r, check }) => (
@@ -222,7 +228,7 @@ export function RecipesView({ use }: { use?: string } = {}) {
                 {tr('{0} recipes with “{1}”, but none fit everything your family chose.', [matchingSearch, query.trim()])}
               </T>
               <T size={13.5} color={colors.muted} style={{ lineHeight: 19 }}>
-                {tr('Your family’s choices: {0}. Few recipes meet all of them at once.', [[...diets, ...allergies.map((a) => tr('no {0}', [a.toLowerCase()]))].join(', ').toLowerCase()])}
+                {tr('Your family’s choices: {0}. Few recipes meet all of them at once.', [[...diets.map(word), ...allergies.map((a) => tr('no {0}', [word(a).toLowerCase()]))].join(', ').toLowerCase()])}
               </T>
               <Button label={tr('Show the closest (still allergy-safe)')} onPress={() => setRelaxed(true)} />
             </>

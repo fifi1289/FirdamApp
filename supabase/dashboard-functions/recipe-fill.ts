@@ -858,6 +858,74 @@ async function translateForPlan(apiKey: string, meals: TranslatableMeal[], lang:
   return await mine;
 }
 
+// ── inlined from supabase/functions/_shared/nutrition.ts ──
+/**
+ * Nutrition worked out from ingredient weights with standard food values
+ * (per 100 g, USDA FoodData Central), so a recipe's numbers never depend on
+ * the AI's arithmetic. Covers the plant foods the library filler may use;
+ * anything unknown counts as a vegetable, spices and herbs as nearly nothing.
+ */
+type Per100 = [protein: number, carbs: number, kcal: number];
+const COOKED = /\b(cooked|canned|tinned|drained|boiled)\b/;
+const FOODS: [RegExp, Per100, Per100?][] = [
+  // [match, dry/raw per 100 g, cooked per 100 g]
+  [/\b(red|yellow|split) lentils?\b|\bmasoor\b|\btoor dal\b|\bmoong dal\b|\bdal\b/, [24, 60, 358], [9, 20, 116]],
+  [/\blentils?\b/, [25, 60, 352], [9, 20, 116]],
+  [/\bchickpeas?\b|\bgarbanzo/, [19, 61, 364], [7, 23, 139]],
+  [/\b(fava|broad) beans?\b|\bfoul\b|\bful\b/, [26, 58, 341], [7.6, 20, 110]],
+  [/\bmung beans?\b/, [24, 63, 347], [7, 19, 105]],
+  [/\b(split )?peas?\b(?! protein)/, [5, 14, 81], [5, 14, 81]],
+  [/\bbeans?\b|\bcowpeas?\b|\blegumes?\b/, [21, 62, 341], [7.5, 23, 130]],
+  [/\bquinoa\b/, [14, 64, 368], [4.4, 21, 120]],
+  [/\b(basmati|jasmine|brown|white|wild|sticky|glutinous)? ?rice\b(?! (paper|noodles?|vermicelli|flour))/, [7, 79, 360], [2.7, 28, 130]],
+  [/\brice (noodles?|vermicelli|paper)\b|\bglass noodles\b/, [6, 80, 364], [1.8, 25, 109]],
+  [/\b(rice|corn|maize|chickpea|gram|besan|buckwheat|millet|teff|sorghum|cassava|tapioca|potato) (flour|meal|starch)\b|\bcornmeal\b|\bpolenta\b|\bmasa\b/, [7, 76, 360]],
+  [/\boats?\b|\boatmeal\b/, [13, 67, 389], [2.5, 12, 71]],
+  [/\bbuckwheat\b|\bkasha\b/, [13, 72, 343], [3.4, 20, 92]],
+  [/\bmillet\b|\bsorghum\b|\bteff\b|\bfonio\b|\bamaranth\b/, [11, 73, 370], [3.5, 23, 119]],
+  [/\bcorn tortillas?\b/, [5.7, 45, 218]],
+  [/\bcorn\b|\bmaize\b|\bsweetcorn\b/, [3.3, 19, 86]],
+  [/\bsweet potato(es)?\b|\byams?\b/, [1.6, 20, 86]],
+  [/\bpotato(es)?\b/, [2, 17, 77]],
+  [/\bplantains?\b/, [1.3, 32, 122]],
+  [/\b(cassava|yuca|manioc)\b/, [1.4, 38, 160]],
+  [/\bpumpkin seeds?\b|\bpepitas\b/, [30, 11, 559]],
+  [/\bhemp (seeds?|hearts?)\b/, [32, 9, 553]],
+  [/\bsunflower seeds?\b/, [21, 20, 584]],
+  [/\bchia\b/, [17, 42, 486]],
+  [/\bflax ?seeds?\b|\blinseeds?\b/, [18, 29, 534]],
+  [/\bnutritional yeast\b/, [50, 36, 325]],
+  [/\bcoconut (milk|cream)\b/, [2.3, 6, 230]],
+  [/\b(desiccated|shredded|grated) coconut\b|\bcoconut flakes\b/, [6.9, 24, 660]],
+  [/\bavocados?\b/, [2, 9, 160]],
+  [/\b(oil|ghee)\b/, [0, 0, 884]],
+  [/\b(sugar|jaggery|dates? syrup|maple syrup|agave)\b/, [0, 95, 380]],
+  [/\bdates?\b/, [2.5, 75, 282]],
+  [/\bbananas?\b/, [1.1, 23, 89]],
+  [/\bspinach\b|\bkale\b|\bchard\b|\bsilverbeet\b|\bgreens\b|\bmolokhia\b|\bmulukhiyah\b/, [2.9, 4, 25]],
+  [/\b(apple|pear|mango|orange|berr(y|ies)|grapes?|melon|pineapple|papaya|peach|apricot|plum|fig|pomegranate|kiwi|fruit)s?\b/, [0.8, 14, 60]],
+  [/\bwater\b|\bsalt\b|(?<!bell |green |red |yellow |sweet )\bpepper\b(?!s)|\b(cumin|coriander|turmeric|paprika|cinnamon|cardamom|clove|nutmeg|ginger|garlic powder|chil+i|cayenne|saffron|sumac|thyme|oregano|basil|parsley|cilantro|mint|dill|bay|herbs?|spices?|baking (soda|powder)|yeast|lemon juice|lime juice|vanilla)\b/, [0, 0, 0]],
+];
+const VEG: Per100 = [1.5, 7, 35];
+
+function foodValues(name: string): Per100 {
+  const n = name.toLowerCase();
+  for (const [re, raw, cooked] of FOODS) if (re.test(n)) return cooked && COOKED.test(n) ? cooked : raw;
+  return VEG;
+}
+
+/** Per-serving protein, carbs (g) and calories from ingredient weights in grams. */
+function computeNutrition(ingredients: { name: string; grams: number }[], servings: number) {
+  let p = 0, c = 0, k = 0;
+  for (const i of ingredients) {
+    const g = Number.isFinite(i.grams) && i.grams > 0 ? Math.min(i.grams, 3000) : 0;
+    const [pp, cc, kk] = foodValues(i.name);
+    p += (pp * g) / 100; c += (cc * g) / 100; k += (kk * g) / 100;
+  }
+  const s = Math.max(1, servings);
+  return { protein: Math.round(p / s), carbs: Math.round(c / s), calories: Math.round(k / s) };
+}
+
 // ── recipe-fill ──
 /**
  * Fills the recipe library so every combination of filters a family can pick
@@ -992,6 +1060,8 @@ async function findGaps(): Promise<{ gaps: Slot[]; cuisines: string[] }> {
 const bits = (n: number) => (n & 1) + ((n >> 1) & 1) + ((n >> 2) & 1);
 
 interface Written {
+  /** Every ingredient (but salt-like extras) came with its weight. */
+  weighed: boolean;
   name: string;
   description: string;
   type: string;
@@ -1031,19 +1101,19 @@ async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | n
           "- NO sulphites: no vinegar, wine, dried apricots, raisins or other dried fruit, pickles or molasses. Use lemon or lime juice for sourness.",
           "- No alcohol, no vanilla extract (vanilla powder is fine).",
           "- Name every ingredient plainly (e.g. 'red lentils', 'olive oil'). Quantities for the servings given.",
-          "- Honest nutrition per serving.",
+          "- Honest nutrition per serving, as a nutritionist would calculate it from the quantities. Never adjust the numbers to meet a target: if the dish cannot meet it, give the real numbers.",
         ].join("\n"),
       },
       {
         role: "user",
         content:
-          `Write one ${slot.cuisine} ${slot.meal} recipe that really tastes ${slot.cuisine}.` +
+          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that people in that cuisine actually cook (naturally vegan, or a faithful vegan version of a classic), called by its real name, with an English description in brackets if the name is not English. No invented \"bowls\". Use quinoa only if it is traditional in ${slot.cuisine} cooking.` +
           (wants.length ? ` It must be ${wants.join("; ")}.` : "") +
           ` Do not repeat: ${avoidNames.slice(0, 40).join("; ")}.` +
           (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
           ` Answer as JSON: {"name":"","description":"one sentence","difficulty":"Easy|Medium","prepTime":minutes,"cookTime":minutes,"servings":4,` +
           `"protein":grams per serving,"carbs":grams per serving,"calories":per serving,"kidFriendly":true|false,` +
-          `"ingredients":[{"name":"","quantity":"","unit":""}],"recipe":["step", "..."]}`,
+          `"ingredients":[{"name":"","quantity":"","unit":"","grams":weight in grams of this quantity}],"recipe":["step", "..."]}`,
       },
     ],
   });
@@ -1051,7 +1121,13 @@ async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | n
   const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
   const o = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as Record<string, unknown>;
   const num = (v: unknown, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+  const rawIngredients = (Array.isArray(o.ingredients) ? o.ingredients : []).map((x) => x as Record<string, unknown>);
+  const servings = Math.max(1, Math.round(num(o.servings, 4)));
+  // Nutrition is worked out from the ingredient weights, never taken from the AI.
+  const facts = computeNutrition(rawIngredients.map((x) => ({ name: String(x.name ?? ""), grams: num(x.grams) })), servings);
+  const weighed = rawIngredients.filter((x) => num(x.grams) > 0).length;
   return {
+    weighed: rawIngredients.length > 0 && weighed >= rawIngredients.length - 2,
     name: String(o.name ?? "").trim().slice(0, 120),
     description: String(o.description ?? "").trim().slice(0, 300),
     type: slot.meal[0].toUpperCase() + slot.meal.slice(1),
@@ -1059,13 +1135,12 @@ async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | n
     difficulty: String(o.difficulty ?? "Easy"),
     prepTime: Math.round(num(o.prepTime, 10)),
     cookTime: Math.round(num(o.cookTime, 20)),
-    servings: Math.max(1, Math.round(num(o.servings, 4))),
-    protein: num(o.protein),
-    carbs: num(o.carbs),
-    calories: num(o.calories),
+    servings,
+    protein: facts.protein,
+    carbs: facts.carbs,
+    calories: facts.calories,
     kidFriendly: o.kidFriendly === true,
-    ingredients: (Array.isArray(o.ingredients) ? o.ingredients : [])
-      .map((x) => x as Record<string, unknown>)
+    ingredients: rawIngredients
       .map((x) => ({ name: String(x.name ?? "").trim().slice(0, 80), quantity: String(x.quantity ?? "").trim().slice(0, 20), unit: String(x.unit ?? "").trim().slice(0, 20) }))
       .filter((x) => x.name)
       .slice(0, 25),
@@ -1081,10 +1156,15 @@ function problemWith(w: Written, slot: Slot): string | null {
   if (halal) return `was not halal (${halal})`;
   const tags = w.kidFriendly ? ["kid-friendly"] : [];
   if (!freeFromEverything(ings, [], tags)) return "contained an allergen, gluten or an animal product";
+  // Numbers must be believable: plant food free of soy, nuts and gluten always
+  // has at least as many carbs as protein, and the calories must cover both.
+  if (!w.weighed) return "did not give the weight in grams of every ingredient";
+  if (!(w.calories > 0)) return "had no nutrition numbers";
+  if (/\b(bowl|medley|delight|power|protein[- ]packed|hash)\b/i.test(w.name)) return "had an invented-sounding name (bowl, medley, delight…); write a real traditional dish and use its real name";
   const mask = extrasMask(ings, tags, w.protein, w.carbs);
   if ((mask & slot.extras) !== slot.extras) {
     const missing = EXTRAS.filter((_, i) => slot.extras & (1 << i) && !(mask & (1 << i)));
-    return `was not ${missing.join(" and ").toLowerCase()}`;
+    return `was not ${missing.join(" and ").toLowerCase()}: weighed out, its ingredients give ${w.protein} g protein and ${w.carbs} g carbs per serving. Use larger amounts of lentils, beans, chickpeas or pumpkin seeds, or fewer servings`;
   }
   return null;
 }

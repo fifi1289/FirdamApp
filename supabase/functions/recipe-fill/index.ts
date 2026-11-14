@@ -5,6 +5,7 @@ import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
 import { getUser, isAdminUser } from "../_shared/plan.ts";
 import { photographRecipes } from "../_shared/recipe-image.ts";
 import { translateMeals } from "../_shared/recipe-translate.ts";
+import { computeNutrition } from "../_shared/nutrition.ts";
 
 /**
  * Fills the recipe library so every combination of filters a family can pick
@@ -139,6 +140,8 @@ async function findGaps(): Promise<{ gaps: Slot[]; cuisines: string[] }> {
 const bits = (n: number) => (n & 1) + ((n >> 1) & 1) + ((n >> 2) & 1);
 
 interface Written {
+  /** Every ingredient (but salt-like extras) came with its weight. */
+  weighed: boolean;
   name: string;
   description: string;
   type: string;
@@ -178,19 +181,19 @@ async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | n
           "- NO sulphites: no vinegar, wine, dried apricots, raisins or other dried fruit, pickles or molasses. Use lemon or lime juice for sourness.",
           "- No alcohol, no vanilla extract (vanilla powder is fine).",
           "- Name every ingredient plainly (e.g. 'red lentils', 'olive oil'). Quantities for the servings given.",
-          "- Honest nutrition per serving.",
+          "- Honest nutrition per serving, as a nutritionist would calculate it from the quantities. Never adjust the numbers to meet a target: if the dish cannot meet it, give the real numbers.",
         ].join("\n"),
       },
       {
         role: "user",
         content:
-          `Write one ${slot.cuisine} ${slot.meal} recipe that really tastes ${slot.cuisine}.` +
+          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that people in that cuisine actually cook (naturally vegan, or a faithful vegan version of a classic), called by its real name, with an English description in brackets if the name is not English. No invented \"bowls\". Use quinoa only if it is traditional in ${slot.cuisine} cooking.` +
           (wants.length ? ` It must be ${wants.join("; ")}.` : "") +
           ` Do not repeat: ${avoidNames.slice(0, 40).join("; ")}.` +
           (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
           ` Answer as JSON: {"name":"","description":"one sentence","difficulty":"Easy|Medium","prepTime":minutes,"cookTime":minutes,"servings":4,` +
           `"protein":grams per serving,"carbs":grams per serving,"calories":per serving,"kidFriendly":true|false,` +
-          `"ingredients":[{"name":"","quantity":"","unit":""}],"recipe":["step", "..."]}`,
+          `"ingredients":[{"name":"","quantity":"","unit":"","grams":weight in grams of this quantity}],"recipe":["step", "..."]}`,
       },
     ],
   });
@@ -198,7 +201,13 @@ async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | n
   const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
   const o = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as Record<string, unknown>;
   const num = (v: unknown, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+  const rawIngredients = (Array.isArray(o.ingredients) ? o.ingredients : []).map((x) => x as Record<string, unknown>);
+  const servings = Math.max(1, Math.round(num(o.servings, 4)));
+  // Nutrition is worked out from the ingredient weights, never taken from the AI.
+  const facts = computeNutrition(rawIngredients.map((x) => ({ name: String(x.name ?? ""), grams: num(x.grams) })), servings);
+  const weighed = rawIngredients.filter((x) => num(x.grams) > 0).length;
   return {
+    weighed: rawIngredients.length > 0 && weighed >= rawIngredients.length - 2,
     name: String(o.name ?? "").trim().slice(0, 120),
     description: String(o.description ?? "").trim().slice(0, 300),
     type: slot.meal[0].toUpperCase() + slot.meal.slice(1),
@@ -206,13 +215,12 @@ async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | n
     difficulty: String(o.difficulty ?? "Easy"),
     prepTime: Math.round(num(o.prepTime, 10)),
     cookTime: Math.round(num(o.cookTime, 20)),
-    servings: Math.max(1, Math.round(num(o.servings, 4))),
-    protein: num(o.protein),
-    carbs: num(o.carbs),
-    calories: num(o.calories),
+    servings,
+    protein: facts.protein,
+    carbs: facts.carbs,
+    calories: facts.calories,
     kidFriendly: o.kidFriendly === true,
-    ingredients: (Array.isArray(o.ingredients) ? o.ingredients : [])
-      .map((x) => x as Record<string, unknown>)
+    ingredients: rawIngredients
       .map((x) => ({ name: String(x.name ?? "").trim().slice(0, 80), quantity: String(x.quantity ?? "").trim().slice(0, 20), unit: String(x.unit ?? "").trim().slice(0, 20) }))
       .filter((x) => x.name)
       .slice(0, 25),
@@ -228,10 +236,15 @@ function problemWith(w: Written, slot: Slot): string | null {
   if (halal) return `was not halal (${halal})`;
   const tags = w.kidFriendly ? ["kid-friendly"] : [];
   if (!freeFromEverything(ings, [], tags)) return "contained an allergen, gluten or an animal product";
+  // Numbers must be believable: plant food free of soy, nuts and gluten always
+  // has at least as many carbs as protein, and the calories must cover both.
+  if (!w.weighed) return "did not give the weight in grams of every ingredient";
+  if (!(w.calories > 0)) return "had no nutrition numbers";
+  if (/\b(bowl|medley|delight|power|protein[- ]packed|hash)\b/i.test(w.name)) return "had an invented-sounding name (bowl, medley, delight…); write a real traditional dish and use its real name";
   const mask = extrasMask(ings, tags, w.protein, w.carbs);
   if ((mask & slot.extras) !== slot.extras) {
     const missing = EXTRAS.filter((_, i) => slot.extras & (1 << i) && !(mask & (1 << i)));
-    return `was not ${missing.join(" and ").toLowerCase()}`;
+    return `was not ${missing.join(" and ").toLowerCase()}: weighed out, its ingredients give ${w.protein} g protein and ${w.carbs} g carbs per serving. Use larger amounts of lentils, beans, chickpeas or pumpkin seeds, or fewer servings`;
   }
   return null;
 }

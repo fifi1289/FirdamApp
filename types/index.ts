@@ -15,6 +15,7 @@ export type ModuleId =
   | 'health'
   | 'community'
   | 'travel'
+  | 'weekend'
   | 'newcomer'
   | 'directory'
   | 'services'
@@ -59,6 +60,7 @@ export type ModuleIconName =
   | 'plane'
   | 'store'
   | 'sunrise'
-  | 'signpost';
+  | 'signpost'
+  | 'sun';
 
 export type Theme = 'light' | 'dark' | 'system';

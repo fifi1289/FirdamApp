@@ -51,7 +51,7 @@ const MEAL_FILTERS: { value: MealTypeKey | 'all'; label: string }[] = [
   { value: 'snack', label: 'Snacks & desserts' },
 ];
 
-const DIET_FILTERS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'High-protein', 'Low-carb', 'Kid-friendly'];
+const DIET_FILTERS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'High-protein', 'Low-carb', 'Low-sugar', 'Low-sodium', 'Low-cholesterol', 'Kid-friendly'];
 
 const TIME_FILTERS = [
   { value: 'any', label: 'Any time' },

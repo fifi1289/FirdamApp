@@ -24,7 +24,7 @@ function matchesQuery(r: RecipeRow, q: string): boolean {
 }
 
 const MEALS = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
-const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
+const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Low-sugar', 'Low-sodium', 'Low-cholesterol', 'Kid-friendly'];
 
 /** Recipes shown per page; "Show more" adds the next page. */
 const PAGE_SIZE = 40;

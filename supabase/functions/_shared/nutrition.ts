@@ -13,6 +13,7 @@ const FOODS: [RegExp, Per100, Per100?][] = [
   [/\bchickpeas?\b|\bgarbanzo/, [19, 61, 364], [7, 23, 139]],
   [/\b(fava|broad) beans?\b|\bfoul\b|\bful\b/, [26, 58, 341], [7.6, 20, 110]],
   [/\bmung beans?\b/, [24, 63, 347], [7, 19, 105]],
+  [/\b(black[- ]eyed|pigeon|cow|crowder|field) peas?\b|\bcowpeas?\b|\bgandules\b|\btoor\b/, [22, 62, 336], [7.7, 21, 116]],
   [/\b(split|dried|yellow split|green split) peas?\b|\bfava split peas\b/, [24, 60, 341], [8, 21, 118]],
   [/\bpeas?\b(?! protein)/, [5, 14, 81], [5, 14, 81]],
   [/\bbeans?\b|\bcowpeas?\b|\blegumes?\b/, [21, 62, 341], [7.5, 23, 130]],

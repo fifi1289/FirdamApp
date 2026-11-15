@@ -237,7 +237,7 @@ async function generateFoodImage(apiKey: string, prompt: string, model: string, 
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     // gpt-image models can return compressed WebP directly (much smaller files).
-    body: JSON.stringify({ model, prompt, size: IMAGE_SIZE, quality, n: 1, output_format: "webp", output_compression: 82 }),
+    body: JSON.stringify({ model, prompt, size: IMAGE_SIZE, quality, n: 1, output_format: "webp", output_compression: 60 }),
   });
   if (!res.ok) {
     const text = await res.text();

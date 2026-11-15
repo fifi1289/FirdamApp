@@ -134,31 +134,32 @@ async function photographRecipes(ids: string[], budgetMs: number): Promise<void>
 // ── translations ──
 const LANG_NAME = { fr: "French", ar: "Arabic (Modern Standard, simple everyday words)" } as const;
 const ARABIC = /[؀-ۿ]/;
+const LATIN = /[A-Za-z\u00C0-\u024F]/;
 interface TranslatableMeal { id: string; name: string; description: string; ingredients: { name: string }[]; recipe: string[] }
 async function askName(apiKey: string, instruction: string, name: string): Promise<string> {
   const res = await fetchOpenAI(apiKey, { model: "gpt-4o-mini", temperature: 0, max_tokens: 60, messages: [{ role: "system", content: instruction }, { role: "user", content: name }] });
   return res.ok ? (await aiText(res)).replace(/^["'«]|["'»]$/g, "").trim() : "";
 }
-async function translateMeal(apiKey: string, m: TranslatableMeal, lang: "fr" | "ar"): Promise<void> {
+async function translateMeal(apiKey: string, m: TranslatableMeal, lang: "fr" | "ar"): Promise<boolean> {
   const url = env("SUPABASE_URL")!, key = env("SUPABASE_SERVICE_ROLE_KEY")!;
   const headers = { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
   const source = { name: m.name, description: m.description, steps: m.recipe, ingredients: m.ingredients.map((i) => i.name) };
   const res = await fetchOpenAI(apiKey, { model: "gpt-4o-mini", temperature: 0.2, max_tokens: 2500, response_format: { type: "json_object" }, messages: [
     { role: "system", content: `You translate halal family recipes from English into ${LANG_NAME[lang]} for a cooking app. Keep dish names that are known by their own name (tajine, biryani, shawarma…) in their usual form for that language, but always translate the descriptive words around them, including the words in brackets, and always write Arabic in Arabic script (never leave an English name). Keep every number, temperature and quantity exactly. Keep the same number of steps and ingredients, in the same order. Return JSON {"name": string, "description": string, "steps": string[], "ingredients": string[]}.` },
     { role: "user", content: JSON.stringify(source) } ] });
-  if (!res.ok) return;
+  if (!res.ok) return false;
   const t = JSON.parse((await aiText(res)) || "{}") as { name?: string; description?: string; steps?: string[]; ingredients?: string[] };
   const okList = (a: unknown, n: number) => Array.isArray(a) && a.length === n && a.every((s) => typeof s === "string" && s.trim());
-  if (typeof t.name !== "string" || !t.name.trim()) return;
+  if (typeof t.name !== "string" || !t.name.trim()) return false;
   let name = t.name.trim();
-  if (lang === "ar" && /[A-Za-z]/.test(name)) {
+  if (lang === "ar" && LATIN.test(name)) {
     let arabic = name.replace(/[A-Za-zÀ-ɏ'’-]+/g, " ").replace(/\(\s*\)/g, " ").replace(/\s+/g, " ").trim();
     if (/^\(.*\)$/.test(arabic) && !/\)\s*\(/.test(arabic)) arabic = arabic.slice(1, -1).trim();
     if ((arabic.match(/\(/g) ?? []).length !== (arabic.match(/\)/g) ?? []).length) arabic = arabic.replace(/[()]/g, " ").replace(/\s+/g, " ").trim();
     if (ARABIC.test(arabic)) name = arabic;
     else {
       const text = await askName(apiKey, "Write this dish name in Arabic script only (transliterate the dish name, translate any description). Answer with the name only.", m.name);
-      if (!ARABIC.test(text) || /[A-Za-z]/.test(text)) return;
+      if (!ARABIC.test(text) || LATIN.test(text)) return false;
       name = text;
     }
   }
@@ -168,7 +169,8 @@ async function translateMeal(apiKey: string, m: TranslatableMeal, lang: "fr" | "
     name = text && !ARABIC.test(text) ? text : m.name;
   }
   const steps = okList(t.steps, source.steps.length) ? t.steps! : [];
-  await fetch(`${url}/rest/v1/rpc/save_recipe_translations`, { method: "POST", headers, body: JSON.stringify({ rows: [{ recipe_id: m.id, lang, name, short_description: t.description?.trim() || null, steps }] }) });
+  const saved = await fetch(`${url}/rest/v1/rpc/save_recipe_translations`, { method: "POST", headers, body: JSON.stringify({ rows: [{ recipe_id: m.id, lang, name, short_description: t.description?.trim() || null, steps }] }) });
+  if (!saved.ok) return false;
   if (okList(t.ingredients, source.ingredients.length)) {
     const rows = source.ingredients.map((en, j) => ({ name_en: en.trim().toLowerCase(), lang, name: t.ingredients![j] })).filter((f) => f.name_en.length <= 120 && f.name.length <= 120);
     const known = await fetch(`${url}/rest/v1/food_translations?select=name_en&lang=eq.${lang}&name_en=in.(${encodeURIComponent(rows.map((f) => `"${f.name_en.replace(/"/g, "")}"`).join(","))})`, { headers }).then((r) => (r.ok ? (r.json() as Promise<{ name_en: string }[]>) : [])).catch(() => [] as { name_en: string }[]);
@@ -176,6 +178,7 @@ async function translateMeal(apiKey: string, m: TranslatableMeal, lang: "fr" | "
     const fresh = Array.from(new Map(rows.filter((f) => !have.has(f.name_en)).map((f) => [f.name_en, f])).values());
     if (fresh.length) await fetch(`${url}/rest/v1/rpc/save_food_translations`, { method: "POST", headers, body: JSON.stringify({ rows: fresh }) });
   }
+  return true;
 }
 
 // ── nutrition from ingredient weights (per 100 g: protein, carbs, kcal; raw, cooked) ──
@@ -299,9 +302,11 @@ async function cuisineGaps(): Promise<CuisineSlot[]> {
   const gaps: CuisineSlot[] = [];
   for (const c of cuisines) {
     const mine = rows.filter((r) => r.cuisine_id === c.id);
+    // One shared list per cuisine, so dishes written in the same run see each other.
+    const all = mine.map((r) => r.name);
     for (const meal of MEALS) {
       const names = mine.filter((r) => mealKey(r.meal_type?.name) === meal).map((r) => r.name);
-      if (names.length < PER_MEAL && !skipped.has(`cuisine|${c.name}|${meal}`)) gaps.push({ cuisine: c.name, meal, have: names.length, names, all: mine.map((r) => r.name) });
+      if (names.length < PER_MEAL && !skipped.has(`cuisine|${c.name}|${meal}`)) gaps.push({ cuisine: c.name, meal, have: names.length, names, all });
     }
   }
   return gaps.sort((a, b) => a.have - b.have);
@@ -438,7 +443,10 @@ async function fillCuisines(limit: number): Promise<{ made: string[]; rejected: 
           made.push(`${w.name} (${slot.cuisine} ${slot.meal})`);
           ids.push(saved);
           slot.all.push(w.name);
-          for (const lang of ["fr", "ar"] as const) await translateMeal(apiKey, { id: saved, name: w.name, description: w.description, ingredients: w.ingredients, recipe: w.recipe }, lang).catch((e) => console.error("translate", e));
+          const meal = { id: saved, name: w.name, description: w.description, ingredients: w.ingredients, recipe: w.recipe };
+          for (const lang of ["fr", "ar"] as const) {
+            for (let t = 0; t < 2; t++) if (await translateMeal(apiKey, meal, lang).catch((e) => { console.error("translate", e); return false; })) break;
+          }
         }
       } catch (e) { problem = (e as Error).message; console.error("recipe-fill cuisine", slot.cuisine, slot.meal, problem); }
     }

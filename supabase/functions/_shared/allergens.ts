@@ -150,6 +150,39 @@ export function conflictsWithAllergies(
   });
 }
 
+/** True when two allergy names mean the same thing ("Milk" and "Dairy", "nuts" and "Tree nuts"). */
+export function sameAllergy(a: string, b: string): boolean {
+  const ra = ruleForAllergy(a), rb = ruleForAllergy(b);
+  if (ra || rb) return !!ra && !!rb && ra.name === rb.name;
+  return singular(normalize(a)) === singular(normalize(b));
+}
+
+export interface MemberAllergies {
+  first_name: string;
+  allergies?: string[] | null;
+}
+
+/**
+ * Who in the family can't eat a food. An allergy that isn't given to anyone counts for
+ * everyone, so the family is never told a food is safe when we don't know who avoids it.
+ * `people` counts everyone eating (members, plus the account holder when they aren't listed).
+ */
+export function whoAvoids(
+  food: string,
+  familyAllergies: string[],
+  members: MemberAllergies[],
+  people: number,
+): { allergies: string[]; everyone: boolean; names: string[] } {
+  const all = [...familyAllergies];
+  for (const m of members) for (const a of m.allergies ?? []) if (!all.some((x) => sameAllergy(x, a))) all.push(a);
+  const hit = all.filter((a) => conflictsWithAllergies([food], [a]));
+  if (!hit.length) return { allergies: [], everyone: false, names: [] };
+  const holders = (a: string) => members.filter((m) => (m.allergies ?? []).some((x) => sameAllergy(x, a)));
+  if (hit.some((a) => holders(a).length === 0)) return { allergies: hit, everyone: true, names: [] };
+  const avoiding = members.filter((m) => hit.some((a) => (m.allergies ?? []).some((x) => sameAllergy(x, a))));
+  return { allergies: hit, everyone: avoiding.length >= Math.max(people, members.length), names: avoiding.map((m) => m.first_name) };
+}
+
 export type Diet = 'Vegetarian' | 'Vegan' | 'Pescatarian' | 'Gluten-free' | 'Dairy-free' | 'Low-carb' | 'High-protein' | 'Kid-friendly';
 
 export function hasMeat(ingredients: string[]): boolean {

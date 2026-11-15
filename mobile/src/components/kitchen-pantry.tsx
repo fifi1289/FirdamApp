@@ -15,7 +15,7 @@ import { groupByAisle, guessCategory, parseQuickAdd, toPantryUnit } from '@/shar
 import { haramItemMessage } from '@/shared/halal';
 import { effectiveExpiry, estimateExpiry, isNonFood, shelfLife } from '@/shared/kitchen-items';
 import { formatAmount } from '@/shared/pantry-units';
-import { avoidedAllergens } from '@/lib/expiry-alerts';
+import { whoAvoids } from '@/shared/allergens';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 import { locale, tr } from '@/lib/i18n';
@@ -75,11 +75,11 @@ export function PantryView() {
       k.pantry
         .map((i) => {
           const e = effectiveExpiry(i);
-          return { i, d: daysLeft(e.date), estimated: e.estimated, life: shelfLife(i.name, i.category), avoid: avoidedAllergens(i.name, k.prefs?.allergies ?? []) };
+          return { i, d: daysLeft(e.date), estimated: e.estimated, life: shelfLife(i.name, i.category), who: whoAvoids(i.name, k.prefs?.allergies ?? [], k.household?.members ?? [], k.household?.people ?? 1) };
         })
         .filter((x) => x.d != null && x.d <= 3)
         .sort((a, b) => (a.d ?? 0) - (b.d ?? 0)),
-    [k.pantry, k.prefs?.allergies],
+    [k.pantry, k.prefs?.allergies, k.household],
   );
   const removeItem = async (item: PantryItem) => {
     Haptics.selectionAsync().catch(() => {});
@@ -197,7 +197,7 @@ export function PantryView() {
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
             {tr('USE SOON')}
           </T>
-          {soon.map(({ i, d, estimated, life, avoid }, idx) => (
+          {soon.map(({ i, d, estimated, life, who }, idx) => (
             <View key={i.id} style={[{ gap: 6 }, idx < soon.length - 1 && styles.soonLine]}>
               <Pressable accessibilityRole="button" accessibilityHint={tr('Edit amount or expiry date')} onPress={() => setEditing(i)} style={styles.soonRow}>
                 <T size={15} weight="semibold" style={{ flex: 1 }}>
@@ -212,16 +212,22 @@ export function PantryView() {
                   tone={d! <= 0 && !estimated ? 'brick' : 'amber'}
                 />
               </Pressable>
-              {avoid.length ? (
+              {who.everyone ? (
                 <View style={styles.avoid}>
                   <T size={13.5} color={colors.brickText} style={{ lineHeight: 19 }}>
-                    {tr('Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.', [tr(avoid[0]!).toLowerCase()])}
+                    {tr('Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.', [tr(who.allergies[0]!).toLowerCase()])}
                   </T>
                   <Pressable accessibilityRole="button" hitSlop={6} onPress={() => removeItem(i)}>
                     <T size={13.5} weight="bold" color={colors.brickText}>
                       {tr('Remove from pantry ›')}
                     </T>
                   </Pressable>
+                </View>
+              ) : who.names.length ? (
+                <View style={styles.avoid}>
+                  <T size={13.5} color={colors.brickText} style={{ lineHeight: 19 }}>
+                    {tr('{0} avoids {1}. Cook it for the others and keep {0}’s portion separate.', [who.names.join(tr(' and ')), tr(who.allergies[0]!).toLowerCase()])}
+                  </T>
                 </View>
               ) : life ? (
                 <T size={13.5} color="#4A3F39" style={{ lineHeight: 19 }}>
@@ -231,14 +237,23 @@ export function PantryView() {
                   {tr(life.save)}
                 </T>
               ) : null}
-              {avoid.length ? null : (
+              {who.everyone ? null : (
                 <Pressable
                   accessibilityRole="link"
                   hitSlop={6}
-                  onPress={() => router.push({ pathname: '/kitchen', params: { section: 'recipes', use: i.name } })}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/kitchen',
+                      params: who.names.length
+                        ? { section: 'recipes', use: i.name, allow: who.allergies.join(','), except: who.names.join(',') }
+                        : { section: 'recipes', use: i.name },
+                    })
+                  }
                 >
                   <T size={13.5} weight="bold" color={colors.walnut}>
-                    {tr('Recipes with {0} ›', [tr(i.name).toLowerCase()])}
+                    {who.names.length
+                      ? tr('Recipes with {0} for everyone except {1} ›', [tr(i.name).toLowerCase(), who.names.join(tr(' and '))])
+                      : tr('Recipes with {0} ›', [tr(i.name).toLowerCase()])}
                   </T>
                 </Pressable>
               )}

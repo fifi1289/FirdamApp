@@ -93,7 +93,7 @@ export async function loadChoices(): Promise<{ allergies: string[]; diets: strin
 }
 
 export async function loadHousehold(): Promise<Household> {
-  const { data } = await supabase.from('family_members').select('birth_date, relationship, portion');
+  const { data } = await supabase.from('family_members').select('first_name, birth_date, relationship, portion, allergies');
   const members = (data ?? []) as { birth_date: string | null; relationship: string }[];
   // No family members added yet: just the account holder.
   return householdFrom(members);

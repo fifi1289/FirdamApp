@@ -5,7 +5,8 @@ import { Platform } from 'react-native';
 import { alertsAllowed } from './adhan-alerts';
 import type { PantryItem } from './db-types';
 import { tr } from '@/lib/i18n';
-import { conflictsWithAllergies } from '@/shared/allergens';
+import { whoAvoids } from '@/shared/allergens';
+import type { Household } from '@/shared/pantry-portions';
 import { effectiveExpiry } from '@/shared/kitchen-items';
 
 const KIND = 'pantry-expiry';
@@ -25,11 +26,6 @@ export async function setExpiryAlertsOn(on: boolean): Promise<void> {
   await AsyncStorage.setItem(ON_KEY, on ? 'on' : 'off').catch(() => {});
 }
 
-/** The family's allergies that rule this food out ("Eggs" for "eggs"), empty when it's safe. */
-export function avoidedAllergens(name: string, allergies: string[]): string[] {
-  return allergies.filter((a) => conflictsWithAllergies([name], [a]));
-}
-
 function list(names: string[]): string {
   const shown = names.slice(0, 4).map((n) => tr(n));
   return names.length > 4 ? `${shown.join(tr(', '))}${tr(', ')}+${names.length - 4}` : shown.join(tr(', '));
@@ -38,10 +34,10 @@ function list(names: string[]): string {
 let timer: ReturnType<typeof setTimeout> | null = null;
 
 /** Re-plans the reminders shortly after the pantry or the allergies change. */
-export function rescheduleExpiryAlerts(pantry: PantryItem[], allergies: string[]): void {
+export function rescheduleExpiryAlerts(pantry: PantryItem[], allergies: string[], household: Household | null): void {
   if (timer) clearTimeout(timer);
   timer = setTimeout(() => {
-    scheduleExpiryAlerts(pantry, allergies).catch(() => {});
+    scheduleExpiryAlerts(pantry, allergies, household).catch(() => {});
   }, 1500);
 }
 
@@ -50,7 +46,7 @@ export function rescheduleExpiryAlerts(pantry: PantryItem[], allergies: string[]
  * "Use within 2 days: eggs, tomatoes". Food the family is allergic to gets
  * "give it away" instead of recipes, since no recipe with it would be safe.
  */
-export async function scheduleExpiryAlerts(pantry: PantryItem[], allergies: string[]): Promise<void> {
+export async function scheduleExpiryAlerts(pantry: PantryItem[], allergies: string[], household: Household | null): Promise<void> {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   await Promise.all(
     scheduled
@@ -60,23 +56,28 @@ export async function scheduleExpiryAlerts(pantry: PantryItem[], allergies: stri
   if (!(await alertsAllowed()) || !(await getExpiryAlertsOn())) return;
 
   const now = Date.now();
-  const days = new Map<string, { when: Date; soon: Map<number, string[]>; avoid: string[] }>();
+  const days = new Map<string, { when: Date; soon: Map<number, string[]>; avoid: string[]; some: Map<string, string[]> }>();
   for (const item of pantry) {
     if (item.tracking === 'level') continue;
     const { date } = effectiveExpiry(item);
     if (!date) continue;
-    const allergic = avoidedAllergens(item.name, allergies).length > 0;
+    const who = whoAvoids(item.name, allergies, household?.members ?? [], household?.people ?? 1);
     for (const before of DAYS_BEFORE) {
       const when = new Date(`${date}T00:00:00`);
       when.setDate(when.getDate() - before);
       when.setHours(HOUR, 0, 0, 0);
       if (when.getTime() <= now || when.getTime() > now + MAX_DAYS * 86_400_000) continue;
       const key = when.toDateString();
-      const day = days.get(key) ?? { when, soon: new Map<number, string[]>(), avoid: [] };
-      if (allergic) {
+      const day = days.get(key) ?? { when, soon: new Map<number, string[]>(), avoid: [], some: new Map<string, string[]>() };
+      if (who.everyone) {
         if (!day.avoid.includes(item.name)) day.avoid.push(item.name);
       } else {
         day.soon.set(before, [...(day.soon.get(before) ?? []), item.name]);
+        // Food only some of the family avoids: say who, so their portion is kept separate.
+        if (who.names.length) {
+          const names = who.names.join(tr(' and '));
+          if (!(day.some.get(names) ?? []).includes(item.name)) day.some.set(names, [...(day.some.get(names) ?? []), item.name]);
+        }
       }
       days.set(key, day);
     }
@@ -91,6 +92,7 @@ export async function scheduleExpiryAlerts(pantry: PantryItem[], allergies: stri
     const twoDays = day.soon.get(2);
     if (tomorrow?.length) lines.push(tr('Use by tomorrow: {0}.', [list(tomorrow)]));
     if (twoDays?.length) lines.push(tr('Use within 2 days: {0}.', [list(twoDays)]));
+    for (const [names, foods] of day.some) lines.push(tr('Not for {0}: {1}.', [names, list(foods)]));
     if (day.avoid.length) lines.push(tr('Your family avoids {0}: give it to a neighbour or a food bank before it goes to waste.', [list(day.avoid)]));
     await Notifications.scheduleNotificationAsync({
       content: {

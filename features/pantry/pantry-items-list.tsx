@@ -59,7 +59,7 @@ import {
 import { locale, tr, trn } from '@/lib/i18n';
 import Link from 'next/link';
 import { effectiveExpiry, shelfLife } from '@/supabase/functions/_shared/kitchen-items';
-import { conflictsWithAllergies } from '@/lib/recipes/allergens';
+import { whoAvoids, type MemberAllergies } from '@/lib/recipes/allergens';
 
 export { PANTRY_ITEMS_CHANGED } from '@/features/pantry/pantry-item-form-dialog';
 
@@ -136,17 +136,18 @@ function relativeExpiration(iso: string | null): string | null {
 
 function PantryItemCard({
   item,
-  allergies,
+  family,
   onEdit,
   onDelete,
 }: {
   item: PantryItem;
-  allergies: string[];
+  family: { allergies: string[]; members: MemberAllergies[]; people: number };
   onEdit: (item: PantryItem) => void;
   onDelete: (item: PantryItem) => void;
 }) {
-  // A food the family is allergic to gets no recipes (none would be safe), only what to do with it.
-  const avoid = allergies.filter((a) => conflictsWithAllergies([item.name], [a]));
+  // A food everyone avoids gets no recipes (none would be safe), only what to do with it;
+  // a food only some avoid gets recipes for the others.
+  const who = whoAvoids(item.name, family.allergies, family.members, family.people);
   const Icon = CATEGORY_ICONS[item.category] ?? Archive;
   // Items without a typed date get an estimate (≈) from the day they were added.
   const eff = effectiveExpiry(item);
@@ -229,9 +230,9 @@ function PantryItemCard({
               </p>
             </div>
           )}
-          {exp && exp.status !== 'fresh' && avoid.length > 0 ? (
+          {exp && exp.status !== 'fresh' && who.everyone ? (
             <div className="mt-2 rounded-lg bg-destructive/10 p-2.5 text-xs leading-relaxed text-destructive">
-              {tr('Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.', [tr(avoid[0]!).toLowerCase()])}
+              {tr('Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.', [trn(who.allergies[0]!).toLowerCase()])}
               <button type="button" onClick={() => onDelete(item)} className="mt-1 block font-semibold hover:underline">
                 {tr('Remove from pantry ›')}
               </button>
@@ -240,11 +241,22 @@ function PantryItemCard({
             <div className="mt-2 rounded-lg bg-brand-sage/10 p-2.5 text-xs leading-relaxed text-foreground/80">
               <span className="font-semibold text-brand-sage">{tr('Save it: ')}</span>
               {tr(life.save)}
+              {who.names.length > 0 && (
+                <span className="mt-1 block text-destructive">
+                  {tr('{0} avoids {1}. Cook it for the others and keep {0}’s portion separate.', [who.names.join(tr(' and ')), trn(who.allergies[0]!).toLowerCase()])}
+                </span>
+              )}
               <Link
-                href={`/dashboard/recipes?use=${encodeURIComponent(item.name)}`}
+                href={
+                  who.names.length
+                    ? `/dashboard/recipes?use=${encodeURIComponent(item.name)}&allow=${encodeURIComponent(who.allergies.join(','))}&except=${encodeURIComponent(who.names.join(','))}`
+                    : `/dashboard/recipes?use=${encodeURIComponent(item.name)}`
+                }
                 className="mt-1 block font-semibold text-primary hover:underline"
               >
-                {tr('Recipes with {0} ›', [trn(item.name).toLowerCase()])}
+                {who.names.length
+                  ? tr('Recipes with {0} for everyone except {1} ›', [trn(item.name).toLowerCase(), who.names.join(tr(' and '))])
+                  : tr('Recipes with {0} ›', [trn(item.name).toLowerCase()])}
               </Link>
             </div>
           )}
@@ -340,13 +352,20 @@ export function PantryItemsList() {
   const [deletingItem, setDeletingItem] = useState<PantryItem | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [allergies, setAllergies] = useState<string[]>([]);
+  const [family, setFamily] = useState<{ allergies: string[]; members: MemberAllergies[]; people: number }>({ allergies: [], members: [], people: 1 });
   useEffect(() => {
-    supabase
-      .from('meal_preferences')
-      .select('allergies')
-      .maybeSingle()
-      .then(({ data }) => setAllergies(((data as { allergies?: string[] | null } | null)?.allergies ?? []).filter(Boolean)));
+    Promise.all([
+      supabase.from('meal_preferences').select('allergies').maybeSingle(),
+      supabase.from('family_members').select('first_name, relationship, allergies'),
+    ]).then(([p, m]) => {
+      const members = (m.data ?? []) as { first_name: string; relationship: string; allergies: string[] | null }[];
+      setFamily({
+        allergies: (((p.data as { allergies?: string[] | null } | null)?.allergies) ?? []).filter(Boolean),
+        members,
+        // The account holder eats too, unless they're listed as "Self".
+        people: members.length + (members.some((x) => x.relationship === 'Self') ? 0 : 1),
+      });
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -519,7 +538,7 @@ export function PantryItemsList() {
               <PantryItemCard
                 key={item.id}
                 item={item}
-                allergies={allergies}
+                family={family}
                 onEdit={startEdit}
                 onDelete={(i) => {
                   setDeletingItem(i);

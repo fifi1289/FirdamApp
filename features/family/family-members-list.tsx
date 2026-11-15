@@ -141,6 +141,11 @@ function FamilyMemberCard({
               </span>
             )}
           </div>
+          {(member.allergies ?? []).length > 0 && (
+            <p className="mt-1.5 text-xs font-medium text-destructive">
+              {tr('avoids {0}', [(member.allergies ?? []).map((a) => trn(a).toLowerCase()).join(tr(', '))])}
+            </p>
+          )}
           {member.notes && (
             <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
               {trn(member.notes)}

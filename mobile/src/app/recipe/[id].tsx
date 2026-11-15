@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { sameAllergy } from '@/shared/allergens';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -92,6 +93,12 @@ export default function RecipeScreen() {
   }
 
   const safe = isSafeFor(recipe, allergies);
+  // When only some of the family has the allergy, say who the recipe isn't for.
+  const members = k.household?.members ?? [];
+  const clashes = safe ? [] : allergies.filter((a) => !isSafeFor(recipe, [a]));
+  const notFor = members.filter((m) => m.allergies.some((x) => clashes.some((a) => sameAllergy(a, x))));
+  const everyoneAvoids =
+    !clashes.length || clashes.some((a) => !members.some((m) => m.allergies.some((x) => sameAllergy(a, x)))) || notFor.length >= Math.max(k.household?.people ?? 1, members.length);
   const found = recipeAllergens(recipe);
   const familyDiets = k.prefs?.dietaryPreferences ?? [];
   const missedDiets = familyDiets.filter((d) => !fitsDiets(recipe, [d]));
@@ -141,7 +148,7 @@ export default function RecipeScreen() {
 
           <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
             {allergies.length ? (
-              <Badge label={safe ? tr('Safe: no {0}', [allergies.join(', ').toLowerCase()]) : tr('Contains a family allergy')} tone={safe ? 'sage' : 'brick'} />
+              <Badge label={safe ? tr('Safe: no {0}', [allergies.join(', ').toLowerCase()]) : everyoneAvoids ? tr('Contains a family allergy') : tr('Not for {0}', [notFor.map((m) => m.first_name).join(tr(' and '))])} tone={safe ? 'sage' : 'brick'} />
             ) : null}
             <Badge label={tr('Halal ingredients')} tone="walnut" />
             {found.length && !allergies.length ? <Badge label={tr('Contains {0}', [found.join(', ').toLowerCase()])} tone="amber" /> : null}

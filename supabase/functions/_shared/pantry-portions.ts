@@ -5,6 +5,9 @@ export interface MemberLike {
   relationship: string;
   /** Set by the family (1 = adult portion); otherwise worked out from age. */
   portion?: number | null;
+  first_name?: string | null;
+  /** This person's own allergies (the family list says what shared meals avoid). */
+  allergies?: string[] | null;
 }
 
 export function portionFor(member: MemberLike): number {
@@ -27,6 +30,8 @@ export interface Household {
   portions: number;
   people: number;
   children: number;
+  /** Who has which allergy, for food only some of the family avoids. */
+  members?: { first_name: string; allergies: string[] }[];
 }
 
 export function householdFrom(members: MemberLike[]): Household {
@@ -37,6 +42,7 @@ export function householdFrom(members: MemberLike[]): Household {
     portions: Math.max(1, Math.round(raw * 4) / 4),
     people: members.length + (hasSelf ? 0 : 1),
     children: members.filter((m) => portionFor(m) < 1).length,
+    members: members.map((m) => ({ first_name: m.first_name ?? '', allergies: (m.allergies ?? []).filter(Boolean) })),
   };
 }
 

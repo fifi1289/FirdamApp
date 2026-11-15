@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -29,12 +29,15 @@ import {
   type FamilyRelationship,
 } from '@/types/database';
 import { tr, trn } from '@/lib/i18n';
+import { sameAllergy } from '@/lib/recipes/allergens';
 
 export interface FamilyMemberFormValues {
   first_name: string;
   relationship: FamilyRelationship;
   birth_date: string;
   notes: string;
+  /** What this person can't eat. */
+  allergies: string[];
 }
 
 export function emptyMemberValues(): FamilyMemberFormValues {
@@ -43,6 +46,7 @@ export function emptyMemberValues(): FamilyMemberFormValues {
     relationship: 'Other',
     birth_date: '',
     notes: '',
+    allergies: [],
   };
 }
 
@@ -52,6 +56,7 @@ export function memberToValues(member: FamilyMember): FamilyMemberFormValues {
     relationship: member.relationship,
     birth_date: member.birth_date ?? '',
     notes: member.notes ?? '',
+    allergies: member.allergies ?? [],
   };
 }
 
@@ -76,6 +81,25 @@ export function FamilyMemberFormDialog({
 }: FamilyMemberFormDialogProps) {
   const supabase = createSupabaseBrowserClient();
   const [submitting, setSubmitting] = useState(false);
+  // The family's allergies first, then the usual ones.
+  const [options, setOptions] = useState<string[]>([]);
+  useEffect(() => {
+    if (!open) return;
+    Promise.all([
+      supabase.from('meal_preferences').select('allergies').maybeSingle(),
+      supabase.from('allergens').select('name').order('name'),
+    ]).then(([p, a]) => {
+      const all = [...(((p.data as { allergies?: string[] | null } | null)?.allergies) ?? []), ...((a.data ?? []) as { name: string }[]).map((r) => r.name)];
+      setOptions(all.filter((x, i) => all.findIndex((y) => sameAllergy(x, y)) === i));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+  const toggleAllergy = (a: string) =>
+    update({
+      allergies: values.allergies.some((b) => sameAllergy(a, b))
+        ? values.allergies.filter((b) => !sameAllergy(a, b))
+        : [...values.allergies, a],
+    });
 
   const isEdit = mode === 'edit';
   const update = (patch: Partial<FamilyMemberFormValues>) =>
@@ -91,6 +115,7 @@ export function FamilyMemberFormDialog({
       relationship: values.relationship,
       birth_date: values.birth_date || null,
       notes: values.notes.trim() || null,
+      allergies: values.allergies,
     };
 
     setSubmitting(true);
@@ -113,6 +138,15 @@ export function FamilyMemberFormDialog({
         { description: result.error.message }
       );
       return;
+    }
+    // Shared meals stay safe for everyone: a person's allergy is added to the family's list.
+    if (values.allergies.length) {
+      const { data: prefs } = await supabase.from('meal_preferences').select('allergies').maybeSingle();
+      const family = ((prefs as { allergies?: string[] | null } | null)?.allergies ?? []) as string[];
+      const missing = values.allergies.filter((a) => !family.some((b) => sameAllergy(a, b)));
+      if (missing.length) {
+        await supabase.from('meal_preferences').upsert({ allergies: [...family, ...missing], updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      }
     }
     onOpenChange(false);
     toast.success(isEdit ? tr('Member updated') : tr('Member added to family'));
@@ -172,6 +206,28 @@ export function FamilyMemberFormDialog({
               <p className="text-xs text-muted-foreground">
                 {tr('We\'ll automatically calculate their age from this date.')}
               </p>
+            </div>
+            <div className="space-y-2">
+              <Label>{tr('Allergies')}</Label>
+              <p className="text-xs text-muted-foreground">
+                {tr('What this person can’t eat. Shared meals stay safe for everyone; food only some of you avoid can still be cooked for the others.')}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {options.map((a) => {
+                  const on = values.allergies.some((b) => sameAllergy(a, b));
+                  return (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => toggleAllergy(a)}
+                      aria-pressed={on}
+                      className={'rounded-full border px-3 py-1 text-xs font-medium transition-colors ' + (on ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:bg-muted')}
+                    >
+                      {trn(a)}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="member-notes">{tr('Notes (optional)')}</Label>

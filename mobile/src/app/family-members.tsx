@@ -6,8 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DateField } from '@/components/date-field';
 import { Chip } from '@/components/kitchen-ui';
 import { Button, Card, Field, T } from '@/components/ui';
-import { loadHousehold } from '@/lib/kitchen';
-import { patchKitchen } from '@/lib/kitchen-store';
+import { loadChoices, loadHousehold, loadPreferences, savePreferences } from '@/lib/kitchen';
+import { patchKitchen, useKitchen } from '@/lib/kitchen-store';
+import { sameAllergy } from '@/shared/allergens';
 import { supabase } from '@/lib/supabase';
 import { formatPortions, portionFor } from '@/shared/pantry-portions';
 import { colors } from '@/theme';
@@ -32,11 +33,12 @@ interface Member {
   relationship: string;
   birth_date: string | null;
   portion: number | null;
+  allergies: string[] | null;
 }
 
-type Draft = { id: string | null; first_name: string; relationship: string; birth_date: string; portion: number | null };
+type Draft = { id: string | null; first_name: string; relationship: string; birth_date: string; portion: number | null; allergies: string[] };
 
-const EMPTY: Draft = { id: null, first_name: '', relationship: 'Son', birth_date: '', portion: null };
+const EMPTY: Draft = { id: null, first_name: '', relationship: 'Son', birth_date: '', portion: null, allergies: [] };
 
 function age(birth: string | null): string {
   if (!birth) return '';
@@ -51,9 +53,16 @@ export default function FamilyMembers() {
   const [members, setMembers] = useState<Member[] | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
+  const k = useKitchen();
+  const [choices, setChoices] = useState<string[]>([]);
+  useEffect(() => {
+    loadChoices().then((c) => setChoices(c.allergies)).catch(() => {});
+  }, []);
+  // The family's allergies first, then the usual ones.
+  const allergyOptions = [...(k.prefs?.allergies ?? []), ...choices].filter((a, i, all) => all.findIndex((b) => sameAllergy(a, b)) === i);
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase.from('family_members').select('id, first_name, relationship, birth_date, portion').order('created_at', { ascending: true });
+    const { data, error } = await supabase.from('family_members').select('id, first_name, relationship, birth_date, portion, allergies').order('created_at', { ascending: true });
     if (error) showAlert(tr('Could not load your family'), error.message);
     setMembers((data ?? []) as Member[]);
   }, []);
@@ -72,15 +81,28 @@ export default function FamilyMembers() {
     const birth = draft.birth_date.trim();
     if (birth && !/^\d{4}-\d{2}-\d{2}$/.test(birth)) return showAlert(tr('Birth date'), tr('Use the format YYYY-MM-DD, for example 2018-04-21.'));
     setSaving(true);
-    const payload = { first_name: name, relationship: draft.relationship, birth_date: birth || null, portion: draft.portion };
+    const payload = { first_name: name, relationship: draft.relationship, birth_date: birth || null, portion: draft.portion, allergies: draft.allergies };
     const { error } = draft.id
       ? await supabase.from('family_members').update(payload).eq('id', draft.id)
       : await supabase.from('family_members').insert(payload);
     setSaving(false);
     if (error) return showAlert(tr('Could not save'), error.message);
+    // Shared meals stay safe for everyone: a person's allergy is added to the family's list.
+    const prefs = await loadPreferences().catch(() => null);
+    if (prefs) {
+      const missing = draft.allergies.filter((a) => !prefs.allergies.some((b) => sameAllergy(a, b)));
+      if (missing.length) {
+        const next = { ...prefs, allergies: [...prefs.allergies, ...missing] };
+        await savePreferences(next).catch(() => {});
+        patchKitchen({ prefs: next });
+      }
+    }
     setDraft(null);
     await Promise.all([load(), refreshHousehold()]);
   };
+  const toggleAllergy = (a: string) =>
+    draft &&
+    setDraft({ ...draft, allergies: draft.allergies.some((b) => sameAllergy(a, b)) ? draft.allergies.filter((b) => !sameAllergy(a, b)) : [...draft.allergies, a] });
 
   const remove = (m: Member) =>
     showAlert(tr('Remove {0}?', [m.first_name]), tr('Meal plans will cook for one person less.'), [
@@ -119,13 +141,15 @@ export default function FamilyMembers() {
                 key={m.id}
                 accessibilityRole="button"
                 accessibilityHint={tr('Edit this family member')}
-                onPress={() => setDraft({ id: m.id, first_name: m.first_name, relationship: m.relationship, birth_date: m.birth_date ?? '', portion: m.portion })}
+                onPress={() => setDraft({ id: m.id, first_name: m.first_name, relationship: m.relationship, birth_date: m.birth_date ?? '', portion: m.portion, allergies: m.allergies ?? [] })}
                 style={styles.row}
               >
                 <View style={{ flex: 1 }}>
                   <T weight="bold">{m.first_name}</T>
                   <T size={13} color={colors.muted}>
-                    {[m.relationship, age(m.birth_date), tr('eats {0} portion', [formatPortions(portionFor(m))])].filter(Boolean).join(' · ')}
+                    {[tr(m.relationship), age(m.birth_date), tr('eats {0} portion', [formatPortions(portionFor(m))]), (m.allergies ?? []).length ? tr('avoids {0}', [(m.allergies ?? []).map((a) => tr(a).toLowerCase()).join(tr(', '))]) : '']
+                      .filter(Boolean)
+                      .join(' · ')}
                   </T>
                 </View>
                 <T size={13} weight="semibold" color={colors.walnut}>
@@ -160,6 +184,17 @@ export default function FamilyMembers() {
             <View style={styles.wrap}>
               {PORTIONS.map((p) => (
                 <Chip key={p.label} label={tr(p.label)} selected={draft.portion === p.value} onPress={() => setDraft({ ...draft, portion: p.value })} />
+              ))}
+            </View>
+            <T weight="semibold" size={14}>
+              {tr('Allergies')}
+            </T>
+            <T size={13} color={colors.muted}>
+              {tr('What this person can’t eat. Shared meals stay safe for everyone; food only some of you avoid can still be cooked for the others.')}
+            </T>
+            <View style={styles.wrap}>
+              {allergyOptions.map((a) => (
+                <Chip key={a} label={tr(a)} selected={draft.allergies.some((b) => sameAllergy(a, b))} onPress={() => toggleAllergy(a)} />
               ))}
             </View>
             <Button label={draft.id ? tr('Save changes') : tr('Add to family')} onPress={save} busy={saving} />

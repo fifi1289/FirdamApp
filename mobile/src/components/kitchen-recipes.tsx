@@ -9,6 +9,7 @@ import { useKitchen } from '@/lib/kitchen-store';
 import { colors, fonts } from '@/theme';
 import { tr } from '@/lib/i18n';
 import { sameFood } from '@/shared/kitchen-items';
+import { sameAllergy } from '@/shared/allergens';
 
 type Filter = 'safe' | 'quick' | 'cook';
 
@@ -30,10 +31,16 @@ const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free'
 const PAGE_SIZE = 40;
 
 /** With `use` (a pantry food, e.g. "Tomatoes") only recipes that use it are shown. */
-export function RecipesView({ use }: { use?: string } = {}) {
+/**
+ * `allow` and `except` come from a pantry food only some of the family avoids: the list is
+ * safe for everyone else (those allergies are set aside) and says who it isn't for.
+ */
+export function RecipesView({ use, allow, except }: { use?: string; allow?: string; except?: string } = {}) {
   const k = useKitchen();
   const [food, setFood] = useState<string | null>(use || null);
   useEffect(() => setFood(use || null), [use]);
+  const [setAside, setSetAside] = useState<string[]>(allow ? allow.split(',').filter(Boolean) : []);
+  useEffect(() => setSetAside(allow ? allow.split(',').filter(Boolean) : []), [allow]);
   const [recipes, setRecipes] = useState<RecipeRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -54,7 +61,12 @@ export function RecipesView({ use }: { use?: string } = {}) {
       .catch((e) => setError(e instanceof Error ? e.message : tr('Could not load recipes.')));
   }, []);
 
-  const allergies = k.prefs?.allergies ?? [];
+  const familyAllergies = k.prefs?.allergies ?? [];
+  // Set aside only while showing that food for everyone except the person who avoids it.
+  const allergies = useMemo(
+    () => (food && setAside.length ? familyAllergies.filter((a) => !setAside.some((b) => sameAllergy(a, b))) : familyAllergies),
+    [familyAllergies, setAside, food],
+  );
   const diets = k.prefs?.dietaryPreferences ?? [];
   const portions = k.household?.portions ?? 2;
 
@@ -99,7 +111,7 @@ export function RecipesView({ use }: { use?: string } = {}) {
     return t !== cap ? t : tr(w);
   };
   const active = [
-    ...(food ? [{ label: tr('Recipes with {0}', [tr(food).toLowerCase()]), clear: () => setFood(null) }] : []),
+    ...(food ? [{ label: tr('Recipes with {0}', [tr(food).toLowerCase()]), clear: () => (setFood(null), setSetAside([])) }] : []),
     ...(filters.has('safe') ? [{ label: allergies.length ? tr('Safe for my family') : tr('Fits my diet'), clear: () => toggle('safe') }] : []),
     ...(filters.has('quick') ? [{ label: tr('30 min or less'), clear: () => toggle('quick') }] : []),
     ...(filters.has('cook') ? [{ label: tr('Cook with what I have'), clear: () => toggle('cook') }] : []),
@@ -181,6 +193,13 @@ export function RecipesView({ use }: { use?: string } = {}) {
           </Pressable>
         </Pressable>
       </Modal>
+      {food && setAside.length && except ? (
+        <View style={styles.notFor}>
+          <T size={13} color={colors.brickText} style={{ lineHeight: 18 }}>
+            {tr('Not for {0}, who avoids {1}: keep their portion separate. These recipes are safe for everyone else.', [except.split(',').join(tr(' and ')), setAside.map((a) => tr(a).toLowerCase()).join(tr(', '))])}
+          </T>
+        </View>
+      ) : null}
       <T size={12.5} color={colors.muted}>
         {shown.length > limit ? tr('Showing {0} of {1} recipes', [limit, shown.length]) : tr('{0} recipe{1}', [shown.length, shown.length === 1 ? '' : 's'])}
         {filters.has('safe') && allergies.length ? tr(' · without {0}', [allergies.map(word).join(', ').toLowerCase()]) : ''}
@@ -259,6 +278,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
+  notFor: { backgroundColor: colors.brickTint, borderRadius: 12, padding: 10 },
   empty: { gap: 10, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 16, padding: 14 },
   filterBtn: { height: 48, paddingHorizontal: 16, borderRadius: 16, backgroundColor: colors.espresso, alignItems: 'center', justifyContent: 'center' },
   backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },

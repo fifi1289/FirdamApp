@@ -93,7 +93,9 @@ export function foodValues(name: string): Per100 {
 export function computeNutrition(ingredients: { name: string; grams: number }[], servings: number) {
   let p = 0, c = 0, k = 0;
   for (const i of ingredients) {
-    const g = Number.isFinite(i.grams) && i.grams > 0 ? Math.min(i.grams, 3000) : 0;
+    let g = Number.isFinite(i.grams) && i.grams > 0 ? Math.min(i.grams, 3000) : 0;
+    // Deep-frying oil mostly stays in the pan: count at most 15 g eaten per serving.
+    if (/\boil\b/i.test(i.name)) g = Math.min(g, 15 * Math.max(1, servings));
     const [pp, cc, kk] = foodValues(i.name);
     p += (pp * g) / 100; c += (cc * g) / 100; k += (kk * g) / 100;
   }

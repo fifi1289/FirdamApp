@@ -970,7 +970,9 @@ function foodValues(name: string): Per100 {
 function computeNutrition(ingredients: { name: string; grams: number }[], servings: number) {
   let p = 0, c = 0, k = 0;
   for (const i of ingredients) {
-    const g = Number.isFinite(i.grams) && i.grams > 0 ? Math.min(i.grams, 3000) : 0;
+    let g = Number.isFinite(i.grams) && i.grams > 0 ? Math.min(i.grams, 3000) : 0;
+    // Deep-frying oil mostly stays in the pan: count at most 15 g eaten per serving.
+    if (/\boil\b/i.test(i.name)) g = Math.min(g, 15 * Math.max(1, servings));
     const [pp, cc, kk] = foodValues(i.name);
     p += (pp * g) / 100; c += (cc * g) / 100; k += (kk * g) / 100;
   }
@@ -1326,7 +1328,8 @@ async function writeCuisineRecipe(slot: CuisineSlot, problem: string | null): Pr
           "- Write 'halal' before meat, poultry, sausages, gelatin and stock (e.g. 'halal lamb shoulder', 'halal chicken stock').",
           "- Name every ingredient plainly so its allergens are obvious ('wheat flour', 'pine nuts', 'plain yogurt'); no ready-made mixes or sauces that hide them.",
           "- Give the weight in grams of every ingredient for the servings stated.",
-          "- The name is the dish's real name written in Latin letters, with a short English description in brackets if the name is not English. Never only in another alphabet.",
+          "- The name is the dish's real name written in Latin letters, followed by a short English description in brackets, e.g. 'Fahsa (Yemeni lamb stew)'. Never only in another alphabet.",
+      "- Every quantity is a number ('2', '0.5'); for frying oil give the amount you pour in.",
         ].join("\n"),
       },
       {
@@ -1363,7 +1366,7 @@ async function writeCuisineRecipe(slot: CuisineSlot, problem: string | null): Pr
     calories: facts.calories,
     kidFriendly: o.kidFriendly === true,
     ingredients: raw
-      .map((x) => ({ name: String(x.name ?? "").trim().slice(0, 80), quantity: String(x.quantity ?? "").trim().slice(0, 20), unit: String(x.unit ?? "").trim().slice(0, 20), grams: num(x.grams) }))
+      .map((x) => { const q = Number(String(x.quantity ?? "").replace(",", ".")); const numeric = String(x.quantity ?? "").trim() !== "" && Number.isFinite(q) && q > 0; const g = num(x.grams); return { name: String(x.name ?? "").trim().slice(0, 80), quantity: numeric ? String(x.quantity).trim().slice(0, 20) : g > 0 ? String(Math.round(g)) : "", unit: numeric ? String(x.unit ?? "").trim().replace(/^-$/, "").slice(0, 20) : g > 0 ? "g" : "", grams: g }; })
       .filter((x) => x.name)
       .slice(0, 25),
     recipe: (Array.isArray(o.recipe) ? o.recipe : []).map((s) => String(s).trim().slice(0, 600)).filter(Boolean).slice(0, 15),
@@ -1373,6 +1376,7 @@ async function writeCuisineRecipe(slot: CuisineSlot, problem: string | null): Pr
 function cuisineProblem(w: Written): string | null {
   if (w.name.length < 3 || w.ingredients.length < 4 || w.recipe.length < 3) return "was incomplete";
   if (!/^[A-Za-z]/.test(w.name)) return "had a name that does not start in Latin letters";
+  if (!/\(.+\)\s*$/.test(w.name)) return "had no short English description in brackets after the name";
   const halal = haramReason(w.ingredients.map((i) => i.name), w.recipe);
   if (halal) return `was not halal (${halal})`;
   if (!w.weighed) return "did not give the weight in grams of every ingredient";

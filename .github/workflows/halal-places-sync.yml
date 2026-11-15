@@ -2,7 +2,7 @@
 # in from OpenStreetMap and stores them in the database, so the app can always
 # show places instantly. Needs the repository secret PLACES_SYNC_TOKEN (the same
 # value as the Supabase Edge Function secret of that name).
-name: Halal places sync
+name: Places sync (halal map and weekend outings)
 
 on:
   schedule:

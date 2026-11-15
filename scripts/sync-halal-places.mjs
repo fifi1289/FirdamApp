@@ -43,6 +43,11 @@ async function overpass(query) {
 }
 
 let failed = 0, total = 0;
+// GitHub runs scheduled jobs only every few hours, so each run keeps going for
+// up to 25 minutes while areas are waiting.
+const stopAt = Date.now() + 25 * 60_000;
+for (let round = 0; Date.now() < stopAt; round++) {
+let fetchedThisRound = 0;
 for (const FN of FUNCTIONS) {
   const pending = await fetch(`${FN}?sync=pending`, { headers }).then((r) => r.json()).catch((e) => ({ error: e.message }));
   if (pending.error) {
@@ -65,7 +70,11 @@ for (const FN of FUNCTIONS) {
       failed++;
       console.log(`${t.tile}: failed (${e.message})`);
     }
+    fetchedThisRound++;
     await sleep(5_000); // be gentle with the public servers
+    if (Date.now() > stopAt) break;
   }
+}
+if (!fetchedThisRound) break;
 }
 if (failed && failed === total) process.exit(1);

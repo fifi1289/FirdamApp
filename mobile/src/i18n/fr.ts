@@ -2087,4 +2087,11 @@ export const FR: Record<string, string> = {
   "box": "boîte",
   "sprig": "brin",
   "to taste": "au goût",
+  "Use by tomorrow: {0}.": "À utiliser d’ici demain : {0}.",
+  "Use within 2 days: {0}.": "À utiliser dans les 2 jours : {0}.",
+  "Your family avoids {0}: give it to a neighbour or a food bank before it goes to waste.": "Votre famille évite : {0}. Donnez-le à un voisin ou à une banque alimentaire avant qu’il ne se perde.",
+  "Food to use soon": "Aliments à utiliser bientôt",
+  "At 9 am, two days and one day before food in your pantry expires": "À 9 h, deux jours et un jour avant la date d’un aliment de votre garde-manger",
+  "Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.": "Votre famille évite : {0}, donc aucune recette avec cet aliment n’est sûre pour vous. Donnez-le à un voisin ou à une banque alimentaire avant qu’il ne se perde.",
+  "Remove from pantry ›": "Retirer du garde-manger ›",
 };

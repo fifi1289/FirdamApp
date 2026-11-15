@@ -15,6 +15,7 @@ import { groupByAisle, guessCategory, parseQuickAdd, toPantryUnit } from '@/shar
 import { haramItemMessage } from '@/shared/halal';
 import { effectiveExpiry, estimateExpiry, isNonFood, shelfLife } from '@/shared/kitchen-items';
 import { formatAmount } from '@/shared/pantry-units';
+import { avoidedAllergens } from '@/lib/expiry-alerts';
 import { colors, fonts } from '@/theme';
 import { showAlert } from '@/components/firdam-alert';
 import { locale, tr } from '@/lib/i18n';
@@ -74,12 +75,18 @@ export function PantryView() {
       k.pantry
         .map((i) => {
           const e = effectiveExpiry(i);
-          return { i, d: daysLeft(e.date), estimated: e.estimated, life: shelfLife(i.name, i.category) };
+          return { i, d: daysLeft(e.date), estimated: e.estimated, life: shelfLife(i.name, i.category), avoid: avoidedAllergens(i.name, k.prefs?.allergies ?? []) };
         })
         .filter((x) => x.d != null && x.d <= 3)
         .sort((a, b) => (a.d ?? 0) - (b.d ?? 0)),
-    [k.pantry],
+    [k.pantry, k.prefs?.allergies],
   );
+  const removeItem = async (item: PantryItem) => {
+    Haptics.selectionAsync().catch(() => {});
+    patchKitchen({ pantry: k.pantry.filter((p) => p.id !== item.id) });
+    const { error } = await supabase.from('pantry_items').delete().eq('id', item.id);
+    if (error) await refreshKitchen();
+  };
   const groups = useMemo(() => groupByAisle(k.pantry as never), [k.pantry]) as unknown as { category: string; items: PantryItem[] }[];
 
   const add = async () => {
@@ -190,7 +197,7 @@ export function PantryView() {
           <T size={12.5} weight="bold" color={colors.walnut} style={{ letterSpacing: 0.4 }}>
             {tr('USE SOON')}
           </T>
-          {soon.map(({ i, d, estimated, life }, idx) => (
+          {soon.map(({ i, d, estimated, life, avoid }, idx) => (
             <View key={i.id} style={[{ gap: 6 }, idx < soon.length - 1 && styles.soonLine]}>
               <Pressable accessibilityRole="button" accessibilityHint={tr('Edit amount or expiry date')} onPress={() => setEditing(i)} style={styles.soonRow}>
                 <T size={15} weight="semibold" style={{ flex: 1 }}>
@@ -205,7 +212,18 @@ export function PantryView() {
                   tone={d! <= 0 && !estimated ? 'brick' : 'amber'}
                 />
               </Pressable>
-              {life ? (
+              {avoid.length ? (
+                <View style={styles.avoid}>
+                  <T size={13.5} color={colors.brickText} style={{ lineHeight: 19 }}>
+                    {tr('Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.', [tr(avoid[0]!).toLowerCase()])}
+                  </T>
+                  <Pressable accessibilityRole="button" hitSlop={6} onPress={() => removeItem(i)}>
+                    <T size={13.5} weight="bold" color={colors.brickText}>
+                      {tr('Remove from pantry ›')}
+                    </T>
+                  </Pressable>
+                </View>
+              ) : life ? (
                 <T size={13.5} color="#4A3F39" style={{ lineHeight: 19 }}>
                   <T size={13.5} weight="bold" color={colors.sageDark}>
                     {tr('Save it: ')}
@@ -213,15 +231,17 @@ export function PantryView() {
                   {tr(life.save)}
                 </T>
               ) : null}
-              <Pressable
-                accessibilityRole="link"
-                hitSlop={6}
-                onPress={() => router.push({ pathname: '/kitchen', params: { section: 'recipes', use: i.name } })}
-              >
-                <T size={13.5} weight="bold" color={colors.walnut}>
-                  {tr('Recipes with {0} ›', [tr(i.name).toLowerCase()])}
-                </T>
-              </Pressable>
+              {avoid.length ? null : (
+                <Pressable
+                  accessibilityRole="link"
+                  hitSlop={6}
+                  onPress={() => router.push({ pathname: '/kitchen', params: { section: 'recipes', use: i.name } })}
+                >
+                  <T size={13.5} weight="bold" color={colors.walnut}>
+                    {tr('Recipes with {0} ›', [tr(i.name).toLowerCase()])}
+                  </T>
+                </Pressable>
+              )}
             </View>
           ))}
           {soon.some((x) => x.estimated) ? (
@@ -296,6 +316,7 @@ const styles = StyleSheet.create({
   soonRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   keeps: { gap: 4, backgroundColor: colors.sageTint, borderRadius: 14, padding: 12, marginTop: 4 },
   soonLine: { borderBottomWidth: 1, borderBottomColor: colors.line, paddingBottom: 12 },
+  avoid: { gap: 6, backgroundColor: colors.brickTint, borderRadius: 12, padding: 10 },
   dot: { width: 10, height: 10, borderRadius: 5 },
   edit: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: colors.line },
   backdrop: { flex: 1, backgroundColor: 'rgba(40,28,20,0.35)', justifyContent: 'flex-end' },

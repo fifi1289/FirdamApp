@@ -7,6 +7,7 @@ import { scheduleAdhanAlerts } from '@/lib/adhan-alerts';
 import { eventAlertTarget, scheduleEventAlerts } from '@/lib/event-alerts';
 import { loadPrayerSettings, usePrayerSettings } from '@/lib/prayer';
 import { isWeeklyPlanTap, scheduleWeeklyPlanReminder } from '@/lib/weekly-plan-alert';
+import { isExpiryTap } from '@/lib/expiry-alerts';
 import { refreshRecipeTranslations } from '@/lib/recipe-i18n';
 import { colors } from '@/theme';
 
@@ -55,10 +56,12 @@ function useWeeklyPlanReminder() {
     Notifications.getLastNotificationResponseAsync()
       .then((r) => {
         if (isWeeklyPlanTap(r)) router.push({ pathname: '/kitchen', params: { section: 'plan' } });
+        else if (isExpiryTap(r)) router.push({ pathname: '/kitchen', params: { section: 'pantry' } });
       })
       .catch(() => {});
     const sub = Notifications.addNotificationResponseReceivedListener((r) => {
       if (isWeeklyPlanTap(r)) router.push({ pathname: '/kitchen', params: { section: 'plan' } });
+      else if (isExpiryTap(r)) router.push({ pathname: '/kitchen', params: { section: 'pantry' } });
     });
     return () => sub.remove();
   }, []);

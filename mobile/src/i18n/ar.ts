@@ -2150,4 +2150,11 @@ export const AR: Record<string, string> = {
   "box": "علبة",
   "sprig": "غصن",
   "to taste": "حسب الرغبة",
+  "Use by tomorrow: {0}.": "استخدمه قبل الغد: {0}.",
+  "Use within 2 days: {0}.": "استخدمه خلال يومين: {0}.",
+  "Your family avoids {0}: give it to a neighbour or a food bank before it goes to waste.": "عائلتك تتجنّب {0}: أعطه لجار أو لبنك طعام قبل أن يضيع.",
+  "Food to use soon": "طعام يجب استخدامه قريبًا",
+  "At 9 am, two days and one day before food in your pantry expires": "في التاسعة صباحًا، قبل يومين ثم قبل يوم من انتهاء صلاحية طعام في مخزنك",
+  "Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.": "عائلتك تتجنّب {0}، لذا لا توجد وصفة آمنة لكم به. أعطه لجار أو لبنك طعام قبل أن يضيع.",
+  "Remove from pantry ›": "احذفه من المخزن ›",
 };

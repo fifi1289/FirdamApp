@@ -13,6 +13,8 @@ import { scheduleEventAlerts } from '@/lib/event-alerts';
 import { getFastingPrefs, setFastingPrefs, type FastingPrefs } from '@/lib/fasting';
 import { PRAYERS, usePrayerSettings, type PrayerId } from '@/lib/prayer';
 import { getWeeklyPlanOn, scheduleWeeklyPlanReminder, setWeeklyPlanOn } from '@/lib/weekly-plan-alert';
+import { getExpiryAlertsOn, scheduleExpiryAlerts, setExpiryAlertsOn } from '@/lib/expiry-alerts';
+import { getKitchenState } from '@/lib/kitchen-store';
 import { colors } from '@/theme';
 import { tr } from '@/lib/i18n';
 
@@ -23,6 +25,7 @@ export default function NotificationsScreen() {
   const [events, setEvents] = useState(true);
   const [fasting, setFasting] = useState<FastingPrefs | null>(null);
   const [weekly, setWeekly] = useState(true);
+  const [expiry, setExpiry] = useState(true);
 
   const checkPermission = useCallback(() => {
     Notifications.getPermissionsAsync()
@@ -35,6 +38,7 @@ export default function NotificationsScreen() {
     getRemindersOn().then(setEvents);
     getFastingPrefs().then(setFasting);
     getWeeklyPlanOn().then(setWeekly);
+    getExpiryAlertsOn().then(setExpiry);
     // Coming back from the phone's Settings.
     const sub = AppState.addEventListener('change', (s) => s === 'active' && checkPermission());
     return () => sub.remove();
@@ -53,6 +57,20 @@ export default function NotificationsScreen() {
     await allow(true);
     scheduleEventAlerts().catch(() => {});
     scheduleWeeklyPlanReminder().catch(() => {});
+    replanExpiry();
+  };
+
+  const replanExpiry = () => {
+    const k = getKitchenState();
+    scheduleExpiryAlerts(k.pantry, k.prefs?.allergies ?? []).catch(() => {});
+  };
+
+  const toggleExpiry = async () => {
+    const next = !expiry;
+    if (!(await allow(next))) return;
+    setExpiry(next);
+    await setExpiryAlertsOn(next);
+    replanExpiry();
   };
 
   const togglePrayer = async (id: PrayerId) => {
@@ -140,6 +158,7 @@ export default function NotificationsScreen() {
 
         <Section title={tr('MEALS')}>
           <SwitchRow label={tr('Weekly meal plan')} hint={tr('Sunday at 5 pm, when next week’s plan is ready')} on={weekly} onPress={toggleWeekly} />
+          <SwitchRow label={tr('Food to use soon')} hint={tr('At 9 am, two days and one day before food in your pantry expires')} on={expiry} onPress={toggleExpiry} />
         </Section>
       </ScrollView>
     </SafeAreaView>

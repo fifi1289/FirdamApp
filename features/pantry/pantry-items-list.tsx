@@ -59,6 +59,7 @@ import {
 import { locale, tr, trn } from '@/lib/i18n';
 import Link from 'next/link';
 import { effectiveExpiry, shelfLife } from '@/supabase/functions/_shared/kitchen-items';
+import { conflictsWithAllergies } from '@/lib/recipes/allergens';
 
 export { PANTRY_ITEMS_CHANGED } from '@/features/pantry/pantry-item-form-dialog';
 
@@ -135,13 +136,17 @@ function relativeExpiration(iso: string | null): string | null {
 
 function PantryItemCard({
   item,
+  allergies,
   onEdit,
   onDelete,
 }: {
   item: PantryItem;
+  allergies: string[];
   onEdit: (item: PantryItem) => void;
   onDelete: (item: PantryItem) => void;
 }) {
+  // A food the family is allergic to gets no recipes (none would be safe), only what to do with it.
+  const avoid = allergies.filter((a) => conflictsWithAllergies([item.name], [a]));
   const Icon = CATEGORY_ICONS[item.category] ?? Archive;
   // Items without a typed date get an estimate (≈) from the day they were added.
   const eff = effectiveExpiry(item);
@@ -224,7 +229,14 @@ function PantryItemCard({
               </p>
             </div>
           )}
-          {life && (
+          {exp && exp.status !== 'fresh' && avoid.length > 0 ? (
+            <div className="mt-2 rounded-lg bg-destructive/10 p-2.5 text-xs leading-relaxed text-destructive">
+              {tr('Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.', [tr(avoid[0]!).toLowerCase()])}
+              <button type="button" onClick={() => onDelete(item)} className="mt-1 block font-semibold hover:underline">
+                {tr('Remove from pantry ›')}
+              </button>
+            </div>
+          ) : life && (
             <div className="mt-2 rounded-lg bg-brand-sage/10 p-2.5 text-xs leading-relaxed text-foreground/80">
               <span className="font-semibold text-brand-sage">{tr('Save it: ')}</span>
               {tr(life.save)}
@@ -328,6 +340,15 @@ export function PantryItemsList() {
   const [deletingItem, setDeletingItem] = useState<PantryItem | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [allergies, setAllergies] = useState<string[]>([]);
+  useEffect(() => {
+    supabase
+      .from('meal_preferences')
+      .select('allergies')
+      .maybeSingle()
+      .then(({ data }) => setAllergies(((data as { allergies?: string[] | null } | null)?.allergies ?? []).filter(Boolean)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadItems = useCallback(async () => {
     const { data, error } = await supabase
@@ -498,6 +519,7 @@ export function PantryItemsList() {
               <PantryItemCard
                 key={item.id}
                 item={item}
+                allergies={allergies}
                 onEdit={startEdit}
                 onDelete={(i) => {
                   setDeletingItem(i);

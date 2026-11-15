@@ -269,7 +269,7 @@ export const allModules: LifeModule[] = [
  * Firdam. Their pages still exist; they are just not shown in menus or lists.
  * Remove an id here to bring a module back.
  */
-export const HIDDEN_MODULE_IDS = new Set(['planner', 'health', 'community', 'travel', 'directory']);
+export const HIDDEN_MODULE_IDS = new Set(['planner', 'health', 'community', 'travel', 'directory', 'newcomer']);
 
 /** The modules shown in menus, the home page and the landing page. */
 export const lifeModules: LifeModule[] = allModules.filter((m) => !HIDDEN_MODULE_IDS.has(m.id));

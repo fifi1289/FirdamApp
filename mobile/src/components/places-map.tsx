@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
+import { tr } from '@/lib/i18n';
 import { colors } from '@/theme';
 
 export interface MapPin {
@@ -24,14 +25,18 @@ export function PlacesMap({
   radiusKm,
   pins,
   onSelect,
+  action,
 }: {
   center: { latitude: number; longitude: number };
   radiusKm: number;
   pins: MapPin[];
   onSelect: (key: string) => void;
+  /** The link under each pin's name ("Directions" by default). */
+  action?: string;
 }) {
+  const label = action ?? tr('Directions');
   const html = useMemo(() => {
-    const data = JSON.stringify({ center: [center.latitude, center.longitude], radius: radiusKm * 1000, pins }).replace(/</g, '\\u003c');
+    const data = JSON.stringify({ center: [center.latitude, center.longitude], radius: radiusKm * 1000, pins, label }).replace(/</g, '\\u003c');
     return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>html,body,#m{margin:0;height:100%;font-family:-apple-system,Roboto,sans-serif}
@@ -46,12 +51,12 @@ L.circleMarker(d.center,{radius:7,color:'#fff',weight:2,fillColor:'#2F6FED',fill
 function esc(t){return String(t).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]})}
 d.pins.forEach(function(p){
   var m=L.circleMarker([p.latitude,p.longitude],{radius:8,color:'#fff',weight:2,fillColor:p.color,fillOpacity:1}).addTo(map);
-  m.bindPopup('<div class="p">'+esc(p.name)+'</div><div class="s">'+esc(p.subtitle)+'</div><a class="go" href="#" data-k="'+esc(p.key)+'">Directions ›</a>');
+  m.bindPopup('<div class="p">'+esc(p.name)+'</div><div class="s">'+esc(p.subtitle)+'</div><a class="go" href="#" data-k="'+esc(p.key)+'">'+esc(d.label)+' ›</a>');
 });
 document.addEventListener('click',function(e){var k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-k');if(k){e.preventDefault();window.ReactNativeWebView.postMessage(k);}});
 map.fitBounds(c.getBounds(),{padding:[10,10]});
 </script></body></html>`;
-  }, [center.latitude, center.longitude, radiusKm, pins]);
+  }, [center.latitude, center.longitude, radiusKm, pins, label]);
 
   return (
     <View style={styles.wrap}>

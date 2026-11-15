@@ -64,7 +64,7 @@ export interface Ticket {
 export interface KnownPlace {
   id: string;
   city: string;
-  /** Lower-case words that must appear in the map name. */
+  /** Ways the map may name it: any one matches; words joined by + must all appear. */
   match: string[];
   lat: number;
   lng: number;
@@ -158,7 +158,7 @@ export const KNOWN_PLACES: KnownPlace[] = [
   {
     id: 'ottawa-science-tech',
     city: 'ottawa',
-    match: ['science', 'technology'],
+    match: ['science+technolog', 'sciences+technologie'],
     lat: 45.4033,
     lng: -75.6188,
     minutes: 180,
@@ -176,7 +176,7 @@ export const KNOWN_PLACES: KnownPlace[] = [
   {
     id: 'ottawa-agriculture-food',
     city: 'ottawa',
-    match: ['agriculture'],
+    match: ['agricult'],
     lat: 45.3866,
     lng: -75.7064,
     minutes: 150,
@@ -194,7 +194,7 @@ export const KNOWN_PLACES: KnownPlace[] = [
   {
     id: 'ottawa-nature',
     city: 'ottawa',
-    match: ['museum', 'nature'],
+    match: ['museum+nature', 'musée+nature'],
     lat: 45.4127,
     lng: -75.6886,
     minutes: 150,
@@ -211,7 +211,7 @@ export const KNOWN_PLACES: KnownPlace[] = [
   {
     id: 'gatineau-history',
     city: 'gatineau',
-    match: ['history'],
+    match: ['history', 'histoire'],
     lat: 45.4301,
     lng: -75.7092,
     minutes: 180,
@@ -228,7 +228,7 @@ export const KNOWN_PLACES: KnownPlace[] = [
   {
     id: 'ottawa-war-museum',
     city: 'ottawa',
-    match: ['war', 'museum'],
+    match: ['war+museum', 'musée+guerre'],
     lat: 45.4171,
     lng: -75.7168,
     minutes: 150,
@@ -245,7 +245,7 @@ export const KNOWN_PLACES: KnownPlace[] = [
   {
     id: 'ottawa-national-gallery',
     city: 'ottawa',
-    match: ['national gallery'],
+    match: ['national gallery', 'musée des beaux-arts'],
     lat: 45.4295,
     lng: -75.6989,
     minutes: 120,
@@ -324,7 +324,7 @@ export function cityNear(p: { lat: number; lng: number }): City | null {
 /** The place we checked by hand that this map place is, if any. */
 export function knownPlace(p: { name: string; lat: number; lng: number }): KnownPlace | null {
   const name = p.name.toLowerCase();
-  return KNOWN_PLACES.find((k) => near(p, k) < 0.8 && k.match.every((w) => name.includes(w))) ?? null;
+  return KNOWN_PLACES.find((k) => near(p, k) < 0.8 && k.match.some((g) => g.split('+').every((w) => name.includes(w)))) ?? null;
 }
 
 /** What a group pays at a place with this ticket: the family price when it is cheaper. */

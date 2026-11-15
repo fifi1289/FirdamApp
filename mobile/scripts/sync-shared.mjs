@@ -32,6 +32,7 @@ const FILES = {
   'features/groceries/partners.ts': 'partners.ts',
   'features/calendar/calendar-core.ts': 'calendar-core.ts',
   'features/weekend/weekend-core.ts': 'weekend-core.ts',
+  'features/weekend/weekend-library.ts': 'weekend-library.ts',
   'features/fasting/makeup-core.ts': 'makeup-core.ts',
   'features/quran/duas.ts': 'duas.ts',
   'features/quran/surahs.ts': 'surahs.ts',
@@ -52,6 +53,7 @@ const REWRITES = [
   [/'@\/features\/groceries\/grocery-utils'/g, "'./grocery-utils'"],
   [/'@\/features\/quran\/surahs'/g, "'./surahs'"],
   [/'@\/features\/groceries\/shop-links'/g, "'./shop-links'"],
+  [/'@\/features\/fasting\/makeup-core'/g, "'./makeup-core'"],
   [/'@\/types\/database'/g, "'../lib/db-types'"],
   [/(from\s+["']\.\/[a-z-]+)\.ts(["'])/g, '$1$2'],
 ];

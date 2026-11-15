@@ -83,7 +83,7 @@ export const ALLERGEN_RULES: AllergenRule[] = [
   {
     name: 'Celery',
     aliases: ['celery', 'celeriac'],
-    include: /\b(celery|celeriac|stock cubes?|bouillon)\b/,
+    include: /\b(celery|celeriac|stock cubes?|bouillon|broths?|stocks?)\b/,
   },
 ];
 

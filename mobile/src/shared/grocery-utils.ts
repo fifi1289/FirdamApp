@@ -1,4 +1,5 @@
 // GENERATED from features/groceries/grocery-utils.ts by mobile/scripts/sync-shared.mjs — do not edit here.
+import { amountText } from './pantry-units';
 import {
   PANTRY_CATEGORIES,
   PANTRY_UNITS,
@@ -119,10 +120,10 @@ export function parseQuickAdd(input: string): { name: string; quantity: number |
   return { name: rest!, quantity, unit: null };
 }
 
-export function formatQty(quantity: number | null, unit: string | null): string {
-  if (quantity === null || quantity === undefined) return unit ?? '';
-  const q = Number.isInteger(quantity) ? String(quantity) : quantity.toFixed(2).replace(/\.?0+$/, '');
-  return unit ? `${q} ${unit}` : `× ${q}`;
+/** A shopping-list amount in the pantry's unit for that food, in the reader's language. */
+export function formatQty(quantity: number | null, unit: string | null, name?: string): string {
+  if (quantity === null || quantity === undefined) return unit ? amountText(null, unit) : '';
+  return amountText(quantity, unit, name);
 }
 
 export function toPantryUnit(unit: string | null): PantryUnit {

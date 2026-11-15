@@ -107,14 +107,14 @@ export function ShoppingView() {
       {nearYou?.meat.length ? (
         <View style={styles.banner}>
           <T size={15.5} weight="bold">{tr('{0} meat item{1} on your list', [nearYou.meat.length, nearYou.meat.length === 1 ? '' : 's'])}</T>
-          <T size={13.5} color={colors.muted} numberOfLines={2}>{tr('{0}. Buy it from a halal butcher.', [listNames(nearYou.meat)])}</T>
+          <T size={13.5} color={colors.muted} numberOfLines={2}>{tr('{0}. Buy it from a halal butcher.', [listNames(nearYou.meat.map((n) => tr(n)))])}</T>
           <Button label={tr('Find a halal butcher')} onPress={() => router.push('/halal?category=butcher' as Href)} style={{ height: 46 }} />
         </View>
       ) : null}
       {online && onAmazon.length ? (
         <View style={styles.banner}>
           <T size={15.5} weight="bold">{onAmazon.length === 1 ? tr('1 item available on {0}', [amazonStoreName(currency)]) : tr('{0} items available on {1}', [onAmazon.length, amazonStoreName(currency)])}</T>
-          <T size={13.5} color={colors.muted} numberOfLines={2}>{tr('{0}. See them below.', [listNames(onAmazon.map((i) => i.name))])}</T>
+          <T size={13.5} color={colors.muted} numberOfLines={2}>{tr('{0}. See them below.', [listNames(onAmazon.map((i) => tr(i.name)))])}</T>
         </View>
       ) : null}
 
@@ -139,7 +139,7 @@ export function ShoppingView() {
                     {tr(i.name)}
                   </T>
                   <T size={13} color={colors.muted}>
-                    {formatQty(i.quantity, i.unit)}
+                    {formatQty(i.quantity, i.unit, i.name)}
                   </T>
                 </Pressable>
               ))}

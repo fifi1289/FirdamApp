@@ -131,7 +131,7 @@ export function PantryView() {
       }>('receipt-scan', undefined, { image: `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` });
       const items = (res.items ?? []).filter((i) => !isNonFood(i.name));
       if (!items.length) return showAlert(tr('No food found'), tr('Try again with the whole receipt flat and in good light.'));
-      const list = items.map((i) => `• ${i.quantity} ${i.unit} ${i.name}`).join('\n');
+      const list = items.map((i) => `• ${formatAmount(i.quantity, i.unit === 'Pieces' ? 'pieces' : i.unit)} ${tr(i.name)}`).join('\n');
       const skipped = res.skipped?.length ? `\n\n${tr('Left out (not halal): {0}', [res.skipped.map((x) => x.name).join(', ')])}` : '';
       showAlert(tr('Add {0} item{1} to your pantry?', [items.length, items.length === 1 ? '' : 's']), list + skipped, [
         { text: 'Cancel', style: 'cancel' },
@@ -374,7 +374,7 @@ function PantryItemSheet({ item, onClose }: { item: PantryItem | null; onClose: 
               </View>
             ) : (
               <View style={{ gap: 6 }}>
-                <T weight="semibold" size={14}>{tr('Amount ({0})', [item.unit === 'Pieces' ? 'pieces' : item.unit])}</T>
+                <T weight="semibold" size={14}>{tr('Amount ({0})', [tr(item.unit === 'Pieces' ? 'pieces' : item.unit)])}</T>
                 <TextInput value={qty} onChangeText={setQty} keyboardType="decimal-pad" style={styles.input} accessibilityLabel={tr('Amount')} />
               </View>
             )}

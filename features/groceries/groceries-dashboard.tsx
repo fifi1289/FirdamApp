@@ -107,7 +107,7 @@ function ItemRow({
         )}
       </div>
       <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-        {formatQty(item.quantity, item.unit)}
+        {formatQty(item.quantity, item.unit, item.name)}
       </span>
       <button
         type="button"
@@ -607,7 +607,7 @@ export function GroceriesDashboard() {
                       : tr('Meat on your list')}
                   </p>
                   <p className="truncate text-sm text-muted-foreground">
-                    {nearYou?.meat.length ? `${listNames(nearYou.meat)}. ` : ''}{tr('Buy it from a halal butcher.')}
+                    {nearYou?.meat.length ? `${listNames(nearYou.meat.map((n) => trn(n)))}. ` : ''}{tr('Buy it from a halal butcher.')}
                   </p>
                 </div>
                 <Button asChild className="shrink-0">
@@ -628,7 +628,7 @@ export function GroceriesDashboard() {
                   <p className="font-semibold text-foreground">
                     {onAmazon.length === 1 ? tr('1 item available on {0}', [store]) : tr('{0} items available on {1}', [onAmazon.length, store])}
                   </p>
-                  <p className="truncate text-sm text-muted-foreground">{listNames(onAmazon.map((i) => i.name))}.</p>
+                  <p className="truncate text-sm text-muted-foreground">{listNames(onAmazon.map((i) => trn(i.name)))}.</p>
                 </div>
                 <Button asChild variant="outline" className="shrink-0">
                   <a href="#on-amazon">

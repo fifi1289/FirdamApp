@@ -5,6 +5,7 @@ import { DevSettings, I18nManager } from 'react-native';
 
 import { AR } from '@/i18n/ar';
 import { FR } from '@/i18n/fr';
+import { setUnitTranslator } from '@/shared/pantry-units';
 
 /**
  * The app's language. English is written in the code itself; t() looks the
@@ -146,3 +147,6 @@ export function addTranslations(lang: Lang, entries: Record<string, string>) {
   if (!dict) return;
   for (const [en, t] of Object.entries(entries)) if (en && t && !(en in BASE[lang])) dict[en] = t;
 }
+
+// Units on every amount ("3 pieces", "500 g") follow the chosen language.
+setUnitTranslator((word) => tr(word));

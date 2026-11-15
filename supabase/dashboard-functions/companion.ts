@@ -265,11 +265,18 @@ function isBasic(name: string): boolean {
 
 // ── Amounts ──────────────────────────────────────────────────────────
 
-const MASS: Record<string, number> = { g: 1, gram: 1, grams: 1, kg: 1000, kilo: 1000, oz: 28.35, lb: 453.6, lbs: 453.6 };
-const VOLUME: Record<string, number> = {
-  ml: 1, l: 1000, litre: 1000, liter: 1000, tsp: 5, teaspoon: 5, tbsp: 15, tablespoon: 15, cup: 240, cups: 240,
+const MASS: Record<string, number> = {
+  g: 1, gr: 1, gram: 1, grams: 1, kg: 1000, kilo: 1000, kilos: 1000, kilogram: 1000, kilograms: 1000, oz: 28.35, ounce: 28.35, ounces: 28.35,
+  lb: 453.6, lbs: 453.6, pound: 453.6, pounds: 453.6,
 };
-const COUNT = new Set(['pieces', 'piece', 'pc', 'pcs', 'cloves', 'clove', 'slices', 'slice', 'whole', 'can', 'cans', 'tin']);
+const VOLUME: Record<string, number> = {
+  ml: 1, millilitre: 1, millilitres: 1, milliliter: 1, milliliters: 1, l: 1000, litre: 1000, litres: 1000, liter: 1000, liters: 1000,
+  tsp: 5, teaspoon: 5, teaspoons: 5, tbsp: 15, tablespoon: 15, tablespoons: 15, cup: 240, cups: 240,
+};
+const COUNT = new Set([
+  'pieces', 'piece', 'pc', 'pcs', 'cloves', 'clove', 'slices', 'slice', 'whole', 'can', 'cans', 'tin',
+  'medium', 'large', 'small', 'stalk', 'stalks', 'head', 'heads', 'fillet', 'fillets',
+]);
 
 /** Units that only say "some" (we can't measure a pinch or a handful). */
 const PRESENCE_ONLY = new Set(['pinch', 'handful', 'bunch', 'to taste', 'pack', 'bottle', 'box', 'bag', 'jar', 'sprig', '']);
@@ -295,7 +302,15 @@ const DENSITY: [RegExp, number][] = [
   [/chickpea|bean/, 0.75], [/bulgur|couscous|freekeh|quinoa/, 0.75], [/oat/, 0.4], [/pasta|noodle|vermicelli|orzo/, 0.45],
   [/nut|almond|walnut|pistachio|cashew|peanut/, 0.6], [/raisin|date/, 0.65], [/coconut/, 0.35], [/cheese/, 0.45],
   [/tomato paste|tomato puree|tahini|paste/, 1.1], [/water|juice|stock|broth|vinegar|sauce/, 1.0],
+  [/ginger|garlic/, 0.6], [/parsley|cilantro|coriander|mint|dill|basil|herb/, 0.25],
 ];
+
+/** Foods bought by volume (millilitres, litres). */
+const LIQUID_RE = /\b(juice|oil|milk|water|stock|broth|vinegar|sauce|syrup|molasses|rose ?water|orange blossom|buttermilk|kefir|laban|ayran)\b|\bcream\b(?! cheese)/;
+/** Names with a fruit or vegetable word that aren't bought as pieces ("lemon juice", "garlic powder"). */
+const NOT_PIECES_RE = /\b(juice|zest|oil|powder|paste|sauce|stock|broth|syrup|milk|flour|water|vinegar|pur[eé]e|extract|seeds?|leaf|leaves|flakes?|jam|molasses)\b/;
+/** Juice from one fruit, in ml ("juice of 1 lemon"). */
+const JUICE_PER_PIECE: [RegExp, number][] = [[/lemon/, 45], [/lime/, 30], [/orange/, 80], [/grapefruit/, 150], [/pomegranate/, 120]];
 
 function lookup(table: [RegExp, number][], name: string): number | null {
   const n = ingredientKey(name);
@@ -304,7 +319,15 @@ function lookup(table: [RegExp, number][], name: string): number | null {
   return found;
 }
 
-const gramsPerPiece = (name: string) => lookup(PIECE_GRAMS, name);
+const gramsPerPiece = (name: string) => (NOT_PIECES_RE.test(name.toLowerCase()) ? null : lookup(PIECE_GRAMS, name));
+
+/** The unit the pantry keeps this food in: ml for liquids, pieces for foods you count, grams for the rest. */
+function naturalBase(name: string): Base {
+  const n = name.toLowerCase();
+  if (LIQUID_RE.test(n)) return 'ml';
+  const p = gramsPerPiece(name);
+  return p && p >= 30 ? 'pc' : 'g';
+}
 const density = (name: string) => lookup(DENSITY, name);
 
 function normUnit(unit: string | null | undefined): string {
@@ -352,28 +375,95 @@ function toUnit(amount: number, base: Base, unit: string, name: string): number 
 
 const round = (n: number, step: number) => Math.round(n / step) * step;
 
-/** "1.25 kg", "800 g", "3 pieces", "2 tbsp". */
-function formatAmount(quantity: number | null | undefined, unit: string | null | undefined): string {
-  const u = normUnit(unit);
-  if (quantity == null || quantity <= 0) return u === 'to taste' ? 'to taste' : 'some';
-  if (u === 'g' && quantity >= 1000) return `${+(quantity / 1000).toFixed(2)} kg`;
-  if (u === 'ml' && quantity >= 1000) return `${+(quantity / 1000).toFixed(2)} L`;
-  const n = quantity >= 100 ? round(quantity, 5) : quantity >= 10 ? Math.round(quantity) : +quantity.toFixed(quantity < 1 ? 2 : 1);
-  if (u === 'pieces' || u === 'piece') return `${n} ${n === 1 ? 'piece' : 'pieces'}`;
-  if (!u) return String(n);
-  return `${n} ${u === 'l' ? 'L' : unit}`;
-}
-
-/** Picks a friendly unit for a base amount: pieces for countable foods, else g/ml. */
+/**
+ * Puts an amount in the unit the pantry keeps that food in: ml/L for liquids
+ * (lemon juice, oil, milk), pieces for foods you count (eggs, onions), g/kg for the rest (rice, flour).
+ */
 function friendly(amount: number, base: Base, name: string): { quantity: number; unit: string } {
-  if (base === 'pc') return { quantity: Math.ceil(amount - 0.05), unit: 'pieces' };
-  const p = gramsPerPiece(name);
-  if (p && p >= 30) {
+  const target = naturalBase(name);
+  const raw = name.toLowerCase();
+  if (base === 'pc') {
+    const juice = /\bjuice\b/.test(raw) ? JUICE_PER_PIECE.find(([re]) => re.test(raw))?.[1] : undefined;
+    if (juice) {
+      amount *= juice;
+      base = 'ml';
+    } else if (target === 'pc' || gramsPerPiece(name) == null) {
+      return { quantity: Math.max(1, Math.ceil(amount - 0.05)), unit: 'pieces' };
+    } else {
+      amount *= gramsPerPiece(name)!;
+      base = 'g';
+    }
+  }
+  if (target === 'pc') {
+    const p = gramsPerPiece(name)!;
     const grams = base === 'g' ? amount : convertBase(amount, base, 'g', name);
     if (grams != null) return { quantity: Math.max(1, Math.ceil(grams / p - 0.15)), unit: 'pieces' };
   }
-  if (base === 'g') return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'kg' } : { quantity: Math.ceil(amount / 10) * 10 || amount, unit: 'g' };
-  return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'L' } : { quantity: Math.ceil(amount / 10) * 10 || amount, unit: 'ml' };
+  if (target === 'ml' && base === 'g') {
+    amount /= density(name) ?? 1;
+    base = 'ml';
+  } else if (target === 'g' && base === 'ml') {
+    // Dry foods measured in cups or spoons are bought by weight.
+    amount *= density(name) ?? 0.7;
+    base = 'g';
+  }
+  const step = (a: number) => (a >= 100 ? Math.ceil(a / 10) * 10 : a >= 10 ? Math.ceil(a / 5) * 5 : Math.max(1, Math.ceil(a)));
+  if (base === 'g') return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'kg' } : { quantity: step(amount), unit: 'g' };
+  return amount >= 1000 ? { quantity: +(amount / 1000).toFixed(2), unit: 'L' } : { quantity: step(amount), unit: 'ml' };
+}
+
+// ── Shown amounts, in the reader's language ──────────────────────────
+
+let translateUnit: (word: string) => string = (w) => w;
+/** The website and the app hand in their translator, so units read "قطعة" or "pièce", never "pieces". */
+function setUnitTranslator(fn: (word: string) => string) {
+  translateUnit = fn;
+}
+
+/** Unit words we know, written the one way the translations use. */
+const UNIT_WORD: Record<string, string> = {
+  g: 'g', gr: 'g', gram: 'g', grams: 'g', kg: 'kg', kilo: 'kg', kilos: 'kg', kilogram: 'kg', kilograms: 'kg',
+  ml: 'ml', millilitre: 'ml', millilitres: 'ml', milliliter: 'ml', milliliters: 'ml', l: 'L', litre: 'L', litres: 'L', liter: 'L', liters: 'L',
+  tsp: 'tsp', teaspoon: 'tsp', teaspoons: 'tsp', tbsp: 'tbsp', tablespoon: 'tbsp', tablespoons: 'tbsp', cup: 'cup', cups: 'cup',
+  oz: 'oz', ounce: 'oz', ounces: 'oz', lb: 'lb', lbs: 'lb', pound: 'lb', pounds: 'lb',
+  pinch: 'pinch', handful: 'handful', bunch: 'bunch', can: 'can', cans: 'can', tin: 'can', pack: 'pack', packet: 'pack',
+  bottle: 'bottle', jar: 'jar', bag: 'bag', box: 'box', sprig: 'sprig', sprigs: 'sprig', 'to taste': 'to taste',
+};
+
+/**
+ * "1.25 kg", "800 g", "3 pieces", in the reader's language. With the food's name, the
+ * amount is first put in the pantry's unit for that food (lemon juice in ml, rice in g).
+ */
+function amountText(quantity: number | null | undefined, unit: string | null | undefined, name?: string): string {
+  const t = translateUnit;
+  let q = quantity == null ? null : Number(quantity);
+  let u = normUnit(unit);
+  if (name && q != null && q > 0) {
+    const base = toBase(q, u || 'pieces', name);
+    if (base) {
+      const f = friendly(base.amount, base.base, name);
+      q = f.quantity;
+      u = normUnit(f.unit);
+    }
+  }
+  if (q == null || !(q > 0)) return t(u === 'to taste' ? 'to taste' : 'some');
+  if ((u === 'g' || u === 'gram' || u === 'grams') && q >= 1000) return `${+(q / 1000).toFixed(2)} ${t('kg')}`;
+  if ((u === 'ml') && q >= 1000) return `${+(q / 1000).toFixed(2)} ${t('L')}`;
+  const n = q >= 100 ? round(q, 5) : q >= 10 ? Math.round(q) : +q.toFixed(q < 1 ? 2 : 1);
+  if (!u || COUNT.has(u)) {
+    if (u === 'clove' || u === 'cloves') return `${n} ${t(n === 1 ? 'clove' : 'cloves')}`;
+    if (u === 'slice' || u === 'slices') return `${n} ${t(n === 1 ? 'slice' : 'slices')}`;
+    if (u === 'can' || u === 'cans' || u === 'tin') return `${n} ${t(n === 1 ? 'can' : 'cans')}`;
+    return `${n} ${t(n === 1 ? 'piece' : 'pieces')}`;
+  }
+  const word = UNIT_WORD[u];
+  // An unknown unit word stays out rather than showing untranslated English.
+  return word ? `${n} ${t(word)}` : String(n);
+}
+
+/** "1.25 kg", "800 g", "3 pieces", "2 tbsp", in the reader's language. */
+function formatAmount(quantity: number | null | undefined, unit: string | null | undefined, name?: string): string {
+  return amountText(quantity, unit, name);
 }
 
 // ── Adding amounts ───────────────────────────────────────────────────

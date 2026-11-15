@@ -890,18 +890,25 @@ export interface RecipeIdea {
 }
 
 const SWEET = /cake|gâteau|cookie|biscuit|brownie|muffin|tart|pie|pudding|custard|halwa|halva|baklava|basbousa|kunafa|knafeh|maamoul|ghriba|chebakia|sweet|dessert|cream|caramel|chocolate|date ball|truffle|crepe|pancake|waffle|donut|doughnut|churro|sfenj|qatayef|luqaimat|rice pudding|mahalabia|umm ali/i;
-const PICNIC = /sandwich|wrap|salad|pasta salad|kebab|kofta|skewer|samosa|empanada|pie|muffin|cookie|bar|ball|roll|bread|msemen|batbout|fatayer|sfiha|börek|borek|frittata|falafel|hummus|tabbouleh|onigiri|patty|nugget|cake/i;
 
 /** A few library recipes for a moment of the program (never one without its photo). */
 export async function loadRecipeIdeas(db: Db, need: RecipeNeed, n = 6): Promise<RecipeIdea[]> {
   const meal = need === 'breakfast' ? ['Breakfast'] : need === 'dinner' ? ['Dinner'] : need === 'lunch' ? ['Lunch'] : need === 'dessert' ? ['Dessert', 'Snack', 'Breakfast'] : need === 'picnic' ? ['Lunch', 'Snack'] : ['Lunch', 'Snack'];
-  const { data } = await db.from('recipes')
-    .select('id,name,image_path,prep_time_minutes,cook_time_minutes,meal_types!inner(name)')
-    .eq('is_active', true).not('image_path', 'is', null).in('meal_types.name', meal).limit(800);
+  // Picnic food is tagged by hand in the library; everything else goes by meal.
+  const { data } = need === 'picnic'
+    ? await db.from('recipes')
+        .select('id,name,image_path,prep_time_minutes,cook_time_minutes,meal_types(name),recipe_tags!inner(tags!inner(name))')
+        .eq('is_active', true).not('image_path', 'is', null).eq('recipe_tags.tags.name', 'Picnic').limit(400)
+    : await db.from('recipes')
+        .select('id,name,image_path,prep_time_minutes,cook_time_minutes,meal_types!inner(name)')
+        .eq('is_active', true).not('image_path', 'is', null).in('meal_types.name', meal).limit(800);
   type R = { id: string; name: string; image_path: string; prep_time_minutes: number | null; cook_time_minutes: number | null; meal_types: { name: string } | null };
   let rows = ((data ?? []) as R[]).map((r) => ({ ...r, minutes: (r.prep_time_minutes ?? 0) + (r.cook_time_minutes ?? 0) }));
-  if (need === 'dessert') rows = rows.filter((r) => r.meal_types?.name === 'Dessert' || SWEET.test(r.name));
-  if (need === 'picnic') rows = rows.filter((r) => PICNIC.test(r.name) && r.minutes <= 60);
+  // Desserts first; sweet snacks only when there are few desserts.
+  if (need === 'dessert') {
+    const real = rows.filter((r) => r.meal_types?.name === 'Dessert');
+    rows = real.length >= n ? real : [...real, ...rows.filter((r) => r.meal_types?.name !== 'Dessert' && SWEET.test(r.name))];
+  }
   if (need === 'quick') rows = rows.filter((r) => r.minutes > 0 && r.minutes <= 30);
   for (let i = rows.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [rows[i], rows[j]] = [rows[j], rows[i]]; }
   return rows.slice(0, n).map((r) => ({ id: r.id, name: r.name, image: r.image_path, minutes: r.minutes }));

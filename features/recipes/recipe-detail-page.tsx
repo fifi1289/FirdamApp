@@ -335,7 +335,7 @@ export function RecipeDetailPage({ recipeKey }: { recipeKey: string }) {
               {tr('Halal')}
             </Badge>
             {recipe.cuisine && <Badge variant="secondary">{trn(recipe.cuisine)}</Badge>}
-            <Badge variant="secondary">{trn(MEAL_LABELS[recipe.mealType])}</Badge>
+            <Badge variant="secondary">{recipe.dessert ? tr('Dessert') : trn(MEAL_LABELS[recipe.mealType])}</Badge>
             <Badge variant="secondary">{trn(recipe.difficulty)}</Badge>
             {recipe.source !== 'catalog' && (
               <Badge variant="outline" className="gap-1">

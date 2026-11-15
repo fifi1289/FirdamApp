@@ -24,7 +24,8 @@ function matchesQuery(r: RecipeRow, q: string): boolean {
   return words.every((w) => hay.includes(w));
 }
 
-const MEALS = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
+const MEALS = ['breakfast', 'lunch', 'dinner', 'snack', 'dessert'] as const;
+const MEAL_LABEL: Record<(typeof MEALS)[number], string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack', dessert: 'Dessert' };
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Low-sugar', 'Low-sodium', 'Low-cholesterol', 'Kid-friendly'];
 
 /** Recipes shown per page; "Show more" adds the next page. */
@@ -165,12 +166,12 @@ export function RecipesView({ use, allow, except }: { use?: string; allow?: stri
               </Section>
               <Section title={tr('Meal')}>
                 {MEALS.map((m) => (
-                  <Chip key={m} label={m[0].toUpperCase() + m.slice(1)} selected={meal === m} onPress={() => setMeal(meal === m ? null : m)} />
+                  <Chip key={m} label={tr(MEAL_LABEL[m])} selected={meal === m} onPress={() => setMeal(meal === m ? null : m)} />
                 ))}
               </Section>
               <Section title={tr('Diet')}>
                 {DIETS.map((d) => (
-                  <Chip key={d} label={d} selected={diet === d} onPress={() => setDiet(diet === d ? null : d)} tone="sage" />
+                  <Chip key={d} label={tr(d)} selected={diet === d} onPress={() => setDiet(diet === d ? null : d)} tone="sage" />
                 ))}
               </Section>
               <Section title={tr('Cuisine')}>

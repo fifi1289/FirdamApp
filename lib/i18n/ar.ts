@@ -4258,4 +4258,6 @@ export const AR: Record<string, string> = {
   "{0} one-way rides for the group. Children under {1} ride free.": "{0} رحلات في اتجاه واحد للمجموعة. الأطفال دون {1} سنة يركبون مجانًا.",
   "‹ Back": "‹ رجوع",
   "2 hours": "ساعتان",
+  "Desserts": "الحلويات",
+  "Dessert": "حلوى",
 };

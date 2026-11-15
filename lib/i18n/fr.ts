@@ -4174,4 +4174,6 @@ export const FR: Record<string, string> = {
   "{0} one-way rides for the group. Children under {1} ride free.": "{0} trajets simples pour le groupe. Les enfants de moins de {1} ans voyagent gratuitement.",
   "‹ Back": "‹ Retour",
   "2 hours": "2 heures",
+  "Desserts": "Desserts",
+  "Dessert": "Dessert",
 };

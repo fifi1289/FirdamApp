@@ -44,12 +44,13 @@ import { sameFood } from '@/supabase/functions/_shared/kitchen-items';
 
 type Tab = 'all' | 'cook' | 'favorites' | 'mine';
 
-const MEAL_FILTERS: { value: MealTypeKey | 'all'; label: string }[] = [
+const MEAL_FILTERS: { value: MealTypeKey | 'all' | 'dessert'; label: string }[] = [
   { value: 'all', label: 'Any meal' },
   { value: 'breakfast', label: 'Breakfast' },
   { value: 'lunch', label: 'Lunch' },
   { value: 'dinner', label: 'Dinner' },
-  { value: 'snack', label: 'Snacks & desserts' },
+  { value: 'snack', label: 'Snacks' },
+  { value: 'dessert', label: 'Desserts' },
 ];
 
 const DIET_FILTERS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'High-protein', 'Low-carb', 'Low-sugar', 'Low-sodium', 'Low-cholesterol', 'Kid-friendly'];
@@ -159,7 +160,7 @@ export function RecipesDashboard() {
     if (new URLSearchParams(window.location.search).get('tab') === 'cook') setTab('cook');
   }, []);
   const [query, setQuery] = useState('');
-  const [meal, setMeal] = useState<MealTypeKey | 'all'>('all');
+  const [meal, setMeal] = useState<MealTypeKey | 'all' | 'dessert'>('all');
   const [cuisine, setCuisine] = useState('all');
   const [time, setTime] = useState('any');
   const [freeFrom, setFreeFrom] = useState<string[]>([]);
@@ -226,7 +227,7 @@ export function RecipesDashboard() {
     return recipes.filter((r) => {
       if (tab === 'favorites' && !favorites.has(r.key)) return false;
       if (tab === 'mine' && r.source !== 'mine') return false;
-      if (meal !== 'all' && r.mealType !== meal) return false;
+      if (meal === 'dessert' ? !r.dessert : meal !== 'all' && (r.mealType !== meal || (meal === 'snack' && r.dessert))) return false;
       if (cuisine !== 'all' && r.cuisine !== cuisine) return false;
       if (time !== 'any' && totalMinutes(r) > Number(time)) return false;
       if (q) {
@@ -353,7 +354,7 @@ export function RecipesDashboard() {
             aria-label={tr('Search recipes')}
           />
         </div>
-        <Select value={meal} onValueChange={(v) => setMeal(v as MealTypeKey | 'all')}>
+        <Select value={meal} onValueChange={(v) => setMeal(v as MealTypeKey | 'all' | 'dessert')}>
           <SelectTrigger className="md:w-[170px]" aria-label={tr('Meal')}>
             <SelectValue />
           </SelectTrigger>

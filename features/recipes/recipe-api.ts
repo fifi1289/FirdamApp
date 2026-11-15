@@ -21,6 +21,8 @@ export interface RecipeSummary {
   description: string | null;
   cuisine: string | null;
   mealType: MealTypeKey;
+  /** In the Dessert category (planned as a snack when added to a plan). */
+  dessert?: boolean;
   difficulty: Difficulty;
   prepMinutes: number;
   cookMinutes: number;
@@ -97,6 +99,7 @@ function catalogSummary(r: CatalogRow): RecipeSummary {
     description: r.short_description,
     cuisine: r.cuisine?.name ?? null,
     mealType,
+    dessert: (r.meal_type?.name ?? '').toLowerCase() === 'dessert',
     difficulty: difficultyOf(r.difficulty?.name),
     prepMinutes: r.prep_time_minutes ?? 0,
     cookMinutes: r.cook_time_minutes ?? 0,

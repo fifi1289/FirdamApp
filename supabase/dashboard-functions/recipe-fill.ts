@@ -537,7 +537,7 @@ async function generateFoodImage(apiKey: string, prompt: string, model: string, 
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     // gpt-image models can return compressed WebP directly (much smaller files).
-    body: JSON.stringify({ model, prompt, size: IMAGE_SIZE, quality, n: 1, output_format: "webp", output_compression: 82 }),
+    body: JSON.stringify({ model, prompt, size: IMAGE_SIZE, quality, n: 1, output_format: "webp", output_compression: 60 }),
   });
   if (!res.ok) {
     const text = await res.text();
@@ -1259,10 +1259,10 @@ async function save(w: Written): Promise<string | null> {
 
 /** Makes photos for filler recipes still waiting for one, then shows the ones that have it. */
 async function photographAndShow(newIds: string[], budgetMs: number) {
-  const waiting = await rest<{ id: string }[]>("recipes?select=id&source=eq.ai-fill&is_active=eq.false&image_path=is.null&order=created_at&limit=6");
+  const waiting = await rest<{ id: string }[]>("recipes?select=id&source=in.(ai-fill,ai-cuisine)&is_active=eq.false&image_path=is.null&order=created_at&limit=6");
   const ids = Array.from(new Set([...newIds, ...waiting.map((w) => w.id)]));
   if (ids.length) await photographRecipes(ids, budgetMs);
-  await rest("recipes?source=eq.ai-fill&is_active=eq.false&image_path=not.is.null", {
+  await rest("recipes?source=in.(ai-fill,ai-cuisine)&is_active=eq.false&image_path=not.is.null", {
     method: "PATCH",
     headers: { Prefer: "return=minimal" },
     body: JSON.stringify({ is_active: true }),
@@ -1270,7 +1270,7 @@ async function photographAndShow(newIds: string[], budgetMs: number) {
 }
 
 async function skip(slot: Slot, error: string) {
-  const key = `${slot.meal}|${slot.cuisine}|${slot.extras}`;
+  const key = slot.extras < 0 ? `${slot.cuisine}|${slot.meal}` : `${slot.meal}|${slot.cuisine}|${slot.extras}`;
   const prev = await rest<{ tries: number }[]>(`recipe_fill_skips?select=tries&key=eq.${encodeURIComponent(key)}`);
   await rest("recipe_fill_skips?on_conflict=key", {
     method: "POST",
@@ -1278,6 +1278,156 @@ async function skip(slot: Slot, error: string) {
     // Two honest, weighed-out tries that fell short of a protein or carb target: the food can't reach it.
     body: JSON.stringify({ key, tries: /^was not (high-protein|low-carb)/.test(error) ? 3 : (prev[0]?.tries ?? 0) + 1, last_error: error.slice(0, 300), updated_at: new Date().toISOString() }),
   });
+}
+
+// ── Traditional dishes by cuisine ──
+// Every cuisine needs PER_MEAL real, traditional halal dishes for each meal
+// (normal family food: halal meat, dairy, bread…), with nutrition worked out
+// from ingredient weights like the rest of the library.
+const PER_MEAL = 3;
+type Meal = (typeof MEALS)[number];
+interface CuisineSlot { cuisine: string; meal: Meal; have: number; names: string[] }
+
+async function cuisineGaps(): Promise<CuisineSlot[]> {
+  const cuisines = await rest<{ id: string; name: string }[]>("cuisines?select=id,name&active=not.is.false&name=neq.International");
+  const rows: { name: string; cuisine_id: string | null; meal_type: { name: string } | null }[] = [];
+  for (let from = 0; ; from += 1000) {
+    const page = await rest<typeof rows>(
+      "recipes?select=name,cuisine_id,meal_type:meal_types(name)&or=(is_active.eq.true,and(source.eq.ai-cuisine,image_path.is.null))&order=id",
+      { headers: { Range: `${from}-${from + 999}` } },
+    );
+    rows.push(...page);
+    if (page.length < 1000) break;
+  }
+  const skipped = new Set((await rest<{ key: string }[]>("recipe_fill_skips?select=key&tries=gte.3&key=like.cuisine*")).map((s) => s.key));
+  const gaps: CuisineSlot[] = [];
+  for (const c of cuisines) {
+    for (const meal of MEALS) {
+      const names = rows.filter((r) => r.cuisine_id === c.id && mealKey(r.meal_type?.name) === meal).map((r) => r.name);
+      if (names.length < PER_MEAL && !skipped.has(`cuisine|${c.name}|${meal}`)) gaps.push({ cuisine: c.name, meal, have: names.length, names });
+    }
+  }
+  return gaps.sort((a, b) => a.have - b.have);
+}
+
+async function writeCuisineRecipe(slot: CuisineSlot, problem: string | null): Promise<Written> {
+  const apiKey = env("OPENAI_API_KEY");
+  if (!apiKey) throw new Error("AI is not set up.");
+  const res = await fetchOpenAI(apiKey, {
+    model: MODEL,
+    temperature: 0.7,
+    response_format: { type: "json_object" },
+    messages: [
+      {
+        role: "system",
+        content: [
+          "You write authentic, practical home recipes for Muslim families. Every rule below is a hard rule:",
+          "- Strictly halal: no pork or pork products, no alcohol in any form (no wine, mirin, beer, vanilla extract; vanilla powder is fine), no blood.",
+          "- Write 'halal' before meat, poultry, sausages, gelatin and stock (e.g. 'halal lamb shoulder', 'halal chicken stock').",
+          "- Name every ingredient plainly so its allergens are obvious ('wheat flour', 'pine nuts', 'plain yogurt'); no ready-made mixes or sauces that hide them.",
+          "- Give the weight in grams of every ingredient for the servings stated.",
+          "- The name is the dish's real name written in Latin letters, with a short English description in brackets if the name is not English. Never only in another alphabet.",
+        ].join("\n"),
+      },
+      {
+        role: "user",
+        content:
+          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that families in that cuisine actually cook at home.` +
+          (slot.names.length ? ` The library already has: ${slot.names.join("; ")}. Write a different dish.` : "") +
+          (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
+          ` Answer as JSON: {"name":"","description":"one sentence","difficulty":"Easy|Medium","prepTime":minutes,"cookTime":minutes,"servings":4,` +
+          `"kidFriendly":true|false,"ingredients":[{"name":"","quantity":"","unit":"","grams":weight in grams of this quantity}],"recipe":["step","..."]}`,
+      },
+    ],
+  });
+  if (!res.ok) throw new Error((await describeOpenAIFailure(res)).message);
+  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const o = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as Record<string, unknown>;
+  const num = (v: unknown, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+  const raw = (Array.isArray(o.ingredients) ? o.ingredients : []).map((x) => x as Record<string, unknown>);
+  const servings = Math.max(1, Math.round(num(o.servings, 4)));
+  const facts = computeNutrition(raw.map((x) => ({ name: String(x.name ?? ""), grams: num(x.grams) })), servings);
+  const weighed = raw.filter((x) => num(x.grams) > 0).length;
+  return {
+    weighed: raw.length > 0 && weighed >= raw.length - 2,
+    name: String(o.name ?? "").trim().slice(0, 120),
+    description: String(o.description ?? "").trim().slice(0, 300),
+    type: slot.meal[0].toUpperCase() + slot.meal.slice(1),
+    cuisine: slot.cuisine,
+    difficulty: String(o.difficulty ?? "Easy"),
+    prepTime: Math.round(num(o.prepTime, 10)),
+    cookTime: Math.round(num(o.cookTime, 20)),
+    servings,
+    protein: facts.protein,
+    carbs: facts.carbs,
+    calories: facts.calories,
+    kidFriendly: o.kidFriendly === true,
+    ingredients: raw
+      .map((x) => ({ name: String(x.name ?? "").trim().slice(0, 80), quantity: String(x.quantity ?? "").trim().slice(0, 20), unit: String(x.unit ?? "").trim().slice(0, 20), grams: num(x.grams) }))
+      .filter((x) => x.name)
+      .slice(0, 25),
+    recipe: (Array.isArray(o.recipe) ? o.recipe : []).map((s) => String(s).trim().slice(0, 600)).filter(Boolean).slice(0, 15),
+  };
+}
+
+function cuisineProblem(w: Written): string | null {
+  if (w.name.length < 3 || w.ingredients.length < 4 || w.recipe.length < 3) return "was incomplete";
+  if (!/^[A-Za-z]/.test(w.name)) return "had a name that does not start in Latin letters";
+  const halal = haramReason(w.ingredients.map((i) => i.name), w.recipe);
+  if (halal) return `was not halal (${halal})`;
+  if (!w.weighed) return "did not give the weight in grams of every ingredient";
+  const main = w.ingredients.filter((i) => ((i as { grams?: number }).grams ?? 0) >= 20).length;
+  if (main < 3) return "was too simple (fewer than 3 main ingredients); write a real dish";
+  if (!(w.calories > 0)) return "had no nutrition numbers";
+  return null;
+}
+
+async function saveCuisine(w: Written): Promise<string | null> {
+  const before = await rest<{ id: string }[]>(`recipes?select=id&name=ilike.${encodeURIComponent(w.name)}&limit=1`);
+  if (before.length) return null;
+  const id = await rest<string | null>("rpc/save_ai_recipe", { method: "POST", body: JSON.stringify({ meal: w }) });
+  if (!id) return null;
+  await rest(`recipes?id=eq.${id}`, {
+    method: "PATCH",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({ protein: w.protein, carbs: w.carbs, calories: w.calories, source: "ai-cuisine", is_active: false }),
+  });
+  const tags = [...(w.kidFriendly ? ["Kid-friendly"] : []), ...(w.protein >= 25 ? ["High-protein"] : []), ...(w.carbs <= 25 ? ["Low-carb"] : [])];
+  if (tags.length) {
+    const ids = await tagIds(tags);
+    await rest("recipe_tags?on_conflict=recipe_id,tag_id", { method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=minimal" }, body: JSON.stringify(ids.map((tag_id) => ({ recipe_id: id, tag_id }))) });
+  }
+  return id;
+}
+
+async function fillCuisines(limit: number): Promise<{ made: string[]; ids: string[]; remaining: number }> {
+  const gaps = await cuisineGaps();
+  const apiKey = env("OPENAI_API_KEY")!;
+  const made: string[] = [], ids: string[] = [];
+  const stopAt = Date.now() + 70_000;
+  for (const slot of gaps.slice(0, limit)) {
+    if (Date.now() > stopAt) break;
+    let problem: string | null = null, saved: string | null = null;
+    for (let attempt = 0; attempt < 2 && !saved; attempt++) {
+      try {
+        const w = await writeCuisineRecipe(slot, problem);
+        problem = cuisineProblem(w);
+        if (problem) continue;
+        saved = await saveCuisine(w);
+        if (!saved) problem = "had a name already in the library";
+        else {
+          made.push(`${w.name} (${slot.cuisine} ${slot.meal})`);
+          ids.push(saved);
+          for (const lang of ["fr", "ar"] as const) {
+            await translateMeals(apiKey, [{ id: saved, name: w.name, description: w.description, ingredients: w.ingredients, recipe: w.recipe }], lang).catch((e) => console.error("translate", e));
+          }
+        }
+      } catch (e) { problem = (e as Error).message; console.error("recipe-fill cuisine", slot.cuisine, slot.meal, problem); }
+    }
+    if (!saved) await skip({ meal: slot.meal, cuisine: `cuisine|${slot.cuisine}`, extras: -1, have: slot.have }, problem ?? "unknown");
+  }
+  if (ids.length) await rest("rpc/retag_recipe_allergens", { method: "POST", body: "{}" }).catch(() => null);
+  return { made, ids, remaining: Math.max(0, gaps.length - made.length) };
 }
 
 Deno.serve(async (req) => {
@@ -1294,6 +1444,13 @@ Deno.serve(async (req) => {
     if (!allowed) return json({ error: "Admins only." }, 403);
 
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+    if (body.action === "cuisine" || body.action === "cuisine-status") {
+      if (body.action === "cuisine-status") return json({ remaining: (await cuisineGaps()).length });
+      const r = await fillCuisines(Math.min(3, Math.max(1, Number(body.limit) || 1)));
+      // deno-lint-ignore no-explicit-any
+      (globalThis as any).EdgeRuntime?.waitUntil?.(photographAndShow(r.ids, 120_000).catch((e) => console.error("photos", e)));
+      return json({ made: r.made, remaining: r.remaining });
+    }
     const { gaps, cuisines } = await findGaps();
     if (body.action !== "fill") {
       return json({ remaining: gaps.length, cuisines: cuisines.length, sample: gaps.slice(0, 12).map((g) => `${g.cuisine} ${g.meal} [${EXTRAS.filter((_, i) => g.extras & (1 << i)).join(", ") || "any"}] has ${g.have}`) });

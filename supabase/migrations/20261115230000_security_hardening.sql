@@ -12,13 +12,21 @@ BEGIN
       'leave_household', 'mfa_satisfied', 'my_display_name', 'my_household_id', 'remove_household_member',
       'handle_new_user', 'halal_place_needs_review', 'partner_applications_limit', 'partner_applications_stamp')
   LOOP
-    EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC, anon', f.sig);
-    EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO service_role', f.sig);
-    -- Trigger functions run by themselves; the others are for signed-in families.
-    IF f.proname NOT IN ('handle_new_user', 'halal_place_needs_review', 'partner_applications_limit', 'partner_applications_stamp') THEN
-      EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO authenticated', f.sig);
-    ELSE
-      EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM authenticated', f.sig);
+    EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', f.sig);
+    -- The Supabase roles exist on the real project (not in a plain test database).
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+      EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM anon', f.sig);
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+      EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO service_role', f.sig);
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+      -- Trigger functions run by themselves; the others are for signed-in families.
+      IF f.proname NOT IN ('handle_new_user', 'halal_place_needs_review', 'partner_applications_limit', 'partner_applications_stamp') THEN
+        EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO authenticated', f.sig);
+      ELSE
+        EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM authenticated', f.sig);
+      END IF;
     END IF;
   END LOOP;
 END $$;

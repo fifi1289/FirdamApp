@@ -7,12 +7,14 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
  * Weekend programs: a day (or two) out near where the family lives, built only
  * from real places on OpenStreetMap — parks, museums, beaches, playgrounds,
  * libraries… — plus halal food and the nearest mosque from Firdam's halal map.
- * The AI arranges the day; it never invents a place, a price or a halal status.
+ * The day is put together by fixed rules (no AI): real places only, opening days,
+ * weather, distance and prayer times, with wording written in English, French and Arabic.
  *
  *   POST { lat, lng, place?, who: "single"|"couple"|"family", kids?: number[] (ages),
  *          style: "simple"|"fancy", budget: "low"|"normal", days: ("sat"|"sun")[], lang }
  *        (signed in) -> { plan }
  *   GET  ?sync=pending | POST ?sync=ingest   background map sync (x-sync-token)
+ *   POST ?sync=seed { cities: [{ lat, lng, big? }] }   queue the world's main cities ahead of time
  */
 
 const corsHeaders = {
@@ -29,7 +31,7 @@ const OVERPASS = [
   "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
 ];
-const PLANS_PER_DAY = 6;
+const PLANS_PER_DAY = 30;
 const RADIUS_M = 25_000;
 
 async function rest<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -289,143 +291,444 @@ const distKm = (a: number, b: number, c: number, d: number) => {
 interface Options { lat: number; lng: number; place?: string; who: "single" | "couple" | "family"; kids: number[]; style: "simple" | "fancy"; budget: "low" | "normal"; days: ("sat" | "sun")[]; lang: "en" | "fr" | "ar" }
 interface FoodRow { key: string; name: string; category: string; latitude: number; longitude: number; address: string | null; website: string | null; opening_hours: string | null; halal_status: string; cuisine: string | null }
 
-const LANG = { en: "English", fr: "French", ar: "Arabic (Modern Standard, simple everyday words)" } as const;
+type Lang = "en" | "fr" | "ar";
+
+// ── Fixed wording: every sentence the planner can write, in three languages ──
+// No AI writes anything here: the program is assembled from these sentences and real map data.
+
+const TEXT: Record<string, { fr: string; ar: string }> = {
+  // What you do at each kind of place
+  "Time at the park": { fr: "Moment au parc", ar: "وقت في الحديقة العامة" },
+  "Playground": { fr: "Aire de jeux", ar: "ساحة ألعاب الأطفال" },
+  "Nature walk": { fr: "Balade en nature", ar: "نزهة في الطبيعة" },
+  "Garden walk": { fr: "Promenade au jardin", ar: "نزهة في الحديقة" },
+  "Water park": { fr: "Parc aquatique", ar: "حديقة مائية" },
+  "Swimming": { fr: "Baignade", ar: "سباحة" },
+  "Ice skating": { fr: "Patinage", ar: "تزلج على الجليد" },
+  "Mini golf": { fr: "Minigolf", ar: "غولف مصغّر" },
+  "Trampoline park": { fr: "Parc de trampolines", ar: "صالة الترامبولين" },
+  "Sport": { fr: "Sport", ar: "رياضة" },
+  "Museum visit": { fr: "Visite du musée", ar: "زيارة المتحف" },
+  "Zoo visit": { fr: "Visite du zoo", ar: "زيارة حديقة الحيوانات" },
+  "Aquarium visit": { fr: "Visite de l'aquarium", ar: "زيارة حوض الأسماك" },
+  "Theme park": { fr: "Parc d'attractions", ar: "مدينة الألعاب" },
+  "Sightseeing": { fr: "Lieu à découvrir", ar: "زيارة معلم محلي" },
+  "Viewpoint": { fr: "Point de vue", ar: "إطلالة بانورامية" },
+  "Art gallery": { fr: "Galerie d'art", ar: "معرض فني" },
+  "Picnic area": { fr: "Aire de pique-nique", ar: "مكان للنزهة والأكل" },
+  "Library visit": { fr: "Visite de la bibliothèque", ar: "زيارة المكتبة" },
+  "Planetarium": { fr: "Planétarium", ar: "القبة الفلكية" },
+  "Arts centre": { fr: "Centre culturel", ar: "مركز فني وثقافي" },
+  "Community centre": { fr: "Centre communautaire", ar: "مركز مجتمعي" },
+  "Beach time": { fr: "Moment à la plage", ar: "وقت على الشاطئ" },
+  "Shopping centre walk": { fr: "Balade au centre commercial", ar: "جولة في المركز التجاري" },
+
+  "Walk, play and enjoy the fresh air.": { fr: "Marchez, jouez et profitez du grand air.", ar: "مشي ولعب واستمتاع بالهواء الطلق." },
+  "The children play while you rest nearby.": { fr: "Les enfants jouent pendant que vous vous reposez à côté.", ar: "لعب للأطفال مع استراحة للكبار بالقرب منهم." },
+  "Wear comfortable shoes and stay on the marked paths.": { fr: "Portez des chaussures confortables et restez sur les sentiers balisés.", ar: "يُنصح بأحذية مريحة والبقاء على المسارات المحددة." },
+  "A calm walk among the trees and flowers.": { fr: "Une promenade calme entre les arbres et les fleurs.", ar: "نزهة هادئة بين الأشجار والزهور." },
+  "Water fun: stay together and take breaks in the shade.": { fr: "Jeux d'eau : restez ensemble et faites des pauses à l'ombre.", ar: "مرح في الماء، مع البقاء معًا وأخذ استراحات في الظل." },
+  "Check the public swimming times before you go.": { fr: "Vérifiez les horaires de baignade publique avant de partir.", ar: "يُستحسن التحقق من أوقات السباحة العامة قبل الذهاب." },
+  "Dress warmly, and ask at the desk about renting skates.": { fr: "Habillez-vous chaudement et renseignez-vous à l'accueil pour louer des patins.", ar: "ملابس دافئة، والسؤال في الاستقبال عن استئجار الزلاجات." },
+  "A friendly game for everyone.": { fr: "Une partie amicale pour tout le monde.", ar: "لعبة ودية للجميع." },
+  "Some places ask for special socks: check before you go.": { fr: "Certains lieux demandent des chaussettes spéciales : vérifiez avant de partir.", ar: "بعض الأماكن تطلب جوارب خاصة، فيُستحسن التحقق قبل الذهاب." },
+  "Check what is open to the public today.": { fr: "Vérifiez ce qui est ouvert au public aujourd'hui.", ar: "يُستحسن التحقق مما هو متاح للعموم اليوم." },
+  "Discover the exhibits at your own pace.": { fr: "Découvrez les expositions à votre rythme.", ar: "اكتشاف المعروضات على مهل." },
+  "Start with the animals you most want to see.": { fr: "Commencez par les animaux que vous voulez le plus voir.", ar: "البدء بالحيوانات الأكثر رغبة في رؤيتها." },
+  "Sea life up close.": { fr: "La vie marine de tout près.", ar: "الحياة البحرية عن قرب." },
+  "Arrive early: queues get longer during the day.": { fr: "Arrivez tôt : les files s'allongent au fil de la journée.", ar: "الوصول مبكرًا أفضل، فالطوابير تطول خلال اليوم." },
+  "A local sight to discover.": { fr: "Un lieu à découvrir.", ar: "معلم محلي للاكتشاف." },
+  "Enjoy the view and take a few photos.": { fr: "Profitez de la vue et prenez quelques photos.", ar: "استمتاع بالمنظر والتقاط بعض الصور." },
+  "Look at the art at your own pace.": { fr: "Admirez les œuvres à votre rythme.", ar: "تأمّل الأعمال الفنية على مهل." },
+  "A place to sit, eat and relax.": { fr: "Un endroit pour s'asseoir, manger et se détendre.", ar: "مكان للجلوس والأكل والراحة." },
+  "Read, borrow books and enjoy the calm.": { fr: "Lisez, empruntez des livres et profitez du calme.", ar: "قراءة واستعارة كتب واستمتاع بالهدوء." },
+  "Learn about the stars and planets.": { fr: "Découvrez les étoiles et les planètes.", ar: "التعرّف على النجوم والكواكب." },
+  "See what is on today.": { fr: "Voyez ce qui est au programme aujourd'hui.", ar: "الاطلاع على برنامج اليوم." },
+  "Stay together near the water and take breaks in the shade.": { fr: "Restez ensemble près de l'eau et faites des pauses à l'ombre.", ar: "البقاء معًا قرب الماء وأخذ استراحات في الظل." },
+  "A walk indoors, away from the cold and the rain.": { fr: "Une balade à l'intérieur, à l'abri du froid et de la pluie.", ar: "مشي في مكان مغلق، بعيدًا عن البرد والمطر." },
+
+  // Entry
+  "Free entry.": { fr: "Entrée gratuite.", ar: "الدخول مجاني." },
+  "Usually free to enter.": { fr: "Généralement gratuit.", ar: "الدخول مجاني عادةً." },
+  "Paid entry: check the price on their website.": { fr: "Entrée payante : vérifiez le prix sur leur site.", ar: "الدخول بمقابل: يُستحسن التحقق من السعر على موقعهم." },
+  "Entry price unknown: check before you go.": { fr: "Prix d'entrée inconnu : vérifiez avant de partir.", ar: "سعر الدخول غير معروف: يُستحسن التحقق قبل الذهاب." },
+
+  // How long
+  "About 45 minutes here.": { fr: "Environ 45 minutes sur place.", ar: "حوالي 45 دقيقة هنا." },
+  "About an hour here.": { fr: "Environ une heure sur place.", ar: "حوالي ساعة هنا." },
+  "About an hour and a half here.": { fr: "Environ une heure et demie sur place.", ar: "حوالي ساعة ونصف هنا." },
+  "About 2 hours here.": { fr: "Environ 2 heures sur place.", ar: "حوالي ساعتين هنا." },
+  "About 2 and a half hours here.": { fr: "Environ 2 heures et demie sur place.", ar: "حوالي ساعتين ونصف هنا." },
+  "About 3 hours here.": { fr: "Environ 3 heures sur place.", ar: "حوالي ثلاث ساعات هنا." },
+  "About 4 hours here.": { fr: "Environ 4 heures sur place.", ar: "حوالي أربع ساعات هنا." },
+
+  // Meals
+  "Picnic lunch": { fr: "Déjeuner pique-nique", ar: "غداء في الهواء الطلق" },
+  "Eat the lunch you packed from home.": { fr: "Mangez le repas préparé à la maison.", ar: "تناول الغداء المحضَّر في البيت." },
+  "Lunch from home": { fr: "Déjeuner apporté de la maison", ar: "غداء من البيت" },
+  "Eat the lunch you packed, where eating is allowed.": { fr: "Mangez le repas préparé, là où c'est permis.", ar: "تناول الغداء المحضَّر في مكان يُسمح فيه بالأكل." },
+  "Lunch": { fr: "Déjeuner", ar: "الغداء" },
+  "Lunch at a restaurant": { fr: "Déjeuner au restaurant", ar: "غداء في مطعم" },
+  "Tea and dessert": { fr: "Thé et dessert", ar: "شاي وحلوى" },
+  "Marked halal on the map. It is still good to ask.": { fr: "Indiqué halal sur la carte. Mieux vaut quand même demander.", ar: "مصنَّف حلالًا على الخريطة، ومع ذلك يُستحسن السؤال." },
+  "Has halal options: ask which dishes are halal.": { fr: "Propose des plats halal : demandez lesquels.", ar: "يقدّم خيارات حلال: يُستحسن السؤال عن الأطباق الحلال." },
+  "Often halal, not confirmed: ask before you order.": { fr: "Souvent halal, non confirmé : demandez avant de commander.", ar: "حلال غالبًا لكن غير مؤكد: يجب السؤال قبل الطلب." },
+  "Check the menu prices before you go.": { fr: "Vérifiez les prix du menu avant d'y aller.", ar: "يُستحسن الاطلاع على الأسعار قبل الذهاب." },
+
+  // Prayer and the day's frame
+  "Dhuhr prayer": { fr: "Prière du Dhuhr", ar: "صلاة الظهر" },
+  "Asr prayer": { fr: "Prière de l'Asr", ar: "صلاة العصر" },
+  "Maghrib prayer": { fr: "Prière du Maghrib", ar: "صلاة المغرب" },
+  "Maghrib prayer, then home": { fr: "Prière du Maghrib, puis retour à la maison", ar: "صلاة المغرب ثم العودة إلى البيت" },
+  "At the nearest mosque on the way. Times are approximate: check with the mosque.": { fr: "À la mosquée la plus proche sur le chemin. Les horaires sont approximatifs : vérifiez auprès de la mosquée.", ar: "في أقرب مسجد على الطريق. الأوقات تقريبية، فيُستحسن التأكد من المسجد." },
+  "Pray at a clean, quiet spot with your prayer mat. Times are approximate.": { fr: "Priez dans un endroit propre et calme avec votre tapis. Les horaires sont approximatifs.", ar: "الصلاة في مكان نظيف وهادئ على سجادة الصلاة. الأوقات تقريبية." },
+  "Pray at home or on the way. Times are approximate.": { fr: "Priez à la maison ou en chemin. Les horaires sont approximatifs.", ar: "الصلاة في البيت أو في الطريق. الأوقات تقريبية." },
+  "Its time starts at about {0}.": { fr: "Son heure commence vers {0}.", ar: "يبدأ وقتها نحو الساعة {0}." },
+  "Head home": { fr: "Retour à la maison", ar: "العودة إلى البيت" },
+  "Time to head home and rest.": { fr: "C'est l'heure de rentrer et de se reposer.", ar: "حان وقت العودة إلى البيت والراحة." },
+  "Get ready": { fr: "Préparatifs", ar: "الاستعداد" },
+  "Breakfast at home, then pack the bag (see the list below).": { fr: "Petit-déjeuner à la maison, puis préparez le sac (voir la liste plus bas).", ar: "فطور في البيت، ثم تجهيز الحقيبة (انظر القائمة في الأسفل)." },
+  "Check today's prayer times before you leave.": { fr: "Vérifiez les horaires de prière du jour avant de partir.", ar: "يُستحسن التحقق من أوقات الصلاة لهذا اليوم قبل الخروج." },
+
+  // Titles
+  "A family weekend in {0}": { fr: "Un week-end en famille à {0}", ar: "عطلة نهاية أسبوع عائلية في {0}" },
+  "A weekend for two in {0}": { fr: "Un week-end à deux à {0}", ar: "عطلة نهاية أسبوع للزوجين في {0}" },
+  "Your weekend in {0}": { fr: "Votre week-end à {0}", ar: "عطلة نهاية أسبوعك في {0}" },
+  "A family weekend near you": { fr: "Un week-end en famille près de chez vous", ar: "عطلة نهاية أسبوع عائلية قريبة منك" },
+  "A weekend for two near you": { fr: "Un week-end à deux près de chez vous", ar: "عطلة نهاية أسبوع للزوجين قريبة منك" },
+  "Your weekend nearby": { fr: "Votre week-end tout près", ar: "عطلة نهاية أسبوعك بالقرب منك" },
+
+  // Before you go
+  "Prayer mat and a small bottle of water for wudu": { fr: "Tapis de prière et une petite bouteille d'eau pour les ablutions", ar: "سجادة صلاة وقارورة ماء صغيرة للوضوء" },
+  "Water bottles for everyone": { fr: "Des bouteilles d'eau pour tout le monde", ar: "قوارير ماء للجميع" },
+  "Snacks for the children": { fr: "Des collations pour les enfants", ar: "وجبات خفيفة للأطفال" },
+  "Stroller, nappies and wipes": { fr: "Poussette, couches et lingettes", ar: "عربة الطفل والحفاضات والمناديل المبللة" },
+  "Packed lunch and a blanket to sit on": { fr: "Le déjeuner préparé et une couverture pour s'asseoir", ar: "الغداء المحضَّر وبطانية للجلوس" },
+  "Packed lunch in a cool bag": { fr: "Le déjeuner préparé dans un sac isotherme", ar: "الغداء المحضَّر في حقيبة تبريد" },
+  "Umbrellas or rain jackets": { fr: "Parapluies ou imperméables", ar: "مظلات أو معاطف مطر" },
+  "Warm coats, hats and gloves": { fr: "Manteaux chauds, bonnets et gants", ar: "معاطف دافئة وقبعات وقفازات" },
+  "Sunscreen, hats and sunglasses": { fr: "Crème solaire, chapeaux et lunettes de soleil", ar: "واقي الشمس وقبعات ونظارات شمسية" },
+  "Swimsuits and towels": { fr: "Maillots de bain et serviettes", ar: "ملابس سباحة ومناشف" },
+  "A card or some cash for tickets": { fr: "Une carte ou un peu d'argent pour les billets", ar: "بطاقة أو بعض النقود للتذاكر" },
+  "Ask the restaurant if the food is halal before ordering": { fr: "Demandez au restaurant si la nourriture est halal avant de commander", ar: "السؤال في المطعم عن كون الطعام حلالًا قبل الطلب" },
+  "Comfortable walking shoes": { fr: "Des chaussures confortables pour marcher", ar: "أحذية مريحة للمشي" },
+  "Plan the trip: car, bus or train": { fr: "Prévoyez le trajet : voiture, bus ou train", ar: "التخطيط للتنقل: سيارة أو حافلة أو قطار" },
+  "Charged phone, and a look at the opening hours before leaving": { fr: "Un téléphone chargé, et un coup d'œil aux horaires avant de partir", ar: "هاتف مشحون، والتحقق من أوقات الفتح قبل الخروج" },
+
+  // Money
+  "Everything planned here is free or usually free.": { fr: "Tout ce qui est prévu ici est gratuit ou généralement gratuit.", ar: "كل ما في هذا البرنامج مجاني أو مجاني عادةً." },
+  "Some places charge an entry fee: check the prices on their websites.": { fr: "Certains lieux sont payants : vérifiez les prix sur leurs sites.", ar: "بعض الأماكن تتطلب رسوم دخول: يُستحسن التحقق من الأسعار على مواقعها." },
+  "Entry prices are unknown for some places: check before you go.": { fr: "Le prix d'entrée de certains lieux est inconnu : vérifiez avant de partir.", ar: "أسعار الدخول غير معروفة لبعض الأماكن: يُستحسن التحقق قبل الذهاب." },
+  "Meals out cost money: check the menu prices.": { fr: "Les repas à l'extérieur sont payants : regardez les prix du menu.", ar: "الوجبات خارج البيت بمقابل: يُستحسن الاطلاع على الأسعار." },
+  "Meals come from home, so food costs stay low.": { fr: "Les repas viennent de la maison : la nourriture coûte peu.", ar: "الوجبات من البيت، فتبقى تكلفة الطعام منخفضة." },
+  "Transport is extra.": { fr: "Le transport est en plus.", ar: "التنقل بتكلفة إضافية." },
+};
+
+function t(lang: Lang, en: string, args: (string | number)[] = []): string {
+  const s = lang === "en" ? en : TEXT[en]?.[lang];
+  if (s == null) throw new Error(`Missing ${lang} wording: ${en}`);
+  return s.replace(/\{(\d)\}/g, (_, i) => String(args[+i] ?? ""));
+}
+
+const KIND_TEXT: Record<Kind, { title: string; note: string; minutes: number }> = {
+  park: { title: "Time at the park", note: "Walk, play and enjoy the fresh air.", minutes: 90 },
+  playground: { title: "Playground", note: "The children play while you rest nearby.", minutes: 60 },
+  nature: { title: "Nature walk", note: "Wear comfortable shoes and stay on the marked paths.", minutes: 120 },
+  garden: { title: "Garden walk", note: "A calm walk among the trees and flowers.", minutes: 60 },
+  water_park: { title: "Water park", note: "Water fun: stay together and take breaks in the shade.", minutes: 180 },
+  pool: { title: "Swimming", note: "Check the public swimming times before you go.", minutes: 90 },
+  ice_rink: { title: "Ice skating", note: "Dress warmly, and ask at the desk about renting skates.", minutes: 60 },
+  mini_golf: { title: "Mini golf", note: "A friendly game for everyone.", minutes: 60 },
+  trampoline: { title: "Trampoline park", note: "Some places ask for special socks: check before you go.", minutes: 60 },
+  sports: { title: "Sport", note: "Check what is open to the public today.", minutes: 90 },
+  museum: { title: "Museum visit", note: "Discover the exhibits at your own pace.", minutes: 120 },
+  zoo: { title: "Zoo visit", note: "Start with the animals you most want to see.", minutes: 180 },
+  aquarium: { title: "Aquarium visit", note: "Sea life up close.", minutes: 120 },
+  theme_park: { title: "Theme park", note: "Arrive early: queues get longer during the day.", minutes: 240 },
+  attraction: { title: "Sightseeing", note: "A local sight to discover.", minutes: 45 },
+  viewpoint: { title: "Viewpoint", note: "Enjoy the view and take a few photos.", minutes: 45 },
+  gallery: { title: "Art gallery", note: "Look at the art at your own pace.", minutes: 60 },
+  picnic: { title: "Picnic area", note: "A place to sit, eat and relax.", minutes: 60 },
+  library: { title: "Library visit", note: "Read, borrow books and enjoy the calm.", minutes: 60 },
+  planetarium: { title: "Planetarium", note: "Learn about the stars and planets.", minutes: 90 },
+  arts: { title: "Arts centre", note: "See what is on today.", minutes: 60 },
+  community: { title: "Community centre", note: "See what is on today.", minutes: 60 },
+  beach: { title: "Beach time", note: "Stay together near the water and take breaks in the shade.", minutes: 150 },
+  mall: { title: "Shopping centre walk", note: "A walk indoors, away from the cold and the rain.", minutes: 60 },
+};
+const HOW_LONG: [number, string][] = [
+  [240, "About 4 hours here."], [180, "About 3 hours here."], [150, "About 2 and a half hours here."], [120, "About 2 hours here."],
+  [90, "About an hour and a half here."], [60, "About an hour here."], [45, "About 45 minutes here."],
+];
+
+/** Which places make the heart of the day, best first. */
+const MAIN: Record<Options["who"], { out: Kind[]; in: Kind[] }> = {
+  family: {
+    out: ["zoo", "theme_park", "aquarium", "water_park", "beach", "park", "museum", "nature", "planetarium", "mini_golf", "garden", "library"],
+    in: ["museum", "aquarium", "planetarium", "library", "trampoline", "ice_rink", "pool", "arts", "mall"],
+  },
+  couple: {
+    out: ["garden", "nature", "viewpoint", "museum", "park", "gallery", "beach", "aquarium", "zoo", "arts", "attraction"],
+    in: ["museum", "gallery", "arts", "planetarium", "aquarium", "library", "mall"],
+  },
+  single: {
+    out: ["nature", "museum", "park", "viewpoint", "garden", "gallery", "library", "beach", "attraction"],
+    in: ["museum", "library", "gallery", "arts", "planetarium", "sports", "mall"],
+  },
+};
+/** A lighter end to the afternoon. */
+const LIGHT: Record<Options["who"], { out: Kind[]; in: Kind[] }> = {
+  family: { out: ["playground", "park", "garden", "library", "picnic"], in: ["library", "mall", "community"] },
+  couple: { out: ["viewpoint", "garden", "park", "gallery"], in: ["gallery", "library", "mall"] },
+  single: { out: ["viewpoint", "garden", "park", "library"], in: ["library", "gallery", "mall"] },
+};
+const BIG_PAID = new Set<Kind>(["theme_park", "zoo", "aquarium", "water_park", "planetarium"]);
+const PICNIC_OK = new Set<Kind>(["park", "garden", "picnic", "nature", "beach"]);
+
+const toMin = (s: string) => +s.slice(0, 2) * 60 + +s.slice(3, 5);
+const hm = (m: number) => { const r = Math.round(m); return `${String(Math.floor(r / 60) % 24).padStart(2, "0")}:${String(r % 60).padStart(2, "0")}`; };
+const up5 = (m: number) => Math.ceil(m / 5) * 5;
+
+interface Step { time: string | null; prayer: "dhuhr" | "asr" | "maghrib" | null; title: string; note: string; place: Record<string, unknown> | null }
+interface Pt { latitude: number; longitude: number }
+
+function placeCard(p: OutingRow, km: number) {
+  return { key: p.key, kind: p.kind, name: p.name, lat: p.latitude, lng: p.longitude, address: p.address, website: p.website, hours: p.opening_hours, fee: p.fee, indoor: p.indoor, km: +km.toFixed(1) };
+}
+function foodCard(f: FoodRow, km: number) {
+  return { key: f.key, kind: "food", name: f.name, lat: f.latitude, lng: f.longitude, address: f.address, website: f.website, hours: f.opening_hours, halal: f.halal_status, cuisine: f.cuisine, km: +km.toFixed(1) };
+}
+function mosqueCard(f: FoodRow, km: number) {
+  return { key: f.key, kind: "mosque", name: f.name, lat: f.latitude, lng: f.longitude, address: f.address, km: +km.toFixed(1) };
+}
+const halalNote = (s: string) =>
+  s === "halal" || s === "halal_only" ? "Marked halal on the map. It is still good to ask." : s === "halal_options" ? "Has halal options: ask which dishes are halal." : "Often halal, not confirmed: ask before you order.";
+const feeNote = (f: string | null) =>
+  f === "no" ? "Free entry." : f === "usually_free" ? "Usually free to enter." : f === "yes" ? "Paid entry: check the price on their website." : "Entry price unknown: check before you go.";
 
 async function makePlan(o: Options) {
+  const L = (en: string, args: (string | number)[] = []) => t(o.lang, en, args);
   const stillLoading = await ensureArea(o.lat, o.lng);
   const b = box(o.lat, o.lng, RADIUS_M);
   const [outings, foodRows, weather] = await Promise.all([
-    rest<OutingRow[]>(`outing_places?select=*&latitude=gte.${b[0]}&latitude=lte.${b[2]}&longitude=gte.${b[1]}&longitude=lte.${b[3]}&limit=4000`),
-    rest<FoodRow[]>(`osm_places?select=key,name,category,latitude,longitude,address,website,opening_hours,halal_status,cuisine&latitude=gte.${b[0]}&latitude=lte.${b[2]}&longitude=gte.${b[1]}&longitude=lte.${b[3]}&halal_status=in.(halal,halal_only,halal_options,likely,mosque)&limit=2000`),
+    rest<OutingRow[]>(`outing_places?select=*&latitude=gte.${b[0]}&latitude=lte.${b[2]}&longitude=gte.${b[1]}&longitude=lte.${b[3]}&limit=5000`),
+    rest<FoodRow[]>(`osm_places?select=key,name,category,latitude,longitude,address,website,opening_hours,halal_status,cuisine&latitude=gte.${b[0]}&latitude=lte.${b[2]}&longitude=gte.${b[1]}&longitude=lte.${b[3]}&halal_status=in.(halal,halal_only,halal_options,likely,mosque)&limit=3000`),
     weekendWeather(o.lat, o.lng),
   ]);
 
-  // A balanced shortlist: the nearest few of each kind that suit this family and budget.
+  const young = o.kids.some((a) => a < 4);
   const suits = (p: OutingRow) =>
     (o.budget === "low" ? p.fee !== "yes" : true) &&
-    (o.who === "family" ? p.for_kids || ["garden", "viewpoint", "nature", "attraction", "gallery", "arts", "mall"].includes(p.kind) : p.kind !== "playground");
-  const chosen = (o.days.length ? o.days : ["sat"]).map((d) => (d === "sat" ? "Sa" : "Su") as "Sa" | "Su");
-  const openSomeDay = (h: string | null) => chosen.some((d) => openOn(h, d) !== false);
-  const scored = outings
-    .filter((p) => suits(p) && openSomeDay(p.opening_hours))
-    .map((p) => ({ p, d: distKm(o.lat, o.lng, p.latitude, p.longitude) }))
-    .sort((a, b) => a.d - b.d);
-  const perKind = new Map<string, number>();
-  const shortlist: { id: string; p: OutingRow; d: number }[] = [];
-  for (const s of scored) {
-    const n = perKind.get(s.p.kind) ?? 0;
-    if (n >= (s.p.kind === "park" ? 8 : 5)) continue;
-    perKind.set(s.p.kind, n + 1);
-    shortlist.push({ id: `p${shortlist.length + 1}`, ...s });
-    if (shortlist.length >= 55) break;
-  }
-  if (shortlist.length < 3) {
+    (o.who === "family"
+      ? (p.for_kids || ["garden", "viewpoint", "nature", "gallery", "arts", "mall", "community"].includes(p.kind)) && !(young && ["trampoline", "ice_rink", "mini_golf"].includes(p.kind))
+      : p.kind !== "playground");
+  const places = outings.filter(suits);
+  if (places.length < 3) {
     return { error: stillLoading ? "We're still gathering places near you. Try again in a few minutes." : "We couldn't find enough places near this location for a program." };
   }
-  const food = foodRows
-    .filter((f) => (f.category === "restaurant" || f.category === "cafe") && openSomeDay(f.opening_hours))
-    .map((f) => ({ f, d: distKm(o.lat, o.lng, f.latitude, f.longitude) }))
-    .sort((a, b) => (a.f.halal_status === "likely" ? 1 : 0) - (b.f.halal_status === "likely" ? 1 : 0) || a.d - b.d)
-    .slice(0, 25)
-    .map((x, i) => ({ id: `f${i + 1}`, ...x }));
-  const mosques = foodRows
-    .filter((f) => f.halal_status === "mosque")
-    .map((f) => ({ f, d: distKm(o.lat, o.lng, f.latitude, f.longitude) }))
-    .sort((a, b) => a.d - b.d)
-    .slice(0, 6)
-    .map((x, i) => ({ id: `m${i + 1}`, ...x }));
+  const meals = foodRows.filter((f) => f.category === "restaurant" || f.category === "cafe");
+  const mosques = foodRows.filter((f) => f.halal_status === "mosque");
+  const home: Pt = { latitude: o.lat, longitude: o.lng };
+  const km = (a: Pt, c: Pt) => distKm(a.latitude, a.longitude, c.latitude, c.longitude);
+  const used = new Set<string>();
+  const kindsUsed: Kind[] = [];
+  const paid = { yes: false, unknown: false, out: false, home: false, likely: false, water: false, picnic: false, packed: false };
 
-  const days = (o.days.length ? o.days : ["sat"]).map((d) => ({
-    key: d,
-    date: d === "sat" ? weather.satDate : weather.sunDate,
-    weather: d === "sat" ? weather.sat : weather.sun,
-  }));
-  const people =
-    o.who === "single" ? "one adult on their own" : o.who === "couple" ? "a couple, no children" : `a family with ${o.kids.length || "some"} child(ren)${o.kids.length ? ` aged ${o.kids.join(", ")}` : ""}`;
-  const openWord = (h: string | null) =>
-    chosen.map((d) => { const v = openOn(h, d); return `${d === "Sa" ? "Sat" : "Sun"} ${v === true ? "open" : v === false ? "CLOSED" : "hours unknown"}`; }).join(", ");
-  const feeWord = (f: string | null) => (f === "no" ? "free entry" : f === "usually_free" ? "usually free" : f === "yes" ? "paid entry" : "entry price unknown");
-  const halalWord = (s: string) => (s === "halal" || s === "halal_only" ? "marked halal on the map" : s === "halal_options" ? "has halal options" : "often halal, not confirmed");
+  const dayKeys = o.days.length ? o.days : (["sat"] as ("sat" | "sun")[]);
+  const planDays = dayKeys.map((key) => {
+    const w = key === "sat" ? weather.sat : weather.sun;
+    const date = key === "sat" ? weather.satDate : weather.sunDate;
+    const code = key === "sat" ? "Sa" : "Su";
+    const bad = !!w && (w.code >= 51 || w.rain >= 60 || w.max < 3);
+    const warm = !!w && !bad && w.max >= 22;
+    const open = (h: string | null) => openOn(h, code) !== false;
+    const pool = places.filter((p) => !used.has(p.key) && open(p.opening_hours) && (warm || !["beach", "water_park"].includes(p.kind)));
 
-  const apiKey = env("OPENAI_API_KEY");
-  if (!apiKey) throw new Error("AI is not set up.");
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      temperature: 0.6,
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content: [
-            "You plan weekend outings for Muslim families. Hard rules:",
-            "- Use ONLY places from the lists given, by their id. Never invent a place, a price, an opening time or a halal status.",
-            "- Steps that aren't at a listed place (breakfast at home, a packed picnic, the drive) use place null.",
-            "- Meals: only listed food places (f-ids) or food from home. A place 'often halal, not confirmed' must be described as such: tell them to ask before ordering.",
-            "- Fit the day around prayer: add a short step to pray (at a listed mosque m-id if one is near the route, otherwise 'pray at a clean quiet spot or the nearest mosque').",
-            "- Keep travel sensible: places of one day should be near each other.",
-            "- Respect the weather: rain, snow or cold → mostly indoor places.",
-            "- Never send them to a place on a day it is CLOSED. Places that suit young children when there are kids; avoid places meant for adults only (parliaments, offices).",
-            `- Write every text field in ${LANG[o.lang]}. Keep place names as given.`,
-          ].join("\n"),
-        },
-        {
-          role: "user",
-          content: [
-            `Who: ${people}. Style: ${o.style === "fancy" ? "a special, more comfortable day out (sit-down halal restaurant, paid attractions are fine)" : "a simple, relaxed day (picnic or quick meal, easy places)"}. Budget: ${o.budget === "low" ? "low: prefer free or usually-free places, food from home or an inexpensive halal place" : "normal"}.`,
-            `Days: ${days.map((d) => `${d.key === "sat" ? "Saturday" : "Sunday"} ${d.date} (${weatherWords(d.weather)})`).join("; ")}.`,
-            `Prayer times (approximate): ${days.map((d) => (d.weather?.prayers ? `${d.key === "sat" ? "Saturday" : "Sunday"}: Dhuhr ${d.weather.prayers.dhuhr}, Asr ${d.weather.prayers.asr}, Maghrib ${d.weather.prayers.maghrib}` : "")).filter(Boolean).join("; ") || "unknown"}. Put prayer steps at these times, and end the day by Maghrib (be home or at a mosque).`,
-            "Places to visit (id | name | kind | distance from home | entry | indoor? | open):",
-            ...shortlist.map((s) => `${s.id} | ${s.p.name} | ${s.p.kind} | ${s.d.toFixed(1)} km | ${feeWord(s.p.fee)} | ${s.p.indoor ? "indoor" : "outdoor"} | ${openWord(s.p.opening_hours)}`),
-            "Halal food (id | name | cuisine | distance | halal | open):",
-            ...(food.length ? food.map((x) => `${x.id} | ${x.f.name} | ${x.f.cuisine ?? "-"} | ${x.d.toFixed(1)} km | ${halalWord(x.f.halal_status)} | ${openWord(x.f.opening_hours)}`) : ["(none found nearby: plan food from home)"]),
-            "Mosques (id | name | distance):",
-            ...(mosques.length ? mosques.map((x) => `${x.id} | ${x.f.name} | ${x.d.toFixed(1)} km`) : ["(none found nearby)"]),
-            "",
-            'Answer JSON: {"title": "a short, warm name for the weekend", "days": [{"day": "sat"|"sun", "theme": "a short name for this day, e.g. Museums and a riverside walk", "steps": [{"time": "HH:MM", "place": "p3"|"f2"|"m1"|null, "prayer": "dhuhr"|"asr"|"maghrib"|null, "title": "what you do, e.g. Lunch, Dhuhr prayer, Museum visit (never the name of the place: we show it)", "note": "one or two practical sentences, without the name of the place"}]}], "prepare": ["things to pack or do before going, 5 to 9 items"], "money": "one honest sentence on what will cost money (no invented prices)"}',
-            "Each day: 4 to 7 steps from morning to early evening.",
-          ].join("\n"),
-        },
-      ],
-    }),
+    // Pick the best place of the wanted kinds: earlier kinds first, close by, a little variety.
+    const pick = (kinds: Kind[], from: Pt, perKm: number, maxKm: number, avoid: Kind[] = []) => {
+      let best: { p: OutingRow; s: number } | null = null;
+      for (const p of pool) {
+        const i = kinds.indexOf(p.kind);
+        if (i < 0 || used.has(p.key) || avoid.includes(p.kind)) continue;
+        const d = km(from, p);
+        if (d > maxKm) continue;
+        let s = (kinds.length - i) * 0.8 - d * perKm + Math.random() * 1.5;
+        if (BIG_PAID.has(p.kind)) s += o.style === "fancy" ? 1 : -1.5;
+        if (o.budget === "low" && (p.fee === "no" || p.fee === "usually_free")) s += 1;
+        if (kindsUsed.includes(p.kind)) s -= 1.5;
+        if (!best || s > best.s) best = { p, s };
+      }
+      return best?.p ?? null;
+    };
+    const main = MAIN[o.who], light = LIGHT[o.who];
+    const kindsA = bad ? main.in : main.out;
+    const a = pick(kindsA, home, 0.12, RADIUS_M / 1000) ?? pick([...main.in, ...main.out], home, 0.12, RADIUS_M / 1000);
+    if (a) used.add(a.key);
+    const kindsB = bad ? main.in : [...main.out, ...main.in];
+    const bp = a ? (pick(kindsB, a, 0.6, 6, [a.kind]) ?? pick(kindsB, a, 0.4, 15, [a.kind])) : null;
+    if (bp) used.add(bp.key);
+    const c = bp ? pick(bad ? light.in : light.out, bp, 0.8, 4, [bp.kind]) : null;
+    if (c) used.add(c.key);
+    for (const p of [a, bp, c]) if (p) kindsUsed.push(p.kind);
+
+    const steps: Step[] = [];
+    const prayers = w?.prayers;
+    const maghrib = prayers ? toMin(prayers.maghrib) : null;
+    const end = maghrib != null ? Math.min(maghrib, 19 * 60) : 18 * 60;
+    let cursor = o.style === "fancy" ? 10 * 60 + 30 : 10 * 60;
+    let here: Pt = home;
+    const travel = (to: Pt) => { const d = km(here, to); return d < 0.8 ? 5 : d < 3 ? 15 : d < 10 ? 25 : 40; };
+    const nearestOf = <T extends Pt>(list: T[], maxKm: number, ok: (x: T) => boolean = () => true) => {
+      let best: { x: T; d: number } | null = null;
+      for (const x of list) { if (!ok(x)) continue; const d = km(here, x); if (d <= maxKm && (!best || d < best.d)) best = { x, d }; }
+      return best;
+    };
+
+    steps.push({ time: hm(cursor - 30), prayer: null, title: L("Get ready"), note: L("Breakfast at home, then pack the bag (see the list below).") + (prayers ? "" : " " + L("Check today's prayer times before you leave.")), place: null });
+
+    const due = prayers ? (["dhuhr", "asr"] as const).map((k) => ({ k, at: toMin(prayers[k]), done: false })) : [];
+    const pray = (ahead: number) => {
+      for (const p of due) {
+        if (p.done || p.at > cursor + ahead || p.at >= end) continue;
+        const m = nearestOf(mosques, 5);
+        const go = m ? travel(m.x) : 0;
+        const start = p.at >= cursor + go ? p.at : up5(cursor + go);
+        const note = L(m ? "At the nearest mosque on the way. Times are approximate: check with the mosque." : "Pray at a clean, quiet spot with your prayer mat. Times are approximate.") +
+          (start > p.at + 10 ? " " + L("Its time starts at about {0}.", [hm(p.at)]) : "");
+        steps.push({ time: hm(start), prayer: p.k, title: L(p.k === "dhuhr" ? "Dhuhr prayer" : "Asr prayer"), note, place: m ? mosqueCard(m.x, km(home, m.x)) : null });
+        cursor = start + 20;
+        if (m) here = m.x;
+        p.done = true;
+      }
+    };
+    const visit = (p: OutingRow | null) => {
+      if (!p) return;
+      pray(travel(p) + 15);
+      const start = up5(cursor + travel(p));
+      const room = end - 15 - start;
+      const want = KIND_TEXT[p.kind].minutes;
+      const fit = HOW_LONG.find(([m]) => m <= Math.min(want, room));
+      if (!fit) return;
+      const k = KIND_TEXT[p.kind];
+      steps.push({ time: hm(start), prayer: null, title: L(k.title), note: [L(k.note), L(feeNote(p.fee)), L(fit[1])].join(" "), place: placeCard(p, km(home, p)) });
+      if (p.fee === "yes") paid.yes = true;
+      if (p.fee == null) paid.unknown = true;
+      if (["pool", "water_park", "beach"].includes(p.kind)) paid.water = true;
+      cursor = start + fit[0];
+      here = p;
+    };
+    let lunched = false;
+    const lunch = () => {
+      lunched = true;
+      pray(30);
+      const fromHome = o.style === "simple" && o.budget === "low";
+      const spot = !fromHome ? nearestOf(meals, 6, (f) => (o.style === "fancy" ? f.category === "restaurant" : true) && openOn(f.opening_hours, code) !== false && f.halal_status !== "likely")
+        ?? nearestOf(meals, 6, (f) => (o.style === "fancy" ? f.category === "restaurant" : true) && openOn(f.opening_hours, code) !== false) : null;
+      if (spot) {
+        const start = up5(cursor + travel(spot.x));
+        const minutes = o.style === "fancy" ? 75 : 60;
+        steps.push({ time: hm(start), prayer: null, title: L(o.style === "fancy" ? "Lunch at a restaurant" : "Lunch"), note: [L(halalNote(spot.x.halal_status)), L("Check the menu prices before you go.")].join(" "), place: foodCard(spot.x, km(home, spot.x)) });
+        paid.out = true;
+        if (spot.x.halal_status === "likely") paid.likely = true;
+        cursor = start + minutes;
+        here = spot.x;
+        return;
+      }
+      paid.home = true;
+      // A packed lunch: at a park nearby when the weather allows, otherwise wherever eating is allowed.
+      const herePark = here !== home && "kind" in here && PICNIC_OK.has((here as OutingRow).kind);
+      const park = !bad && !herePark ? nearestOf(pool.filter((p) => PICNIC_OK.has(p.kind) && !used.has(p.key)), 1.5) : null;
+      if (!bad && (herePark || park)) {
+        paid.picnic = true;
+        const start = park ? up5(cursor + travel(park.x)) : up5(cursor);
+        steps.push({ time: hm(start), prayer: null, title: L("Picnic lunch"), note: L("Eat the lunch you packed from home."), place: park ? placeCard(park.x, km(home, park.x)) : null });
+        if (park) { used.add(park.x.key); here = park.x; }
+        cursor = start + 45;
+      } else {
+        paid.packed = true;
+        const start = up5(cursor);
+        steps.push({ time: hm(start), prayer: null, title: L("Lunch from home"), note: L("Eat the lunch you packed, where eating is allowed."), place: null });
+        cursor = start + 45;
+      }
+    };
+
+    for (const p of [a, bp]) {
+      if (!lunched && cursor >= 11 * 60 + 40) lunch();
+      visit(p);
+    }
+    if (!lunched && cursor <= 15 * 60) lunch();
+    // The end of the afternoon: tea and dessert for a special day, otherwise somewhere light.
+    const cafe = o.style === "fancy" ? nearestOf(meals, 5, (f) => f.category === "cafe" && openOn(f.opening_hours, code) !== false) : null;
+    if (cafe && up5(cursor + travel(cafe.x)) + 45 <= end - 15) {
+      pray(travel(cafe.x) + 15);
+      const start = up5(cursor + travel(cafe.x));
+      if (start + 45 <= end - 15) {
+        steps.push({ time: hm(start), prayer: null, title: L("Tea and dessert"), note: [L(halalNote(cafe.x.halal_status)), L("Check the menu prices before you go.")].join(" "), place: foodCard(cafe.x, km(home, cafe.x)) });
+        paid.out = true;
+        if (cafe.x.halal_status === "likely") paid.likely = true;
+        cursor = start + 45;
+        here = cafe.x;
+      }
+    } else {
+      visit(c);
+    }
+    // Any prayer still due before the end of the day, at its time.
+    for (const p of due) if (!p.done && p.at < end) { cursor = Math.max(cursor, p.at - 15); pray(15); }
+    if (maghrib != null && maghrib <= 19 * 60 + 30) {
+      const m = nearestOf(mosques, 5);
+      steps.push({
+        time: hm(Math.max(maghrib, up5(cursor + (m ? travel(m.x) : 0)))), prayer: "maghrib", title: L("Maghrib prayer, then home"),
+        note: L(m ? "At the nearest mosque on the way. Times are approximate: check with the mosque." : "Pray at home or on the way. Times are approximate."),
+        place: m ? mosqueCard(m.x, km(home, m.x)) : null,
+      });
+    } else {
+      steps.push({ time: hm(up5(cursor + 10)), prayer: null, title: L("Head home"), note: L("Time to head home and rest."), place: null });
+    }
+    const visits = steps.filter((s) => s.place && !["food", "mosque"].includes(String(s.place.kind)));
+    const theme = visits.slice(0, 2).map((s) => s.title).join(" · ");
+    return { day: key, date, weather: w, theme, steps };
   });
-  if (!res.ok) throw new Error(`AI ${res.status}`);
-  const out = JSON.parse(((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "{}") as {
-    title?: string; days?: { day?: string; theme?: string; steps?: { time?: string; place?: string | null; prayer?: string | null; title?: string; note?: string }[] }[]; prepare?: string[]; money?: string;
-  };
 
-  // Only real places survive: an id the AI made up drops the step.
-  const byId = new Map<string, Record<string, unknown>>();
-  for (const s of shortlist) byId.set(s.id, { key: s.p.key, kind: s.p.kind, name: s.p.name, lat: s.p.latitude, lng: s.p.longitude, address: s.p.address, website: s.p.website, hours: s.p.opening_hours, fee: s.p.fee, indoor: s.p.indoor, km: +s.d.toFixed(1) });
-  for (const x of food) byId.set(x.id, { key: x.f.key, kind: "food", name: x.f.name, lat: x.f.latitude, lng: x.f.longitude, address: x.f.address, website: x.f.website, hours: x.f.opening_hours, halal: x.f.halal_status, cuisine: x.f.cuisine, km: +x.d.toFixed(1) });
-  for (const x of mosques) byId.set(x.id, { key: x.f.key, kind: "mosque", name: x.f.name, lat: x.f.latitude, lng: x.f.longitude, address: x.f.address, km: +x.d.toFixed(1) });
-  const planDays = days.map((d) => {
-    const got = (out.days ?? []).find((x) => x.day === d.key);
-    const dayCode = d.key === "sat" ? "Sa" : "Su";
-    const steps = (got?.steps ?? [])
-      .filter((s) => s.title && (!s.place || (byId.has(s.place) && openOn(byId.get(s.place)!.hours as string | null, dayCode) !== false)))
-      .slice(0, 9)
-      .map((s) => {
-        // Prayer steps get the computed time, not the AI's guess.
-        const prayer = s.prayer === "dhuhr" || s.prayer === "asr" || s.prayer === "maghrib" ? s.prayer : null;
-        const time = prayer && d.weather?.prayers ? d.weather.prayers[prayer] : /^\d{1,2}:\d{2}$/.test(s.time ?? "") ? s.time!.padStart(5, "0") : null;
-        return { time, prayer, title: String(s.title).slice(0, 120), note: String(s.note ?? "").slice(0, 400), place: s.place ? byId.get(s.place) : null };
-      })
-      .map((s, i) => ({ s, i }))
-      .sort((a, b) => (a.s.time && b.s.time ? a.s.time.localeCompare(b.s.time) : 0) || a.i - b.i)
-      .map((x) => x.s);
-    return { day: d.key, date: d.date, weather: d.weather, theme: String(got?.theme ?? "").slice(0, 120), steps };
-  });
-  if (planDays.some((d) => d.steps.filter((s) => s.place).length < 1)) throw new Error("The program came out without real places. Please try again.");
+  if (planDays.some((d) => !d.steps.some((s) => s.place && !["food", "mosque"].includes(String(s.place.kind))))) {
+    return { error: stillLoading ? "We're still gathering places near you. Try again in a few minutes." : "We couldn't find enough places near this location for a program." };
+  }
+
+  // Before you go, from what the program actually holds.
+  const ws = planDays.map((d) => d.weather).filter(Boolean) as DayWeather[];
+  const prepare = ["Prayer mat and a small bottle of water for wudu", "Water bottles for everyone"];
+  if (o.who === "family") prepare.push("Snacks for the children");
+  if (young) prepare.push("Stroller, nappies and wipes");
+  if (paid.picnic) prepare.push("Packed lunch and a blanket to sit on");
+  else if (paid.packed) prepare.push("Packed lunch in a cool bag");
+  if (ws.some((w) => w.rain >= 40 || (w.code >= 51 && w.code < 71))) prepare.push("Umbrellas or rain jackets");
+  if (ws.some((w) => w.min < 10)) prepare.push("Warm coats, hats and gloves");
+  if (ws.some((w) => w.max >= 25 && w.code <= 2)) prepare.push("Sunscreen, hats and sunglasses");
+  if (paid.water) prepare.push("Swimsuits and towels");
+  if (paid.yes || paid.unknown) prepare.push("A card or some cash for tickets");
+  if (paid.likely) prepare.push("Ask the restaurant if the food is halal before ordering");
+  prepare.push("Comfortable walking shoes", "Plan the trip: car, bus or train", "Charged phone, and a look at the opening hours before leaving");
+
+  const money: string[] = [];
+  if (!paid.yes && !paid.unknown) money.push("Everything planned here is free or usually free.");
+  if (paid.yes) money.push("Some places charge an entry fee: check the prices on their websites.");
+  if (paid.unknown) money.push("Entry prices are unknown for some places: check before you go.");
+  if (paid.out) money.push("Meals out cost money: check the menu prices.");
+  else if (paid.home) money.push("Meals come from home, so food costs stay low.");
+  money.push("Transport is extra.");
+
+  // In Arabic, a place name written in Latin letters stays out of the title.
+  const placeName = o.place && !(o.lang === "ar" && /[A-Za-z]/.test(o.place)) ? o.place : null;
+  const title = placeName
+    ? L(o.who === "family" ? "A family weekend in {0}" : o.who === "couple" ? "A weekend for two in {0}" : "Your weekend in {0}", [placeName])
+    : L(o.who === "family" ? "A family weekend near you" : o.who === "couple" ? "A weekend for two near you" : "Your weekend nearby");
+
   return {
     plan: {
-      title: String(out.title ?? "").slice(0, 120),
+      title,
       place: o.place ?? null,
       days: planDays,
-      prepare: (out.prepare ?? []).map((s) => String(s).slice(0, 200)).filter(Boolean).slice(0, 10),
-      money: String(out.money ?? "").slice(0, 300),
+      prepare: prepare.map((s) => L(s)),
+      money: money.map((s) => L(s)).join(" "),
       attribution: "Places © OpenStreetMap contributors · Weather: Open-Meteo",
     },
   };
@@ -451,6 +754,25 @@ Deno.serve(async (req) => {
         const body = (await req.json().catch(() => ({}))) as { tile?: Tile; elements?: OsmElement[] };
         if (!body.tile?.tile || !Array.isArray(body.elements)) return json({ error: "Send tile and elements." }, 400);
         return json({ stored: await ingestTile(body.tile, body.elements) });
+      }
+      if (sync === "seed" && req.method === "POST") {
+        // The places library: the main cities of every country are fetched ahead of time,
+        // for weekend outings and for the halal map alike.
+        const body = (await req.json().catch(() => ({}))) as { cities?: { lat: number; lng: number; big?: boolean }[] };
+        if (!Array.isArray(body.cities)) return json({ error: "Send cities." }, 400);
+        const tiles = new Map<string, Tile>();
+        for (const c of body.cities) {
+          if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
+          for (const t of tilesFor(c.lat, c.lng, c.big ? 12_000 : 1)) tiles.set(t.tile, t);
+        }
+        const now = new Date().toISOString();
+        const rows = [...tiles.values()].map((t) => ({ ...t, requested_at: now }));
+        for (let i = 0; i < rows.length; i += 500) {
+          const part = JSON.stringify(rows.slice(i, i + 500));
+          await rest("outing_areas?on_conflict=tile", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: part });
+          await rest("place_areas?on_conflict=tile", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: part });
+        }
+        return json({ queued: rows.length });
       }
       return json({ error: "Unknown sync action." }, 400);
     }

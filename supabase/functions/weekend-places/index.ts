@@ -1,0 +1,76 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+
+/**
+ * Weekend programs read places straight from the database (outing_places and
+ * osm_places). This only asks for an area to be collected when it is new:
+ *   POST { lat, lng } (signed in) -> { ready: boolean }
+ * The "Places sync" job fetches requested areas from OpenStreetMap every 15 minutes.
+ */
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+};
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+const env = (n: string) => Deno.env.get(n)?.trim() || undefined;
+const TILE = 0.2;
+const RADIUS_M = 25_000;
+
+async function rest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const url = env("SUPABASE_URL")!, key = env("SUPABASE_SERVICE_ROLE_KEY")!;
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    ...init,
+    headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", ...(init.headers ?? {}) },
+  });
+  if (!res.ok) throw new Error(`Database ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const text = await res.text();
+  return (text ? JSON.parse(text) : null) as T;
+}
+
+function tilesFor(lat: number, lng: number, radius: number) {
+  const dLat = radius / 111_320;
+  const dLng = radius / (111_320 * Math.max(0.2, Math.cos((lat * Math.PI) / 180)));
+  const tiles: { tile: string; south: number; west: number; north: number; east: number }[] = [];
+  for (let y = Math.floor((lat - dLat) / TILE); y <= Math.floor((lat + dLat) / TILE); y++) {
+    for (let x = Math.floor((lng - dLng) / TILE); x <= Math.floor((lng + dLng) / TILE); x++) {
+      tiles.push({ tile: `${y}:${x}`, south: +(y * TILE).toFixed(4), west: +(x * TILE).toFixed(4), north: +((y + 1) * TILE).toFixed(4), east: +((x + 1) * TILE).toFixed(4) });
+    }
+  }
+  return tiles;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+  try {
+    if (req.method !== "POST") return json({ error: "Use POST." }, 405);
+    const auth = req.headers.get("Authorization");
+    const user = auth
+      ? await fetch(`${env("SUPABASE_URL")}/auth/v1/user`, { headers: { Authorization: auth, apikey: env("SUPABASE_ANON_KEY")! } }).then((r) => (r.ok ? r.json() : null))
+      : null;
+    if (!user?.id) return json({ error: "Please sign in." }, 401);
+    const b = (await req.json().catch(() => ({}))) as { lat?: number; lng?: number };
+    const lat = Number(b.lat), lng = Number(b.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return json({ error: "Choose where you live first." }, 400);
+    const tiles = tilesFor(lat, lng, RADIUS_M);
+    const list = tiles.map((t) => `"${t.tile}"`).join(",");
+    const [outing, halal] = await Promise.all([
+      rest<{ tile: string; fetched_at: string | null }[]>(`outing_areas?select=tile,fetched_at&tile=in.(${list})`),
+      rest<{ tile: string; fetched_at: string | null }[]>(`place_areas?select=tile,fetched_at&tile=in.(${list})`),
+    ]);
+    const now = new Date().toISOString();
+    const body = JSON.stringify(tiles.map((t) => ({ ...t, requested_at: now })));
+    const headers = { Prefer: "resolution=merge-duplicates,return=minimal" };
+    await Promise.all([
+      rest("outing_areas?on_conflict=tile", { method: "POST", headers, body }),
+      rest("place_areas?on_conflict=tile", { method: "POST", headers, body }),
+    ]);
+    const done = (rows: { tile: string; fetched_at: string | null }[]) => new Set(rows.filter((r) => r.fetched_at).map((r) => r.tile));
+    const o = done(outing), h = done(halal);
+    return json({ ready: tiles.every((t) => o.has(t.tile) && h.has(t.tile)) });
+  } catch (e) {
+    console.error(e);
+    return json({ error: (e as Error).message }, 500);
+  }
+});

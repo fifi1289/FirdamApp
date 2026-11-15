@@ -206,8 +206,8 @@ async function weekendWeather(lat: number, lng: number): Promise<{ sat: DayWeath
     const d = new Date();
     const toSat = (6 - d.getUTCDay() + 7) % 7;
     const sat = new Date(d.getTime() + toSat * 86_400_000);
-    const sun = new Date(sat.getTime() + (d.getUTCDay() === 0 ? -6 : 1) * 86_400_000);
-    return { sat: null, sun: null, satDate: sat.toISOString().slice(0, 10), sunDate: (d.getUTCDay() === 0 ? d : sun).toISOString().slice(0, 10) };
+    const sun = new Date(sat.getTime() + 86_400_000);
+    return { sat: null, sun: null, satDate: sat.toISOString().slice(0, 10), sunDate: sun.toISOString().slice(0, 10) };
   };
   try {
     const res = await fetch(
@@ -221,8 +221,9 @@ async function weekendWeather(lat: number, lng: number): Promise<{ sat: DayWeath
     const day = (i: number): DayWeather => ({ date: daily.time[i], max: Math.round(daily.temperature_2m_max[i]), min: Math.round(daily.temperature_2m_min[i]), rain: daily.precipitation_probability_max[i] ?? 0, code: daily.weather_code[i], prayers: daily.sunrise?.[i] && daily.sunset?.[i] ? prayersFor(daily.time[i], lat, daily.sunrise[i], daily.sunset[i]) : undefined });
     // The first day is "today" in the place's own time zone.
     const weekday = (s: string) => new Date(`${s}T12:00:00Z`).getUTCDay();
+    // The coming weekend: Saturday, then the Sunday after it (on a Sunday that's next weekend).
     const satI = daily.time.findIndex((s) => weekday(s) === 6);
-    const sunI = daily.time.findIndex((s, i) => weekday(s) === 0 && (satI < 0 || i > satI || weekday(daily.time[0]) === 0));
+    const sunI = daily.time.findIndex((s, i) => weekday(s) === 0 && satI >= 0 && i > satI);
     return {
       sat: satI >= 0 ? day(satI) : null,
       sun: sunI >= 0 ? day(sunI) : null,
@@ -380,7 +381,7 @@ async function makePlan(o: Options) {
             "Mosques (id | name | distance):",
             ...(mosques.length ? mosques.map((x) => `${x.id} | ${x.f.name} | ${x.d.toFixed(1)} km`) : ["(none found nearby)"]),
             "",
-            'Answer JSON: {"title": "a short, warm name for the weekend", "days": [{"day": "sat"|"sun", "theme": "a short name for this day, e.g. Museums and a riverside walk", "steps": [{"time": "HH:MM", "place": "p3"|"f2"|"m1"|null, "title": "short", "note": "one or two practical sentences"}]}], "prepare": ["things to pack or do before going, 5 to 9 items"], "money": "one honest sentence on what will cost money (no invented prices)"}',
+            'Answer JSON: {"title": "a short, warm name for the weekend", "days": [{"day": "sat"|"sun", "theme": "a short name for this day, e.g. Museums and a riverside walk", "steps": [{"time": "HH:MM", "place": "p3"|"f2"|"m1"|null, "prayer": "dhuhr"|"asr"|"maghrib"|null, "title": "what you do, e.g. Lunch, Dhuhr prayer, Museum visit (never the name of the place: we show it)", "note": "one or two practical sentences, without the name of the place"}]}], "prepare": ["things to pack or do before going, 5 to 9 items"], "money": "one honest sentence on what will cost money (no invented prices)"}',
             "Each day: 4 to 7 steps from morning to early evening.",
           ].join("\n"),
         },
@@ -389,7 +390,7 @@ async function makePlan(o: Options) {
   });
   if (!res.ok) throw new Error(`AI ${res.status}`);
   const out = JSON.parse(((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "{}") as {
-    title?: string; days?: { day?: string; theme?: string; steps?: { time?: string; place?: string | null; title?: string; note?: string }[] }[]; prepare?: string[]; money?: string;
+    title?: string; days?: { day?: string; theme?: string; steps?: { time?: string; place?: string | null; prayer?: string | null; title?: string; note?: string }[] }[]; prepare?: string[]; money?: string;
   };
 
   // Only real places survive: an id the AI made up drops the step.
@@ -402,8 +403,16 @@ async function makePlan(o: Options) {
     const dayCode = d.key === "sat" ? "Sa" : "Su";
     const steps = (got?.steps ?? [])
       .filter((s) => s.title && (!s.place || (byId.has(s.place) && openOn(byId.get(s.place)!.hours as string | null, dayCode) !== false)))
-      .slice(0, 8)
-      .map((s) => ({ time: /^\d{1,2}:\d{2}$/.test(s.time ?? "") ? s.time : null, title: String(s.title).slice(0, 120), note: String(s.note ?? "").slice(0, 400), place: s.place ? byId.get(s.place) : null }));
+      .slice(0, 9)
+      .map((s) => {
+        // Prayer steps get the computed time, not the AI's guess.
+        const prayer = s.prayer === "dhuhr" || s.prayer === "asr" || s.prayer === "maghrib" ? s.prayer : null;
+        const time = prayer && d.weather?.prayers ? d.weather.prayers[prayer] : /^\d{1,2}:\d{2}$/.test(s.time ?? "") ? s.time!.padStart(5, "0") : null;
+        return { time, prayer, title: String(s.title).slice(0, 120), note: String(s.note ?? "").slice(0, 400), place: s.place ? byId.get(s.place) : null };
+      })
+      .map((s, i) => ({ s, i }))
+      .sort((a, b) => (a.s.time && b.s.time ? a.s.time.localeCompare(b.s.time) : 0) || a.i - b.i)
+      .map((x) => x.s);
     return { day: d.key, date: d.date, weather: d.weather, theme: String(got?.theme ?? "").slice(0, 120), steps };
   });
   if (planDays.some((d) => d.steps.filter((s) => s.place).length < 1)) throw new Error("The program came out without real places. Please try again.");

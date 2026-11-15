@@ -19,14 +19,15 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function overpass(query) {
   let last;
-  for (let round = 0; round < 3; round++) {
+  // One pass over the servers: a busy area is skipped and tried again next run.
+  for (let round = 0; round < 1; round++) {
     for (const server of SERVERS) {
       try {
         const res = await fetch(server, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'Firdam/1.0 (https://firdam.com)' },
           body: `data=${encodeURIComponent(query)}`,
-          signal: AbortSignal.timeout(90_000),
+          signal: AbortSignal.timeout(60_000),
         });
         if (!res.ok) throw new Error(`${res.status} from ${new URL(server).host}`);
         const data = await res.json();
@@ -37,7 +38,7 @@ async function overpass(query) {
         console.log(`  ${e.message}`);
       }
     }
-    await sleep(20_000 * (round + 1));
+    await sleep(5_000);
   }
   throw last;
 }
@@ -56,7 +57,8 @@ for (const FN of FUNCTIONS) {
   }
   console.log(`${FN.split('/').pop()}: ${pending.tiles.length} area(s) to fetch`);
   total += pending.tiles.length;
-  for (const t of pending.tiles) {
+  // A few areas from each list per round, so the halal map and weekend outings move together.
+  for (const t of pending.tiles.slice(0, 5)) {
     try {
       const elements = await overpass(t.query);
       const { query, ...tile } = t;

@@ -2108,4 +2108,5 @@ export const AR: Record<string, string> = {
   "Starting now: {0}": "يبدأ الآن: {0}",
   "In 15 minutes: {0}": "بعد 15 دقيقة: {0}",
   "In a week: {0}": "بعد أسبوع: {0}",
+  "International": "عالمي",
 };

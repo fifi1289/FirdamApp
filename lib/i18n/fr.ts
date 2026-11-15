@@ -3780,4 +3780,5 @@ export const FR: Record<string, string> = {
   "Starting now: {0}": "Ça commence : {0}",
   "In 15 minutes: {0}": "Dans 15 minutes : {0}",
   "In a week: {0}": "Dans une semaine : {0}",
+  "International": "International",
 };

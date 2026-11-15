@@ -1,7 +1,7 @@
-# Builds the places library for the main cities of every country (run by hand,
+# Builds the places library for the cities of Firdam's countries (run by hand,
 # then every three months to pick up new places). The "Places sync" job does the
 # actual fetching, a few areas every 15 minutes.
-name: Places library (world cities)
+name: Places library (cities)
 
 on:
   schedule:

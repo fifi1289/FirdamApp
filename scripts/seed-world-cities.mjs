@@ -1,6 +1,6 @@
-// Builds Firdam's places library ahead of time: finds the main cities of every
-// country on OpenStreetMap (national capitals and cities of 500,000 people or
-// more) and queues them, so weekend programs and the halal map are ready there
+// Builds Firdam's places library ahead of time: finds the cities of Firdam's
+// countries on OpenStreetMap (capitals and every city of 100,000 people or more)
+// and queues them, so weekend programs and the halal map are ready there
 // before anyone asks. The "Places sync" job then fetches the queued areas.
 // Runs on GitHub Actions; needs SUPABASE_URL, SUPABASE_ANON_KEY, PLACES_SYNC_TOKEN.
 const { SUPABASE_URL, SUPABASE_ANON_KEY, PLACES_SYNC_TOKEN } = process.env;
@@ -36,14 +36,17 @@ async function overpass(query) {
   throw last;
 }
 
-// Big cities (3 million or more) get their whole area; the others their centre.
-const big = await overpass(`[out:json][timeout:600];node["place"="city"]["population"~"^([3-9][0-9]{6}|[0-9]{8,})$"];out skel qt;`);
-const rest = await overpass(`[out:json][timeout:600];(node["place"="city"]["population"~"^([5-9][0-9]{5}|[1-2][0-9]{6})$"];node["place"]["capital"="yes"];);out skel qt;`);
+// Firdam's countries for now: Canada, the United States, Morocco and the Arab countries.
+const COUNTRIES = 'CA|US|MA|DZ|TN|LY|EG|SD|MR|SA|AE|QA|KW|BH|OM|YE|JO|LB|SY|IQ|PS|SO|DJ|KM';
+const area = `area["ISO3166-1"~"^(${COUNTRIES})$"][admin_level=2]->.c;`;
+// Big cities (2 million or more) get their whole area; the others (100,000 or more) their centre.
+const big = await overpass(`[out:json][timeout:900];${area}node(area.c)["place"="city"]["population"~"^([2-9][0-9]{6}|[0-9]{8,})$"];out skel qt;`);
+const rest = await overpass(`[out:json][timeout:900];${area}(node(area.c)["place"~"^(city|town)$"]["population"~"^[1-9][0-9]{5,}$"];node(area.c)["place"]["capital"="yes"];);out skel qt;`);
 const cities = [
   ...big.map((e) => ({ lat: e.lat, lng: e.lon, big: true })),
   ...rest.map((e) => ({ lat: e.lat, lng: e.lon })),
 ];
-console.log(`${big.length} big cities, ${rest.length} capitals and large cities`);
+console.log(`${big.length} big cities, ${rest.length} cities and capitals`);
 
 const FN = `${SUPABASE_URL}/functions/v1/weekend-plan?sync=seed`;
 let queued = 0;

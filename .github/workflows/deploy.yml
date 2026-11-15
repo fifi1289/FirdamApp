@@ -25,6 +25,7 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzeHdzbG1zamR0ZnpuZW91amVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNDI2NTgsImV4cCI6MjA5OTcxODY1OH0.PwBjPd9BcHll38hjGaCMR6JVdwPulpApFsPokx0IpCQ
       # Optional: Turnstile site key (also public). Set it as a repository variable to turn on bot protection.
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
     steps:
       - name: Check the secrets are set
         run: |

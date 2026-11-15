@@ -4260,4 +4260,7 @@ export const AR: Record<string, string> = {
   "2 hours": "ساعتان",
   "Desserts": "الحلويات",
   "Dessert": "حلوى",
+  "Could not sign in with Google. Please try again.": "تعذّر الدخول بحساب Google. حاول مرة أخرى.",
+  "Google sign-in could not load. Please use your email and password.": "تعذّر تحميل الدخول بحساب Google. استخدم بريدك الإلكتروني وكلمة المرور.",
+  "This link has expired or was already used. Sign in, or ask for a new link.": "انتهت صلاحية هذا الرابط أو سبق استخدامه. سجّل الدخول، أو اطلب رابطًا جديدًا.",
 };

@@ -1,339 +1,304 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { conflictsWithAllergies, fitsDiet } from "../_shared/allergens.ts";
-import { haramReason } from "../_shared/halal.ts";
-import { describeOpenAIFailure, fetchOpenAI } from "../_shared/openai.ts";
-import { getUser, isAdminUser } from "../_shared/plan.ts";
-import { photographRecipes } from "../_shared/recipe-image.ts";
-import { translateMeals } from "../_shared/recipe-translate.ts";
-import { computeNutrition } from "../_shared/nutrition.ts";
-
-/**
- * Fills the recipe library so every combination of filters a family can pick
- * has at least TARGET recipes, for every meal type and every cuisine.
- *
- * How: a recipe free of every allergen Firdam offers, and vegan and
- * gluten-free, fits ANY mix of allergy and diet filters, except the three
- * that a dish must positively be (high-protein, low-carb, kid-friendly). So for
- * each meal type × cuisine × mix of those three, the library needs TARGET such
- * "free-from-everything" recipes. This function counts what is missing and
- * writes the missing recipes (with nutrition, tags, French and Arabic, and a photo).
- * A new recipe stays hidden (is_active = false) until its photo is made:
- * families never see a recipe without its picture.
- *
- *   POST { action: "status" }        → how many slots still need recipes
- *   POST { action: "fill", limit? }  → writes up to `limit` (1–3) recipes
- *
- * Allowed for Firdam admins, or with header x-lunchbox-token (the Vault secret
- * "lunchbox_admin_token", used by the database job "recipe-fill").
- */
-
-const MODEL = "gpt-4o-mini";
-const TARGET = 3;
-const MEALS = ["breakfast", "lunch", "dinner", "snack"] as const;
-/** Every allergy the filters offer (Milk = dairy, Wheat = gluten). */
-const ALL_ALLERGIES = ["Celery", "Eggs", "Fish", "Gluten", "Lupin", "Milk", "Mustard", "Peanuts", "Sesame", "Shellfish", "Soy", "Sulphites", "Tree nuts", "Wheat"];
-const FREE_DIETS = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Pescatarian"];
-const EXTRAS = ["High-protein", "Low-carb", "Kid-friendly"] as const;
-/** Things the word matcher can't see for Lupin and Sulphites. */
-const HIDDEN = /\b(lupin|lupini|sulphite|sulfite|vinegar|wine|dried apricots?|dried fruit|raisins?|sultanas?|molasses|pickled|pickles?|mustard)\b/i;
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, x-lunchbox-token",
-};
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-const env = (n: string) => {
-  const v = Deno.env.get(n);
-  return v && v.trim() ? v.trim() : undefined;
-};
-
+// recipe-fill: writes real, traditional halal dishes so every cuisine has PER_MEAL recipes per meal.
+// Self-contained (this exact file is what is deployed). Each dish is checked twice (rules here,
+// then a stronger model for authenticity, meal and duplicates); nutrition is computed from the
+// ingredient weights, and a recipe stays hidden until its photo exists.
+const HARAM: { re: RegExp; why: string; ingredientsOnly?: boolean }[] = [
+  { re: /\b(pork|pig|pigs|swine|lard|lardons|pancetta|prosciutto|pepperoni|guanciale|gammon|crackling|mortadella|speck|chicharr[oó]n(es)?)\b/i, why: 'pork' },
+  { re: /\b(?<!beef |chicken |turkey |halal )(bacon|hams?|jam[oó]n)\b/i, why: 'pork unless made from halal turkey or beef', ingredientsOnly: true },
+  { re: /\b(?<!beef |chicken |turkey |lamb |merguez |halal )(chorizo|salami|sausages?|hot dogs?|frankfurters?|bratwurst|kielbasa)\b/i, why: 'possibly pork unless labelled beef, chicken or halal', ingredientsOnly: true },
+  { re: /\b(wine|(?<!root |ginger )beer|(?<!ginger )ale|lager|stout|rum|sake|soju|makgeolli|baijiu|mirin|brandy|cognac|vodka|whisk(e)?y|liqueur|liquor|sherry|port|marsala|kirsch|champagne|prosecco|cava|cider(?! vinegar)|shaoxing|rice wine|cooking wine|bourbon|gin|tequila|mezcal|amaretto|kahlua|ouzo|raki|arak|absinthe|mead)\b/i, why: 'alcohol' },
+  { re: /\b(?<!halal |beef |fish |agar )(gelatin|gelatine)\b/i, why: 'not halal unless it is halal or fish gelatin' },
+  { re: /\bvanilla extract\b/i, why: 'contains alcohol; use vanilla powder' },
+  { re: /\bblood\b/i, why: 'blood' },
+];
+function haramReason(ingredients: string[], steps: string[]): string | null {
+  for (const h of HARAM) {
+    for (const text of h.ingredientsOnly ? ingredients : [...ingredients, ...steps]) {
+      const m = text.match(h.re);
+      if (m) return `"${m[0]}" (${h.why})`;
+    }
+  }
+  return null;
+}
+async function fetchOpenAI(apiKey: string, body: unknown): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` }, body: JSON.stringify(body) });
+    if (res.status !== 429 || attempt >= 2) return res;
+    const text = await res.clone().text();
+    if (/insufficient_quota|billing/i.test(text)) return res;
+    const retryAfter = Number(res.headers.get("retry-after"));
+    await new Promise((r) => setTimeout(r, Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter * 1000, 8000) : 1500 * (attempt + 1)));
+  }
+}
+async function describeOpenAIFailure(res: Response): Promise<{ message: string }> {
+  const text = await res.text().catch(() => "");
+  console.error(`OpenAI ${res.status}: ${text.slice(0, 300)}`);
+  if (res.status === 429 && /insufficient_quota|credit_balance|no credits|billing/i.test(text)) return { message: "The AI service has run out of credit." };
+  if (res.status === 429) return { message: "The AI is busy right now." };
+  return { message: `OpenAI error ${res.status}` };
+}
+const aiText = async (res: Response) => (((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "").trim();
+const env = (n: string) => { const v = Deno.env.get(n); return v && v.trim() ? v.trim() : undefined; };
+async function getUser(req: Request): Promise<{ id: string } | null> {
+  const auth = req.headers.get("Authorization");
+  const url = env("SUPABASE_URL"), anon = env("SUPABASE_ANON_KEY");
+  if (!auth || !url || !anon) return null;
+  const res = await fetch(`${url}/auth/v1/user`, { headers: { Authorization: auth, apikey: anon } });
+  return res.ok ? ((await res.json()) as { id: string }) : null;
+}
 async function rest<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const url = env("SUPABASE_URL")!;
-  const key = env("SUPABASE_SERVICE_ROLE_KEY")!;
-  const res = await fetch(`${url}/rest/v1/${path}`, {
-    ...init,
-    headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", ...(init.headers ?? {}) },
-  });
+  const url = env("SUPABASE_URL")!, key = env("SUPABASE_SERVICE_ROLE_KEY")!;
+  const res = await fetch(`${url}/rest/v1/${path}`, { ...init, headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", ...(init.headers ?? {}) } });
   if (!res.ok) throw new Error(`Database ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const text = await res.text();
   return (text ? JSON.parse(text) : null) as T;
 }
-
-interface Row {
-  id: string;
-  name: string;
-  protein: number | null;
-  carbs: number | null;
-  cuisine: { name: string } | null;
-  meal_type: { name: string } | null;
-  recipe_ingredients: { ingredient: { name: string } | null }[];
-  recipe_allergens: { allergen: { name: string } | null }[];
-  recipe_tags: { tag: { name: string } | null }[];
+async function isAdminUser(userId: string): Promise<boolean> {
+  return (await rest<unknown[]>(`app_admins?user_id=eq.${encodeURIComponent(userId)}&select=user_id`)).length > 0;
 }
 
-const mealKey = (n: string | undefined | null) => {
-  const s = (n ?? "").toLowerCase();
-  return MEALS.find((m) => s.includes(m)) ?? null;
-};
-
-/** Free of every allergy Firdam offers, and vegan + gluten-free. */
-function freeFromEverything(ings: string[], tagged: string[], tags: string[]): boolean {
-  if (conflictsWithAllergies(ings, ALL_ALLERGIES, tagged)) return false;
-  if (ings.some((i) => HIDDEN.test(i))) return false;
-  return FREE_DIETS.every((d) => fitsDiet(d, { ingredients: ings, tags }));
+// ── photos ──
+const IMAGE_BUCKET = "recipe-images";
+function buildImagePrompt(r: { name: string; cuisine?: string | null; details?: string | null }): string {
+  return [
+    `Professional overhead-angle food photograph of ${r.name}${r.cuisine ? `, a ${r.cuisine} dish` : ""}, freshly made at home.`,
+    r.details ? `The dish: ${r.details}` : "",
+    "Served in a handmade ceramic dish on a warm walnut wooden table with a soft linen napkin;",
+    "warm natural window light, soft shadows, shallow depth of field, rich appetising colours, realistic textures,",
+    "earthy warm palette of walnut brown, soft linen beige, sage green and muted gold.",
+    "Halal food only: no pork, no wine or alcohol in the scene.",
+    "No text, no logos, no watermark, no people, no hands.",
+  ].filter(Boolean).join(" ");
 }
-
-/** Which of the three "must be" filters a recipe meets (bit 0 high-protein, 1 low-carb, 2 kid-friendly). */
-function extrasMask(ings: string[], tags: string[], protein: number | null, carbs: number | null): number {
-  return EXTRAS.reduce((m, d, i) => (fitsDiet(d, { ingredients: ings, tags, protein, carbs }) ? m | (1 << i) : m), 0);
+function imageSlug(s: string) { return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60); }
+async function generateFoodImage(apiKey: string, prompt: string): Promise<ArrayBuffer> {
+  const res = await fetch("https://api.openai.com/v1/images/generations", {
+    method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: env("IMAGE_MODEL") ?? "gpt-image-1-mini", prompt, size: "1536x1024", quality: env("IMAGE_QUALITY") ?? "medium", n: 1, output_format: "webp", output_compression: 60 }),
+  });
+  if (!res.ok) { const e = new Error(`OpenAI images ${res.status}: ${(await res.text()).slice(0, 200)}`) as Error & { status?: number }; e.status = res.status; throw e; }
+  const b64 = ((await res.json()) as { data?: { b64_json?: string }[] }).data?.[0]?.b64_json;
+  if (!b64) throw new Error("No image.");
+  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer as ArrayBuffer;
 }
-
-interface Slot {
-  meal: (typeof MEALS)[number];
-  cuisine: string;
-  extras: number;
-  have: number;
+function toBase64(bytes: ArrayBuffer): string { const arr = new Uint8Array(bytes); let s = ""; for (let i = 0; i < arr.length; i += 0x8000) s += String.fromCharCode(...arr.subarray(i, i + 0x8000)); return btoa(s); }
+async function photoMatchesDish(apiKey: string, bytes: ArrayBuffer, dishName: string): Promise<{ ok: boolean; reason: string }> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: "gpt-4o-mini", max_tokens: 40, messages: [{ role: "user", content: [
+      { type: "text", text: `This photo was generated for a recipe called "${dishName}". Does the photo plausibly show this dish? Reply with exactly one line: YES or NO, followed by a very short reason (max 10 words).` },
+      { type: "image_url", image_url: { url: `data:image/webp;base64,${toBase64(bytes)}` } } ] }] }),
+  });
+  if (!res.ok) throw new Error(`Vision check failed ${res.status}`);
+  const text = await aiText(res);
+  return { ok: /^yes\b/i.test(text), reason: text.slice(0, 120) };
 }
-
-/** Every meal × cuisine × mix of extras with fewer than TARGET fitting recipes, hardest first. */
-async function findGaps(): Promise<{ gaps: Slot[]; cuisines: string[] }> {
-  const rows: Row[] = [];
-  for (let from = 0; ; from += 1000) {
-    const page = await rest<Row[]>(
-      `recipes?select=id,name,protein,carbs,cuisine:cuisines(name),meal_type:meal_types(name),recipe_ingredients(ingredient:ingredients(name)),recipe_allergens(allergen:allergens(name)),recipe_tags(tag:tags(name))&or=(is_active.eq.true,source.eq.ai-fill)&order=id`,
-      { headers: { Range: `${from}-${from + 999}` } },
-    );
-    rows.push(...page);
-    if (page.length < 1000) break;
+async function verifiedImage(apiKey: string, dish: { name: string; cuisine?: string | null; details?: string | null }): Promise<ArrayBuffer> {
+  let last = "";
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const bytes = await generateFoodImage(apiKey, buildImagePrompt(dish) + (attempt > 1 && last ? ` IMPORTANT: the previous attempt was wrong (${last}). Show exactly the dish described above and nothing else.` : ""));
+    try { const c = await photoMatchesDish(apiKey, bytes, dish.name); if (c.ok) return bytes; last = c.reason; }
+    catch { return bytes; }
   }
-  const cuisines = Array.from(new Set(rows.map((r) => r.cuisine?.name).filter((c): c is string => !!c))).sort();
-  // count[meal|cuisine|extras-mask-of-recipe]
-  const free: Map<string, number[]> = new Map();
+  throw new Error(`No correct photo for "${dish.name}" (${last}).`);
+}
+async function photographRecipes(ids: string[], budgetMs: number): Promise<void> {
+  const apiKey = env("OPENAI_API_KEY"), url = env("SUPABASE_URL"), key = env("SUPABASE_SERVICE_ROLE_KEY");
+  const unique = Array.from(new Set(ids)).filter((id) => /^[0-9a-f-]{36}$/i.test(id));
+  if (!apiKey || !url || !key || !unique.length) return;
+  const headers = { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
+  const res = await fetch(`${url}/rest/v1/recipes?select=id,name,short_description,image_prompt,cuisine:cuisines(name)&image_path=is.null&id=in.(${unique.join(",")})`, { headers });
+  if (!res.ok) return;
+  const rows = (await res.json()) as { id: string; name: string; short_description: string | null; image_prompt: string | null; cuisine: { name: string } | null }[];
+  const stopAt = Date.now() + budgetMs;
   for (const r of rows) {
-    const meal = mealKey(r.meal_type?.name);
-    const cuisine = r.cuisine?.name;
-    if (!meal || !cuisine) continue;
-    const ings = r.recipe_ingredients.map((x) => x.ingredient?.name ?? "").filter(Boolean);
-    if (!ings.length) continue;
-    const tagged = r.recipe_allergens.map((x) => x.allergen?.name ?? "").filter(Boolean);
-    const tags = r.recipe_tags.map((x) => x.tag?.name ?? "").filter(Boolean);
-    if (!freeFromEverything(ings, tagged, tags)) continue;
-    const k = `${meal}|${cuisine}`;
-    (free.get(k) ?? free.set(k, []).get(k)!).push(extrasMask(ings, tags, r.protein, r.carbs));
-  }
-  const skipped = new Set((await rest<{ key: string }[]>("recipe_fill_skips?select=key&tries=gte.3")).map((s) => s.key));
-  const gaps: Slot[] = [];
-  for (const meal of MEALS) {
-    for (const cuisine of cuisines) {
-      const masks = free.get(`${meal}|${cuisine}`) ?? [];
-      for (let want = 0; want < 8; want++) {
-        const have = masks.filter((m) => (m & want) === want).length;
-        if (have < TARGET && !skipped.has(`${meal}|${cuisine}|${want}`)) gaps.push({ meal, cuisine, extras: want, have });
-      }
+    if (Date.now() > stopAt) break;
+    try {
+      const bytes = await verifiedImage(apiKey, { name: r.name, cuisine: r.cuisine?.name, details: r.image_prompt ?? r.short_description });
+      const path = `${imageSlug(r.name)}-${r.id.slice(0, 8)}-${Date.now().toString(36)}.webp`;
+      const up = await fetch(`${url}/storage/v1/object/${IMAGE_BUCKET}/${path}`, { method: "POST", headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "image/webp", "x-upsert": "true", "Cache-Control": "31536000" }, body: bytes });
+      if (!up.ok) throw new Error(`Upload failed ${up.status}`);
+      await fetch(`${url}/rest/v1/recipes?id=eq.${r.id}&image_path=is.null`, { method: "PATCH", headers: { ...headers, Prefer: "return=minimal" }, body: JSON.stringify({ image_path: `${url}/storage/v1/object/public/${IMAGE_BUCKET}/${path}` }) });
+    } catch (err) {
+      const e = err as Error & { status?: number };
+      console.error(`Recipe photo for ${r.name}: ${e.message}`);
+      if (e.status === 429 || e.status === 401) break;
     }
   }
-  // Most extras first: one high-protein + low-carb + kid-friendly recipe also fills the easier mixes.
-  // Combinations most families pick first; high-protein (often impossible for this food) last.
-  gaps.sort((a, b) => (a.extras & 1) - (b.extras & 1) || bits(b.extras) - bits(a.extras) || a.have - b.have);
-  return { gaps, cuisines };
-}
-const bits = (n: number) => (n & 1) + ((n >> 1) & 1) + ((n >> 2) & 1);
-
-interface Written {
-  /** Every ingredient (but salt-like extras) came with its weight. */
-  weighed: boolean;
-  name: string;
-  description: string;
-  type: string;
-  cuisine: string;
-  difficulty: string;
-  prepTime: number;
-  cookTime: number;
-  servings: number;
-  protein: number;
-  carbs: number;
-  calories: number;
-  kidFriendly: boolean;
-  ingredients: { name: string; quantity: string; unit: string }[];
-  recipe: string[];
 }
 
-async function writeRecipe(slot: Slot, avoidNames: string[], problem: string | null): Promise<Written> {
-  const apiKey = env("OPENAI_API_KEY");
-  if (!apiKey) throw new Error("AI is not set up.");
-  const wants = [
-    slot.extras & 1 ? "high in protein: at least 25 g protein per serving (beans, lentils, chickpeas, quinoa, hemp or pumpkin seeds; NO soy, NO nuts)" : null,
-    slot.extras & 2 ? "low-carb: at most 25 g carbohydrates per serving" : null,
-    slot.extras & 4 ? "kid-friendly: mild, familiar, not spicy, easy for children to eat" : null,
-  ].filter(Boolean);
-  const res = await fetchOpenAI(apiKey, {
-    model: MODEL,
-    temperature: 0.8,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "system",
-        content: [
-          "You write authentic, practical home recipes for Muslim families. Every rule below is a hard rule:",
-          "- Halal. Vegan: no meat, poultry, fish, seafood, eggs, milk, butter, ghee, cheese, yoghurt, cream or honey.",
-          "- NO gluten: no wheat, flour, bread, pasta, couscous, bulgur, freekeh, semolina, barley, rye, spelt, soy sauce. Use rice, corn, potatoes, quinoa, buckwheat, millet, gluten-free oats, rice paper, corn tortillas.",
-          "- NO peanuts, NO tree nuts (almonds, cashews, pistachios, walnuts, coconut is fine), NO sesame or tahini, NO soy (tofu, tempeh, edamame, miso), NO mustard, NO celery, NO lupin.",
-          "- NO sulphites: no vinegar, wine, dried apricots, raisins or other dried fruit, pickles or molasses. Use lemon or lime juice for sourness.",
-          "- No alcohol, no vanilla extract (vanilla powder is fine).",
-          "- Name every ingredient plainly (e.g. 'red lentils', 'olive oil'). Quantities for the servings given.",
-          "- Honest nutrition per serving, as a nutritionist would calculate it from the quantities. Never adjust the numbers to meet a target: if the dish cannot meet it, give the real numbers.",
-        ].join("\n"),
-      },
-      {
-        role: "user",
-        content:
-          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that people in that cuisine actually cook (naturally vegan, or a faithful vegan version of a classic), called by its real name, with an English description in brackets if the name is not English. Its name must not mention meat, fish, eggs, dairy or anything it does not contain. No invented \"bowls\". Use quinoa only if it is traditional in ${slot.cuisine} cooking.` +
-          (wants.length ? ` It must be ${wants.join("; ")}.` : "") +
-          ` Do not repeat: ${avoidNames.slice(0, 40).join("; ")}.` +
-          (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
-          ` Answer as JSON: {"name":"","description":"one sentence","difficulty":"Easy|Medium","prepTime":minutes,"cookTime":minutes,"servings":4,` +
-          `"protein":grams per serving,"carbs":grams per serving,"calories":per serving,"kidFriendly":true|false,` +
-          `"ingredients":[{"name":"","quantity":"","unit":"","grams":weight in grams of this quantity}],"recipe":["step", "..."]}`,
-      },
-    ],
-  });
-  if (!res.ok) throw new Error((await describeOpenAIFailure(res)).message);
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  const o = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as Record<string, unknown>;
-  const num = (v: unknown, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
-  const rawIngredients = (Array.isArray(o.ingredients) ? o.ingredients : []).map((x) => x as Record<string, unknown>);
-  const servings = Math.max(1, Math.round(num(o.servings, 4)));
-  // Nutrition is worked out from the ingredient weights, never taken from the AI.
-  const facts = computeNutrition(rawIngredients.map((x) => ({ name: String(x.name ?? ""), grams: num(x.grams) })), servings);
-  const weighed = rawIngredients.filter((x) => num(x.grams) > 0).length;
-  return {
-    weighed: rawIngredients.length > 0 && weighed >= rawIngredients.length - 2,
-    name: String(o.name ?? "").trim().slice(0, 120),
-    description: String(o.description ?? "").trim().slice(0, 300),
-    type: slot.meal[0].toUpperCase() + slot.meal.slice(1),
-    cuisine: slot.cuisine,
-    difficulty: String(o.difficulty ?? "Easy"),
-    prepTime: Math.round(num(o.prepTime, 10)),
-    cookTime: Math.round(num(o.cookTime, 20)),
-    servings,
-    protein: facts.protein,
-    carbs: facts.carbs,
-    calories: facts.calories,
-    kidFriendly: o.kidFriendly === true,
-    ingredients: rawIngredients
-      .map((x) => ({ name: String(x.name ?? "").trim().slice(0, 80), quantity: String(x.quantity ?? "").trim().slice(0, 20), unit: String(x.unit ?? "").trim().slice(0, 20) }))
-      .filter((x) => x.name)
-      .slice(0, 25),
-    recipe: (Array.isArray(o.recipe) ? o.recipe : []).map((s) => String(s).trim().slice(0, 600)).filter(Boolean).slice(0, 15),
-  };
+// ── translations ──
+const LANG_NAME = { fr: "French", ar: "Arabic (Modern Standard, simple everyday words)" } as const;
+const ARABIC = /[؀-ۿ]/;
+interface TranslatableMeal { id: string; name: string; description: string; ingredients: { name: string }[]; recipe: string[] }
+async function askName(apiKey: string, instruction: string, name: string): Promise<string> {
+  const res = await fetchOpenAI(apiKey, { model: "gpt-4o-mini", temperature: 0, max_tokens: 60, messages: [{ role: "system", content: instruction }, { role: "user", content: name }] });
+  return res.ok ? (await aiText(res)).replace(/^["'«]|["'»]$/g, "").trim() : "";
 }
-
-/** Why a written recipe doesn't fill the slot, or null when it does. */
-function problemWith(w: Written, slot: Slot): string | null {
-  if (w.name.length < 3 || w.ingredients.length < 3 || w.recipe.length < 2) return "was incomplete";
-  const ings = w.ingredients.map((i) => i.name);
-  const halal = haramReason(ings, w.recipe);
-  if (halal) return `was not halal (${halal})`;
-  const tags = w.kidFriendly ? ["kid-friendly"] : [];
-  if (!freeFromEverything(ings, [], tags)) return "contained an allergen, gluten or an animal product";
-  // Numbers must be believable: plant food free of soy, nuts and gluten always
-  // has at least as many carbs as protein, and the calories must cover both.
-  // The name must not promise a food the recipe doesn't contain (an allergy or a vegan diet relies on it).
-  const named = detectAllergens([w.name]);
-  if (named.size || hasMeat([w.name]) || hasSeafood([w.name]) || /\b(huevos|labneh|mas huni|tuna|keema|shrimp|prawn|chingri)\b/i.test(w.name))
-    return "was named after a food it does not contain (meat, fish, eggs or dairy); choose a dish that is vegan by tradition and name it truthfully";
-  if (!w.weighed) return "did not give the weight in grams of every ingredient";
-  if (!(w.calories > 0)) return "had no nutrition numbers";
-  if (/\b(bowl|medley|delight|power|protein[- ]packed|hash)\b/i.test(w.name)) return "had an invented-sounding name (bowl, medley, delight…); write a real traditional dish and use its real name";
-  const mask = extrasMask(ings, tags, w.protein, w.carbs);
-  if ((mask & slot.extras) !== slot.extras) {
-    const missing = EXTRAS.filter((_, i) => slot.extras & (1 << i) && !(mask & (1 << i)));
-    return `was not ${missing.join(" and ").toLowerCase()}: weighed out, its ingredients give ${w.protein} g protein and ${w.carbs} g carbs per serving. Use larger amounts of lentils, beans, chickpeas or pumpkin seeds, or fewer servings`;
+async function translateMeal(apiKey: string, m: TranslatableMeal, lang: "fr" | "ar"): Promise<void> {
+  const url = env("SUPABASE_URL")!, key = env("SUPABASE_SERVICE_ROLE_KEY")!;
+  const headers = { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
+  const source = { name: m.name, description: m.description, steps: m.recipe, ingredients: m.ingredients.map((i) => i.name) };
+  const res = await fetchOpenAI(apiKey, { model: "gpt-4o-mini", temperature: 0.2, max_tokens: 2500, response_format: { type: "json_object" }, messages: [
+    { role: "system", content: `You translate halal family recipes from English into ${LANG_NAME[lang]} for a cooking app. Keep dish names that are known by their own name (tajine, biryani, shawarma…) in their usual form for that language, but always translate the descriptive words around them, including the words in brackets, and always write Arabic in Arabic script (never leave an English name). Keep every number, temperature and quantity exactly. Keep the same number of steps and ingredients, in the same order. Return JSON {"name": string, "description": string, "steps": string[], "ingredients": string[]}.` },
+    { role: "user", content: JSON.stringify(source) } ] });
+  if (!res.ok) return;
+  const t = JSON.parse((await aiText(res)) || "{}") as { name?: string; description?: string; steps?: string[]; ingredients?: string[] };
+  const okList = (a: unknown, n: number) => Array.isArray(a) && a.length === n && a.every((s) => typeof s === "string" && s.trim());
+  if (typeof t.name !== "string" || !t.name.trim()) return;
+  let name = t.name.trim();
+  if (lang === "ar" && /[A-Za-z]/.test(name)) {
+    let arabic = name.replace(/[A-Za-zÀ-ɏ'’-]+/g, " ").replace(/\(\s*\)/g, " ").replace(/\s+/g, " ").trim();
+    if (/^\(.*\)$/.test(arabic) && !/\)\s*\(/.test(arabic)) arabic = arabic.slice(1, -1).trim();
+    if ((arabic.match(/\(/g) ?? []).length !== (arabic.match(/\)/g) ?? []).length) arabic = arabic.replace(/[()]/g, " ").replace(/\s+/g, " ").trim();
+    if (ARABIC.test(arabic)) name = arabic;
+    else {
+      const text = await askName(apiKey, "Write this dish name in Arabic script only (transliterate the dish name, translate any description). Answer with the name only.", m.name);
+      if (!ARABIC.test(text) || /[A-Za-z]/.test(text)) return;
+      name = text;
+    }
   }
-  return null;
-}
-
-async function tagIds(names: string[]): Promise<string[]> {
-  const ids: string[] = [];
-  for (const name of names) {
-    const found = await rest<{ id: string }[]>(`tags?select=id&name=ilike.${encodeURIComponent(name)}&limit=1`);
-    if (found[0]) ids.push(found[0].id);
-    else ids.push((await rest<{ id: string }[]>("tags", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ name }) }))[0].id);
+  if (lang === "fr" && (ARABIC.test(name) || (name === m.name && /\(.+\)/.test(m.name)))) {
+    // French name left in English or mixed with Arabic: ask again for the name alone.
+    const text = await askName(apiKey, "Translate this dish name into French: keep the dish's own name as it is and translate the words in brackets into French. Answer with the name only.", m.name);
+    name = text && !ARABIC.test(text) ? text : m.name;
   }
-  return ids;
+  const steps = okList(t.steps, source.steps.length) ? t.steps! : [];
+  await fetch(`${url}/rest/v1/rpc/save_recipe_translations`, { method: "POST", headers, body: JSON.stringify({ rows: [{ recipe_id: m.id, lang, name, short_description: t.description?.trim() || null, steps }] }) });
+  if (okList(t.ingredients, source.ingredients.length)) {
+    const rows = source.ingredients.map((en, j) => ({ name_en: en.trim().toLowerCase(), lang, name: t.ingredients![j] })).filter((f) => f.name_en.length <= 120 && f.name.length <= 120);
+    const known = await fetch(`${url}/rest/v1/food_translations?select=name_en&lang=eq.${lang}&name_en=in.(${encodeURIComponent(rows.map((f) => `"${f.name_en.replace(/"/g, "")}"`).join(","))})`, { headers }).then((r) => (r.ok ? (r.json() as Promise<{ name_en: string }[]>) : [])).catch(() => [] as { name_en: string }[]);
+    const have = new Set(known.map((k) => k.name_en));
+    const fresh = Array.from(new Map(rows.filter((f) => !have.has(f.name_en)).map((f) => [f.name_en, f])).values());
+    if (fresh.length) await fetch(`${url}/rest/v1/rpc/save_food_translations`, { method: "POST", headers, body: JSON.stringify({ rows: fresh }) });
+  }
 }
 
-async function save(w: Written): Promise<string | null> {
-  const before = await rest<{ id: string }[]>(`recipes?select=id&name=ilike.${encodeURIComponent(w.name)}&limit=1`);
-  if (before.length) return null; // same name already in the library
-  const id = await rest<string | null>("rpc/save_ai_recipe", { method: "POST", body: JSON.stringify({ meal: w }) });
-  if (!id) return null;
-  await rest(`recipes?id=eq.${id}`, {
-    method: "PATCH",
-    headers: { Prefer: "return=minimal" },
-    // Hidden until its photo is made (see showPhotographed).
-    body: JSON.stringify({ protein: w.protein, carbs: w.carbs, calories: w.calories, source: "ai-fill", is_active: false }),
-  });
-  const tags = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Nut-free", ...(w.kidFriendly ? ["Kid-friendly"] : []), ...(w.protein >= 25 ? ["High-protein"] : []), ...(w.carbs <= 25 ? ["Low-carb"] : [])];
-  const ids = await tagIds(tags);
-  await rest("recipe_tags?on_conflict=recipe_id,tag_id", {
-    method: "POST",
-    headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
-    body: JSON.stringify(ids.map((tag_id) => ({ recipe_id: id, tag_id }))),
-  });
-  return id;
+// ── nutrition from ingredient weights (per 100 g: protein, carbs, kcal; raw, cooked) ──
+type Per100 = [number, number, number];
+const COOKED = /\b(cooked|canned|tinned|drained|boiled)\b/;
+const FOODS: [RegExp, Per100, Per100?][] = [
+  [/\b(chicken|turkey) (breasts?|fillets?|tenders?)\b/, [23, 0, 120], [31, 0, 165]],
+  [/\b(chickens?|poussins?|turkey|ducks?|quails?)\b(?! (stock|broth))/, [19, 0, 170], [27, 0, 215]],
+  [/\b(minced|ground) (beef|lamb|meat|veal)\b|\bmince\b|\bkeema\b/, [17, 0, 254], [25, 0, 270]],
+  [/\b(beef|veal|steak|brisket|camel)\b(?! (stock|broth))/, [20, 0, 200], [27, 0, 260]],
+  [/\b(lamb|mutton|goat)\b(?! (stock|broth))/, [17, 0, 280], [25, 0, 290]],
+  [/\bliver\b/, [20, 4, 135]],
+  [/\b(sausages?|merguez|sujuk|sucuk|pastirma|basturma)\b/, [15, 3, 300]],
+  [/\b(stock|broth|bouillon)\b/, [0.5, 1, 8]],
+  [/\b(salmon|mackerel|sardines?|trout|herring)\b/, [20, 0, 200]],
+  [/\btuna\b/, [25, 0, 120]],
+  [/\b(fish|cod|haddock|hake|tilapia|sea ?bass|bream|snapper|grouper|halibut|kingfish|swordfish|carp|catfish|sole)\b/, [19, 0, 95]],
+  [/\b(prawns?|shrimps?|crabs?|lobsters?|squid|calamari|octopus|mussels?|clams?|scallops?)\b/, [18, 1, 90]],
+  [/\beggs?\b/, [13, 1, 143]],
+  [/\b(red|yellow|split) lentils?\b|\bmasoor\b|\btoor dal\b|\bmoong dal\b|\bdal\b/, [24, 60, 358], [9, 20, 116]],
+  [/\blentils?\b/, [25, 60, 352], [9, 20, 116]],
+  [/\bchickpeas?\b|\bgarbanzo/, [19, 61, 364], [7, 23, 139]],
+  [/\b(fava|broad) beans?\b|\bfoul\b|\bful\b/, [26, 58, 341], [7.6, 20, 110]],
+  [/\bmung beans?\b/, [24, 63, 347], [7, 19, 105]],
+  [/\b(black[- ]eyed|pigeon|cow|crowder|field) peas?\b|\bcowpeas?\b|\bgandules\b|\btoor\b/, [22, 62, 336], [7.7, 21, 116]],
+  [/\b(split|dried|yellow split|green split) peas?\b|\bfava split peas\b/, [24, 60, 341], [8, 21, 118]],
+  [/\bpeas?\b(?! protein)/, [5, 14, 81], [5, 14, 81]],
+  [/\bbeans?\b|\bcowpeas?\b|\blegumes?\b/, [21, 62, 341], [7.5, 23, 130]],
+  [/\bquinoa\b/, [14, 64, 368], [4.4, 21, 120]],
+  [/\b(basmati|jasmine|brown|white|wild|sticky|glutinous)? ?rice\b(?! (paper|noodles?|vermicelli|flour))/, [7, 79, 360], [2.7, 28, 130]],
+  [/\brice (noodles?|vermicelli|paper)\b|\bglass noodles\b/, [6, 80, 364], [1.8, 25, 109]],
+  [/\b(rice|corn|maize|chickpea|gram|besan|buckwheat|millet|teff|sorghum|cassava|tapioca|potato) (flour|meal|starch)\b|\bcornmeal\b|\bpolenta\b|\bmasa\b/, [7, 76, 360]],
+  [/\b(flour|baking mix|flour blend|all-purpose|starch)\b/, [8, 77, 360]],
+  [/\b(bulgh?ur|burghul|freekeh|semolina|couscous)\b/, [12, 75, 360], [3.8, 22, 112]],
+  [/\b(pasta|spaghetti|macaroni|penne|noodles?|vermicelli|orzo|fusilli|linguine|tagliatelle|lasagne|lasagna)\b/, [13, 75, 371], [5.8, 31, 158]],
+  [/\b(bread|pitta?|naan|baguettes?|flatbreads?|tortillas?|roti|chapati|msemen|khobz|lavash|buns?|rolls?)\b/, [9, 50, 270]],
+  [/\b(phyllo|filo|yufka|puff pastry|pastry|warka|brik)\b/, [7, 45, 330]],
+  [/\boats?\b|\boatmeal\b/, [13, 67, 389], [2.5, 12, 71]],
+  [/\bbuckwheat\b|\bkasha\b/, [13, 72, 343], [3.4, 20, 92]],
+  [/\bmillet\b|\bsorghum\b|\bteff\b|\bfonio\b|\bamaranth\b/, [11, 73, 370], [3.5, 23, 119]],
+  [/\bcorn tortillas?\b/, [5.7, 45, 218]],
+  [/\bcorn\b|\bmaize\b|\bsweetcorn\b/, [3.3, 19, 86]],
+  [/\bsweet potato(es)?\b|\byams?\b/, [1.6, 20, 86]],
+  [/\bpotato(es)?\b/, [2, 17, 77]],
+  [/\bplantains?\b/, [1.3, 32, 122]],
+  [/\b(cassava|yuca|manioc)\b/, [1.4, 38, 160]],
+  [/\bpumpkin seeds?\b|\bpepitas\b/, [30, 11, 559]],
+  [/\bhemp (seeds?|hearts?)\b/, [32, 9, 553]],
+  [/\bsunflower seeds?\b/, [21, 20, 584]],
+  [/\bchia\b/, [17, 42, 486]],
+  [/\bflax ?seeds?\b|\blinseeds?\b/, [18, 29, 534]],
+  [/\bnutritional yeast\b/, [50, 36, 325]],
+  [/\bcoconut (milk|cream)\b/, [2.3, 6, 230]],
+  [/\b(desiccated|shredded|grated) coconut\b|\bcoconut flakes\b/, [6.9, 24, 660]],
+  [/\bcoconut\b(?! (milk|cream|oil|yogh?urt|aminos|water|sugar))/, [3.3, 15, 354]],
+  [/\bpeanut butter\b/, [25, 20, 590]],
+  [/\b(tahini|tahina|sesame)\b/, [17, 21, 595]],
+  [/\b(almonds?|walnuts?|pistachios?|cashews?|hazelnuts?|pecans?|pine nuts?|peanuts?|nuts)\b/, [20, 20, 600]],
+  [/\b(yogh?urt|laban|kefir|buttermilk|ayran)\b/, [3.5, 4.7, 61]],
+  [/\b(labneh|cream cheese)\b/, [6, 4, 190]],
+  [/\b(feta|halloumi|akkawi|nabulsi|white cheese)\b/, [17, 2, 290]],
+  [/\bpaneer\b/, [18, 4, 300]],
+  [/\b(mozzarella|cheddar|parmesan|kashkaval|gouda|cheese)\b/, [24, 2, 380]],
+  [/\b(cream|qishta|ashta)\b/, [2.5, 3.5, 300]],
+  [/\bmilk\b/, [3.4, 5, 61]],
+  [/\b(butter|ghee|samneh)\b/, [0.5, 0, 740]],
+  [/\bhoney\b/, [0.3, 82, 304]],
+  [/\b(raisins?|sultanas?|dried (apricots?|figs?|fruit))\b/, [3, 70, 290]],
+  [/\bolives?\b(?! oil)/, [1, 6, 115]],
+  [/\bavocados?\b/, [2, 9, 160]],
+  [/\b(oil|ghee)\b/, [0, 0, 884]],
+  [/\b(sugar|jaggery|dates? syrup|maple syrup|agave)\b/, [0, 95, 380]],
+  [/\bdates?\b/, [2.5, 75, 282]],
+  [/\bbananas?\b/, [1.1, 23, 89]],
+  [/\bspinach\b|\bkale\b|\bchard\b|\bsilverbeet\b|\bgreens\b|\bmolokhia\b|\bmulukhiyah\b/, [2.9, 4, 25]],
+  [/\b(apple|pear|mango|orange|berr(y|ies)|grapes?|melon|pineapple|papaya|peach|apricot|plum|fig|pomegranate|kiwi|fruit)s?\b/, [0.8, 14, 60]],
+  [/\bwater\b|\bsalt\b|(?<!bell |green |red |yellow |sweet )\bpepper\b(?!s)|\b(cumin|coriander|turmeric|paprika|cinnamon|cardamom|clove|nutmeg|ginger|garlic powder|chil+i|cayenne|saffron|sumac|thyme|oregano|basil|parsley|cilantro|mint|dill|bay|herbs?|spices?|baking (soda|powder)|yeast|lemon juice|lime juice|vanilla)\b/, [0, 0, 0]],
+];
+const VEG: Per100 = [1.5, 7, 35];
+function foodValues(name: string): Per100 {
+  const n = name.toLowerCase();
+  for (const [re, raw, cooked] of FOODS) if (re.test(n)) return cooked && COOKED.test(n) ? cooked : raw;
+  return VEG;
+}
+function computeNutrition(ingredients: { name: string; grams: number }[], servings: number) {
+  let p = 0, c = 0, k = 0;
+  for (const i of ingredients) {
+    let g = Number.isFinite(i.grams) && i.grams > 0 ? Math.min(i.grams, 3000) : 0;
+    // Deep-frying oil mostly stays in the pan: count at most 15 g eaten per serving.
+    if (/\boil\b/i.test(i.name)) g = Math.min(g, 15 * Math.max(1, servings));
+    const [pp, cc, kk] = foodValues(i.name);
+    p += (pp * g) / 100; c += (cc * g) / 100; k += (kk * g) / 100;
+  }
+  const s = Math.max(1, servings);
+  return { protein: Math.round(p / s), carbs: Math.round(c / s), calories: Math.round(k / s) };
 }
 
-/** Makes photos for filler recipes still waiting for one, then shows the ones that have it. */
-async function photographAndShow(newIds: string[], budgetMs: number) {
-  const waiting = await rest<{ id: string }[]>("recipes?select=id&source=in.(ai-fill,ai-cuisine)&is_active=eq.false&image_path=is.null&order=created_at&limit=6");
-  const ids = Array.from(new Set([...newIds, ...waiting.map((w) => w.id)]));
-  if (ids.length) await photographRecipes(ids, budgetMs);
-  await rest("recipes?source=in.(ai-fill,ai-cuisine)&is_active=eq.false&image_path=not.is.null", {
-    method: "PATCH",
-    headers: { Prefer: "return=minimal" },
-    body: JSON.stringify({ is_active: true }),
-  });
-}
-
-async function skip(slot: Slot, error: string) {
-  const key = slot.extras < 0 ? `${slot.cuisine}|${slot.meal}` : `${slot.meal}|${slot.cuisine}|${slot.extras}`;
-  const prev = await rest<{ tries: number }[]>(`recipe_fill_skips?select=tries&key=eq.${encodeURIComponent(key)}`);
-  await rest("recipe_fill_skips?on_conflict=key", {
-    method: "POST",
-    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-    // Two honest, weighed-out tries that fell short of a protein or carb target: the food can't reach it.
-    body: JSON.stringify({ key, tries: /^was not (high-protein|low-carb)/.test(error) ? 3 : (prev[0]?.tries ?? 0) + 1, last_error: error.slice(0, 300), updated_at: new Date().toISOString() }),
-  });
-}
-
-
-// ── Traditional dishes by cuisine ──
-// Every cuisine needs PER_MEAL real, traditional halal dishes for each meal
-// (normal family food: halal meat, dairy, bread…), with nutrition worked out
-// from ingredient weights like the rest of the library.
+// ── traditional dishes by cuisine ──
+const MODEL = "gpt-4o-mini";
+const CHECK_MODEL = "gpt-4o";
+const MEALS = ["breakfast", "lunch", "dinner", "snack"] as const;
 const PER_MEAL = 3;
 type Meal = (typeof MEALS)[number];
-interface CuisineSlot { cuisine: string; meal: Meal; have: number; names: string[] }
+const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, x-lunchbox-token" };
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+const mealKey = (n: string | undefined | null) => { const s = (n ?? "").toLowerCase(); return MEALS.find((m) => s.includes(m)) ?? null; };
+/** The dish's own name, without the description in brackets, for spotting repeats. */
+const baseName = (s: string) => s.toLowerCase().normalize("NFKD").replace(/\(.*?\)/g, "").replace(/[^a-z]/g, "");
+interface CuisineSlot { cuisine: string; meal: Meal; have: number; names: string[]; all: string[] }
+interface Written { weighed: boolean; name: string; description: string; type: string; cuisine: string; difficulty: string; prepTime: number; cookTime: number; servings: number; protein: number; carbs: number; calories: number; kidFriendly: boolean; ingredients: { name: string; quantity: string; unit: string; grams: number }[]; recipe: string[] }
 
 async function cuisineGaps(): Promise<CuisineSlot[]> {
   const cuisines = await rest<{ id: string; name: string }[]>("cuisines?select=id,name&active=not.is.false&name=neq.International");
   const rows: { name: string; cuisine_id: string | null; meal_type: { name: string } | null }[] = [];
   for (let from = 0; ; from += 1000) {
-    const page = await rest<typeof rows>(
-      "recipes?select=name,cuisine_id,meal_type:meal_types(name)&or=(is_active.eq.true,and(source.eq.ai-cuisine,image_path.is.null))&order=id",
-      { headers: { Range: `${from}-${from + 999}` } },
-    );
+    const page = await rest<typeof rows>("recipes?select=name,cuisine_id,meal_type:meal_types(name)&or=(is_active.eq.true,and(source.eq.ai-cuisine,image_path.is.null))&order=id", { headers: { Range: `${from}-${from + 999}` } });
     rows.push(...page);
     if (page.length < 1000) break;
   }
   const skipped = new Set((await rest<{ key: string }[]>("recipe_fill_skips?select=key&tries=gte.3&key=like.cuisine*")).map((s) => s.key));
   const gaps: CuisineSlot[] = [];
   for (const c of cuisines) {
+    const mine = rows.filter((r) => r.cuisine_id === c.id);
     for (const meal of MEALS) {
-      const names = rows.filter((r) => r.cuisine_id === c.id && mealKey(r.meal_type?.name) === meal).map((r) => r.name);
-      if (names.length < PER_MEAL && !skipped.has(`cuisine|${c.name}|${meal}`)) gaps.push({ cuisine: c.name, meal, have: names.length, names });
+      const names = mine.filter((r) => mealKey(r.meal_type?.name) === meal).map((r) => r.name);
+      if (names.length < PER_MEAL && !skipped.has(`cuisine|${c.name}|${meal}`)) gaps.push({ cuisine: c.name, meal, have: names.length, names, all: mine.map((r) => r.name) });
     }
   }
   return gaps.sort((a, b) => a.have - b.have);
@@ -342,37 +307,24 @@ async function cuisineGaps(): Promise<CuisineSlot[]> {
 async function writeCuisineRecipe(slot: CuisineSlot, problem: string | null): Promise<Written> {
   const apiKey = env("OPENAI_API_KEY");
   if (!apiKey) throw new Error("AI is not set up.");
-  const res = await fetchOpenAI(apiKey, {
-    model: MODEL,
-    temperature: 0.7,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "system",
-        content: [
-          "You write authentic, practical home recipes for Muslim families. Every rule below is a hard rule:",
-          "- Strictly halal: no pork or pork products, no alcohol in any form (no wine, mirin, beer, vanilla extract; vanilla powder is fine), no blood.",
-          "- Write 'halal' before meat, poultry, sausages, gelatin and stock (e.g. 'halal lamb shoulder', 'halal chicken stock').",
-          "- Name every ingredient plainly so its allergens are obvious ('wheat flour', 'pine nuts', 'plain yogurt'); no ready-made mixes or sauces that hide them.",
-          "- Give the weight in grams of every ingredient for the servings stated.",
-          "- The name is the dish's real name written in Latin letters, followed by a short English description in brackets, e.g. 'Fahsa (Yemeni lamb stew)'. Never only in another alphabet.",
+  const res = await fetchOpenAI(apiKey, { model: MODEL, temperature: 0.7, response_format: { type: "json_object" }, messages: [
+    { role: "system", content: [
+      "You write authentic, practical home recipes for Muslim families. Every rule below is a hard rule:",
+      "- The dish must be a real, well-known dish that is genuinely traditional in the cuisine asked for (not a dish that mainly belongs to another country) and is commonly eaten at the meal asked for.",
+      "- Strictly halal: no pork or pork products, no alcohol in any form (no wine, mirin, beer, vanilla extract; vanilla powder is fine), no blood.",
+      "- Write 'halal' before meat, poultry, sausages, gelatin and stock (e.g. 'halal lamb shoulder', 'halal chicken stock').",
+      "- Name every ingredient plainly so its allergens are obvious ('wheat flour', 'pine nuts', 'plain yogurt'); no ready-made mixes or sauces that hide them.",
+      "- Give the weight in grams of every ingredient for the servings stated.",
+      "- The name is the dish's real name written in Latin letters, followed by a short, accurate English description in brackets, e.g. 'Fahsa (Yemeni lamb stew)'. Never only in another alphabet.",
       "- Every quantity is a number ('2', '0.5'); for frying oil give the amount you pour in.",
-        ].join("\n"),
-      },
-      {
-        role: "user",
-        content:
-          `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that families in that cuisine actually cook at home.` +
-          (slot.names.length ? ` The library already has: ${slot.names.join("; ")}. Write a different dish.` : "") +
-          (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
-          ` Answer as JSON: {"name":"","description":"one sentence","difficulty":"Easy|Medium","prepTime":minutes,"cookTime":minutes,"servings":4,` +
-          `"kidFriendly":true|false,"ingredients":[{"name":"","quantity":"","unit":"","grams":weight in grams of this quantity}],"recipe":["step","..."]}`,
-      },
-    ],
-  });
+    ].join("\n") },
+    { role: "user", content: `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that families in that cuisine actually cook at home.` +
+      (slot.all.length ? ` The library already has these ${slot.cuisine} dishes: ${slot.all.slice(0, 120).join("; ")}. Write a different dish.` : "") +
+      (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
+      ` Answer as JSON: {"name":"","description":"one sentence","difficulty":"Easy|Medium","prepTime":minutes,"cookTime":minutes,"servings":4,"kidFriendly":true|false,"ingredients":[{"name":"","quantity":"","unit":"","grams":weight in grams of this quantity}],"recipe":["step","..."]}` },
+  ] });
   if (!res.ok) throw new Error((await describeOpenAIFailure(res)).message);
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-  const o = JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as Record<string, unknown>;
+  const o = JSON.parse((await aiText(res)) || "{}") as Record<string, unknown>;
   const num = (v: unknown, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
   const raw = (Array.isArray(o.ingredients) ? o.ingredients : []).map((x) => x as Record<string, unknown>);
   const servings = Math.max(1, Math.round(num(o.servings, 4)));
@@ -380,37 +332,62 @@ async function writeCuisineRecipe(slot: CuisineSlot, problem: string | null): Pr
   const weighed = raw.filter((x) => num(x.grams) > 0).length;
   return {
     weighed: raw.length > 0 && weighed >= raw.length - 2,
-    name: String(o.name ?? "").trim().slice(0, 120),
-    description: String(o.description ?? "").trim().slice(0, 300),
-    type: slot.meal[0].toUpperCase() + slot.meal.slice(1),
-    cuisine: slot.cuisine,
-    difficulty: String(o.difficulty ?? "Easy"),
-    prepTime: Math.round(num(o.prepTime, 10)),
-    cookTime: Math.round(num(o.cookTime, 20)),
-    servings,
-    protein: facts.protein,
-    carbs: facts.carbs,
-    calories: facts.calories,
-    kidFriendly: o.kidFriendly === true,
-    ingredients: raw
-      .map((x) => { const q = Number(String(x.quantity ?? "").replace(",", ".")); const numeric = String(x.quantity ?? "").trim() !== "" && Number.isFinite(q) && q > 0; const g = num(x.grams); return { name: String(x.name ?? "").trim().slice(0, 80), quantity: numeric ? String(x.quantity).trim().slice(0, 20) : g > 0 ? String(Math.round(g)) : "", unit: numeric ? String(x.unit ?? "").trim().replace(/^-$/, "").slice(0, 20) : g > 0 ? "g" : "", grams: g }; })
-      .filter((x) => x.name)
-      .slice(0, 25),
+    name: String(o.name ?? "").trim().slice(0, 120), description: String(o.description ?? "").trim().slice(0, 300),
+    type: slot.meal[0].toUpperCase() + slot.meal.slice(1), cuisine: slot.cuisine, difficulty: String(o.difficulty ?? "Easy"),
+    prepTime: Math.round(num(o.prepTime, 10)), cookTime: Math.round(num(o.cookTime, 20)), servings,
+    protein: facts.protein, carbs: facts.carbs, calories: facts.calories, kidFriendly: o.kidFriendly === true,
+    ingredients: raw.map((x) => {
+      const q = Number(String(x.quantity ?? "").replace(",", "."));
+      const numeric = String(x.quantity ?? "").trim() !== "" && Number.isFinite(q) && q > 0;
+      const g = num(x.grams);
+      return { name: String(x.name ?? "").trim().slice(0, 80), quantity: numeric ? String(x.quantity).trim().slice(0, 20) : g > 0 ? String(Math.round(g)) : "", unit: numeric ? String(x.unit ?? "").trim().replace(/^-$/, "").slice(0, 20) : g > 0 ? "g" : "", grams: g };
+    }).filter((x) => x.name).slice(0, 25),
     recipe: (Array.isArray(o.recipe) ? o.recipe : []).map((s) => String(s).trim().slice(0, 600)).filter(Boolean).slice(0, 15),
   };
 }
 
-function cuisineProblem(w: Written): string | null {
+function cuisineProblem(w: Written, slot: CuisineSlot): string | null {
   if (w.name.length < 3 || w.ingredients.length < 4 || w.recipe.length < 3) return "was incomplete";
   if (!/^[A-Za-z]/.test(w.name)) return "had a name that does not start in Latin letters";
   if (!/\(.+\)\s*$/.test(w.name)) w.name = `${w.name} (${w.cuisine} ${w.type.toLowerCase()})`.slice(0, 120);
+  if (slot.all.some((n) => baseName(n) === baseName(w.name))) return `repeated a dish the library already has (${w.name})`;
   const halal = haramReason(w.ingredients.map((i) => i.name), w.recipe);
   if (halal) return `was not halal (${halal})`;
   if (!w.weighed) return "did not give the weight in grams of every ingredient";
-  const main = w.ingredients.filter((i) => ((i as { grams?: number }).grams ?? 0) >= 20).length;
-  if (main < 3) return "was too simple (fewer than 3 main ingredients); write a real dish";
+  if (w.ingredients.filter((i) => i.grams >= 20).length < 3) return "was too simple (fewer than 3 main ingredients); write a real dish";
   if (!(w.calories > 0)) return "had no nutrition numbers";
   return null;
+}
+
+/** Second opinion from a stronger model: real dish, right cuisine, right meal, honest name, not a repeat. */
+async function checkDish(apiKey: string, w: Written, slot: CuisineSlot): Promise<string | null> {
+  const res = await fetchOpenAI(apiKey, { model: CHECK_MODEL, temperature: 0, max_tokens: 200, response_format: { type: "json_object" }, messages: [
+    { role: "system", content: "You are a strict food historian checking a family cooking app's recipe library for accuracy. Be strict: when unsure, answer false. Answer only with JSON." },
+    { role: "user", content: [
+      `Dish: ${w.name}`, `Description: ${w.description}`, `Ingredients: ${w.ingredients.map((i) => i.name).join(", ")}`,
+      `Claimed cuisine: ${slot.cuisine}`, `Claimed meal: ${slot.meal}`,
+      `Dishes already in the library for this cuisine: ${slot.all.slice(0, 120).join("; ") || "none"}`,
+      "",
+      `Answer JSON {"real_dish": boolean (a real, known dish, not invented), "from_cuisine": boolean (genuinely traditional in ${slot.cuisine} cooking, not mainly another country's dish), "meal_fits": boolean (commonly eaten as ${slot.meal}${slot.meal === "snack" ? " — a light bite, sweet or tea-time food between meals" : ""}), "name_matches": boolean (the name and the words in brackets truthfully describe this recipe and its ingredients), "duplicate": boolean (the same dish as one already in the library, even under another spelling), "reason": "max 12 words"}`,
+    ].join("\n") } ] });
+  if (!res.ok) throw new Error((await describeOpenAIFailure(res)).message);
+  const c = JSON.parse((await aiText(res)) || "{}") as Record<string, unknown>;
+  const why = String(c.reason ?? "").slice(0, 100);
+  if (c.real_dish !== true) return `is not a real, known dish (${why})`;
+  if (c.from_cuisine !== true) return `is not a traditional ${slot.cuisine} dish (${why})`;
+  if (c.meal_fits !== true) return `is not usually eaten as ${slot.meal} (${why})`;
+  if (c.name_matches !== true) return `had a name or description that does not match the recipe (${why})`;
+  if (c.duplicate === true) return `repeated a dish the library already has (${why})`;
+  return null;
+}
+
+async function tagIds(names: string[]): Promise<string[]> {
+  const ids: string[] = [];
+  for (const name of names) {
+    const found = await rest<{ id: string }[]>(`tags?select=id&name=ilike.${encodeURIComponent(name)}&limit=1`);
+    ids.push(found[0] ? found[0].id : (await rest<{ id: string }[]>("tags", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ name }) }))[0].id);
+  }
+  return ids;
 }
 
 async function saveCuisine(w: Written): Promise<string | null> {
@@ -418,11 +395,7 @@ async function saveCuisine(w: Written): Promise<string | null> {
   if (before.length) return null;
   const id = await rest<string | null>("rpc/save_ai_recipe", { method: "POST", body: JSON.stringify({ meal: w }) });
   if (!id) return null;
-  await rest(`recipes?id=eq.${id}`, {
-    method: "PATCH",
-    headers: { Prefer: "return=minimal" },
-    body: JSON.stringify({ protein: w.protein, carbs: w.carbs, calories: w.calories, source: "ai-cuisine", is_active: false }),
-  });
+  await rest(`recipes?id=eq.${id}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ protein: w.protein, carbs: w.carbs, calories: w.calories, source: "ai-cuisine", is_active: false }) });
   const tags = [...(w.kidFriendly ? ["Kid-friendly"] : []), ...(w.protein >= 25 ? ["High-protein"] : []), ...(w.carbs <= 25 ? ["Low-carb"] : [])];
   if (tags.length) {
     const ids = await tagIds(tags);
@@ -431,34 +404,48 @@ async function saveCuisine(w: Written): Promise<string | null> {
   return id;
 }
 
-async function fillCuisines(limit: number): Promise<{ made: string[]; ids: string[]; remaining: number }> {
+async function photographAndShow(newIds: string[], budgetMs: number) {
+  const waiting = await rest<{ id: string }[]>("recipes?select=id&source=in.(ai-fill,ai-cuisine)&is_active=eq.false&image_path=is.null&order=created_at&limit=6");
+  const ids = Array.from(new Set([...newIds, ...waiting.map((w) => w.id)]));
+  if (ids.length) await photographRecipes(ids, budgetMs);
+  await rest("recipes?source=in.(ai-fill,ai-cuisine)&is_active=eq.false&image_path=not.is.null", { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ is_active: true }) });
+}
+
+async function skip(key: string, error: string) {
+  const prev = await rest<{ tries: number }[]>(`recipe_fill_skips?select=tries&key=eq.${encodeURIComponent(key)}`);
+  await rest("recipe_fill_skips?on_conflict=key", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ key, tries: (prev[0]?.tries ?? 0) + 1, last_error: error.slice(0, 300), updated_at: new Date().toISOString() }) });
+}
+
+async function fillCuisines(limit: number): Promise<{ made: string[]; rejected: string[]; ids: string[]; remaining: number }> {
   const gaps = await cuisineGaps();
   const apiKey = env("OPENAI_API_KEY")!;
-  const made: string[] = [], ids: string[] = [];
-  const stopAt = Date.now() + 70_000;
+  const made: string[] = [], rejected: string[] = [], ids: string[] = [];
+  const stopAt = Date.now() + 80_000;
   for (const slot of gaps.slice(0, limit)) {
     if (Date.now() > stopAt) break;
     let problem: string | null = null, saved: string | null = null;
     for (let attempt = 0; attempt < 2 && !saved; attempt++) {
       try {
         const w = await writeCuisineRecipe(slot, problem);
-        problem = cuisineProblem(w);
-        if (problem) continue;
+        problem = cuisineProblem(w, slot) ?? (await checkDish(apiKey, w, slot));
+        if (problem) { rejected.push(`${w.name} (${slot.cuisine} ${slot.meal}): ${problem}`); continue; }
         saved = await saveCuisine(w);
         if (!saved) problem = "had a name already in the library";
         else {
           made.push(`${w.name} (${slot.cuisine} ${slot.meal})`);
           ids.push(saved);
-          for (const lang of ["fr", "ar"] as const) {
-            await translateMeals(apiKey, [{ id: saved, name: w.name, description: w.description, ingredients: w.ingredients, recipe: w.recipe }], lang).catch((e) => console.error("translate", e));
-          }
+          slot.all.push(w.name);
+          for (const lang of ["fr", "ar"] as const) await translateMeal(apiKey, { id: saved, name: w.name, description: w.description, ingredients: w.ingredients, recipe: w.recipe }, lang).catch((e) => console.error("translate", e));
         }
       } catch (e) { problem = (e as Error).message; console.error("recipe-fill cuisine", slot.cuisine, slot.meal, problem); }
     }
-    if (!saved) await skip({ meal: slot.meal, cuisine: `cuisine|${slot.cuisine}`, extras: -1, have: slot.have }, problem ?? "unknown");
+    if (!saved) await skip(`cuisine|${slot.cuisine}|${slot.meal}`, problem ?? "unknown");
   }
-  if (ids.length) await rest("rpc/retag_recipe_allergens", { method: "POST", body: "{}" }).catch(() => null);
-  return { made, ids, remaining: Math.max(0, gaps.length - made.length) };
+  if (ids.length) {
+    await rest("rpc/retag_recipe_allergens", { method: "POST", body: "{}" }).catch(() => null);
+    await rest("rpc/fill_recipe_micros", { method: "POST", body: "{}" }).catch(() => null);
+  }
+  return { made, rejected, ids, remaining: Math.max(0, gaps.length - made.length) };
 }
 
 Deno.serve(async (req) => {
@@ -468,60 +455,17 @@ Deno.serve(async (req) => {
     const token = req.headers.get("x-lunchbox-token");
     const allowed = token
       ? (await rest<boolean>("rpc/check_lunchbox_admin_token", { method: "POST", body: JSON.stringify({ p_token: token }) })) === true
-      : await (async () => {
-          const user = await getUser(req);
-          return !!user && (await isAdminUser(user.id));
-        })();
+      : await (async () => { const user = await getUser(req); return !!user && (await isAdminUser(user.id)); })();
     if (!allowed) return json({ error: "Admins only." }, 403);
-
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
-    if (body.action === "cuisine" || body.action === "cuisine-status") {
-      if (body.action === "cuisine-status") return json({ remaining: (await cuisineGaps()).length });
+    if (body.action === "cuisine-status") return json({ remaining: (await cuisineGaps()).length });
+    if (body.action === "cuisine") {
       const r = await fillCuisines(Math.min(3, Math.max(1, Number(body.limit) || 1)));
       // deno-lint-ignore no-explicit-any
       (globalThis as any).EdgeRuntime?.waitUntil?.(photographAndShow(r.ids, 120_000).catch((e) => console.error("photos", e)));
-      return json({ made: r.made, remaining: r.remaining });
+      return json({ made: r.made, rejected: r.rejected, remaining: r.remaining });
     }
-    const { gaps, cuisines } = await findGaps();
-    if (body.action !== "fill") {
-      return json({ remaining: gaps.length, cuisines: cuisines.length, sample: gaps.slice(0, 12).map((g) => `${g.cuisine} ${g.meal} [${EXTRAS.filter((_, i) => g.extras & (1 << i)).join(", ") || "any"}] has ${g.have}`) });
-    }
-
-    const limit = Math.min(3, Math.max(1, Number(body.limit) || 1));
-    const apiKey = env("OPENAI_API_KEY")!;
-    const made: string[] = [];
-    const ids: string[] = [];
-    const stopAt = Date.now() + 70_000;
-    for (const slot of gaps.slice(0, limit)) {
-      if (Date.now() > stopAt) break;
-      const avoid = await rest<{ name: string }[]>(`recipes?select=name&cuisine_id=not.is.null&source=eq.ai-fill&order=created_at.desc&limit=40`).then((r) => r.map((x) => x.name)).catch(() => []);
-      let problem: string | null = null;
-      let saved: string | null = null;
-      for (let attempt = 0; attempt < 2 && !saved; attempt++) {
-        try {
-          const w = await writeRecipe(slot, avoid, problem);
-          problem = problemWith(w, slot);
-          if (problem) continue;
-          saved = await save(w);
-          if (!saved) problem = "had a name already in the library";
-          else {
-            made.push(`${w.name} (${slot.cuisine} ${slot.meal})`);
-            ids.push(saved);
-            for (const lang of ["fr", "ar"] as const) {
-              await translateMeals(apiKey, [{ id: saved, name: w.name, description: w.description, ingredients: w.ingredients, recipe: w.recipe }], lang).catch((e) => console.error("translate", e));
-            }
-          }
-        } catch (e) {
-          problem = (e as Error).message;
-          console.error("recipe-fill", slot, problem);
-        }
-      }
-      if (!saved) await skip(slot, problem ?? "unknown");
-    }
-    // Photos after the response, so the database job isn't kept waiting.
-    // deno-lint-ignore no-explicit-any
-    (globalThis as any).EdgeRuntime?.waitUntil?.(photographAndShow(ids, 120_000).catch((e) => console.error("photos", e)));
-    return json({ made, remaining: Math.max(0, gaps.length - made.length) });
+    return json({ error: "Use action cuisine or cuisine-status." }, 400);
   } catch (e) {
     console.error(e);
     return json({ error: (e as Error).message }, 500);

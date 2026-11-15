@@ -17,7 +17,7 @@ import { showAlert } from '@/components/firdam-alert';
 import { ToBuyButton } from '@/components/to-buy-button';
 import { tr } from '@/lib/i18n';
 
-const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Kid-friendly'];
+const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Low-carb', 'High-protein', 'Low-sugar', 'Low-sodium', 'Low-cholesterol', 'Kid-friendly'];
 
 const STATUS: Record<string, { label: string; color: string }> = {
   enough: { label: 'have', color: colors.sage },

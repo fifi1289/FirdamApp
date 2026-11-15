@@ -122,6 +122,10 @@ export interface RecipeRow {
   recipe_steps: { step_number: number; instruction: string }[];
   protein?: number | null;
   carbs?: number | null;
+  sugar?: number | string | null;
+  sodium?: number | string | null;
+  cholesterol?: number | string | null;
+  micros_source?: string | null;
   recipe_allergens?: { allergen: { name: string } | null }[];
   recipe_tags?: { tag: { name: string } | null }[];
 }
@@ -148,6 +152,10 @@ export const RECIPE_SELECT = `
   ),
   protein,
   carbs,
+  sugar,
+  sodium,
+  cholesterol,
+  micros_source,
   recipe_allergens(allergen:allergens(name)),
   recipe_tags(tag:tags(name))
 ` as const;
@@ -162,7 +170,7 @@ export function recipeSuits(r: RecipeRow, allergies: string[], diets: string[]):
   const allergens = (r.recipe_allergens ?? []).map((a) => a.allergen?.name ?? '').filter(Boolean);
   if (conflictsWithAllergies(ingredients, allergies, allergens)) return false;
   const tags = (r.recipe_tags ?? []).map((t) => t.tag?.name ?? '').filter(Boolean);
-  return diets.every((d) => fitsDiet(d, { ingredients, tags, protein: r.protein, carbs: r.carbs }));
+  return diets.every((d) => fitsDiet(d, { ingredients, tags, protein: r.protein, carbs: r.carbs, sugar: r.sugar, sodium: r.sodium, cholesterol: r.cholesterol, micros_source: r.micros_source }));
 }
 
 function normalizeDifficulty(name: string | null | undefined): MealDifficulty {

@@ -371,6 +371,10 @@ export interface RecipeFacts {
   tags: string[];
   protein: number | null;
   carbs: number | null;
+  sugar: number | null;
+  sodium: number | null;
+  cholesterol: number | null;
+  micros_source: string | null;
 }
 
 /** Ingredients, allergen tags and diet info for every recipe — used by the allergy and diet filters. */
@@ -380,7 +384,7 @@ export async function fetchRecipeFacts(): Promise<Map<string, RecipeFacts>> {
     fetchAllPages((from, to) =>
       supabase
         .from('recipes')
-        .select('id, protein, carbs, recipe_ingredients(ingredient:ingredients(name)), recipe_allergens(allergen:allergens(name)), recipe_tags(tag:tags(name))')
+        .select('id, protein, carbs, sugar, sodium, cholesterol, micros_source, recipe_ingredients(ingredient:ingredients(name)), recipe_allergens(allergen:allergens(name)), recipe_tags(tag:tags(name))')
         .eq('is_active', true)
         .not('image_path', 'is', null)
         .order('id')
@@ -392,6 +396,10 @@ export async function fetchRecipeFacts(): Promise<Map<string, RecipeFacts>> {
     id: string;
     protein: number | null;
     carbs: number | null;
+    sugar: number | null;
+    sodium: number | null;
+    cholesterol: number | null;
+    micros_source: string | null;
     recipe_ingredients: { ingredient: { name: string } | null }[] | null;
     recipe_allergens: { allergen: { name: string } | null }[] | null;
     recipe_tags: { tag: { name: string } | null }[] | null;
@@ -404,6 +412,10 @@ export async function fetchRecipeFacts(): Promise<Map<string, RecipeFacts>> {
       tags: (r.recipe_tags ?? []).map((t) => t.tag?.name ?? '').filter(Boolean),
       protein: r.protein != null ? Number(r.protein) : null,
       carbs: r.carbs != null ? Number(r.carbs) : null,
+      sugar: r.sugar != null ? Number(r.sugar) : null,
+      sodium: r.sodium != null ? Number(r.sodium) : null,
+      cholesterol: r.cholesterol != null ? Number(r.cholesterol) : null,
+      micros_source: r.micros_source,
     });
   }
   for (const r of (mine.data ?? []) as { id: string; ingredients: { name: string }[] | null }[]) {
@@ -413,6 +425,10 @@ export async function fetchRecipeFacts(): Promise<Map<string, RecipeFacts>> {
       tags: [],
       protein: null,
       carbs: null,
+      sugar: null,
+      sodium: null,
+      cholesterol: null,
+      micros_source: null,
     });
   }
   return facts;

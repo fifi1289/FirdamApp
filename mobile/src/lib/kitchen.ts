@@ -244,7 +244,7 @@ export function isSafeFor(r: RecipeRow, allergies: string[]): boolean {
 export function fitsDiets(r: RecipeRow, diets: string[]): boolean {
   const ingredients = ingredientNames(r);
   const tags = (r.recipe_tags ?? []).map((t) => t.tag?.name ?? '').filter(Boolean);
-  return diets.every((d) => fitsDiet(d, { ingredients, tags, protein: r.protein, carbs: r.carbs }));
+  return diets.every((d) => fitsDiet(d, { ingredients, tags, protein: r.protein, carbs: r.carbs, sugar: r.sugar, sodium: r.sodium, cholesterol: r.cholesterol, micros_source: r.micros_source }));
 }
 
 export function recipeImage(r: { name: string; image_path: string | null }, type = 'dinner'): string {

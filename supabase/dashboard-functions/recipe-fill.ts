@@ -175,8 +175,22 @@ function hasSeafood(ingredients: string[]): boolean {
  */
 function fitsDiet(
   diet: string,
-  recipe: { ingredients: string[]; tags?: string[]; protein?: number | null; carbs?: number | null }
+  recipe: {
+    ingredients: string[];
+    tags?: string[];
+    protein?: number | null;
+    carbs?: number | null;
+    sugar?: number | string | null;
+    sodium?: number | string | null;
+    cholesterol?: number | string | null;
+    /** 'computed' when sugar/sodium/cholesterol were estimated from the ingredients. */
+    micros_source?: string | null;
+  }
 ): boolean {
+  // Estimated values must clear the limit with a safety margin, so a "low" label is never a guess.
+  const estimated = recipe.micros_source === 'computed';
+  const under = (v: number | string | null | undefined, limit: number, margin: number) =>
+    v != null && v !== '' && Number.isFinite(Number(v)) && Number(v) <= (estimated ? margin : limit);
   const tags = new Set((recipe.tags ?? []).map(normalize));
   const allergens = detectAllergens(recipe.ingredients);
   switch (normalize(diet)) {
@@ -200,6 +214,16 @@ function fitsDiet(
       return recipe.carbs != null ? recipe.carbs <= 25 : tags.has('low-carb');
     case 'high-protein':
       return recipe.protein != null ? recipe.protein >= 25 : tags.has('high-protein');
+    case 'low-sugar':
+      // At most 10 g sugar per serving.
+      return under(recipe.sugar, 10, 7);
+    case 'low-sodium':
+    case 'low-salt':
+      // At most 600 mg sodium per serving.
+      return under(recipe.sodium, 600, 450);
+    case 'low-cholesterol':
+      // At most 60 mg cholesterol per serving.
+      return under(recipe.cholesterol, 60, 45);
     case 'kid-friendly':
       return tags.has('kid-friendly');
     case 'halal':

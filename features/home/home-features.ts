@@ -22,7 +22,8 @@ export type HomeFeatureId =
   | 'learning'
   | 'services'
   | 'travel'
-  | 'newcomer';
+  | 'newcomer'
+  | 'weekend';
 
 export type HomeFeatureGroup = 'Faith' | 'Kitchen' | 'Family' | 'Everyday';
 
@@ -43,6 +44,7 @@ export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app
   { id: 'halal', label: 'Halal places', web: '/dashboard/halal-places', app: '/halal', group: 'Everyday' },
   { id: 'finance', label: 'Finance & zakat', web: '/dashboard/finance', app: '/finance', group: 'Everyday' },
   { id: 'travel', label: 'Travel', web: '/dashboard/travel', app: '/travel', group: 'Everyday' },
+  { id: 'weekend', label: 'Weekend', web: '/dashboard/weekend', app: '/weekend', group: 'Family' },
   { id: 'services', label: 'Services', web: '/dashboard/services', app: '/services', group: 'Everyday' },
 ];
 

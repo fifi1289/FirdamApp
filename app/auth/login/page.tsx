@@ -16,6 +16,7 @@ import { signIn, getAuthErrorMessage } from '@/lib/auth/auth-service';
 import { emailSchema } from '@/lib/auth/validation';
 import { Turnstile, TURNSTILE_SITE_KEY } from '@/components/auth/turnstile';
 import { tr, trn } from '@/lib/i18n';
+import { GOOGLE_CLIENT_ID, GoogleIdentityButton } from '@/components/auth/google-identity-button';
 
 export default function LoginPage() {
   return (
@@ -81,6 +82,19 @@ function LoginForm() {
       setLoading(false);
     }
   };
+
+  // Coming back from an email link that expired or was already used.
+  React.useEffect(() => {
+    if (searchParams.get('link') === 'expired') toast.error(tr('This link has expired or was already used. Sign in, or ask for a new link.'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const googleDone = React.useCallback(() => {
+    const next = searchParams.get('redirect') ?? '/dashboard';
+    router.push(next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard');
+    router.refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -181,22 +195,26 @@ function LoginForm() {
         <Separator className="flex-1" />
       </div>
 
-      <Button
-        variant="outline"
-        className="w-full"
-        size="lg"
-        onClick={handleGoogleSignIn}
-        disabled={loading || googleLoading}
-      >
-        {googleLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {tr('Connecting…')}
-          </>
-        ) : (
-          tr('Continue with Google')
-        )}
-      </Button>
+      {GOOGLE_CLIENT_ID ? (
+        <GoogleIdentityButton text="continue_with" onSignedIn={googleDone} />
+      ) : (
+        <Button
+          variant="outline"
+          className="w-full"
+          size="lg"
+          onClick={handleGoogleSignIn}
+          disabled={loading || googleLoading}
+        >
+          {googleLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {tr('Connecting…')}
+            </>
+          ) : (
+            tr('Continue with Google')
+          )}
+        </Button>
+      )}
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {tr('Don\'t have an account?')}{' '}

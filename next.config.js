@@ -16,12 +16,12 @@ try {
  */
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://cdnjs.cloudflare.com https://challenges.cloudflare.com https://www.googletagmanager.com`,
-  "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://cdnjs.cloudflare.com https://challenges.cloudflare.com https://www.googletagmanager.com https://accounts.google.com`,
+  "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://accounts.google.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  `connect-src 'self' ${supabaseOrigin} ${supabaseOrigin.replace('https://', 'wss://')} https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com`,
-  'frame-src https://challenges.cloudflare.com',
+  `connect-src 'self' ${supabaseOrigin} ${supabaseOrigin.replace('https://', 'wss://')} https://*.supabase.co wss://*.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://accounts.google.com`,
+  'frame-src https://challenges.cloudflare.com https://accounts.google.com',
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",

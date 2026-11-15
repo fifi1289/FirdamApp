@@ -22,6 +22,7 @@ import {
   STRENGTH_LABELS,
 } from '@/lib/auth/validation';
 import { tr, trn } from '@/lib/i18n';
+import { GOOGLE_CLIENT_ID, GoogleIdentityButton } from '@/components/auth/google-identity-button';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -81,6 +82,13 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  const googleDone = React.useCallback(() => {
+    const next = '/dashboard';
+    router.push(next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard');
+    router.refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);
@@ -278,22 +286,26 @@ export default function RegisterPage() {
         <Separator className="flex-1" />
       </div>
 
-      <Button
-        variant="outline"
-        className="w-full"
-        size="lg"
-        onClick={handleGoogleSignUp}
-        disabled={loading || googleLoading}
-      >
-        {googleLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {tr('Connecting…')}
-          </>
-        ) : (
-          tr('Sign up with Google')
-        )}
-      </Button>
+      {GOOGLE_CLIENT_ID ? (
+        <GoogleIdentityButton text="signup_with" onSignedIn={googleDone} />
+      ) : (
+        <Button
+          variant="outline"
+          className="w-full"
+          size="lg"
+          onClick={handleGoogleSignUp}
+          disabled={loading || googleLoading}
+        >
+          {googleLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {tr('Connecting…')}
+            </>
+          ) : (
+            tr('Sign up with Google')
+          )}
+        </Button>
+      )}
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {tr('Already have an account?')}{' '}

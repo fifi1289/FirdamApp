@@ -4176,4 +4176,7 @@ export const FR: Record<string, string> = {
   "2 hours": "2 heures",
   "Desserts": "Desserts",
   "Dessert": "Dessert",
+  "Could not sign in with Google. Please try again.": "Connexion avec Google impossible. Veuillez réessayer.",
+  "Google sign-in could not load. Please use your email and password.": "La connexion Google n’a pas pu se charger. Utilisez votre e-mail et votre mot de passe.",
+  "This link has expired or was already used. Sign in, or ask for a new link.": "Ce lien a expiré ou a déjà été utilisé. Connectez-vous, ou demandez un nouveau lien.",
 };

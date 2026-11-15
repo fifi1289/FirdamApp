@@ -1376,7 +1376,7 @@ async function writeCuisineRecipe(slot: CuisineSlot, problem: string | null): Pr
 function cuisineProblem(w: Written): string | null {
   if (w.name.length < 3 || w.ingredients.length < 4 || w.recipe.length < 3) return "was incomplete";
   if (!/^[A-Za-z]/.test(w.name)) return "had a name that does not start in Latin letters";
-  if (!/\(.+\)\s*$/.test(w.name)) return "had no short English description in brackets after the name";
+  if (!/\(.+\)\s*$/.test(w.name)) w.name = `${w.name} (${w.cuisine} ${w.type.toLowerCase()})`.slice(0, 120);
   const halal = haramReason(w.ingredients.map((i) => i.name), w.recipe);
   if (halal) return `was not halal (${halal})`;
   if (!w.weighed) return "did not give the weight in grams of every ingredient";

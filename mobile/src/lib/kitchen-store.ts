@@ -22,6 +22,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { tr } from '@/lib/i18n';
+import { rescheduleExpiryAlerts } from './expiry-alerts';
 import { repairPlan } from '@/shared/plan-core';
 
 /** Everything the kitchen screens share, loaded once and refreshed on demand. */
@@ -61,6 +62,8 @@ let inflight: Promise<void> | null = null;
 function set(patch: Partial<KitchenState>) {
   state = { ...state, ...patch };
   listeners.forEach((l) => l(state));
+  // Reminders two days and one day before food expires follow the pantry and the allergies.
+  if ('pantry' in patch || 'prefs' in patch) rescheduleExpiryAlerts(state.pantry, state.prefs?.allergies ?? []);
 }
 
 /** Monday of next week, as YYYY-MM-DD. */
@@ -148,6 +151,11 @@ export function patchKitchen(patch: Partial<KitchenState>) {
 export function resetKitchen() {
   state = initial;
   listeners.forEach((l) => l(state));
+}
+
+/** The kitchen as it is now, outside React (for reminders). */
+export function getKitchenState(): KitchenState {
+  return state;
 }
 
 export function useKitchen(): KitchenState & { refresh: () => Promise<void> } {

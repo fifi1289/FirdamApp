@@ -132,6 +132,8 @@ async function photographRecipes(ids: string[], budgetMs: number): Promise<void>
 const LANG_NAME = { fr: "French", ar: "Arabic (Modern Standard, simple everyday words)" } as const;
 const ARABIC = /[؀-ۿ]/;
 const LATIN = /[A-Za-z\u00C0-\u024F]/;
+/** Any letter outside the Latin alphabets (Arabic, Chinese, Cyrillic…), for checking French names. */
+const NON_LATIN = /[^\u0000-\u024F\u1E00-\u1EFF\u2000-\u206F\u20AC]/;
 interface TranslatableMeal { id: string; name: string; description: string; ingredients: { name: string }[]; recipe: string[] }
 async function askName(apiKey: string, instruction: string, name: string): Promise<string> {
   const res = await fetchOpenAI(apiKey, { model: "gpt-4o-mini", temperature: 0, max_tokens: 60, messages: [{ role: "system", content: instruction }, { role: "user", content: name }] });
@@ -150,20 +152,15 @@ async function translateMeal(apiKey: string, m: TranslatableMeal, lang: "fr" | "
   if (typeof t.name !== "string" || !t.name.trim()) return false;
   let name = t.name.trim();
   if (lang === "ar" && LATIN.test(name)) {
-    let arabic = name.replace(/[A-Za-zÀ-ɏ'’-]+/g, " ").replace(/\(\s*\)/g, " ").replace(/\s+/g, " ").trim();
-    if (/^\(.*\)$/.test(arabic) && !/\)\s*\(/.test(arabic)) arabic = arabic.slice(1, -1).trim();
-    if ((arabic.match(/\(/g) ?? []).length !== (arabic.match(/\)/g) ?? []).length) arabic = arabic.replace(/[()]/g, " ").replace(/\s+/g, " ").trim();
-    if (ARABIC.test(arabic)) name = arabic;
-    else {
-      const text = await askName(apiKey, "Write this dish name in Arabic script only (transliterate the dish name, translate any description). Answer with the name only.", m.name);
-      if (!ARABIC.test(text) || LATIN.test(text)) return false;
-      name = text;
-    }
+    // Ask for the whole name in Arabic script (transliterated dish name + translated description).
+    const text = await askName(apiKey, "Write this dish name in Arabic script only: transliterate the dish's own name into Arabic letters and translate the words in brackets, keeping the brackets. Answer with the name only.", m.name);
+    if (!ARABIC.test(text) || LATIN.test(text)) return false;
+    name = text;
   }
-  if (lang === "fr" && (ARABIC.test(name) || (name === m.name && /\(.+\)/.test(m.name)))) {
+  if (lang === "fr" && (NON_LATIN.test(name) || (name === m.name && /\(.+\)/.test(m.name)))) {
     // French name left in English or mixed with Arabic: ask again for the name alone.
     const text = await askName(apiKey, "Translate this dish name into French: keep the dish's own name as it is and translate the words in brackets into French. Answer with the name only.", m.name);
-    name = text && !ARABIC.test(text) ? text : m.name;
+    name = text && !NON_LATIN.test(text) ? text : m.name;
   }
   const steps = okList(t.steps, source.steps.length) ? t.steps! : [];
   const saved = await fetch(`${url}/rest/v1/rpc/save_recipe_translations`, { method: "POST", headers, body: JSON.stringify({ rows: [{ recipe_id: m.id, lang, name, short_description: t.description?.trim() || null, steps }] }) });
@@ -326,7 +323,7 @@ async function writeCuisineRecipe(slot: CuisineSlot, problem: string | null): Pr
     { role: "user", content: `Write one real, traditional ${slot.cuisine} ${slot.meal} dish that families in that cuisine actually cook at home.` +
       (slot.all.length ? ` The library already has these ${slot.cuisine} dishes: ${slot.all.slice(0, 120).join("; ")}. Write a different dish.` : "") +
       (problem ? ` The last try was rejected because it ${problem}. Fix that.` : "") +
-      ` Answer as JSON: {"name":"","description":"one sentence","difficulty":"Easy|Medium","prepTime":minutes,"cookTime":minutes,"servings":4,"kidFriendly":true|false,"ingredients":[{"name":"","quantity":"","unit":"","grams":weight in grams of this quantity}],"recipe":["step","..."]}` },
+      ` Answer as JSON: {"name":"","description":"one sentence","difficulty":"Easy|Medium","prepTime":minutes,"cookTime":minutes,"servings":number of portions this makes (for small pieces like cookies or dumplings, the number of pieces or portions),"kidFriendly":true|false,"ingredients":[{"name":"","quantity":"","unit":"","grams":weight in grams of this quantity}],"recipe":["step","..."]}` },
   ] });
   if (!res.ok) throw new Error((await describeOpenAIFailure(res)).message);
   const o = JSON.parse((await aiText(res)) || "{}") as Record<string, unknown>;

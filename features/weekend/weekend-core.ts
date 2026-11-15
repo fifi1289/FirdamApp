@@ -28,6 +28,8 @@ export interface WeekendPlace {
 
 export interface WeekendStep {
   time: string | null;
+  /** Set on prayer steps; their time is computed, not guessed. */
+  prayer?: 'dhuhr' | 'asr' | 'maghrib' | null;
   title: string;
   note: string;
   place: WeekendPlace | null;

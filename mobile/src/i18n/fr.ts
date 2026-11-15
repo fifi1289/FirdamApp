@@ -2185,4 +2185,5 @@ export const FR: Record<string, string> = {
   "We couldn't find enough places near this location for a program.": "Nous n’avons pas trouvé assez de lieux près de cet endroit pour un programme.",
   "You've made several programs today. Try again tomorrow.": "Vous avez préparé plusieurs programmes aujourd’hui. Réessayez demain.",
   "The program came out without real places. Please try again.": "Le programme est sorti sans lieux réels. Réessayez.",
+  "Places © OpenStreetMap contributors · Weather: Open-Meteo": "Lieux © contributeurs d’OpenStreetMap · Météo : Open-Meteo",
 };

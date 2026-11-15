@@ -2247,4 +2247,5 @@ export const AR: Record<string, string> = {
   "We couldn't find enough places near this location for a program.": "لم نجد أماكن كافية قرب هذا الموقع لإعداد برنامج.",
   "You've made several programs today. Try again tomorrow.": "أعددت عدة برامج اليوم. حاول مجددًا غدًا.",
   "The program came out without real places. Please try again.": "خرج البرنامج دون أماكن حقيقية. حاول مرة أخرى.",
+  "Places © OpenStreetMap contributors · Weather: Open-Meteo": "الأماكن © مساهمو OpenStreetMap · الطقس: Open-Meteo",
 };

@@ -333,7 +333,7 @@ export default function Weekend() {
               </Card>
             ) : null}
             <T size={11.5} color={colors.muted}>
-              {plan.attribution}
+              {tr(plan.attribution)}
             </T>
           </>
         ) : past.length ? (

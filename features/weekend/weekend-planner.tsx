@@ -308,7 +308,7 @@ export function WeekendPlanner() {
               </CardContent>
             </Card>
           )}
-          <p className="text-xs text-muted-foreground">{plan.attribution}</p>
+          <p className="text-xs text-muted-foreground">{tr(plan.attribution)}</p>
         </div>
       )}
 

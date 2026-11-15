@@ -195,16 +195,19 @@ interface Block {
   where: Where;
   /** A line without a time span (e.g. "Head home"). */
   point?: boolean;
+  /** Where you are between the other blocks (not shown as a line). */
+  hidden?: boolean;
 }
 
 /** The day's lines: the blocks, with every prayer at its time and where you will be then. */
 function assemble(blocks: Block[], prayers: DayPrayers, mosques: Spot[], outside: Where = 'home'): Line[] {
-  const lines: (Line & { at: number; order: number })[] = blocks.map((b, i) => ({
+  const lines: (Line & { at: number; order: number })[] = blocks.filter((b) => !b.hidden).map((b, i) => ({
     at: b.start, order: i, time: hm(b.start), title: b.title, notes: b.notes, place: b.place ?? null, recipes: b.recipes,
   }));
   (Object.keys(PRAYER_TITLE) as PrayerName[]).forEach((p) => {
     const at = toMin(prayers[p]);
-    const during = blocks.find((b) => !b.point && at >= b.start && at < b.end);
+    const covering = (b: Block) => !b.point && at >= b.start && at < b.end;
+    const during = blocks.find((b) => !b.hidden && covering(b)) ?? blocks.find((b) => b.hidden && covering(b));
     let where: Where = during?.where ?? outside;
     let place: Spot | null = null;
     if (where === 'mat' || where === 'mosque') {
@@ -240,7 +243,7 @@ const WINTER_GOOD = new Set(['museum', 'aquarium', 'library', 'planetarium', 'ga
 
 /** Kinds that suit the season and the forecast, best first (for a second stop or a trip). */
 function kindsFor(season: Season, lat: number, who: Who, w?: DayWeather | null): string[] {
-  const bad = !!w && (w.code >= 51 || w.rain >= 60 || w.max < 0);
+  const bad = !!w && (w.code >= 51 || w.rain >= 60 || w.max < 8);
   const indoor = ['museum', 'aquarium', 'planetarium', 'gallery', 'library', 'arts', 'mall'];
   if (bad || (season === 'winter' && coldWinter(lat))) return who === 'family' ? ['museum', 'aquarium', 'planetarium', 'library', 'ice_rink', 'trampoline', 'pool', 'mall'] : indoor;
   if (season === 'summer') {
@@ -522,7 +525,7 @@ export function buildOuting(b: Base, place: Spot, near: Nearby, picnic: boolean)
 
   // A second stop nearby when there is time, suited to the season.
   if (endBy - cursor >= 75) {
-    const second = pickPlaces(near.places, place, kindsFor(season, b.home.lat, b.who, w).filter((k) => k !== place.kind), 1, 3, new Set([place.key]))[0];
+    const second = pickPlaces(near.places, place, [...kindsFor(season, b.home.lat, b.who, w), 'library', 'park', 'mall'].filter((k, i, all) => k !== place.kind && all.indexOf(k) === i), 1, 3, new Set([place.key]))[0];
     if (second) {
       const s = up5(cursor + 15);
       const len = Math.min(KIND_MINUTES[second.kind] ?? 60, endBy - s);
@@ -606,12 +609,16 @@ export function buildTrip(b: Base, dest: City, near: Nearby): Program {
     if (first) {
       const leave = up5(season === 'summer' ? 7 * 60 + 30 : 8 * 60);
       blocks.push({ start: leave, end: leave + ride, title: T(b.car ? 'Drive to {0}' : route?.mode === 'train' ? 'Train to {0}' : 'Travel to {0}', dest.name[b.lang]), notes: [T('About {0} minutes on the way.', ride)], where: 'road' });
+      blocks.push({ start: 0, end: leave, title: T('Head home'), notes: [], where: 'home', hidden: true });
       cursor = leave + ride + 15;
     } else {
       blocks.push({ start: 8 * 60, end: 8 * 60 + 45, title: T('Breakfast'), notes: [], where: 'hotel' });
       cursor = 9 * 60 + 15;
     }
     const returnAt = last ? Math.min(m - (ramadan ? 30 : 0), 18 * 60) - ride : Math.min(m, 19 * 60);
+    // Between the visits you are in the city (or at the hotel at night).
+    blocks.push({ start: cursor - 15, end: last ? returnAt : m + 120, title: T('Head home'), notes: [], place: { key: 'centre', name: '', kind: 'city', lat: dest.lat, lng: dest.lng }, where: 'mat', hidden: true });
+    if (!first) blocks.push({ start: 0, end: 9 * 60, title: T('Head home'), notes: [], where: 'hotel', hidden: true });
     const picks = pickPlaces(near.places, center, kindsFor(season, dest.lat, b.who, w), first && last ? 2 : 3, 12, used);
     picks.forEach((pl, idx) => {
       if (returnAt - cursor < 60) return;
@@ -635,7 +642,7 @@ export function buildTrip(b: Base, dest: City, near: Nearby): Program {
       blocks.push({ start: up5(cursor), end: up5(cursor) + 30, title: T('Check in at the hotel'), notes: [], where: 'hotel' });
       blocks.push({ start: ramadan ? m : m + 30, end: (ramadan ? m : m + 30) + 75, title: T(ramadan ? 'Iftar' : 'Dinner'), notes: food ? [halalNote(food.halal)] : [T('Look for halal food on the map in Firdam.')], place: food, where: 'mat' });
     }
-    return { date, lines: assemble(blocks, p, near.mosques, first ? 'home' : 'hotel') };
+    return { date, lines: assemble(blocks, p, near.mosques, last ? 'home' : 'hotel') };
   });
 
   if (b.car) costs.push({ label: T('Car: fuel, tolls and parking'), amount: null, detail: T('About {0} km each way.', Math.round(km)) });
@@ -712,12 +719,14 @@ export function buildCamping(b: Base, camp: Camp | Spot, near: Nearby): Program 
       blocks.push({ start: a + 20, end: Math.min(a + 140, m - 30), title: season === 'summer' ? T('Swim or walk by the lake') : T('A nature walk on the trails'), notes: [T('Stay on the marked trails and keep the children close.')], where: 'camp' });
       blocks.push({ start: ramadan ? m - 60 : m - 75, end: m + (ramadan ? 30 : -15), title: T(ramadan ? 'Cook iftar at the camp' : 'Cook dinner at the camp'), notes: [T('Check the fire rules at the campground.')], recipes: 'dinner', where: 'camp' });
       blocks.push({ start: m + 60, end: m + 150, title: T('A quiet evening under the stars'), notes: [], where: 'camp' });
+      blocks.push({ start: 9 * 60 + go, end: 24 * 60, title: T('Head home'), notes: [], where: 'camp', hidden: true });
     } else {
       blocks.push({ start: 8 * 60, end: 8 * 60 + 45, title: T('Breakfast at the camp'), notes: [], recipes: 'breakfast', where: 'camp' });
       blocks.push({ start: 9 * 60, end: 11 * 60, title: T('Morning walk, then pack up'), notes: [T('Leave the site clean: take all your rubbish with you.')], where: 'camp' });
       blocks.push({ start: 11 * 60 + 15, end: 11 * 60 + 15 + go, title: T('Head home'), notes: [], where: 'road' });
+      blocks.push({ start: 0, end: 11 * 60 + 15, title: T('Head home'), notes: [], where: 'camp', hidden: true });
     }
-    return { date: d, lines: assemble(blocks, p, near.mosques, di === 0 ? 'home' : 'camp') };
+    return { date: d, lines: assemble(blocks, p, near.mosques, 'home') };
   });
 
   const costs: Cost[] = [];

@@ -62,7 +62,7 @@ export default function NotificationsScreen() {
 
   const replanExpiry = () => {
     const k = getKitchenState();
-    scheduleExpiryAlerts(k.pantry, k.prefs?.allergies ?? []).catch(() => {});
+    scheduleExpiryAlerts(k.pantry, k.prefs?.allergies ?? [], k.household ?? null).catch(() => {});
   };
 
   const toggleExpiry = async () => {

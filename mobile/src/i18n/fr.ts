@@ -2094,4 +2094,13 @@ export const FR: Record<string, string> = {
   "At 9 am, two days and one day before food in your pantry expires": "À 9 h, deux jours et un jour avant la date d’un aliment de votre garde-manger",
   "Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.": "Votre famille évite : {0}, donc aucune recette avec cet aliment n’est sûre pour vous. Donnez-le à un voisin ou à une banque alimentaire avant qu’il ne se perde.",
   "Remove from pantry ›": "Retirer du garde-manger ›",
+  "Allergies": "Allergies",
+  "avoids {0}": "évite : {0}",
+  "What this person can’t eat. Shared meals stay safe for everyone; food only some of you avoid can still be cooked for the others.": "Ce que cette personne ne peut pas manger. Les repas partagés restent sûrs pour tous ; un aliment que seuls certains évitent peut encore être cuisiné pour les autres.",
+  "{0} avoids {1}. Cook it for the others and keep {0}’s portion separate.": "{0} évite : {1}. Cuisinez-le pour les autres et gardez la portion de {0} à part.",
+  "Recipes with {0} for everyone except {1} ›": "Recettes avec {0} pour tous sauf {1} ›",
+  "Not for {0}, who avoids {1}: keep their portion separate. These recipes are safe for everyone else.": "Pas pour {0}, qui évite : {1}. Gardez sa portion à part. Ces recettes sont sûres pour tous les autres.",
+  "Not for {0}: {1}.": "Pas pour {0} : {1}.",
+  "Not for {0}": "Pas pour {0}",
+  " and ": " et ",
 };

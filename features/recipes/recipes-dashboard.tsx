@@ -38,6 +38,7 @@ import {
 import { useRecipeFavorites } from '@/features/recipes/use-favorites';
 import { RecipeFormDialog } from '@/features/recipes/recipe-form-dialog';
 import { CookWithWhatIHave } from '@/features/recipes/cook-with-what-i-have';
+import { sameAllergy } from '@/lib/recipes/allergens';
 import { tr, trn } from '@/lib/i18n';
 import { sameFood } from '@/supabase/functions/_shared/kitchen-items';
 
@@ -165,9 +166,17 @@ export function RecipesDashboard() {
   const [diet, setDiet] = useState('any');
   // ?use=Tomatoes (from the pantry's "Use soon"): only recipes that use that food.
   const [food, setFood] = useState<string | null>(null);
+  // &allow=Eggs&except=Yusuf: a food only some of the family avoids, shown for everyone else.
+  const [setAside, setSetAside] = useState<string[]>([]);
+  const [exceptNames, setExceptNames] = useState<string[]>([]);
   useEffect(() => {
-    const use = new URLSearchParams(window.location.search).get('use');
+    const q = new URLSearchParams(window.location.search);
+    const use = q.get('use');
     if (use) setFood(use);
+    if (use && q.get('allow')) {
+      setSetAside((q.get('allow') ?? '').split(',').filter(Boolean));
+      setExceptNames((q.get('except') ?? '').split(',').filter(Boolean));
+    }
   }, []);
   const [facts, setFacts] = useState<Map<string, RecipeFacts> | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -190,7 +199,9 @@ export function RecipesDashboard() {
       .maybeSingle()
       .then(({ data }) => {
         const saved = (data?.allergies ?? []) as string[];
-        if (saved.length) setFreeFrom(saved);
+        const allow = new URLSearchParams(window.location.search).get('use') ? (new URLSearchParams(window.location.search).get('allow') ?? '').split(',').filter(Boolean) : [];
+        const kept = saved.filter((a) => !allow.some((b) => sameAllergy(a, b)));
+        if (kept.length) setFreeFrom(kept);
       });
   }, []);
 
@@ -324,6 +335,11 @@ export function RecipesDashboard() {
           <Button variant="secondary" size="sm" onClick={() => setFood(null)} aria-label={tr('Show all recipes')}>
             {tr('Recipes with {0}', [trn(food).toLowerCase()])} ✕
           </Button>
+          {setAside.length > 0 && exceptNames.length > 0 && (
+            <p className="w-full rounded-lg bg-destructive/10 p-2.5 text-xs leading-relaxed text-destructive">
+              {tr('Not for {0}, who avoids {1}: keep their portion separate. These recipes are safe for everyone else.', [exceptNames.join(tr(' and ')), setAside.map((a) => trn(a).toLowerCase()).join(tr(', '))])}
+            </p>
+          )}
         </div>
       )}
       <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_auto_auto] xl:grid-cols-[1fr_auto_auto_auto_auto_auto]">

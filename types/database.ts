@@ -157,6 +157,7 @@ export type Database = {
       };
       family_members: {
         Row: {
+          allergies: string[]
           id: string;
           user_id: string;
           first_name: string;
@@ -168,6 +169,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          allergies?: string[]
           id?: string;
           user_id?: string;
           first_name: string;
@@ -179,6 +181,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          allergies?: string[]
           id?: string;
           user_id?: string;
           first_name?: string;

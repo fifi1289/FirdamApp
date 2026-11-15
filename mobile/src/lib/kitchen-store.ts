@@ -63,7 +63,7 @@ function set(patch: Partial<KitchenState>) {
   state = { ...state, ...patch };
   listeners.forEach((l) => l(state));
   // Reminders two days and one day before food expires follow the pantry and the allergies.
-  if ('pantry' in patch || 'prefs' in patch) rescheduleExpiryAlerts(state.pantry, state.prefs?.allergies ?? []);
+  if ('pantry' in patch || 'prefs' in patch || 'household' in patch) rescheduleExpiryAlerts(state.pantry, state.prefs?.allergies ?? [], state.household ?? null);
 }
 
 /** Monday of next week, as YYYY-MM-DD. */

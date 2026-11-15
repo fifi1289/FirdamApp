@@ -3917,4 +3917,12 @@ export const AR: Record<string, string> = {
   "Your family avoids {0}, so no recipe with it is safe for you. Give it to a neighbour or a food bank before it goes to waste.": "عائلتك تتجنّب {0}، لذا لا توجد وصفة آمنة لكم به. أعطه لجار أو لبنك طعام قبل أن يضيع.",
   "Remove from pantry ›": "احذفه من المخزن ›",
   ", ": "، ",
+  "avoids {0}": "حساسية من {0}",
+  "What this person can’t eat. Shared meals stay safe for everyone; food only some of you avoid can still be cooked for the others.": "ما لا يستطيع هذا الشخص أكله. تبقى الوجبات المشتركة آمنة للجميع، والطعام الذي يتجنّبه بعضكم فقط يمكن طبخه للآخرين.",
+  "{0} avoids {1}. Cook it for the others and keep {0}’s portion separate.": "{1} لا يناسب {0}. اطبخوه للآخرين واجعلوا حصة {0} منفصلة.",
+  "Recipes with {0} for everyone except {1} ›": "وصفات فيها {0} للجميع ما عدا {1} ›",
+  "Not for {0}, who avoids {1}: keep their portion separate. These recipes are safe for everyone else.": "لا تناسب {0} بسبب {1}: اجعلوا حصة {0} منفصلة. هذه الوصفات آمنة لبقية العائلة.",
+  "Not for {0}: {1}.": "لا يناسب {0}: {1}.",
+  "Not for {0}": "لا تناسب {0}",
+  " and ": " و",
 };

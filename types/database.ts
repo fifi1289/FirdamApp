@@ -155,9 +155,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      weekend_plans: {
+        Row: {
+          id: string;
+          user_id: string;
+          created_at: string;
+          options: Record<string, unknown>;
+          plan: unknown;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          created_at?: string;
+          options: Record<string, unknown>;
+          plan: unknown;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          created_at?: string;
+          options?: Record<string, unknown>;
+          plan?: unknown;
+        };
+        Relationships: [];
+      };
       family_members: {
         Row: {
-          allergies: string[]
+          allergies: string[];
           id: string;
           user_id: string;
           first_name: string;
@@ -169,7 +193,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
-          allergies?: string[]
+          allergies?: string[];
           id?: string;
           user_id?: string;
           first_name: string;
@@ -181,7 +205,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
-          allergies?: string[]
+          allergies?: string[];
           id?: string;
           user_id?: string;
           first_name?: string;

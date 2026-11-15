@@ -113,7 +113,7 @@ export function WeekendPlanner() {
       const first = d.steps.find((s) => s.time)?.time ?? null;
       return {
         title: d.theme || p.title || tr('Weekend outing'),
-        kind: 'other',
+        kind: 'other' as const,
         starts_on: d.date,
         start_time: first,
         location: d.steps.find((s) => s.place)?.place?.name ?? null,
@@ -293,7 +293,7 @@ export function WeekendPlanner() {
                     <li key={i}>
                       <button
                         type="button"
-                        onClick={() => setDone((s) => (s.has(i) ? new Set([...s].filter((n) => n !== i)) : new Set([...s, i])))}
+                        onClick={() => setDone((s) => (s.has(i) ? new Set(Array.from(s).filter((n) => n !== i)) : new Set(Array.from(s).concat(i))))}
                         className="flex items-start gap-2 text-start text-sm"
                       >
                         <span className={cn('mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border', done.has(i) ? 'border-primary bg-primary text-primary-foreground' : 'border-border')}>

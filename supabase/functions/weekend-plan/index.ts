@@ -183,29 +183,47 @@ async function ensureArea(lat: number, lng: number): Promise<boolean> {
 
 // ── Weather (Open-Meteo, no key) ─────────────────────────────────────
 
-interface DayWeather { date: string; max: number; min: number; rain: number; code: number }
+interface DayWeather { date: string; max: number; min: number; rain: number; code: number; prayers?: { dhuhr: string; asr: string; maghrib: string } }
+
+/** Approximate Dhuhr, Asr (shadow = 1) and Maghrib from sunrise and sunset (local "HH:MM" strings). */
+function prayersFor(date: string, lat: number, sunrise: string, sunset: string): { dhuhr: string; asr: string; maghrib: string } | undefined {
+  const mins = (t: string) => { const m = t.match(/T(\d{2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : NaN; };
+  const rise = mins(sunrise), set = mins(sunset);
+  if (!Number.isFinite(rise) || !Number.isFinite(set)) return undefined;
+  const noon = (rise + set) / 2;
+  const day = Math.floor((Date.parse(`${date}T12:00:00Z`) - Date.parse(`${date.slice(0, 4)}-01-01T00:00:00Z`)) / 86_400_000) + 1;
+  const decl = -23.44 * Math.cos(((2 * Math.PI) / 365) * (day + 10)) * (Math.PI / 180);
+  const phi = lat * (Math.PI / 180);
+  const alt = Math.atan(1 / (1 + Math.tan(Math.abs(phi - decl))));
+  const cosH = (Math.sin(alt) - Math.sin(phi) * Math.sin(decl)) / (Math.cos(phi) * Math.cos(decl));
+  if (cosH < -1 || cosH > 1) return undefined;
+  const asr = noon + ((Math.acos(cosH) * 180) / Math.PI / 15) * 60;
+  const hm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(Math.round(m % 60) % 60).padStart(2, "0")}`;
+  return { dhuhr: hm(noon + 2), asr: hm(asr + 1), maghrib: hm(set + 3) };
+}
 async function weekendWeather(lat: number, lng: number): Promise<{ sat: DayWeather | null; sun: DayWeather | null; satDate: string; sunDate: string }> {
   const fallback = () => {
     const d = new Date();
     const toSat = (6 - d.getUTCDay() + 7) % 7;
     const sat = new Date(d.getTime() + toSat * 86_400_000);
-    const sun = new Date(sat.getTime() + (d.getUTCDay() === 0 ? -6 : 1) * 86_400_000);
-    return { sat: null, sun: null, satDate: sat.toISOString().slice(0, 10), sunDate: (d.getUTCDay() === 0 ? d : sun).toISOString().slice(0, 10) };
+    const sun = new Date(sat.getTime() + 86_400_000);
+    return { sat: null, sun: null, satDate: sat.toISOString().slice(0, 10), sunDate: sun.toISOString().slice(0, 10) };
   };
   try {
     const res = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lng.toFixed(3)}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&timezone=auto&forecast_days=8`,
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lng.toFixed(3)}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code,sunrise,sunset&timezone=auto&forecast_days=8`,
       { signal: AbortSignal.timeout(6_000) },
     );
     if (!res.ok) return fallback();
-    const d = (await res.json()) as { daily?: { time: string[]; temperature_2m_max: number[]; temperature_2m_min: number[]; precipitation_probability_max: (number | null)[]; weather_code: number[] } };
+    const d = (await res.json()) as { daily?: { time: string[]; temperature_2m_max: number[]; temperature_2m_min: number[]; precipitation_probability_max: (number | null)[]; weather_code: number[]; sunrise?: string[]; sunset?: string[] } };
     const daily = d.daily;
     if (!daily?.time?.length) return fallback();
-    const day = (i: number): DayWeather => ({ date: daily.time[i], max: Math.round(daily.temperature_2m_max[i]), min: Math.round(daily.temperature_2m_min[i]), rain: daily.precipitation_probability_max[i] ?? 0, code: daily.weather_code[i] });
+    const day = (i: number): DayWeather => ({ date: daily.time[i], max: Math.round(daily.temperature_2m_max[i]), min: Math.round(daily.temperature_2m_min[i]), rain: daily.precipitation_probability_max[i] ?? 0, code: daily.weather_code[i], prayers: daily.sunrise?.[i] && daily.sunset?.[i] ? prayersFor(daily.time[i], lat, daily.sunrise[i], daily.sunset[i]) : undefined });
     // The first day is "today" in the place's own time zone.
     const weekday = (s: string) => new Date(`${s}T12:00:00Z`).getUTCDay();
+    // The coming weekend: Saturday, then the Sunday after it (on a Sunday that's next weekend).
     const satI = daily.time.findIndex((s) => weekday(s) === 6);
-    const sunI = daily.time.findIndex((s, i) => weekday(s) === 0 && (satI < 0 || i > satI || weekday(daily.time[0]) === 0));
+    const sunI = daily.time.findIndex((s, i) => weekday(s) === 0 && satI >= 0 && i > satI);
     return {
       sat: satI >= 0 ? day(satI) : null,
       sun: sunI >= 0 ? day(sunI) : null,
@@ -221,6 +239,40 @@ function weatherWords(w: DayWeather | null): string {
   if (!w) return "forecast not available yet";
   const sky = w.code >= 95 ? "thunderstorms" : w.code >= 71 && w.code <= 86 ? "snow" : w.code >= 51 ? "rain" : w.code >= 45 ? "fog" : w.code >= 2 ? "cloudy" : "sunny";
   return `${sky}, ${w.min}–${w.max}°C, ${w.rain}% chance of rain`;
+}
+
+// ── Opening hours (OpenStreetMap's opening_hours, the common forms) ──
+
+const WEEK = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+function expandDays(spec: string): string[] {
+  const out: string[] = [];
+  for (const part of spec.split(",")) {
+    const [a, b] = part.split("-").map((x) => x.trim());
+    const i = WEEK.indexOf(a), j = b ? WEEK.indexOf(b) : i;
+    if (i < 0 || j < 0) continue;
+    for (let k = i; ; k = (k + 1) % 7) { out.push(WEEK[k]); if (k === j) break; }
+  }
+  return out;
+}
+/** true / false when the hours say whether it's open that day, null when we can't tell. */
+export function openOn(hours: string | null | undefined, day: "Sa" | "Su"): boolean | null {
+  if (!hours) return null;
+  const h = hours.trim();
+  if (/24\/7/.test(h)) return true;
+  if (/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|week|easter|sunrise|sunset)\b/i.test(h)) return null;
+  let known = false, open = false;
+  for (const rule of h.split(";")) {
+    const r = rule.trim();
+    if (!r) continue;
+    const m = r.match(/^((?:Mo|Tu|We|Th|Fr|Sa|Su|PH)(?:\s*[-,]\s*(?:Mo|Tu|We|Th|Fr|Sa|Su|PH))*)\s*(.*)$/);
+    if (!m) {
+      if (/^\d{1,2}:\d{2}/.test(r)) { known = true; open = true; }
+      continue;
+    }
+    known = true;
+    if (expandDays(m[1].replace(/\s/g, "").replace(/,?PH/g, "")).includes(day)) open = !/\b(off|closed)\b/i.test(m[2]);
+  }
+  return known ? open : null;
 }
 
 // ── The program ──────────────────────────────────────────────────────
@@ -249,8 +301,10 @@ async function makePlan(o: Options) {
   const suits = (p: OutingRow) =>
     (o.budget === "low" ? p.fee !== "yes" : true) &&
     (o.who === "family" ? p.for_kids || ["garden", "viewpoint", "nature", "attraction", "gallery", "arts", "mall"].includes(p.kind) : p.kind !== "playground");
+  const chosen = (o.days.length ? o.days : ["sat"]).map((d) => (d === "sat" ? "Sa" : "Su") as "Sa" | "Su");
+  const openSomeDay = (h: string | null) => chosen.some((d) => openOn(h, d) !== false);
   const scored = outings
-    .filter(suits)
+    .filter((p) => suits(p) && openSomeDay(p.opening_hours))
     .map((p) => ({ p, d: distKm(o.lat, o.lng, p.latitude, p.longitude) }))
     .sort((a, b) => a.d - b.d);
   const perKind = new Map<string, number>();
@@ -266,7 +320,7 @@ async function makePlan(o: Options) {
     return { error: stillLoading ? "We're still gathering places near you. Try again in a few minutes." : "We couldn't find enough places near this location for a program." };
   }
   const food = foodRows
-    .filter((f) => f.category === "restaurant" || f.category === "cafe")
+    .filter((f) => (f.category === "restaurant" || f.category === "cafe") && openSomeDay(f.opening_hours))
     .map((f) => ({ f, d: distKm(o.lat, o.lng, f.latitude, f.longitude) }))
     .sort((a, b) => (a.f.halal_status === "likely" ? 1 : 0) - (b.f.halal_status === "likely" ? 1 : 0) || a.d - b.d)
     .slice(0, 25)
@@ -285,6 +339,8 @@ async function makePlan(o: Options) {
   }));
   const people =
     o.who === "single" ? "one adult on their own" : o.who === "couple" ? "a couple, no children" : `a family with ${o.kids.length || "some"} child(ren)${o.kids.length ? ` aged ${o.kids.join(", ")}` : ""}`;
+  const openWord = (h: string | null) =>
+    chosen.map((d) => { const v = openOn(h, d); return `${d === "Sa" ? "Sat" : "Sun"} ${v === true ? "open" : v === false ? "CLOSED" : "hours unknown"}`; }).join(", ");
   const feeWord = (f: string | null) => (f === "no" ? "free entry" : f === "usually_free" ? "usually free" : f === "yes" ? "paid entry" : "entry price unknown");
   const halalWord = (s: string) => (s === "halal" || s === "halal_only" ? "marked halal on the map" : s === "halal_options" ? "has halal options" : "often halal, not confirmed");
 
@@ -308,6 +364,7 @@ async function makePlan(o: Options) {
             "- Fit the day around prayer: add a short step to pray (at a listed mosque m-id if one is near the route, otherwise 'pray at a clean quiet spot or the nearest mosque').",
             "- Keep travel sensible: places of one day should be near each other.",
             "- Respect the weather: rain, snow or cold → mostly indoor places.",
+            "- Never send them to a place on a day it is CLOSED. Places that suit young children when there are kids; avoid places meant for adults only (parliaments, offices).",
             `- Write every text field in ${LANG[o.lang]}. Keep place names as given.`,
           ].join("\n"),
         },
@@ -316,14 +373,15 @@ async function makePlan(o: Options) {
           content: [
             `Who: ${people}. Style: ${o.style === "fancy" ? "a special, more comfortable day out (sit-down halal restaurant, paid attractions are fine)" : "a simple, relaxed day (picnic or quick meal, easy places)"}. Budget: ${o.budget === "low" ? "low: prefer free or usually-free places, food from home or an inexpensive halal place" : "normal"}.`,
             `Days: ${days.map((d) => `${d.key === "sat" ? "Saturday" : "Sunday"} ${d.date} (${weatherWords(d.weather)})`).join("; ")}.`,
-            "Places to visit (id | name | kind | distance from home | entry | indoor?):",
-            ...shortlist.map((s) => `${s.id} | ${s.p.name} | ${s.p.kind} | ${s.d.toFixed(1)} km | ${feeWord(s.p.fee)} | ${s.p.indoor ? "indoor" : "outdoor"}`),
-            "Halal food (id | name | cuisine | distance | halal):",
-            ...(food.length ? food.map((x) => `${x.id} | ${x.f.name} | ${x.f.cuisine ?? "-"} | ${x.d.toFixed(1)} km | ${halalWord(x.f.halal_status)}`) : ["(none found nearby: plan food from home)"]),
+            `Prayer times (approximate): ${days.map((d) => (d.weather?.prayers ? `${d.key === "sat" ? "Saturday" : "Sunday"}: Dhuhr ${d.weather.prayers.dhuhr}, Asr ${d.weather.prayers.asr}, Maghrib ${d.weather.prayers.maghrib}` : "")).filter(Boolean).join("; ") || "unknown"}. Put prayer steps at these times, and end the day by Maghrib (be home or at a mosque).`,
+            "Places to visit (id | name | kind | distance from home | entry | indoor? | open):",
+            ...shortlist.map((s) => `${s.id} | ${s.p.name} | ${s.p.kind} | ${s.d.toFixed(1)} km | ${feeWord(s.p.fee)} | ${s.p.indoor ? "indoor" : "outdoor"} | ${openWord(s.p.opening_hours)}`),
+            "Halal food (id | name | cuisine | distance | halal | open):",
+            ...(food.length ? food.map((x) => `${x.id} | ${x.f.name} | ${x.f.cuisine ?? "-"} | ${x.d.toFixed(1)} km | ${halalWord(x.f.halal_status)} | ${openWord(x.f.opening_hours)}`) : ["(none found nearby: plan food from home)"]),
             "Mosques (id | name | distance):",
             ...(mosques.length ? mosques.map((x) => `${x.id} | ${x.f.name} | ${x.d.toFixed(1)} km`) : ["(none found nearby)"]),
             "",
-            'Answer JSON: {"title": "short name for the weekend", "days": [{"day": "sat"|"sun", "theme": "short", "steps": [{"time": "HH:MM", "place": "p3"|"f2"|"m1"|null, "title": "short", "note": "one or two practical sentences"}]}], "prepare": ["things to pack or do before going, 5 to 9 items"], "money": "one honest sentence on what will cost money (no invented prices)"}',
+            'Answer JSON: {"title": "a short, warm name for the weekend", "days": [{"day": "sat"|"sun", "theme": "a short name for this day, e.g. Museums and a riverside walk", "steps": [{"time": "HH:MM", "place": "p3"|"f2"|"m1"|null, "prayer": "dhuhr"|"asr"|"maghrib"|null, "title": "what you do, e.g. Lunch, Dhuhr prayer, Museum visit (never the name of the place: we show it)", "note": "one or two practical sentences, without the name of the place"}]}], "prepare": ["things to pack or do before going, 5 to 9 items"], "money": "one honest sentence on what will cost money (no invented prices)"}',
             "Each day: 4 to 7 steps from morning to early evening.",
           ].join("\n"),
         },
@@ -332,7 +390,7 @@ async function makePlan(o: Options) {
   });
   if (!res.ok) throw new Error(`AI ${res.status}`);
   const out = JSON.parse(((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "{}") as {
-    title?: string; days?: { day?: string; theme?: string; steps?: { time?: string; place?: string | null; title?: string; note?: string }[] }[]; prepare?: string[]; money?: string;
+    title?: string; days?: { day?: string; theme?: string; steps?: { time?: string; place?: string | null; prayer?: string | null; title?: string; note?: string }[] }[]; prepare?: string[]; money?: string;
   };
 
   // Only real places survive: an id the AI made up drops the step.
@@ -342,10 +400,19 @@ async function makePlan(o: Options) {
   for (const x of mosques) byId.set(x.id, { key: x.f.key, kind: "mosque", name: x.f.name, lat: x.f.latitude, lng: x.f.longitude, address: x.f.address, km: +x.d.toFixed(1) });
   const planDays = days.map((d) => {
     const got = (out.days ?? []).find((x) => x.day === d.key);
+    const dayCode = d.key === "sat" ? "Sa" : "Su";
     const steps = (got?.steps ?? [])
-      .filter((s) => s.title && (!s.place || byId.has(s.place)))
-      .slice(0, 8)
-      .map((s) => ({ time: /^\d{1,2}:\d{2}$/.test(s.time ?? "") ? s.time : null, title: String(s.title).slice(0, 120), note: String(s.note ?? "").slice(0, 400), place: s.place ? byId.get(s.place) : null }));
+      .filter((s) => s.title && (!s.place || (byId.has(s.place) && openOn(byId.get(s.place)!.hours as string | null, dayCode) !== false)))
+      .slice(0, 9)
+      .map((s) => {
+        // Prayer steps get the computed time, not the AI's guess.
+        const prayer = s.prayer === "dhuhr" || s.prayer === "asr" || s.prayer === "maghrib" ? s.prayer : null;
+        const time = prayer && d.weather?.prayers ? d.weather.prayers[prayer] : /^\d{1,2}:\d{2}$/.test(s.time ?? "") ? s.time!.padStart(5, "0") : null;
+        return { time, prayer, title: String(s.title).slice(0, 120), note: String(s.note ?? "").slice(0, 400), place: s.place ? byId.get(s.place) : null };
+      })
+      .map((s, i) => ({ s, i }))
+      .sort((a, b) => (a.s.time && b.s.time ? a.s.time.localeCompare(b.s.time) : 0) || a.i - b.i)
+      .map((x) => x.s);
     return { day: d.key, date: d.date, weather: d.weather, theme: String(got?.theme ?? "").slice(0, 120), steps };
   });
   if (planDays.some((d) => d.steps.filter((s) => s.place).length < 1)) throw new Error("The program came out without real places. Please try again.");

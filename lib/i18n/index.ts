@@ -1,5 +1,6 @@
 import { AR } from '@/lib/i18n/ar';
 import { FR } from '@/lib/i18n/fr';
+import { setUnitTranslator } from '@/supabase/functions/_shared/pantry-units';
 
 /**
  * The website's language, the same system as the app: English is written in
@@ -105,3 +106,6 @@ export function addTranslations(lang: Lang, entries: Record<string, string>) {
   for (const [en, t] of Object.entries(entries)) if (en && t && !(en in FR_AR_BASE[lang])) dict[en] = t;
 }
 const FR_AR_BASE: Record<Lang, Record<string, string>> = { en: {}, fr: FR, ar: AR };
+
+// Units on every amount ("3 pieces", "500 g") follow the chosen language.
+setUnitTranslator((word) => tr(word));

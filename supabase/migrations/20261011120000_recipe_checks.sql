@@ -72,7 +72,7 @@ BEGIN
       IF n ~ '\y(prawns?|shrimps?|crabs?|lobsters?|crayfish|langoustines?|mussels?|clams?|oysters?|scallops?|squid|calamari|octopus|cuttlefish|shrimp paste|belacan|laksa paste|shito|terasi|oyster sauce|dried shrimp)\y' THEN found := array_append(found, 'Shellfish'); END IF;
       IF n ~ '\y(soy|soya|tofu|tempeh|edamame|miso|kecap manis|tamari|teriyaki sauce|soybeans?|hoisin)\y' THEN found := array_append(found, 'Soy'); END IF;
       IF n ~ '\y(mustard)\y' THEN found := array_append(found, 'Mustard'); END IF;
-      IF n ~ '\y(celery|celeriac|stock cubes?|bouillon)\y' THEN found := array_append(found, 'Celery'); END IF;
+      IF n ~ '\y(celery|celeriac|stock cubes?|bouillon|broths?|stocks?)\y' THEN found := array_append(found, 'Celery'); END IF;
   END LOOP;
   RETURN ARRAY(SELECT DISTINCT unnest(found) ORDER BY 1);
 END;

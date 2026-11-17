@@ -225,8 +225,8 @@ export const allModules: LifeModule[] = [
   {
     id: 'weekend',
     name: 'Weekend',
-    description: 'A weekend program near home for you, your couple or your family: real places, halal food, simple or special, on any budget.',
-    status: 'active',
+    description: 'A program for your weekend, at home or out, with every prayer on time: real places, halal food, recipes and a budget.',
+    status: 'planned',
     accent: 'from-brand-mid to-brand-light',
     icon: 'sun',
     href: '/dashboard/weekend',

@@ -2503,4 +2503,6 @@ export const AR: Record<string, string> = {
   "2 hours": "ساعتان",
   "Desserts": "الحلويات",
   "Dessert": "حلوى",
+  "A program for your weekend, at home or out, with every prayer on time: real places, halal food, recipes and a budget.": "برنامج لعطلة نهاية الأسبوع، في البيت أو خارجه، مع كل صلاة في وقتها: أماكن حقيقية وطعام حلال ووصفات وميزانية.",
+  "{0} We're putting the finishing touches on it, in sha Allah.": "{0} نضع اللمسات الأخيرة عليه، إن شاء الله.",
 };

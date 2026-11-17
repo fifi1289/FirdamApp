@@ -69,8 +69,33 @@ function Choices<K extends string>({ value, options, onChange }: { value: K; opt
 }
 const Label = ({ children }: { children: string }) => <T weight="bold" size={14}>{children}</T>;
 
-/** Weekend program: choose what to do, and get a day with every prayer on time — the same as on firdam.com. */
+/** Weekend programs are coming soon (the same as on firdam.com); set this to false to open them. */
+const COMING_SOON = true;
+
 export default function Weekend() {
+  return COMING_SOON ? <WeekendSoon /> : <WeekendProgram />;
+}
+
+function WeekendSoon() {
+  return (
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={{ alignSelf: 'flex-start' }}><HomeButton /></View>
+        <T weight="extrabold" size={30} style={{ letterSpacing: -0.6 }} accessibilityRole="header">{tr('Weekend')}</T>
+        <Card style={{ gap: 10, alignItems: 'center', paddingVertical: 32 }}>
+          <T size={40}>☀️</T>
+          <T weight="bold" size={18} style={{ textAlign: 'center' }}>{tr('{0} is coming soon', [tr('Weekend')])}</T>
+          <T size={14} color={colors.muted} style={{ textAlign: 'center' }}>
+            {tr('{0} We\'re putting the finishing touches on it, in sha Allah.', [tr('A program for your weekend, at home or out, with every prayer on time: real places, halal food, recipes and a budget.')])}
+          </T>
+        </Card>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+/** Weekend program: choose what to do, and get a day with every prayer on time — the same as on firdam.com. */
+function WeekendProgram() {
   const { settings, update } = usePrayerSettings();
   const place = settings?.place ?? null;
   const home = place ? { lat: place.latitude, lng: place.longitude } : null;

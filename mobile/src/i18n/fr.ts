@@ -2444,4 +2444,6 @@ export const FR: Record<string, string> = {
   "2 hours": "2 heures",
   "Desserts": "Desserts",
   "Dessert": "Dessert",
+  "A program for your weekend, at home or out, with every prayer on time: real places, halal food, recipes and a budget.": "Un programme pour votre week-end, à la maison ou dehors, avec chaque prière à l’heure : de vrais lieux, de la nourriture halal, des recettes et un budget.",
+  "{0} We're putting the finishing touches on it, in sha Allah.": "{0} Nous y mettons la dernière main, in cha Allah.",
 };

@@ -3,6 +3,7 @@ import { ArrowRight, Check, Clock, MapPin } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { AppStoreButton, SHOW_APP_STORE } from '@/components/landing/app-store-button';
+import { GooglePlayAnnouncement, GooglePlayButton } from '@/components/landing/google-play-button';
 import { lifeModules, moduleIconMap } from '@/features/modules/module-config';
 import { tr, trn } from '@/lib/i18n';
 
@@ -35,6 +36,8 @@ export function Hero() {
             بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
           </p>
 
+          <GooglePlayAnnouncement />
+
           <h1 className="mt-6 text-balance font-display text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl">
             {tr('One home for your')}{' '}
             <span className="bg-gradient-to-r from-brand-mid to-brand-gold bg-clip-text text-transparent">
@@ -58,7 +61,8 @@ export function Hero() {
             </Button>
           </div>
 
-          {SHOW_APP_STORE && <AppStoreButton className="mt-6" />}
+          <GooglePlayButton className="mt-6" />
+          {SHOW_APP_STORE && <AppStoreButton className="mt-3" />}
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
             {['Free plan', 'Private by design', 'Made for Muslim families'].map((item) => (

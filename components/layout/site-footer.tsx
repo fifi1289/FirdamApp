@@ -8,6 +8,7 @@ const columns = [
   {
     title: 'Product',
     links: [
+      { label: 'Android app (Google Play)', href: SITE.playStoreUrl },
       { label: 'Become a partner', href: '/partners' },
       { label: 'Features', href: '/#features' },
       { label: 'FAQ', href: '/#faq' },

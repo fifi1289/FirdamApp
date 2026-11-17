@@ -10,7 +10,7 @@ import { tr } from '@/lib/i18n';
  */
 export const SHOW_APP_STORE = false;
 
-/** "Download on the App Store" for the Firdam iPhone app. Android follows when Google Play approves it. */
+/** "Download on the App Store" for the Firdam iPhone app. */
 export function AppStoreButton({ className = '' }: { className?: string }) {
   return (
     <div className={`flex flex-col items-center gap-1.5 ${className}`}>
@@ -26,7 +26,6 @@ export function AppStoreButton({ className = '' }: { className?: string }) {
           <span className="block text-base font-semibold">App Store</span>
         </span>
       </a>
-      <span className="text-xs text-muted-foreground">{tr('Android app coming soon')}</span>
     </div>
   );
 }

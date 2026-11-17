@@ -4263,4 +4263,8 @@ export const AR: Record<string, string> = {
   "Could not sign in with Google. Please try again.": "تعذّر الدخول بحساب Google. حاول مرة أخرى.",
   "Google sign-in could not load. Please use your email and password.": "تعذّر تحميل الدخول بحساب Google. استخدم بريدك الإلكتروني وكلمة المرور.",
   "This link has expired or was already used. Sign in, or ask for a new link.": "انتهت صلاحية هذا الرابط أو سبق استخدامه. سجّل الدخول، أو اطلب رابطًا جديدًا.",
+  "Get it on": "احصل عليه من",
+  "Firdam is now on Google Play": "فردام متوفر الآن على Google Play",
+  "Android app (Google Play)": "تطبيق أندرويد (Google Play)",
+  "A program for your weekend, at home or out, with every prayer on time: real places, halal food, recipes and a budget.": "برنامج لعطلة نهاية الأسبوع، في البيت أو خارجه، مع كل صلاة في وقتها: أماكن حقيقية وطعام حلال ووصفات وميزانية.",
 };

@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { AppStoreButton, SHOW_APP_STORE } from '@/components/landing/app-store-button';
+import { GooglePlayButton } from '@/components/landing/google-play-button';
 import { tr } from '@/lib/i18n';
 
 export function CTA() {
@@ -28,7 +29,8 @@ export function CTA() {
               <Link href="/dashboard">{tr('Open the app')}</Link>
             </Button>
           </div>
-          {SHOW_APP_STORE && <AppStoreButton className="mt-6" />}
+          <GooglePlayButton className="mt-6" />
+          {SHOW_APP_STORE && <AppStoreButton className="mt-3" />}
         </div>
       </div>
     </section>

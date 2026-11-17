@@ -155,7 +155,8 @@ export function ReceiptScanDialog({ open, onOpenChange }: { open: boolean; onOpe
           type: 'expense',
           amount: result.total,
           category_id: cat?.id ?? null,
-          description: `Groceries${result.store ? ` — ${result.store}` : ''}`,
+          // The category says Groceries (translated); the description is just the store.
+          description: result.store ?? null,
           occurred_on: result.date ?? todayISO(),
         });
       }

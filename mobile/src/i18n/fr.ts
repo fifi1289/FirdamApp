@@ -2446,4 +2446,6 @@ export const FR: Record<string, string> = {
   "Dessert": "Dessert",
   "A program for your weekend, at home or out, with every prayer on time: real places, halal food, recipes and a budget.": "Un programme pour votre week-end, à la maison ou dehors, avec chaque prière à l’heure : de vrais lieux, de la nourriture halal, des recettes et un budget.",
   "{0} We're putting the finishing touches on it, in sha Allah.": "{0} Nous y mettons la dernière main, in cha Allah.",
+  "Add, and record {0} in Finances": "Ajouter, et noter {0} dans les finances",
+  "Add to pantry only": "Ajouter au garde-manger seulement",
 };

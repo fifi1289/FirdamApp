@@ -135,6 +135,10 @@ export function PantryView() {
       const res = await callFunction<{
         items: { name: string; quantity: number; unit: string; category: string; staple: boolean }[];
         skipped?: { name: string }[];
+        store?: string | null;
+        date?: string | null;
+        total?: number | null;
+        currency?: string | null;
       }>('receipt-scan', undefined, { image: `data:${asset.mimeType ?? 'image/jpeg'};base64,${asset.base64}` });
       const items = (res.items ?? []).filter((i) => !isNonFood(i.name));
       if (!items.length) return showAlert(tr('No food found'), tr('Try again with the whole receipt flat and in good light.'));
@@ -142,9 +146,16 @@ export function PantryView() {
       const skipped = res.skipped?.length ? `\n\n${tr('Left out (not halal): {0}', [res.skipped.map((x) => x.name).join(', ')])}` : '';
       showAlert(tr('Add {0} item{1} to your pantry?', [items.length, items.length === 1 ? '' : 's']), list + skipped, [
         { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Add',
-          onPress: async () => {
+        ...(res.total && res.total > 0
+          ? [{
+              // The receipt's total also goes into Finances as grocery spending (as on firdam.com).
+              text: tr('Add, and record {0} in Finances', [`${res.total.toFixed(2)}${res.currency ? ` ${res.currency}` : ''}`]),
+              onPress: () => addItems(true),
+            }]
+          : []),
+        { text: res.total && res.total > 0 ? tr('Add to pantry only') : 'Add', onPress: () => addItems(false) },
+      ]);
+      const addItems = async (recordSpend: boolean) => {
             const { error } = await supabase.from('pantry_items').insert(
               items.map((i) => ({
                 name: i.name,
@@ -157,10 +168,22 @@ export function PantryView() {
               })),
             );
             if (error) showAlert(tr('Could not add'), error.message);
+            if (!error && recordSpend && res.total) {
+              const { data: cats } = await supabase.from('budget_categories').select('id, name');
+              const cat = (cats ?? []).find((c: { name: string }) => /grocer|food|shopping/i.test(c.name)) as { id: string } | undefined;
+              const today = new Date();
+              const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+              const spend = await supabase.from('budget_transactions').insert({
+                type: 'expense',
+                amount: Math.round(res.total * 100) / 100,
+                category_id: cat?.id ?? null,
+                description: res.store ?? null,
+                occurred_on: res.date && /^\d{4}-\d{2}-\d{2}$/.test(res.date) ? res.date : iso,
+              });
+              if (spend.error) showAlert(tr('Could not save'), spend.error.message);
+            }
             await refreshKitchen();
-          },
-        },
-      ]);
+      };
     } catch (e) {
       showAlert(tr('Could not read the receipt'), e instanceof Error ? e.message : tr('Please try again.'));
     } finally {

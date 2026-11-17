@@ -4179,4 +4179,7 @@ export const FR: Record<string, string> = {
   "Could not sign in with Google. Please try again.": "Connexion avec Google impossible. Veuillez réessayer.",
   "Google sign-in could not load. Please use your email and password.": "La connexion Google n’a pas pu se charger. Utilisez votre e-mail et votre mot de passe.",
   "This link has expired or was already used. Sign in, or ask for a new link.": "Ce lien a expiré ou a déjà été utilisé. Connectez-vous, ou demandez un nouveau lien.",
+  "Get it on": "Disponible sur",
+  "Firdam is now on Google Play": "Firdam est maintenant sur Google Play",
+  "Android app (Google Play)": "Application Android (Google Play)",
 };

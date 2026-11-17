@@ -19,6 +19,8 @@ export const SITE = {
   /** The iPhone app (App Store ID 6821664652). */
   appStoreId: '6821664652',
   appStoreUrl: 'https://apps.apple.com/app/id6821664652',
+  /** The Android app on Google Play. */
+  playStoreUrl: 'https://play.google.com/store/apps/details?id=com.firdam.app',
   supportEmail: 'support@firdam.com',
   privacyEmail: 'privacy@firdam.com',
   /** Last time the Privacy Policy or Terms changed (shown on the pages). */

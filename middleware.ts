@@ -7,6 +7,8 @@ const PUBLIC_PATHS = ['/partners', '/privacy', '/terms', '/security', '/support'
 function isPublicPath(pathname: string): boolean {
   return (
     pathname === '/' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
     PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
   );
 }

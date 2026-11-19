@@ -2448,4 +2448,5 @@ export const FR: Record<string, string> = {
   "{0} We're putting the finishing touches on it, in sha Allah.": "{0} Nous y mettons la dernière main, in cha Allah.",
   "Add, and record {0} in Finances": "Ajouter, et noter {0} dans les finances",
   "Add to pantry only": "Ajouter au garde-manger seulement",
+  "Coming soon": "Bientôt",
 };

@@ -2507,4 +2507,5 @@ export const AR: Record<string, string> = {
   "{0} We're putting the finishing touches on it, in sha Allah.": "{0} نضع اللمسات الأخيرة عليه، إن شاء الله.",
   "Add, and record {0} in Finances": "إضافة، وتسجيل {0} في المالية",
   "Add to pantry only": "إضافة إلى المخزن فقط",
+  "Coming soon": "قريبًا",
 };

@@ -77,7 +77,7 @@ export default function Features() {
                     accessibilityRole={editing ? 'checkbox' : 'button'}
                     accessibilityState={editing ? { checked: on } : undefined}
                     accessibilityLabel={tr(f.label)}
-                    onPress={() => (editing ? toggle(f.id) : router.push(f.app as Href))}
+                    onPress={() => (editing && !f.soon ? toggle(f.id) : !editing ? router.push(f.app as Href) : undefined)}
                     style={({ pressed }) => [styles.tile, editing && on && styles.tileOn, pressed && { opacity: 0.85 }]}
                   >
                     <View style={[styles.icon, editing && on && { backgroundColor: colors.walnut }]}>
@@ -86,12 +86,17 @@ export default function Features() {
                     <T size={13} weight="bold" numberOfLines={2} style={{ textAlign: 'center' }}>
                       {tr(f.label)}
                     </T>
+                    {f.soon ? (
+                      <T size={11} weight="bold" color={colors.muted} style={{ textAlign: 'center', marginTop: -4 }}>
+                        {tr('Coming soon')}
+                      </T>
+                    ) : null}
                     {editing && fixed ? (
                       <T size={11} color={colors.muted} style={{ textAlign: 'center', marginTop: -4 }}>
                         {tr('Always in the middle')}
                       </T>
                     ) : null}
-                    {editing ? (
+                    {editing && !f.soon ? (
                       <View style={[styles.check, on && styles.checkOn]}>{on ? <T size={11} weight="bold" color={colors.linen}>✓</T> : null}</View>
                     ) : null}
                   </Pressable>

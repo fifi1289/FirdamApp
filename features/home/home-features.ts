@@ -27,7 +27,8 @@ export type HomeFeatureId =
 
 export type HomeFeatureGroup = 'Faith' | 'Kitchen' | 'Family' | 'Everyday';
 
-export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app: string; group: HomeFeatureGroup }[] = [
+/** `soon`: shown as "Coming soon", can't be a favourite. */
+export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app: string; group: HomeFeatureGroup; soon?: boolean }[] = [
   { id: 'prayer', label: 'Prayer', web: '/dashboard/prayer-times', app: '/prayer', group: 'Faith' },
   { id: 'qibla', label: 'Qibla', web: '/dashboard/prayer-times#qibla', app: '/qibla', group: 'Faith' },
   { id: 'quran', label: 'Quran & Duas', web: '/dashboard/quran', app: '/quran', group: 'Faith' },
@@ -44,7 +45,7 @@ export const HOME_FEATURES: { id: HomeFeatureId; label: string; web: string; app
   { id: 'halal', label: 'Halal places', web: '/dashboard/halal-places', app: '/halal', group: 'Everyday' },
   { id: 'finance', label: 'Finance & zakat', web: '/dashboard/finance', app: '/finance', group: 'Everyday' },
   { id: 'travel', label: 'Travel', web: '/dashboard/travel', app: '/travel', group: 'Everyday' },
-  { id: 'weekend', label: 'Weekend', web: '/dashboard/weekend', app: '/weekend', group: 'Family' },
+  { id: 'weekend', label: 'Weekend', web: '/dashboard/weekend', app: '/weekend', group: 'Family', soon: true },
   { id: 'services', label: 'Services', web: '/dashboard/services', app: '/services', group: 'Everyday' },
 ];
 
@@ -59,7 +60,7 @@ export const DEFAULT_FAVOURITES: HomeFeatureId[] = ['quran', 'qibla', 'kitchen',
 /** Keeps only known features, without repeats, at most MAX_FAVOURITES. Prayer is always in the middle of the ring, so it is never a favourite. */
 export function cleanFavourites(ids: unknown): HomeFeatureId[] {
   if (!Array.isArray(ids)) return [...DEFAULT_FAVOURITES];
-  const known = new Set(HOME_FEATURES.map((f) => f.id));
+  const known = new Set(HOME_FEATURES.filter((f) => !f.soon).map((f) => f.id));
   const out: HomeFeatureId[] = [];
   for (const id of ids) {
     if (typeof id === 'string' && id !== 'prayer' && known.has(id as HomeFeatureId) && !out.includes(id as HomeFeatureId)) out.push(id as HomeFeatureId);

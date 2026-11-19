@@ -199,7 +199,7 @@ function ComingSoonCard() {
 /** Everything not on the ring, one tap away: a strip under the ring, then All features. */
 function MoreFeatures() {
   const { favourites } = useFavourites();
-  const rest = HOME_FEATURES.filter((f) => !favourites.includes(f.id) && f.id !== 'prayer');
+  const rest = HOME_FEATURES.filter((f) => !favourites.includes(f.id) && f.id !== 'prayer' && !f.soon);
   return (
     <View style={{ gap: 8 }}>
       <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>

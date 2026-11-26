@@ -61,8 +61,10 @@ export function Hero() {
             </Button>
           </div>
 
-          <GooglePlayButton className="mt-6" />
-          {SHOW_APP_STORE && <AppStoreButton className="mt-3" />}
+          <div className="mt-6 flex flex-wrap items-start justify-center gap-3">
+            {SHOW_APP_STORE && <AppStoreButton />}
+            <GooglePlayButton />
+          </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
             {['Free plan', 'Private by design', 'Made for Muslim families'].map((item) => (

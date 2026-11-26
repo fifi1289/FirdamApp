@@ -29,6 +29,7 @@ export const metadata: Metadata = {
   description:
     'Firdam is the digital home for Muslim families: halal places near you, halal meal planning, prayer times, Ramadan, Quran and duas, family calendar, groceries and budget — in one calm, trusted app.',
   applicationName: 'Firdam',
+  itunes: { appId: SITE.appStoreId },
   // Firdam translates itself (English, French, Arabic): stop browsers from re-translating pages.
   other: { google: 'notranslate' },
   keywords: [

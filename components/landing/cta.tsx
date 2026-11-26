@@ -29,8 +29,10 @@ export function CTA() {
               <Link href="/dashboard">{tr('Open the app')}</Link>
             </Button>
           </div>
-          <GooglePlayButton className="mt-6" />
-          {SHOW_APP_STORE && <AppStoreButton className="mt-3" />}
+          <div className="mt-6 flex flex-wrap items-start justify-center gap-3">
+            {SHOW_APP_STORE && <AppStoreButton />}
+            <GooglePlayButton />
+          </div>
         </div>
       </div>
     </section>

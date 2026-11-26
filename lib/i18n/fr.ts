@@ -4182,5 +4182,6 @@ export const FR: Record<string, string> = {
   "Get it on": "Disponible sur",
   "Firdam is now on Google Play": "Firdam est maintenant sur Google Play",
   "Android app (Google Play)": "Application Android (Google Play)",
+  "iPhone app (App Store)": "Application iPhone (App Store)",
   "A program for your weekend, at home or out, with every prayer on time: real places, halal food, recipes and a budget.": "Un programme pour votre week-end, à la maison ou dehors, avec chaque prière à l’heure : de vrais lieux, de la nourriture halal, des recettes et un budget.",
 };

@@ -140,7 +140,7 @@ function DuaCard({ dua, translit, favourite, onFavourite, featured }: { dua: Dua
             {tr(dua.title)}
           </T>
           <T size={12.5} color={colors.muted}>
-            {dua.category}
+            {tr(dua.category)}
             {dua.repeat ? ` · ${tr(dua.repeat)}` : ''}
           </T>
         </View>

@@ -24,9 +24,12 @@ export const EVENT_KIND_LABELS: Record<CalendarEventKind, string> = {
   other: 'Other',
 };
 
-/** Kinds a family can pick for its own events (Islamic dates are added automatically). */
+/**
+ * Kinds a family can pick for its own events (Islamic dates are added automatically).
+ * No birthdays or anniversaries to pick: they aren't Islamic occasions. Old events keep their kind.
+ */
 export const EDITABLE_KINDS: CalendarEventKind[] = [
-  'eid', 'aqiqah', 'nikah', 'walima', 'anniversary', 'school', 'appointment', 'gathering', 'other',
+  'eid', 'aqiqah', 'nikah', 'walima', 'school', 'appointment', 'gathering', 'other',
 ];
 
 /** Kinds that usually come back every year. */

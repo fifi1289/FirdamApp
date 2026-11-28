@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { FREE_LAUNCH } from '@/lib/plan/launch';
+import { SITE } from '@/lib/site';
 
 const PUBLIC_PATHS = ['/partners', '/privacy', '/terms', '/security', '/support', '/auth', '/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email'];
 
@@ -9,11 +10,38 @@ function isPublicPath(pathname: string): boolean {
     pathname === '/' ||
     pathname === '/robots.txt' ||
     pathname === '/sitemap.xml' ||
+    pathname === '/get' ||
     PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
   );
 }
 
+/**
+ * firdam.com/get: one link for ads and posts. A phone goes straight to its store (iPhone → App Store,
+ * Android → Google Play, with the ad's utm_* passed on as the Play install referrer); anything else
+ * lands on the home page.
+ */
+function storeRedirect(request: NextRequest): NextResponse {
+  const ua = request.headers.get('user-agent') ?? '';
+  const utm = new URLSearchParams();
+  request.nextUrl.searchParams.forEach((v, k) => { if (k.startsWith('utm_')) utm.set(k, v); });
+  let target: string;
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    target = SITE.appStoreUrl;
+  } else if (/Android/i.test(ua)) {
+    target = SITE.playStoreUrl + (utm.size ? `&referrer=${encodeURIComponent(utm.toString())}` : '');
+  } else {
+    const home = request.nextUrl.clone();
+    home.pathname = '/';
+    return NextResponse.redirect(home, 302);
+  }
+  const res = NextResponse.redirect(target, 302);
+  res.headers.set('Cache-Control', 'no-store');
+  return res;
+}
+
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === '/get') return storeRedirect(request);
+
   // Nothing is sold yet: send the plans page straight home (the page's own
   // redirect took ~30 s on Cloudflare).
   if (FREE_LAUNCH && request.nextUrl.pathname.startsWith('/dashboard/upgrade')) {
